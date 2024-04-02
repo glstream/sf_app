@@ -1107,14 +1107,14 @@ const handleProjChange = async (projectionSource: any) => {
   console.log(guid)
   try {
     const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get('http://20.242.213.253:3100/contender_league_summary', {
+      axios.get('https://superflex-api.azurewebsites.net/contender_league_summary', {
         params: {
           league_id: leagueId,
           projection_source: projectionSource,
           guid: guid
         }
       }),
-      axios.get('http://20.242.213.253:3100/contender_league_detail', {
+      axios.get('https://superflex-api.azurewebsites.net/contender_league_detail', {
         params: {
           league_id: leagueId,
           projection_source: projectionSource,
@@ -1620,7 +1620,7 @@ const insertLeagueDetials = async (values: any) => {
   console.log(leagueYear)
 
   try {
-    const response = await axios.post('http://20.242.213.253:3100/roster', {
+    const response = await axios.post('https://superflex-api.azurewebsites.net/roster', {
       league_id: leagueInfo.leagueId,
       user_id: leagueInfo.userId,
       guid: leagueInfo.guid,
@@ -1673,7 +1673,7 @@ async function fetchSummaryData(
 ) {
   summaryIsLoading.value = true
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/league`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -1727,7 +1727,7 @@ async function fetchBaData(
 ) {
   // detailIsLoading.value = true
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/best_avialable`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/best_avialable`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -1757,7 +1757,7 @@ async function fetchTrades(
   try {
     console.log('Pulling trades')
     const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get('http://20.242.213.253:3100/trades_summary', {
+      axios.get('https://superflex-api.azurewebsites.net/trades_summary', {
         params: {
           league_id: leagueId,
           platform: platform,
@@ -1766,7 +1766,7 @@ async function fetchTrades(
           rank_type: rankType
         }
       }),
-      axios.get('http://20.242.213.253:3100/trades_detail', {
+      axios.get('https://superflex-api.azurewebsites.net/trades_detail', {
         params: {
           league_id: leagueId,
           platform: platform,
@@ -1934,7 +1934,7 @@ async function fetchDetailData(
   // empty detail data
   detailData.value = []
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/league_detail`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/league_detail`, {
       params: {
         league_id: leagueId,
         platform: platform,

@@ -122,7 +122,7 @@ const onFinish = async (values: any) => {
     console.log('User GUID:', userGuid)
 
     // Make a POST request to your backend server
-    await axios.post('http://20.242.213.253:3100/user_details', {
+    await axios.post('https://superflex-api.azurewebsites.net/user_details', {
       league_year: formState.leagueYear,
       user_name: formState.userName,
       guid: userGuid

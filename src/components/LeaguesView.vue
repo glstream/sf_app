@@ -186,7 +186,7 @@ onMounted(() => {
 async function fetchData(leagueYear: string, userName: string, guid: string) {
   isLoading.value = true
   try {
-    const response = await axios.get('http://20.242.213.253:3100/leagues', {
+    const response = await axios.get('https://superflex-api.azurewebsites.net/leagues', {
       params: {
         league_year: leagueYear,
         user_name: userName,

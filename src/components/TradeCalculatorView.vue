@@ -646,7 +646,7 @@ async function fetchRanks(platform: string, rankType: string) {
   ranksData.value = []
 
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/trade_calculator/`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/trade_calculator/`, {
       params: {
         platform: platform,
         rank_type: rankType

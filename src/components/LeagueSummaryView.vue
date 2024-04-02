@@ -441,7 +441,7 @@ const insertLeagueDetials = async (values: any) => {
   console.log(guid)
   console.log(leagueYear)
   try {
-    const response = await axios.post('http://20.242.213.253:3100/roster', {
+    const response = await axios.post('https://superflex-api.azurewebsites.net/roster', {
       league_id: leagueId,
       user_id: userId,
       guid: guid,
@@ -491,7 +491,7 @@ const fetchTabData = async (tabKey) => {
     // Use tabData.apiUrl or any other metadata for your API call
     // Example: await axios.get(tabData.apiUrl);
     try {
-      const response = await axios.get(`http://20.242.213.253:3100/league`, {
+      const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
@@ -520,7 +520,7 @@ const contenderFetchTabData = async (tabKey) => {
     // Use tabData.apiUrl or any other metadata for your API call
     // Example: await axios.get(tabData.apiUrl);
     try {
-      const response = await axios.get(`http://20.242.213.253:3100/league`, {
+      const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
@@ -663,7 +663,7 @@ async function fetchLeagueData(
   isLoading.value = true
   console.log('starting league fetch')
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/league`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -693,7 +693,7 @@ async function contenderFetchLeagueData(
   contenderIsLoading.value = true
   console.log('starting contender league fetch')
   try {
-    const response = await axios.get(`http://20.242.213.253:3100/league`, {
+    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
       params: {
         league_id: leagueId,
         platform: platform,
