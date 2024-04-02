@@ -1934,7 +1934,7 @@ async function fetchDetailData(
   // empty detail data
   detailData.value = []
   try {
-    const response = await axios.get(`https://superflex-api.azurewebsites.net/league_detail`, {
+    const response = await axios.get('https://superflex-api.azurewebsites.net/league_detail', {
       params: {
         league_id: leagueId,
         platform: platform,
