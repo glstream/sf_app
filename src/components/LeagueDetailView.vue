@@ -1643,7 +1643,7 @@ const insertLeagueDetials = async (values: any) => {
     )
     fetchDetailData(
       leagueInfo.leagueId,
-      leagueInfo.leagueNameapiSource,
+      leagueInfo.apiSource,
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType
