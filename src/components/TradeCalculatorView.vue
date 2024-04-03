@@ -618,7 +618,7 @@ function findClosestPlayers(
   )
 
   // Then, get the five closest players
-  const closestPlayers = sortedPlayers.slice(0, 4)
+  const closestPlayers = sortedPlayers.slice(0, 10)
 
   return closestPlayers
 }
@@ -995,5 +995,12 @@ function getCardPositionColor(position: string): string {
   border-radius: 5px;
   background-color: rgb(164, 159, 159); /* Light gray background */
   color: white; /* White text color */
+}
+.nearest-players {
+  max-height: 400px; /* Adjust this value based on your needs */
+  overflow-y: auto; /* Enables vertical scrolling */
+  padding: 20px;
+  width: 100%;
+  /* Other styles like margin, background, etc., can be added here */
 }
 </style>
