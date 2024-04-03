@@ -6,6 +6,7 @@
         <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
         <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
       </a-breadcrumb>
+
       <div class="trade-calculator" style="background: #f5f5f5">
         <a-row align="left" justify="space-between">
           <a-col flex="300px">
@@ -45,7 +46,7 @@
         <a-row :gutter="48" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3>Team A gets...</h3>
+              <h3 class="team-heading">Team A gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value1"
@@ -55,6 +56,9 @@
                   placeholder="Search for player"
                   @select="selectPlayer1"
                   @search="searchPlayer1"
+                  @focus="handleFocus"
+                  @blur="handleBlur"
+                  class="custom-auto-complete"
                 />
               </div>
               <div
@@ -66,7 +70,14 @@
                   :text="player._position"
                   :color="getPositionColor(player._position)"
                 >
-                  <a-card size="small" :bordered="true">
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                  >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
                       <span class="player-value">{{
@@ -83,7 +94,7 @@
                 </a-badge-ribbon>
               </div>
               <div class="total-assets-container">
-                <div class="total-pieces">{{ selectedPlayers1.length }} Total Assets</div>
+                <div class="total-pieces">{{ selectedPlayers1.length }} Pieces</div>
                 <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
               </div>
             </div>
@@ -91,7 +102,7 @@
           <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3>Team B gets...</h3>
+              <h3 class="team-heading">Team B gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value2"
@@ -112,7 +123,14 @@
                   :text="player._position"
                   :color="getPositionColor(player._position)"
                 >
-                  <a-card size="small" :bordered="true">
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                  >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
                       <span class="player-value">{{
@@ -128,7 +146,7 @@
                 </a-badge-ribbon>
               </div>
               <div class="total-assets-container">
-                <div class="total-value">{{ selectedPlayers2.length }} Total Assets</div>
+                <div class="total-value">{{ selectedPlayers2.length }} Pieces</div>
                 <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
               </div>
             </div>
@@ -155,7 +173,7 @@
           <a-collapse :bordered="false" style="background: rgb(255, 255, 255)"
             ><a-collapse-panel key="1" header="Options" :style="customStyle">
               <a-row type="flex" justify="left">
-                <a-col :span="8">
+                <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
                   <div class="slider-label">Acceptable Variance</div>
                   <a-slider max="50" v-model:value="percentThreshold" class="flex-item slider" />
                   <span> {{ percentThreshold }}%</span>
@@ -164,7 +182,10 @@
             </a-collapse-panel>
           </a-collapse>
           <div
-            v-if="percentageDifference > percentThreshold && closestBalancingPlayers.length > 0"
+            v-if="
+              tradeAnalysis.percentageDifference > percentThreshold &&
+              closestBalancingPlayers.length > 0
+            "
             class="nearest-players"
           >
             <div>
@@ -174,22 +195,37 @@
                 :key="player.player_full_name"
                 class="player-card"
               >
-                <a-card size="small" :bordered="true">
-                  <div class="card-content">
-                    <span>{{ player.player_full_name }}</span>
-                    <span class="player-value">{{
-                      state.checked1 ? player.sf_value : player.one_qb_value
-                    }}</span>
-                    <PlusCircleTwoTone class="close-icon" @click.stop="addPlayerToTrade(player)" />
-                  </div>
-                </a-card>
+                <a-badge-ribbon
+                  :text="player._position"
+                  :color="getPositionColor(player._position)"
+                >
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                  >
+                    <div class="card-content">
+                      <span>{{ player.player_full_name }}</span>
+                      <span class="player-value">{{
+                        state.checked1 ? player.sf_value : player.one_qb_value
+                      }}</span>
+                      <PlusCircleTwoTone
+                        class="close-icon"
+                        @click.stop="addPlayerToTrade(player)"
+                      />
+                    </div>
+                  </a-card>
+                </a-badge-ribbon>
               </div>
             </div>
           </div>
         </div>
 
         <div class="actions">
-          <a-space :size="48">
+          <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
             <a-button type="primary">Copy Trade URL</a-button>
             <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
           </a-space>
@@ -226,7 +262,7 @@ import Slider from 'primevue/slider'
 
 import 'ant-design-vue/dist/reset.css'
 
-const percentThreshold = ref<number>(10)
+const percentThreshold = ref<number>(5)
 
 const value1 = ref('')
 const value2 = ref('')
@@ -240,6 +276,7 @@ const ranksData = ref([{}])
 
 const platform = ref('sf')
 const rankType = ref('dynasty')
+const shouldFocus = ref(false)
 
 // Sourec image imports
 import sfLogo from '@/assets/sourceLogos/sf.png'
@@ -348,6 +385,17 @@ const removePlayer2 = (index) => {
   selectedPlayers2.value.splice(index, 1) // Remove the player at the specified index
 }
 
+const handleFocus = () => {
+  if (!shouldFocus.value) {
+    // Manually blur the input if we don't want to focus
+    // Note: You might need a reference to the actual DOM element to call blur()
+  }
+}
+
+const handleBlur = () => {
+  shouldFocus.value = false // Reset the focus flag on blur
+}
+
 const clearCalculator = () => {
   selectedPlayers1.value = []
   selectedPlayers2.value = []
@@ -392,8 +440,8 @@ const totalValueSideB = computed(() => {
   return calculateTradeValue(playerValues) // You can adjust k if needed
 })
 
-const k_value = 1.05
-const bpv_value = 50
+const k_value = 1.01
+const bpv_value = 25
 
 function calculateTradeValue(
   playerValues: number[],
@@ -430,26 +478,27 @@ function calculateTradeValue(
   return tradeValue
 }
 
-const valueDifference = computed(() => {
-  // Use Math.abs for absolute difference or remove it to retain the sign
-  return totalValueSideA.value - totalValueSideB.value
-})
-
-const percentageDifference = computed(() => {
-  const valueA = totalValueSideA.value
-  const valueB = totalValueSideB.value
+const tradeAnalysis = computed(() => {
+  const valueA = findTeamValue(totalValueSideA.value, k_value, bpv_value)
+  const valueB = findTeamValue(totalValueSideB.value, k_value, bpv_value)
   const averageValue = (valueA + valueB) / 2
 
   if (averageValue === 0) {
-    // Prevent division by zero if both sides have a value of 0
-    return 0
+    return {
+      percentageDifference: 0,
+      valueA: valueA,
+      valueB: valueB
+    }
   }
 
   const difference = Math.abs(valueA - valueB)
   const percentageDiff = (difference / averageValue) * 100
 
-  // You can use toFixed() to limit the number of decimal places, if desired
-  return percentageDiff.toFixed(2) // This will keep two decimal places
+  return {
+    percentageDifference: parseFloat(percentageDiff.toFixed(2)), // Ensure it's a number with two decimal places
+    valueA: valueA,
+    valueB: valueB
+  }
 })
 
 function findBalancingPlayerValue(
@@ -503,7 +552,6 @@ function findBalancingPlayerValue(
   // Return the estimated player value that would balance the trade
   return estimateValue
 }
-
 const balancingPlayerValue = computed(() => {
   console.log('starting bvp')
   const valueA = totalValueSideA.value
@@ -515,6 +563,36 @@ const balancingPlayerValue = computed(() => {
 
   return findBalancingPlayerValue(valueA, valueB, k, BPV)
 })
+
+function findTeamValue(totalValueSide: number, k: number, BPV: number): number {
+  // Assuming the function's goal is to find a value adjustment for a single side
+
+  // Define the target value or some logic to determine what the adjusted value should be
+  const targetValue = totalValueSide // This might need more logic based on your requirements
+
+  let estimateValue = totalValueSide // Start with the current total value
+  let estimatedTradeValue = 0
+  let iterations = 0
+  let adjustment = estimateValue / 2 // Initial adjustment
+
+  while (iterations < 100) {
+    estimatedTradeValue = calculateTradeValue([estimateValue], k, BPV)
+    const currentDifference = Math.abs(estimatedTradeValue - targetValue)
+
+    if (currentDifference <= 0.01) {
+      break
+    } else if (estimatedTradeValue < targetValue) {
+      estimateValue += adjustment
+    } else {
+      estimateValue -= adjustment
+    }
+
+    adjustment /= 2
+    iterations++
+  }
+
+  return estimateValue
+}
 
 function findClosestPlayers(
   balancingValue: number,
@@ -720,20 +798,33 @@ function getPositionColor(position: string): string {
     return 'rgb(67, 170, 139)'
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
-  } else if (position === 'PICK') {
-    return 'rgb(70, 70, 70, .6)'
-  } else if (position === 'Pick') {
-    return 'rgb(70, 70, 70, .6)'
+  } else if (position.toUpperCase() === 'PICK') {
+    return 'rgb(70, 70, 70)'
   } else {
     return 'rgb(0, 0, 0, .00)'
+  }
+}
+
+function getCardPositionColor(position: string): string {
+  if (position === 'QB') {
+    return 'rgb(39, 125, 161, .15)'
+  } else if (position === 'RB') {
+    return 'rgb(144, 190, 109, .15)'
+  } else if (position === 'WR') {
+    return 'rgb(67, 170, 139, .15)'
+  } else if (position === 'TE') {
+    return 'rgb(249, 132, 74, .15)'
+  } else if (position.toUpperCase() === 'PICK') {
+    return 'rgb(70, 70, 70, .15)'
+  } else {
+    return 'rgb(0, 0, 0, .15)'
   }
 }
 </script>
 
 <style scoped>
 .trade-calculator {
-  padding: 24px;
-  background: #fff;
+  padding: 42px;
   border-radius: 2px;
 }
 
@@ -834,6 +925,9 @@ function getPositionColor(position: string): string {
   margin: 0 auto; /* Centers the div */
   padding: 20px; /* Optional: Adds some padding inside the div */
 }
+.custom-auto-complete .ant-select-selector {
+  height: auto; /* Default height, adjust as needed */
+}
 
 @media (max-width: 768px) {
   .nearest-players {
@@ -846,6 +940,16 @@ function getPositionColor(position: string): string {
   .mobile-divider {
     display: block !important; /* Override inline styles to show the divider */
   }
+  .custom-auto-complete .ant-select-selector {
+    height: 1500px !important; /* Using !important to ensure the rule takes precedence */
+  }
+  .trade-calculator {
+    padding-left: 15px;
+    width: 350px; /* Set your desired width for mobile devices */
+  }
+  .team-heading {
+    text-align: center;
+  }
 }
 
 .status-message {
@@ -857,8 +961,8 @@ function getPositionColor(position: string): string {
 
 .fair-trade {
   background-color: #f6ffedc1; /* A green tint */
-  color: #43aa8b; /* A green color */
-  border: 1px solid #43aa8b;
+  color: #90be6d; /* A green color */
+  border: 1px solid #90be6d;
 }
 
 .favored-trade {
@@ -883,5 +987,13 @@ function getPositionColor(position: string): string {
   .responsive-padding {
     padding: 0 300px; /* Larger padding for larger screens */
   }
+}
+
+.team-heading {
+  padding: 2px;
+  border: 1px solid rgba(87, 117, 144, 0.5);
+  border-radius: 5px;
+  background-color: rgb(164, 159, 159); /* Light gray background */
+  color: white; /* White text color */
 }
 </style>

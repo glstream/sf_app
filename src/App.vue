@@ -1,6 +1,3 @@
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</meta>
-
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
@@ -8,7 +5,15 @@ import AppHeader from './components/AppHeader.vue'
 
 <template>
   <RouterView />
+  <a-config-provider
+    :theme="{
+      token: {
+        colorPrimary: '#277DA1'
+      }
+    }"
+  >
+    <a-button />
+  </a-config-provider>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

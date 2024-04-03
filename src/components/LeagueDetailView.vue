@@ -1548,7 +1548,7 @@ function getPositionColor(position: string): string {
     return 'rgb(67, 170, 139)'
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
-  } else if (position === 'Picks') {
+  } else if (position.toUpperCase() === 'Picks') {
     return 'rgb(70, 70, 70, .6)'
   } else {
     return 'rgb(0, 0, 0, .00)'
