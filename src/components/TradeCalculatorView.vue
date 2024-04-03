@@ -17,7 +17,7 @@
                 un-checked-children="OneQB"
               />
               <div>
-                <a-radio-group v-model:value="rankType" button-style="solid">
+                <a-radio-group v-model:value="rankType" button-style="solid" size="small">
                   <a-radio-button value="dynasty">Dynasty</a-radio-button>
                   <a-radio-button value="redraft">Redraft</a-radio-button>
                 </a-radio-group>
@@ -42,9 +42,9 @@
             </a-dropdown-button>
           </a-col>
         </a-row>
-        <a-row :gutter="16" class="teams">
+        <a-row :gutter="48" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-            <a-card>
+            <div>
               <h3>Team A gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
@@ -86,10 +86,11 @@
                 <div class="total-pieces">{{ selectedPlayers1.length }} Total Assets</div>
                 <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
               </div>
-            </a-card>
+            </div>
           </a-col>
+          <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-            <a-card>
+            <div>
               <h3>Team B gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
@@ -130,19 +131,19 @@
                 <div class="total-value">{{ selectedPlayers2.length }} Total Assets</div>
                 <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
               </div>
-            </a-card>
+            </div>
           </a-col>
         </a-row>
         <div class="trade-comparison" style="padding-top: 10px">
           <a-row type="flex" justify="center" style="padding-bottom: 10px">
-            <a-col :span="12">
+            <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
               <div
                 v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0"
                 :class="{
                   'status-message': true,
                   'fair-trade': isFairTrade,
                   'favored-trade': isFavoredTrade,
-                  'a-favored-trade': isAfavored
+                  'trade-status': true
                 }"
               >
                 <ArrowLeftOutlined v-if="bFavoredTrade" class="arrow-icon" />
@@ -166,7 +167,7 @@
             v-if="percentageDifference > percentThreshold && closestBalancingPlayers.length > 0"
             class="nearest-players"
           >
-            <a-card>
+            <div>
               <h3>Nearest Players to Balancing Value</h3>
               <div
                 v-for="player in closestBalancingPlayers"
@@ -183,7 +184,7 @@
                   </div>
                 </a-card>
               </div>
-            </a-card>
+            </div>
           </div>
         </div>
 
@@ -586,7 +587,7 @@ const tradeStatus = computed(() => {
 
   if (percentageDiff <= percentThreshold.value) {
     return {
-      message: 'The trade is fair',
+      message: 'Fair Trade',
       isFair: true,
       isFavored: false,
       aFavored: false,
@@ -597,7 +598,7 @@ const tradeStatus = computed(() => {
   const balancingValue = Math.round(balancingPlayerValue.value) // Round the balancing value to the nearest whole number
   if (valueA > valueB) {
     return {
-      message: `Team A is favored. Add roughly ${balancingValue.toLocaleString()} to even trade.`,
+      message: `Team A favored; add ~${balancingValue.toLocaleString()} to balance.`,
       isFair: false,
       isFavored: true,
       aFavored: true,
@@ -605,7 +606,7 @@ const tradeStatus = computed(() => {
     }
   } else if (valueA < valueB) {
     return {
-      message: `Team B is favored. Add roughly ${balancingValue.toLocaleString()} to even trade.`,
+      message: `Team B favored; add ~${balancingValue.toLocaleString()} to balance.`,
       isFair: false,
       isFavored: true,
       aFavored: false,
@@ -719,6 +720,8 @@ function getPositionColor(position: string): string {
     return 'rgb(67, 170, 139)'
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
+  } else if (position === 'PICK') {
+    return 'rgb(70, 70, 70, .6)'
   } else if (position === 'Pick') {
     return 'rgb(70, 70, 70, .6)'
   } else {
@@ -740,7 +743,7 @@ function getPositionColor(position: string): string {
 }
 
 .team-box {
-  padding: 16px;
+  padding: 24px;
   background: #f0f2f5;
   border-radius: 2px;
 }
@@ -832,10 +835,16 @@ function getPositionColor(position: string): string {
   padding: 20px; /* Optional: Adds some padding inside the div */
 }
 
-@media (max-width: 450px) {
+@media (max-width: 768px) {
   .nearest-players {
     width: auto; /* Allows the div to adjust to the screen size below 500px */
-    padding: 10px; /* Reduces padding on smaller screens */
+    padding: 5px; /* Reduces padding on smaller screens */
+  }
+  .trade-comparison .trade-status {
+    font-size: 14px; /* or whatever size you prefer */
+  }
+  .mobile-divider {
+    display: block !important; /* Override inline styles to show the divider */
   }
 }
 
@@ -848,8 +857,8 @@ function getPositionColor(position: string): string {
 
 .fair-trade {
   background-color: #f6ffedc1; /* A green tint */
-  color: #52c41a; /* A green color */
-  border: 1px solid #52c41a;
+  color: #43aa8b; /* A green color */
+  border: 1px solid #43aa8b;
 }
 
 .favored-trade {
@@ -862,7 +871,6 @@ function getPositionColor(position: string): string {
   display: flex;
   justify-content: space-between;
   align-items: center; /* This will vertically align them if they have different heights */
-  padding: 0.5em 0; /* Add some padding if needed */
 }
 
 /* This is the base style, for mobile screens */
