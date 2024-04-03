@@ -46,7 +46,7 @@
         <a-row :gutter="48" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading">Team A gets...</h3>
+              <h3 class="team-heading" :class="teamAState">Team A gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value1"
@@ -58,7 +58,6 @@
                   @search="searchPlayer1"
                   @focus="handleFocus"
                   @blur="handleBlur"
-                  class="custom-auto-complete"
                 />
               </div>
               <div
@@ -79,7 +78,10 @@
                     }"
                   >
                     <div class="card-content">
-                      <span>{{ player.player_full_name }}</span>
+                      <span> {{ player.player_full_name }} Rank </span>
+                      <span style="padding-left: 25px">
+                        {{ addOrdinalSuffix(state.checked1 ? player.sf_rank : player.one_qb_rank) }}
+                      </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -102,7 +104,7 @@
           <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading">Team B gets...</h3>
+              <h3 class="team-heading" :class="teamBState">Team B gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value2"
@@ -133,6 +135,9 @@
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
+                      <span style="padding-left: 25px">
+                        {{ addOrdinalSuffix(state.checked1 ? player.sf_rank : player.one_qb_rank) }}
+                      </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -175,7 +180,7 @@
               <a-row type="flex" justify="left">
                 <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
                   <div class="slider-label">Acceptable Variance</div>
-                  <a-slider max="50" v-model:value="percentThreshold" class="flex-item slider" />
+                  <a-slider max="25" v-model:value="percentThreshold" class="flex-item slider" />
                   <span> {{ percentThreshold }}%</span>
                 </a-col>
               </a-row>
@@ -242,6 +247,11 @@ import { useRoute } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+
+//  Custom Utils
+// Custom Utils
+import { addOrdinalSuffix } from '../utils/suffix'
+import { getCellStyle } from '../utils/colorTable'
 
 // 3rd Party imports
 import axios from 'axios'
@@ -595,21 +605,29 @@ function findTeamValue(totalValueSide: number, k: number, BPV: number): number {
 }
 
 function findClosestPlayers(
-  balancingValue: number,
-  playersData: any[],
-  valueKey: string,
-  selectedPlayers1: any[],
-  selectedPlayers2: any[]
-): any[] {
+  balancingValue,
+  playersData,
+  valueKey,
+  selectedPlayers1,
+  selectedPlayers2
+) {
   // Create a combined array of selected player names for exclusion
   const selectedPlayerNames = [
     ...selectedPlayers1.map((player) => player.player_full_name),
     ...selectedPlayers2.map((player) => player.player_full_name)
   ]
 
-  // Filter the playersData to exclude already selected players
+  // Find the highest value among the selected players
+  const highestSelectedValue = Math.max(
+    ...selectedPlayers1.map((player) => player[valueKey]),
+    ...selectedPlayers2.map((player) => player[valueKey])
+  )
+
+  // Filter the playersData to exclude already selected players and those with a value higher than the highest selected player
   const filteredPlayersData = playersData.filter(
-    (player) => !selectedPlayerNames.includes(player.player_full_name)
+    (player) =>
+      !selectedPlayerNames.includes(player.player_full_name) &&
+      player[valueKey] <= highestSelectedValue
   )
 
   // Sort the remaining players by the absolute difference from the balancing value
@@ -617,8 +635,8 @@ function findClosestPlayers(
     (a, b) => Math.abs(a[valueKey] - balancingValue) - Math.abs(b[valueKey] - balancingValue)
   )
 
-  // Then, get the five closest players
-  const closestPlayers = sortedPlayers.slice(0, 10)
+  // Get the closest players based on the balancing value
+  const closestPlayers = sortedPlayers.slice(0, 20)
 
   return closestPlayers
 }
@@ -662,13 +680,10 @@ const tradeStatus = computed(() => {
     }
   }
 
-  const valueA = totalValueSideA.value
-  const valueB = totalValueSideB.value
-  const diff = Math.abs(valueA - valueB)
-  const avg = (valueA + valueB) / 2
-  const percentageDiff = avg > 0 ? (diff / avg) * 100 : 0
+  // Use the computed percentageDifference from tradeAnalysis
+  const percentageDifference = tradeAnalysis.value.percentageDifference
 
-  if (percentageDiff <= percentThreshold.value) {
+  if (percentageDifference <= percentThreshold.value) {
     return {
       message: 'Fair Trade',
       isFair: true,
@@ -679,7 +694,7 @@ const tradeStatus = computed(() => {
   }
 
   const balancingValue = Math.round(balancingPlayerValue.value) // Round the balancing value to the nearest whole number
-  if (valueA > valueB) {
+  if (totalValueSideA.value > totalValueSideB.value) {
     return {
       message: `Team A favored; add ~${balancingValue.toLocaleString()} to balance.`,
       isFair: false,
@@ -687,7 +702,7 @@ const tradeStatus = computed(() => {
       aFavored: true,
       bFavored: false
     }
-  } else if (valueA < valueB) {
+  } else if (totalValueSideA.value < totalValueSideB.value) {
     return {
       message: `Team B favored; add ~${balancingValue.toLocaleString()} to balance.`,
       isFair: false,
@@ -712,20 +727,22 @@ const bFavoredTrade = computed(() => tradeStatus.value.bFavored)
 const isFavoredTrade = computed(() => tradeStatus.value.isFavored)
 const tradeStatusMessage = computed(() => tradeStatus.value.message)
 
-const tradeFairnessType = computed(() => {
-  // Example logic to determine the type of alert based on the trade status
-  const valueA = totalValueSideA.value
-  const valueB = totalValueSideB.value
-  const diff = Math.abs(valueA - valueB)
-  const avg = (valueA + valueB) / 2
-  const percentageDiff = avg > 0 ? (diff / avg) * 100 : 0
+function valueState(teamValue, compareToValue, percentThreshold) {
+  const percDiff = tradeAnalysis.value.percentageDifference
 
-  if (percentageDiff <= percentThreshold.value) {
-    return 'green' // for fair trade
+  if (percDiff < percentThreshold) {
+    return 'fair'
+  } else if (teamValue < compareToValue) {
+    return 'behind'
+  } else if (teamValue > compareToValue) {
+    return 'ahead'
+  } else {
+    return 'none'
   }
-  return 'red' // for unfair trade
-})
+}
 
+const teamAState = computed(() => valueState(totalValue1.value, totalValue2.value))
+const teamBState = computed(() => valueState(totalValue2.value, totalValue1.value))
 const state = reactive({
   checked1: true,
   checked2: true
@@ -881,14 +898,21 @@ function getCardPositionColor(position: string): string {
 .player-card {
   margin-bottom: 5px; /* Adds space between cards */
   position: relative; /* For absolute positioning of the close icon */
+  width: 100%;
 }
 
 .player-card .close-icon {
   position: absolute;
-  top: 15px; /* Position the icon slightly inside the card boundary */
-  left: -7px; /* Position the icon on the left side of the card */
+  top: 15px; /* P.playerosition the icon slightly inside the card boundary */
+  left: -6px; /* Position the icon on the left side of the card */
   cursor: pointer; /* Change cursor to indicate it's clickable */
   z-index: 10; /* Ensure the icon is above other elements */
+}
+
+.player-card .close-icon:hover {
+  /* Add your desired hover styles here */
+  opacity: 0.8; /* Example: Change the icon's opacity on hover */
+  transform: scale(1.3); /* Example: Slightly increase the icon size on hover */
 }
 
 .player-card .a-card {
@@ -930,9 +954,6 @@ function getCardPositionColor(position: string): string {
   margin: 0 auto; /* Centers the div */
   padding: 20px; /* Optional: Adds some padding inside the div */
 }
-.custom-auto-complete .ant-select-selector {
-  height: auto; /* Default height, adjust as needed */
-}
 
 @media (max-width: 768px) {
   .nearest-players {
@@ -944,9 +965,6 @@ function getCardPositionColor(position: string): string {
   }
   .mobile-divider {
     display: block !important; /* Override inline styles to show the divider */
-  }
-  .custom-auto-complete .ant-select-selector {
-    height: 1500px !important; /* Using !important to ensure the rule takes precedence */
   }
   .trade-calculator {
     padding-left: 15px;
@@ -1003,10 +1021,23 @@ function getCardPositionColor(position: string): string {
   color: white; /* White text color */
 }
 .nearest-players {
-  max-height: 400px; /* Adjust this value based on your needs */
+  max-height: 400px;
   overflow-y: auto; /* Enables vertical scrolling */
-  padding: 20px;
+  padding: 5px;
   width: 100%;
-  /* Other styles like margin, background, etc., can be added here */
+  margin-top: 20px;
+}
+.team-heading.none {
+  border: none;
+}
+.team-heading.behind {
+  border: 1px solid rgba(249, 65, 68, 0.6); /* #f94144 at 60% opacity */
+}
+
+.team-heading.ahead {
+  border: 1px solid rgba(144, 190, 109, 0.6); /* #90be6d at 60% opacity */
+}
+.team-heading.fair {
+  border: 1px solid rgba(30, 144, 255, 0.6); /* Blue with 60% opacity */
 }
 </style>
