@@ -40,13 +40,13 @@
         </div>
 
         <a-dropdown-button :loading="isLoading">
-          <img style="padding-right: 5px" class="dropdown-img" :src="selectedSource.logo" />
+          <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
           {{ selectedSource.name }}
           <template #overlay>
             <a-menu @click="handleMenuClick">
               <a-menu-item v-for="source in filteredSources" :key="source.key">
                 <UserOutlined />
-                <img style="padding-right: 5px" class="dropdown-img" :src="source.logo" />{{
+                <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
                   source.name
                 }}
               </a-menu-item>
@@ -88,16 +88,22 @@ import axios from 'axios'
 import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
 
+// Source image imports
+import sfLogo from '@/assets/sourceLogos/sf.png'
+import ktcLogo from '@/assets/sourceLogos/ktc.png'
+import dpLogo from '@/assets/sourceLogos/dp.png'
+import fcLogo from '@/assets/sourceLogos/fc.png'
+
 const platform = ref('sf')
 const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
 
 const sources = [
-  { key: 'sf', name: 'SuperFlex', logo: 'src/assets/sourceLogos/sf.png' },
-  { key: 'ktc', name: 'KeepTradeCut', logo: 'src/assets/sourceLogos/ktc.png' },
-  { key: 'dp', name: 'DynastyProcess', logo: 'src/assets/sourceLogos/dp.png' },
-  { key: 'fc', name: 'FantasyCalc', logo: 'src/assets/sourceLogos/fc.png' }
+  { key: 'sf', name: 'SuperFlex', logo: sfLogo },
+  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
+  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
 const selectedSource = ref(sources[0])
 
@@ -121,6 +127,17 @@ interface Column {
   key: string
 }
 
+type TableDataType = {
+  key: number
+  player_rank: number
+  _position: string
+  player_full_name: string
+  pos_rank: string
+  team: string
+  age: number
+  player_value: number
+}
+
 const playerColumns: Column[] = [
   {
     title: 'Rank',
@@ -136,7 +153,30 @@ const playerColumns: Column[] = [
     title: 'Position',
     dataIndex: '_position',
     key: '_position',
-    width: 100
+    width: 100,
+    filters: [
+      {
+        text: 'QB',
+        value: 'QB'
+      },
+      {
+        text: 'RB',
+        value: 'RB'
+      },
+      {
+        text: 'WR',
+        value: 'WR'
+      },
+      {
+        text: 'TE',
+        value: 'TE'
+      },
+      {
+        text: 'Pick',
+        value: 'Pick'
+      }
+    ],
+    onFilter: (value: string, record: TableDataType) => record._position.indexOf(value) === 0
   },
   {
     title: 'Player',
@@ -170,7 +210,11 @@ const playerColumns: Column[] = [
     title: 'Value',
     dataIndex: 'player_value',
     key: 'player_value',
-    width: 100
+    width: 100,
+    sorter: {
+      compare: (a, b) => a.player_value - b.player_value,
+      multiple: 1
+    }
   }
 ]
 
@@ -268,7 +312,7 @@ async function fetchRanks(platform: string) {
   justify-content: center;
   max-width: 850;
 }
-.dropdown-img {
+.rank-logos {
   width: 24px;
   height: 20px;
   vertical-align: middle;

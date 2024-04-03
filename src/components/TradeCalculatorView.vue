@@ -27,13 +27,13 @@
 
           <a-col :flex="auto" style="padding-bottom: 8px">
             <a-dropdown-button :loading="isLoading" options="">
-              <img style="padding-right: 5px" class="dropdown-img" :src="selectedSource.logo" />
+              <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
               {{ selectedSource.name }}
               <template #overlay>
                 <a-menu @click="handleMenuClick">
                   <a-menu-item v-for="source in filteredSources" :key="source.key">
                     <UserOutlined />
-                    <img style="padding-right: 5px" class="dropdown-img" :src="source.logo" />{{
+                    <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
                       source.name
                     }}
                   </a-menu-item>
@@ -240,11 +240,17 @@ const ranksData = ref([{}])
 const platform = ref('sf')
 const rankType = ref('dynasty')
 
+// Sourec image imports
+import sfLogo from '@/assets/sourceLogos/sf.png'
+import ktcLogo from '@/assets/sourceLogos/ktc.png'
+import dpLogo from '@/assets/sourceLogos/dp.png'
+import fcLogo from '@/assets/sourceLogos/fc.png'
+
 const sources = [
-  { key: 'sf', name: 'SuperFlex', logo: 'src/assets/sourceLogos/sf.png' },
-  { key: 'ktc', name: 'KeepTradeCut', logo: 'src/assets/sourceLogos/ktc.png' },
-  { key: 'dp', name: 'DynastyProcess', logo: 'src/assets/sourceLogos/dp.png' },
-  { key: 'fc', name: 'FantasyCalc', logo: 'src/assets/sourceLogos/fc.png' }
+  { key: 'sf', name: 'SuperFlex', logo: sfLogo },
+  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
+  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
 const selectedSource = ref(sources[0])
 
@@ -754,7 +760,7 @@ function getPositionColor(position: string): string {
   text-align: center;
 }
 
-.dropdown-img {
+.rank-logos {
   width: 24px;
   height: 20px;
   vertical-align: middle;
