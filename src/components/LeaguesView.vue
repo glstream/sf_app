@@ -18,7 +18,7 @@
           <template v-slot:[`actionSlot`]="{ record }">
             <a-space>
               <a-button type="primary" @click="getLeagueDetail(record)">Details</a-button>
-              <a-button type="primary" @click="getLeagueSummary(record)">Sumary</a-button>
+              <a-button type="primary" @click="getLeagueSummary(record)">Summary</a-button>
             </a-space>
           </template>
           <template #bodyCell="{ column, record }">
