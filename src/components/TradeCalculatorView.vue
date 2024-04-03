@@ -189,7 +189,7 @@
             class="nearest-players"
           >
             <div>
-              <h3>Nearest Players to Balancing Value</h3>
+              <h3>Players to Help Balance</h3>
               <div
                 v-for="player in closestBalancingPlayers"
                 :key="player.player_full_name"
@@ -624,13 +624,11 @@ function findClosestPlayers(
 }
 
 const closestBalancingPlayers = computed(() => {
-  // If no players are selected on either side, return an empty array
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) {
     return []
   }
 
   const balancingValue = balancingPlayerValue.value
-  // If the balancing value is 0 (which means sides are even or no player is selected), return an empty array
   if (balancingValue === 0) {
     return []
   }
@@ -638,14 +636,21 @@ const closestBalancingPlayers = computed(() => {
   const playersData = ranksData.value
   const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
 
-  return findClosestPlayers(
+  // Get the closest players first
+  let closestPlayers = findClosestPlayers(
     balancingValue,
     playersData,
     valueKey,
     selectedPlayers1.value,
     selectedPlayers2.value
   )
+
+  // Then sort them in descending order based on their value
+  closestPlayers.sort((a, b) => b[valueKey] - a[valueKey])
+
+  return closestPlayers
 })
+
 const tradeStatus = computed(() => {
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) {
     return {
