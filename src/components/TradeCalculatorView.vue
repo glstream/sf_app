@@ -79,9 +79,6 @@
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} Rank </span>
-                      <span style="padding-left: 25px">
-                        {{ addOrdinalSuffix(state.checked1 ? player.sf_rank : player.one_qb_rank) }}
-                      </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -135,9 +132,6 @@
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
-                      <span style="padding-left: 25px">
-                        {{ addOrdinalSuffix(state.checked1 ? player.sf_rank : player.one_qb_rank) }}
-                      </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
