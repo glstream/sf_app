@@ -945,6 +945,7 @@ function getCardPositionColor(position: string): string {
   }
   .trade-calculator {
     padding-left: 15px;
+    padding: 10px;
     width: 350px; /* Set your desired width for mobile devices */
   }
   .team-heading {
