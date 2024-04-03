@@ -1,46 +1,61 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+// Define a beforeEnter function
+const logNavigation = (to, from, next) => {
+  console.log(`Navigating to ${to.path}`)
+  next()
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/leagues/:leagueYear/:userName/:guid',
       name: 'LeaguesApp',
-      component: () => import('../components/LeaguesView.vue')
+      component: () => import('../components/LeaguesView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/username',
       name: 'UsernameView',
-      component: () => import('../components/UsernameView.vue')
+      component: () => import('../components/UsernameView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/leaguesummary/:userName/:userId/:leagueId/:leagueName/:leagueSetting/:leagueYear/:leagueStarters/:leagueSize/:leagueType/:guid/:rosterType/:avatar/:rankType',
-      component: () => import('../components/LeagueSummaryView.vue')
+      component: () => import('../components/LeagueSummaryView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/',
-      component: () => import('../components/LeagueDetailView.vue')
+      component: () => import('../components/LeagueDetailView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/ranks',
-      component: () => import('../components/RanksView.vue')
+      component: () => import('../components/RanksView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/tradecalculator',
-      component: () => import('../components/TradeCalculatorView.vue')
+      component: () => import('../components/TradeCalculatorView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/analyitcs',
-      component: () => import('../components/AnalyticsView.vue')
+      component: () => import('../components/AnalyticsView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/about',
-      component: () => import('../components/AboutView.vue')
+      component: () => import('../components/AboutView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/:catchAll(.*)',
-      name: 'NotFound',
-      component: () => import('../components/UsernameView.vue') // Ensure you have a NotFound.vue component
+      name: 'UsernameView',
+      component: () => import('../components/UsernameView.vue'), // Make sure you have a NotFoundView component
+      beforeEnter: logNavigation
     }
   ]
 })
