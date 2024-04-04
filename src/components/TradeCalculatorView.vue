@@ -208,7 +208,7 @@
               <a-row type="flex" justify="left">
                 <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
                   <div class="slider-label">Acceptable Variance</div>
-                  <a-slider max="25" v-model:value="percentThreshold" style="color: red" />
+                  <a-slider max="25" v-model:value="percentThreshold" />
                   <span> {{ percentThreshold }}%</span>
                 </a-col>
               </a-row>
@@ -1176,5 +1176,8 @@ function getCardPositionColor(position: string): string {
   border: 1px solid rgb(70, 70, 70, 0.55);
   border-radius: 4px;
   background: rgb(70, 70, 70, 0.15);
+}
+.a-auto-complete input {
+  font-size: 16px; /* or larger to prevent zooming on mobile */
 }
 </style>
