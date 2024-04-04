@@ -83,7 +83,6 @@
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
-                      <!-- Delete Icon placed at the top-right corner of the card -->
                       <MinusCircleTwoTone
                         class="close-icon"
                         two-tone-color="darkgray"
