@@ -1,9 +1,10 @@
 html {
   font-size: 14px;
+  font-family: 'Titillium Web', sans-serif !important;
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: 'Titillium Web', sans-serif !important;
   font-weight: normal;
   background: var(--surface-ground);
   color: var(--text-color);

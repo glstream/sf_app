@@ -5,12 +5,9 @@ import { createPinia } from 'pinia'
 import piniaPluginPersist from 'pinia-plugin-persist'
 
 import Antd from 'ant-design-vue'
-// import 'ant-design-vue/dist/reset.css'
-import 'primevue/resources/themes/aura-light-green/theme.css'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/aura-light-green/theme.css'
-import 'primevue/resources/primevue.min.css' /* Deprecated */
 import { Chart, registerables } from 'chart.js'
 
 import App from './App.vue'

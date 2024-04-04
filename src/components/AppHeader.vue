@@ -34,7 +34,7 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
   float: left;
   width: 120px;
   height: 31px;
-  margin: 16px 24px 16px 0;
+  margin: 16px 24px 16px 0; /* Adjusted left margin to 0 */
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -42,8 +42,13 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 }
 
 .header-class {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
+  padding-left: 0; /* Remove or reduce left padding if needed */
 }
 </style>
