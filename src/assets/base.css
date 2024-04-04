@@ -1,3 +1,4 @@
+color palette from <https://github.com/vuejs/theme>
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
@@ -65,14 +66,9 @@ body {
     color 0.5s,
     background-color 0.5s;
   line-height: 1.6;
+  font-family: 'Titillium Web', sans-serif !important;
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-html,
-body {
-  font-family: 'Titillium Web', sans-serif !important;
-  font-size: 16px;
 }
