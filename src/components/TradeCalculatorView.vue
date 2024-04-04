@@ -94,7 +94,7 @@
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
                     <span> Value Adjustment </span>
-                    <span class="player-value">+{{ valueDifferenceA }}</span>
+                    <span class="player-value">+{{ fuzzedValueDifferenceA }}</span>
                   </div>
                 </a-card>
 
@@ -164,7 +164,7 @@
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
                     <span> Value Adjustment </span>
-                    <span class="player-value">+{{ valueDifferenceB }}</span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
                   </div>
                 </a-card>
 
@@ -262,7 +262,7 @@
 
         <div class="actions">
           <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
-            <a-button type="primary">Copy Trade URL</a-button>
+            <button @click="tweetPlayers">Tweet Players</button>
             <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
           </a-space>
         </div>
@@ -342,19 +342,32 @@ interface TeamB {
   value: string
 }
 
-// Fuzzing function
-function fuzzValue(value) {
-  if (value <= 0) {
-    return 0 // If the original value is positive, return 0
-  }
-
-  const minFuzz = 0.02 // minimum fuzz percentage
-  const maxFuzz = 0.05 // maximum fuzz percentage
-  const fuzzFactor = Math.random() * (maxFuzz - minFuzz) + minFuzz // random fuzz percentage between minFuzz and maxFuzz
-  const fuzz = value * fuzzFactor * (Math.random() > 0.5 ? 1 : -1) // apply fuzz
-  return value + fuzz
+const tweetPlayers = () => {
+  const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
+  const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
+  const tweetText = `Check out these players! Team 1: ${playerNames1}. Team 2: ${playerNames2}.`
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+  window.open(tweetUrl, '_blank')
 }
 
+function consistentHash(value) {
+  let hash = 0
+  const stringVal = value.toString()
+  for (let i = 0; i < stringVal.length; i++) {
+    const char = stringVal.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return (hash % 1000) / 1000 // Normalize to 0-1
+}
+
+// Fuzzing function that uses the hash for consistency
+function fuzzValue(value) {
+  const minFuzz = 0.02
+  const maxFuzz = 0.05
+  const fuzzFactor = consistentHash(value) * (maxFuzz - minFuzz) + minFuzz
+  return value + value * fuzzFactor * (consistentHash(value) > 0.5 ? 1 : -1)
+}
 // Original values
 const valueDifferenceA = computed(() => totalValue2.value - totalValue1.value)
 const valueDifferenceB = computed(() => totalValue1.value - totalValue2.value)
