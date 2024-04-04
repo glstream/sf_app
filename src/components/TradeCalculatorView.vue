@@ -56,8 +56,6 @@
                   placeholder="Search for player"
                   @select="selectPlayer1"
                   @search="searchPlayer1"
-                  @focus="handleFocus"
-                  @blur="handleBlur"
                 />
               </div>
               <div
