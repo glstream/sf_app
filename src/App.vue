@@ -8,7 +8,7 @@ import AppHeader from './components/AppHeader.vue'
   <a-config-provider
     :theme="{
       token: {
-        colorPrimary: '#577590',
+        colorPrimary: '#43AA8B',
         fontFamily: 'Titillium Web'
       }
     }"

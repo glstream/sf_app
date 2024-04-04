@@ -208,7 +208,7 @@
               <a-row type="flex" justify="left">
                 <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
                   <div class="slider-label">Acceptable Variance</div>
-                  <a-slider max="25" v-model:value="percentThreshold" class="flex-item slider" />
+                  <a-slider max="25" v-model:value="percentThreshold" style="color: red" />
                   <span> {{ percentThreshold }}%</span>
                 </a-col>
               </a-row>
@@ -1087,7 +1087,7 @@ function getCardPositionColor(position: string): string {
   padding: 5px; /* Optional: Adds some padding inside the div */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 390px) {
   .nearest-players {
     width: auto; /* Allows the div to adjust to the screen size below 500px */
     padding: 5px; /* Reduces padding on smaller screens */
@@ -1099,8 +1099,7 @@ function getCardPositionColor(position: string): string {
     display: block !important; /* Override inline styles to show the divider */
   }
   .trade-calculator {
-    padding-left: 15px;
-    padding: 10px;
+    padding: 15px;
     width: 98%;
   }
   .team-heading {
@@ -1134,9 +1133,6 @@ function getCardPositionColor(position: string): string {
 }
 
 /* This is the base style, for mobile screens */
-.responsive-padding {
-  padding: 0 5px; /* Small padding for small screens */
-}
 
 /* Media query for screens wider than 768px */
 @media (min-width: 768px) {
