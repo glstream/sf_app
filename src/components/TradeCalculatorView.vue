@@ -46,7 +46,7 @@
         <a-row :gutter="48" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading" :class="teamAState">Team A gets...</h3>
+              <h3 class="team-heading" :class="teamAState">TEAM A gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value1"
@@ -76,6 +76,7 @@
                       backgroundColor: getCardPositionColor(player._position),
                       borderColor: getPositionColor(player._position)
                     }"
+                    style="border-radius: 3px"
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} </span>
@@ -87,7 +88,7 @@
                         class="close-icon"
                         two-tone-color="darkgray"
                         :style="{ fontSize: '22px' }"
-                        @click.stop="removePlayer2(index)"
+                        @click.stop="removePlayer1(index)"
                       />
                     </div>
                   </a-card>
@@ -96,13 +97,16 @@
               <div class="total-assets-container">
                 <div class="total-pieces">{{ selectedPlayers1.length }} Pieces</div>
                 <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
+                <div class="total-value">
+                  Adj Value: {{ Math.round(tradeAnalysis.valueA).toLocaleString() }}
+                </div>
               </div>
             </div>
           </a-col>
           <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading" :class="teamBState">Team B gets...</h3>
+              <h3 class="team-heading" :class="teamBState">TEAM B gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value2"
@@ -130,6 +134,7 @@
                       backgroundColor: getCardPositionColor(player._position),
                       borderColor: getPositionColor(player._position)
                     }"
+                    style="border-radius: 3px"
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
@@ -149,6 +154,9 @@
               <div class="total-assets-container">
                 <div class="total-value">{{ selectedPlayers2.length }} Pieces</div>
                 <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
+                <div class="total-value">
+                  Adj Value: {{ Math.round(tradeAnalysis.valueB).toLocaleString() }}
+                </div>
               </div>
             </div>
           </a-col>
@@ -207,6 +215,7 @@
                       backgroundColor: getCardPositionColor(player._position),
                       borderColor: getPositionColor(player._position)
                     }"
+                    style="border-radius: 3px"
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
@@ -292,6 +301,7 @@ import sfLogo from '@/assets/sourceLogos/sf.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
+import { contentQuotesLinter } from 'ant-design-vue/es/_util/cssinjs/linters'
 
 const sources = [
   { key: 'sf', name: 'SuperFlex', logo: sfLogo },
@@ -434,6 +444,8 @@ const totalValueSideA = computed(() => {
   const playerValues = selectedPlayers1.value.map((player) =>
     state.checked1 ? player.sf_value : player.one_qb_value
   )
+  console.log('Side A', playerValues)
+  console.log('Side A total', calculateTradeValue(playerValues))
 
   // Calculate the trade value with the new function
   return calculateTradeValue(playerValues)
@@ -444,19 +456,22 @@ const totalValueSideB = computed(() => {
   const playerValues = selectedPlayers2.value.map((player) =>
     state.checked1 ? player.sf_value : player.one_qb_value
   )
+  console.log('Side B', playerValues)
+  console.log('Side B total', calculateTradeValue(playerValues))
 
   // Calculate the trade value with the new function
   return calculateTradeValue(playerValues) // You can adjust k if needed
 })
 
-const k_value = 1.01
-const bpv_value = 25
+// const k_value = 1.005
+// const bpv_value = 35
 
-function calculateTradeValue(
-  playerValues: number[],
-  k: number = k_value,
-  BPV: number = bpv_value
-): number {
+function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): number {
+  console.log('BPV Source Value', BPV)
+
+  // Sort playerValues in descending order to rank them
+  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
+
   // Validate input
   if (
     !Array.isArray(playerValues) ||
@@ -465,13 +480,25 @@ function calculateTradeValue(
     console.error('Invalid input: playerValues must be an array of finite numbers.')
     return 0
   }
-  if (typeof k !== 'number' || !isFinite(k)) {
-    console.error('Invalid input: k must be a finite number.')
-    return 0
-  }
 
-  // Calculate the trade value using the power curve and DRS component
-  const tradeValue = playerValues.reduce((total, value) => {
+  // Calculate the trade value using the power curve with tiered k values and DRS component
+  const tradeValue = sortedPlayerValues.reduce((total, value, index) => {
+    // Determine the k value based on rank
+    let k
+    if (index < 5) {
+      // Top 5 players
+      k = 1.2
+    } else if (index < 10) {
+      // Players ranked 6-10
+      k = 1.1
+    } else if (index < 20) {
+      // Players ranked 11-20
+      k = 1.05
+    } else {
+      // The rest
+      k = 1.005
+    }
+
     // Power Curve Component
     const powerCurveValue = Math.pow(value, k)
 
@@ -488,8 +515,8 @@ function calculateTradeValue(
 }
 
 const tradeAnalysis = computed(() => {
-  const valueA = findTeamValue(totalValueSideA.value, k_value, bpv_value)
-  const valueB = findTeamValue(totalValueSideB.value, k_value, bpv_value)
+  const valueA = findTeamValue(totalValueSideA.value)
+  const valueB = findTeamValue(totalValueSideB.value)
   const averageValue = (valueA + valueB) / 2
 
   if (averageValue === 0) {
@@ -513,7 +540,6 @@ const tradeAnalysis = computed(() => {
 function findBalancingPlayerValue(
   totalValueSideA: number,
   totalValueSideB: number,
-  k: number,
   BPV: number
 ): number {
   const targetValue = Math.max(totalValueSideA, totalValueSideB)
@@ -531,7 +557,7 @@ function findBalancingPlayerValue(
 
   while (iterations < 100) {
     // Limit iterations to prevent infinite loops
-    estimatedTradeValue = calculateTradeValue([estimateValue], k, BPV)
+    estimatedTradeValue = calculateTradeValue([estimateValue])
 
     const currentDifference = Math.abs(
       (totalValueSideA < totalValueSideB
@@ -561,19 +587,20 @@ function findBalancingPlayerValue(
   // Return the estimated player value that would balance the trade
   return estimateValue
 }
+// Updated computed property
 const balancingPlayerValue = computed(() => {
   console.log('starting bvp')
   const valueA = totalValueSideA.value
   const valueB = totalValueSideB.value
-  const k = k_value
   const BPV = bpv_value // The baseline player value for the DRS formula
 
-  console.log(valueA, valueB, k, BPV)
+  console.log(valueA, valueB, BPV)
 
-  return findBalancingPlayerValue(valueA, valueB, k, BPV)
+  // Notice we're no longer passing k, as it is now managed inside the calculateTradeValue function
+  return findBalancingPlayerValue(valueA, valueB, BPV)
 })
 
-function findTeamValue(totalValueSide: number, k: number, BPV: number): number {
+function findTeamValue(totalValueSide: number): number {
   // Assuming the function's goal is to find a value adjustment for a single side
 
   // Define the target value or some logic to determine what the adjusted value should be
@@ -585,7 +612,7 @@ function findTeamValue(totalValueSide: number, k: number, BPV: number): number {
   let adjustment = estimateValue / 2 // Initial adjustment
 
   while (iterations < 100) {
-    estimatedTradeValue = calculateTradeValue([estimateValue], k, BPV)
+    estimatedTradeValue = calculateTradeValue([estimateValue])
     const currentDifference = Math.abs(estimatedTradeValue - targetValue)
 
     if (currentDifference <= 0.01) {
@@ -747,6 +774,8 @@ const state = reactive({
   checked2: true
 })
 
+let bpv_value: number | null = null
+
 async function fetchRanks(platform: string, rankType: string) {
   isLoading.value = true
   ranksData.value = []
@@ -760,6 +789,18 @@ async function fetchRanks(platform: string, rankType: string) {
     })
     console.log('Pulling Player Values...')
     ranksData.value = response.data
+
+    // Assuming the data is sorted by rank, set BPV to the value of the 300th ranked player
+    if (ranksData.value.length > 299) {
+      // Adjust the property key according to what represents the player value, e.g., 'sf_value' or 'one_qb_value'
+      bpv_value = ranksData.value[299].sf_value
+    } else {
+      console.warn('Not enough data to set BPV based on the 300th rank.')
+      // Handle the case where there is not enough data (e.g., set a default value or throw an error)
+      bpv_value = null // or set a default value
+    }
+
+    console.log('BPV set to:', bpv_value)
     console.log(ranksData.value)
   } catch (error) {
     console.log('There was an error pulling values...', error)
@@ -846,7 +887,6 @@ function getCardPositionColor(position: string): string {
 <style scoped>
 .trade-calculator {
   padding: 42px;
-  border-radius: 2px;
 }
 
 .switches {
@@ -928,7 +968,7 @@ function getCardPositionColor(position: string): string {
 .player-card-nearest {
   margin-bottom: 5px; /* Adds space between cards */
   position: relative; /* For absolute positioning of the close icon */
-  width: 90%;
+  width: 100%;
   padding-left: 10px;
   padding-bottom: 6px;
 }
@@ -984,7 +1024,7 @@ function getCardPositionColor(position: string): string {
   max-width: 450px; /* Maximum width of the div */
   width: 100%; /* Makes the width responsive to the container */
   margin: 0 auto; /* Centers the div */
-  padding: 20px; /* Optional: Adds some padding inside the div */
+  padding: 5px; /* Optional: Adds some padding inside the div */
 }
 
 @media (max-width: 768px) {
@@ -1001,7 +1041,7 @@ function getCardPositionColor(position: string): string {
   .trade-calculator {
     padding-left: 15px;
     padding: 10px;
-    width: 350px; /* Set your desired width for mobile devices */
+    width: 98%;
   }
   .team-heading {
     text-align: center;
@@ -1051,13 +1091,17 @@ function getCardPositionColor(position: string): string {
   border-radius: 5px;
   background-color: rgb(164, 159, 159); /* Light gray background */
   color: white; /* White text color */
+  font-weight: bolder;
 }
+
 .nearest-players {
   max-height: 400px;
   overflow-y: auto; /* Enables vertical scrolling */
+  overflow-x: hidden; /* Prevents horizontal scrolling */
   padding: 5px;
   width: 100%;
   margin-top: 20px;
+  box-sizing: border-box; /* Ensures padding is included in the width */
 }
 .team-heading.none {
   border: none;
