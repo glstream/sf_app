@@ -43,17 +43,17 @@
             </a-dropdown-button>
           </a-col>
         </a-row>
+        <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
         <a-row :gutter="200" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading" :class="teamAState">TEAM A gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value1"
                   :options="options1"
                   :allow-clear="true"
                   style="width: 100%"
-                  placeholder="Search for player"
+                  placeholder="Team A..."
                   @select="selectPlayer1"
                   @search="searchPlayer1"
                 />
@@ -117,14 +117,13 @@
           <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
-              <h3 class="team-heading" :class="teamBState">TEAM B gets...</h3>
               <div class="search-bar-container">
                 <a-auto-complete
                   v-model:value="value2"
                   :options="options2"
                   :allow-clear="true"
                   style="width: 100%"
-                  placeholder="Search for player"
+                  placeholder="Team B..."
                   @select="selectPlayer2"
                   @search="searchPlayer2"
                 />
