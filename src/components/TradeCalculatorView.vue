@@ -27,6 +27,16 @@
           </a-col>
 
           <a-col :flex="auto" style="padding-bottom: 8px">
+            <a-dropdown-button style="margin-right: 16px">
+              Trade Help
+              <template #overlay>
+                <a-menu @click="handleShareClick">
+                  <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                    <img class="social-logos" :src="source.logo" />
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown-button>
             <a-dropdown-button :loading="isLoading" options="">
               <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
               {{ selectedSource.name }}
@@ -94,7 +104,7 @@
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
                     <span> Value Adjustment </span>
-                    <span class="player-value">+{{ fuzzedValueDifferenceA }}</span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
                   </div>
                 </a-card>
 
@@ -262,7 +272,6 @@
 
         <div class="actions">
           <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
-            <button @click="tweetPlayers">Tweet Players</button>
             <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
           </a-space>
         </div>
@@ -317,6 +326,8 @@ import sfLogo from '@/assets/sourceLogos/sf.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
+import xLogo from '@/assets/socialLogos/x.png'
+import redditLogo from '@/assets/socialLogos/reddit.png'
 
 const sources = [
   { key: 'sf', name: 'SuperFlex', logo: sfLogo },
@@ -324,6 +335,12 @@ const sources = [
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
+
+const shareTradeSources = [
+  { key: 'x', name: 'X', logo: xLogo },
+  { key: 'reddit', name: 'Reddit', logo: redditLogo }
+]
+
 const selectedSource = ref(sources[0])
 
 const filteredSources = computed(() => {
@@ -345,9 +362,32 @@ interface TeamB {
 const tweetPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
   const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
-  const tweetText = `Check out these players! Team 1: ${playerNames1}. Team 2: ${playerNames2}.`
+  const tweetText = `${state.checked1 ? 'Superflex' : 'OneQB'} ${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
   window.open(tweetUrl, '_blank')
+}
+
+const redditPlayers = () => {
+  const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
+  const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
+  const dynastySubReddit = 'DynastyFFTradeAdvice'
+  const redraftSubReddit = 'fantasyfootballadvice'
+  const subReddit = rankType.value === 'dynasty' ? dynastySubReddit : redraftSubReddit
+  const redditTitle = 'Which Side Wins?'
+  const redditText = `${state.checked1 ? 'Superflex' : 'OneQB'} ${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2}`
+  const redditUrl = `https://www.reddit.com/r/${subReddit}/submit?title=${encodeURIComponent(redditTitle)}&text=${encodeURIComponent(redditText)}`
+  window.open(redditUrl, '_blank')
+}
+
+const handleShareClick = (item) => {
+  console.log('Clicked menu item key:', item.key)
+  if (item.key === 'x') {
+    tweetPlayers()
+  }
+  if (item.key === 'reddit') {
+    redditPlayers()
+  }
+  // Add more conditions for other share sources if necessary
 }
 
 function consistentHash(value) {
@@ -965,6 +1005,12 @@ function getCardPositionColor(position: string): string {
 .rank-logos {
   width: 24px;
   height: 20px;
+  vertical-align: middle;
+  border-radius: 3px;
+}
+.social-logos {
+  width: 24px;
+  height: 22px;
   vertical-align: middle;
   border-radius: 3px;
 }
