@@ -288,13 +288,6 @@ import { getCellStyle } from '../utils/colorTable'
 import axios from 'axios'
 import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
 import {
-  CloseCircleOutlined,
-  DeleteFilled,
-  CloseSquareFilled,
-  CloseSquareTwoTone,
-  MinusCircleFilled,
-  CloseCircleFilled,
-  CloseCircleTwoTone,
   PlusCircleTwoTone,
   ArrowRightOutlined,
   ArrowLeftOutlined,
@@ -318,14 +311,12 @@ const ranksData = ref([{}])
 
 const platform = ref('sf')
 const rankType = ref('dynasty')
-const shouldFocus = ref(false)
 
 // Sourec image imports
 import sfLogo from '@/assets/sourceLogos/sf.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
-import { contentQuotesLinter } from 'ant-design-vue/es/_util/cssinjs/linters'
 
 const sources = [
   { key: 'sf', name: 'SuperFlex', logo: sfLogo },
@@ -348,7 +339,7 @@ interface TeamA {
   value: string
 }
 interface TeamB {
-  age: string
+  value: string
 }
 
 // Fuzzing function
@@ -398,78 +389,50 @@ const totalValue2 = computed(() => {
 })
 
 const searchPlayer1 = (searchText: string) => {
-  options1.value = []
-  if (!searchText) {
-    options1.value = []
-  } else {
-    const filteredData = ranksData.value
-      .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
-      .map((item) => ({
-        label: item.player_full_name, // display name
-        value: item.player_full_name, // unique identifier
-        data: item // keep the full player data
-      }))
+  const filteredData = ranksData.value
+    .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
+    .map((item) => ({
+      label: item.player_full_name, // display name
+      value: item.player_id, // unique identifier
+      data: item // keep the full player data
+    }))
 
-    options1.value = filteredData
-  }
+  options1.value = filteredData
 }
 
 const searchPlayer2 = (searchText: string) => {
-  options2.value = []
-  if (!searchText) {
-    options2.value = []
-  } else {
-    const filteredData = ranksData.value
-      .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
-      .map((item) => ({
-        label: item.player_full_name, // display name
-        value: item.player_full_name, // unique identifier
-        data: item // keep the full player data
-      }))
+  const filteredData = ranksData.value
+    .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
+    .map((item) => ({
+      label: item.player_full_name, // display name
+      value: item.player_id, // unique identifier
+      data: item // keep the full player data
+    }))
 
-    options2.value = filteredData
-  }
+  options2.value = filteredData
 }
 
-const selectPlayer1 = (playerName: string) => {
-  const player = ranksData.value.find((item) => item.player_full_name === playerName)
-  if (
-    player &&
-    !selectedPlayers1.value.some((p) => p.player_full_name === player.player_full_name)
-  ) {
+const selectPlayer1 = (playerId: string) => {
+  const player = ranksData.value.find((item) => item.player_id === playerId)
+  if (player && !selectedPlayers1.value.some((p) => p.player_id === player.player_id)) {
     selectedPlayers1.value.push(player)
   }
   value1.value = '' // Optionally clear the search box after selection
 }
 
-const selectPlayer2 = (playerName: string) => {
-  const player = ranksData.value.find((item) => item.player_full_name === playerName)
-  if (
-    player &&
-    !selectedPlayers2.value.some((p) => p.player_full_name === player.player_full_name)
-  ) {
+const selectPlayer2 = (playerId: string) => {
+  const player = ranksData.value.find((item) => item.player_id === playerId)
+  if (player && !selectedPlayers2.value.some((p) => p.player_id === player.player_id)) {
     selectedPlayers2.value.push(player)
   }
   value2.value = '' // Optionally clear the search box after selection
 }
-
 const removePlayer1 = (index) => {
   selectedPlayers1.value.splice(index, 1) // Remove the player at the specified index
 }
 
 const removePlayer2 = (index) => {
   selectedPlayers2.value.splice(index, 1) // Remove the player at the specified index
-}
-
-const handleFocus = () => {
-  if (!shouldFocus.value) {
-    // Manually blur the input if we don't want to focus
-    // Note: You might need a reference to the actual DOM element to call blur()
-  }
-}
-
-const handleBlur = () => {
-  shouldFocus.value = false // Reset the focus flag on blur
 }
 
 const clearCalculator = () => {
@@ -849,6 +812,17 @@ async function fetchRanks(platform: string, rankType: string) {
     })
     console.log('Pulling Player Values...')
     ranksData.value = response.data
+    options1.value = ranksData.value.map((player) => ({
+      label: player.player_full_name,
+      value: player.player_id,
+      data: player
+    }))
+
+    options2.value = ranksData.value.map((player) => ({
+      label: player.player_full_name,
+      value: player.player_id,
+      data: player
+    }))
 
     // Assuming the data is sorted by rank, set BPV to the value of the 300th ranked player
     if (ranksData.value.length > 299) {
