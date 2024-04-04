@@ -43,7 +43,7 @@
             </a-dropdown-button>
           </a-col>
         </a-row>
-        <a-row :gutter="48" class="teams">
+        <a-row :gutter="200" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
               <h3 class="team-heading" :class="teamAState">TEAM A gets...</h3>
@@ -73,10 +73,9 @@
                     size="small"
                     :bordered="true"
                     :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
+                      backgroundColor: getCardPositionColor(player._position)
                     }"
-                    style="border-radius: 3px"
+                    style="border-radius: 3px; border-color: rgb(70, 70, 70, 0.25)"
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} </span>
@@ -93,11 +92,26 @@
                   </a-card>
                 </a-badge-ribbon>
               </div>
-              <div class="total-assets-container">
-                <div class="total-pieces">{{ selectedPlayers1.length }} Pieces</div>
-                <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
-                <div class="total-value">
-                  Adj Value: {{ Math.round(tradeAnalysis.valueA).toLocaleString() }}
+              <div v-if="showCardA">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span> Value Adjustment </span>
+                    <span class="player-value">+{{ valueDifferenceA }}</span>
+                  </div>
+                </a-card>
+
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
+                  <div class="total-value">
+                    Total Value:
+                    {{ Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString() }}
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
+                  <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
                 </div>
               </div>
             </div>
@@ -130,10 +144,9 @@
                     size="small"
                     :bordered="true"
                     :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
+                      backgroundColor: getCardPositionColor(player._position)
                     }"
-                    style="border-radius: 3px"
+                    style="border-radius: 3px; border-color: rgb(70, 70, 70, 0.25)"
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
@@ -150,11 +163,26 @@
                   </a-card>
                 </a-badge-ribbon>
               </div>
-              <div class="total-assets-container">
-                <div class="total-value">{{ selectedPlayers2.length }} Pieces</div>
-                <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
-                <div class="total-value">
-                  Adj Value: {{ Math.round(tradeAnalysis.valueB).toLocaleString() }}
+              <div v-if="showCardB">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span> Value Adjustment </span>
+                    <span class="player-value">+{{ valueDifferenceB }}</span>
+                  </div>
+                </a-card>
+
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
+                  <div class="total-value">
+                    Total Value:
+                    {{ Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString() }}
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
+                  <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
                 </div>
               </div>
             </div>
@@ -325,6 +353,39 @@ interface TeamA {
 interface TeamB {
   age: string
 }
+
+// Fuzzing function
+function fuzzValue(value) {
+  if (value <= 0) {
+    return 0 // If the original value is positive, return 0
+  }
+
+  const minFuzz = 0.02 // minimum fuzz percentage
+  const maxFuzz = 0.05 // maximum fuzz percentage
+  const fuzzFactor = Math.random() * (maxFuzz - minFuzz) + minFuzz // random fuzz percentage between minFuzz and maxFuzz
+  const fuzz = value * fuzzFactor * (Math.random() > 0.5 ? 1 : -1) // apply fuzz
+  return value + fuzz
+}
+
+// Original values
+const valueDifferenceA = computed(() => totalValue2.value - totalValue1.value)
+const valueDifferenceB = computed(() => totalValue1.value - totalValue2.value)
+
+// Fuzzed values for UI display
+const fuzzedValueDifferenceA = computed(() => fuzzValue(valueDifferenceA.value))
+const fuzzedValueDifferenceB = computed(() => fuzzValue(valueDifferenceB.value))
+
+const showCardA = computed(() => {
+  return (
+    tradeAnalysis.value.percentageDifference < percentThreshold.value && valueDifferenceA.value > 0
+  )
+})
+
+const showCardB = computed(() => {
+  return (
+    tradeAnalysis.value.percentageDifference < percentThreshold.value && valueDifferenceB.value > 0
+  )
+})
 
 const totalValue1 = computed(() => {
   return selectedPlayers1.value.reduce((sum, player) => {
@@ -648,11 +709,14 @@ function findClosestPlayers(
     ...selectedPlayers2.map((player) => player[valueKey])
   )
 
-  // Filter the playersData to exclude already selected players and those with a value higher than the highest selected player
+  // Determine the value limit based on balancingValue
+  const valueLimit = balancingValue !== 0 ? balancingValue : highestSelectedValue
+
+  // Filter the playersData to exclude already selected players and
+  // ensure the player's value is less than or equal to the valueLimit
   const filteredPlayersData = playersData.filter(
     (player) =>
-      !selectedPlayerNames.includes(player.player_full_name) &&
-      player[valueKey] <= highestSelectedValue
+      !selectedPlayerNames.includes(player.player_full_name) && player[valueKey] <= valueLimit
   )
 
   // Sort the remaining players by the absolute difference from the balancing value
@@ -860,7 +924,7 @@ function getPositionColor(position: string): string {
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
   } else if (position.toUpperCase() === 'PICK') {
-    return 'rgb(70, 70, 70)'
+    return 'rgb(249, 199, 79)'
   } else {
     return 'rgb(0, 0, 0, .00)'
   }
@@ -868,15 +932,15 @@ function getPositionColor(position: string): string {
 
 function getCardPositionColor(position: string): string {
   if (position === 'QB') {
-    return 'rgb(39, 125, 161, .15)'
+    return 'rgb(77, 144, 142, .15)'
   } else if (position === 'RB') {
-    return 'rgb(144, 190, 109, .15)'
+    return 'rgb(77, 144, 142, .15)'
   } else if (position === 'WR') {
-    return 'rgb(67, 170, 139, .15)'
+    return 'rgb(77, 144, 142, .15)'
   } else if (position === 'TE') {
-    return 'rgb(249, 132, 74, .15)'
+    return 'rgb(77, 144, 142, .15)'
   } else if (position.toUpperCase() === 'PICK') {
-    return 'rgb(70, 70, 70, .15)'
+    return 'rgb(77, 144, 142, .15)'
   } else {
     return 'rgb(0, 0, 0, .15)'
   }
@@ -1080,7 +1144,7 @@ function getCardPositionColor(position: string): string {
 /* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 300px; /* Larger padding for larger screens */
+    padding: 0 200px; /* Larger padding for larger screens */
   }
 }
 
@@ -1114,5 +1178,10 @@ function getCardPositionColor(position: string): string {
 }
 .team-heading.fair {
   border: 1px solid rgba(30, 144, 255, 0.6); /* Blue with 60% opacity */
+}
+.va-card {
+  border: 1px solid rgb(70, 70, 70, 0.55);
+  border-radius: 4px;
+  background: rgb(70, 70, 70, 0.15);
 }
 </style>
