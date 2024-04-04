@@ -78,15 +78,16 @@
                     }"
                   >
                     <div class="card-content">
-                      <span> {{ player.player_full_name }} Rank </span>
+                      <span> {{ player.player_full_name }} </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
                       <!-- Delete Icon placed at the top-right corner of the card -->
-                      <CloseCircleTwoTone
+                      <MinusCircleTwoTone
                         class="close-icon"
-                        two-tone-color="#f94144"
-                        @click.stop="removePlayer1(index)"
+                        two-tone-color="darkgray"
+                        :style="{ fontSize: '22px' }"
+                        @click.stop="removePlayer2(index)"
                       />
                     </div>
                   </a-card>
@@ -135,9 +136,10 @@
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
-                      <CloseCircleTwoTone
+                      <MinusCircleTwoTone
                         class="close-icon"
-                        two-tone-color="#f94144"
+                        two-tone-color="darkgray"
+                        :style="{ fontSize: '22px' }"
                         @click.stop="removePlayer2(index)"
                       />
                     </div>
@@ -192,7 +194,7 @@
               <div
                 v-for="player in closestBalancingPlayers"
                 :key="player.player_full_name"
-                class="player-card"
+                class="player-card-nearest"
               >
                 <a-badge-ribbon
                   :text="player._position"
@@ -213,6 +215,8 @@
                       }}</span>
                       <PlusCircleTwoTone
                         class="close-icon"
+                        two-tone-color="#90BE6D"
+                        :style="{ fontSize: '22px' }"
                         @click.stop="addPlayerToTrade(player)"
                       />
                     </div>
@@ -260,7 +264,8 @@ import {
   CloseCircleTwoTone,
   PlusCircleTwoTone,
   ArrowRightOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined,
+  MinusCircleTwoTone
 } from '@ant-design/icons-vue'
 import Slider from 'primevue/slider'
 
@@ -882,6 +887,7 @@ function getCardPositionColor(position: string): string {
   justify-content: space-between;
   align-items: center;
   padding-right: 24px;
+  padding-left: 10px;
 }
 
 .player-value {
@@ -889,6 +895,7 @@ function getCardPositionColor(position: string): string {
   margin-left: auto;
   padding-right: 8px;
 }
+
 .player-card {
   margin-bottom: 5px; /* Adds space between cards */
   position: relative; /* For absolute positioning of the close icon */
@@ -897,8 +904,8 @@ function getCardPositionColor(position: string): string {
 
 .player-card .close-icon {
   position: absolute;
-  top: 15px; /* P.playerosition the icon slightly inside the card boundary */
-  left: -6px; /* Position the icon on the left side of the card */
+  top: 11px; /* P.playerosition the icon slightly inside the card boundary */
+  left: -11px; /* Position the icon on the left side of the card */
   cursor: pointer; /* Change cursor to indicate it's clickable */
   z-index: 10; /* Ensure the icon is above other elements */
 }
@@ -915,6 +922,37 @@ function getCardPositionColor(position: string): string {
 }
 
 .player-card .a-card:hover {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Example hover effect */
+}
+
+.player-card-nearest {
+  margin-bottom: 5px; /* Adds space between cards */
+  position: relative; /* For absolute positioning of the close icon */
+  width: 90%;
+  padding-left: 10px;
+  padding-bottom: 6px;
+}
+
+.player-card-nearest .close-icon {
+  position: absolute;
+  top: 11px; /* P.playerosition the icon slightly inside the card boundary */
+  left: -11px; /* Position the icon on the left side of the card */
+  cursor: pointer; /* Change cursor to indicate it's clickable */
+  z-index: 10; /* Ensure the icon is above other elements */
+}
+
+.player-card-nearest .close-icon:hover {
+  /* Add your desired hover styles here */
+  opacity: 0.8; /* Example: Change the icon's opacity on hover */
+  transform: scale(1.3); /* Example: Slightly increase the icon size on hover */
+}
+
+.player-card-nearest .a-card {
+  padding-left: 24px; /* Add padding to prevent content from hiding behind the icon */
+  transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+}
+
+.player-card-nearest .a-card:hover {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Example hover effect */
 }
 
