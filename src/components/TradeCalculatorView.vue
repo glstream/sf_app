@@ -10,7 +10,7 @@
       <div class="trade-calculator" style="">
         <div>
           <a-row align="left" justify="space-between">
-            <a-col flex="300px">
+            <a-col flex="400px">
               <div style="display: flex; align-items: center; gap: 10px">
                 <a-switch
                   size="large"
@@ -24,6 +24,14 @@
                     <a-radio-button value="redraft">Redraft</a-radio-button>
                   </a-radio-group>
                 </div>
+                <a-select
+                  ref="select"
+                  v-model:value="dropDownValue1"
+                  :options="dropDownOptions1"
+                  @focus="dropDownfocus"
+                  @change="dropDownHandleChange"
+                ></a-select
+                >Team
               </div>
             </a-col>
 
@@ -355,7 +363,7 @@ import { getCellStyle } from '../utils/colorTable'
 
 // 3rd Party imports
 import axios from 'axios'
-import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
+import { message, Spin, Column, Empty, MenuProps, SelectProps } from 'ant-design-vue'
 import {
   PlusCircleTwoTone,
   ArrowRightOutlined,
@@ -367,7 +375,6 @@ import {
   DoubleRightOutlined,
   HomeOutlined
 } from '@ant-design/icons-vue'
-import 'primeicons/primeicons.css'
 
 import 'ant-design-vue/dist/reset.css'
 
@@ -386,15 +393,52 @@ const ranksData = ref([{}])
 const platform = ref('sf')
 const rankType = ref('dynasty')
 
-const open = ref<boolean>(false)
+const dropDownValue1 = ref('12')
+const dropDownOptions1 = ref<SelectProps['options']>([
+  {
+    value: '8',
+    label: '8'
+  },
+  {
+    value: '10',
+    label: '10'
+  },
+  {
+    value: '12',
+    label: '12'
+  },
+  {
+    value: '14',
+    label: '14'
+  },
+  {
+    value: '16',
+    label: '16'
+  }
+])
 
-const showModal = () => {
-  open.value = true
+const dropDownfocus = () => {
+  console.log('focus')
 }
 
-const handleOk = (e: MouseEvent) => {
-  console.log(e)
-  open.value = false
+const dropDownHandleChange = (value: string) => {
+  console.log(`selected ${value}`)
+
+  // Convert the selected value to an integer and multiply by 25 to get the index
+  const index = parseInt(value) * 25
+
+  // Ensure the index is within the bounds of ranksData.value
+  if (ranksData.value && index < ranksData.value.length) {
+    // Assuming the property for BPV is named appropriately in your data
+    bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
+    console.log(`BPV recalculated to: ${bpv_value}`)
+  } else {
+    console.warn('Calculated index is out of bounds of the ranks data array')
+    bpv_value = null // Handle the case where the index is not valid
+  }
+
+  // Clear the calculator
+  clearCalculator()
 }
 
 // Sourec image imports
@@ -438,7 +482,10 @@ interface TeamB {
 const tweetPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
   const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
-  const tweetText = `${state.checked1 ? 'Superflex' : 'OneQB'} ${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
+  const currentDropDownLabel = dropDownOptions1.value.find(
+    (option) => option.value === dropDownValue1.value
+  )?.label
+  const tweetText = `${currentDropDownLabel} Team \n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
   window.open(tweetUrl, '_blank')
 }
@@ -965,7 +1012,9 @@ async function fetchRanks(platform: string, rankType: string) {
       }
     })
     console.log('Pulling Player Values...')
+
     ranksData.value = response.data
+
     options1.value = ranksData.value.map((player) => ({
       label: player.player_full_name,
       value: player.player_id,
@@ -978,14 +1027,17 @@ async function fetchRanks(platform: string, rankType: string) {
       data: player
     }))
 
-    // Assuming the data is sorted by rank, set BPV to the value of the 300th ranked player
-    if (ranksData.value.length > 299) {
-      // Adjust the property key according to what represents the player value, e.g., 'sf_value' or 'one_qb_value'
-      bpv_value = ranksData.value[299].sf_value
+    // Set BPV to the value from the dropdown multiplied by 25
+    const dropdownValue = parseInt(dropDownValue1.value) // Ensure dropDownValue1 is parsed as an integer
+    const index = parseInt(dropdownValue) * 25
+    // Ensure the index is within the bounds of ranksData.value
+    if (ranksData.value && index < ranksData.value.length) {
+      // Assuming the property for BPV is named appropriately in your data
+      bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
+      console.log(`BPV recalculated to: ${bpv_value}`)
     } else {
-      console.warn('Not enough data to set BPV based on the 300th rank.')
-      // Handle the case where there is not enough data (e.g., set a default value or throw an error)
-      bpv_value = null // or set a default value
+      console.warn('Calculated index is out of bounds of the ranks data array')
+      bpv_value = ranksData.value[299].sf_value // Handle the case where the index is not valid
     }
 
     console.log('BPV set to:', bpv_value)
