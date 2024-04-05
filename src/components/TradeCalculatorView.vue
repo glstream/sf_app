@@ -10,10 +10,10 @@
       <div class="trade-calculator" style="">
         <div>
           <a-row align="left" justify="space-between">
-            <a-col flex="400px">
-              <div style="display: flex; align-items: center; gap: 10px">
+            <a-col flex="800px">
+              <div style="display: flex; align-items: center; gap: 5px">
                 <a-switch
-                  size="large"
+                  size="small"
                   v-model:checked="state.checked1"
                   checked-children="Superflex"
                   un-checked-children="OneQB"
@@ -31,12 +31,15 @@
                   @focus="dropDownfocus"
                   @change="dropDownHandleChange"
                 ></a-select
-                >Team
+                ><span style="font-size: 14px">Team</span>
+                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange"
+                  ><span style="font-size: 14px">TEP</span></a-checkbox
+                >
               </div>
             </a-col>
 
             <a-col :flex="auto" style="padding-bottom: 8px; padding-top: 8px">
-              <a-flex :gap="40">
+              <a-flex :gap="35">
                 <a-dropdown-button :loading="isLoading">
                   <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
                   {{ selectedSource.name }}
@@ -366,7 +369,7 @@ import { getCellStyle } from '../utils/colorTable'
 
 // 3rd Party imports
 import axios from 'axios'
-import { message, Spin, Column, Empty, MenuProps, SelectProps } from 'ant-design-vue'
+import { message, Spin, Column, Empty, MenuProps, SelectProps, Checkbox } from 'ant-design-vue'
 import {
   PlusCircleTwoTone,
   ArrowRightOutlined,
@@ -376,7 +379,8 @@ import {
   SwapOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
-  HomeOutlined
+  HomeOutlined,
+  CompassOutlined
 } from '@ant-design/icons-vue'
 
 import 'ant-design-vue/dist/reset.css'
@@ -395,6 +399,7 @@ const ranksData = ref([{}])
 
 const platform = ref('sf')
 const rankType = ref('dynasty')
+const tepCheck = ref(false)
 
 const dropDownValue1 = ref('12')
 const dropDownOptions1 = ref<SelectProps['options']>([
@@ -514,6 +519,26 @@ const handleShareClick = (item) => {
     redditPlayers()
   }
   // Add more conditions for other share sources if necessary
+}
+
+async function onCheckTepChange(event: Event): Promise<void> {
+  const checked = (event.target as HTMLInputElement).checked
+  console.log('TEP checked:', checked)
+
+  ranksData.value.forEach((player) => {
+    if (player._position === 'TE') {
+      if (checked) {
+        // Checkbox is checked, increase values by 10% and round them
+        player.sf_value = Math.round(player.sf_value * 1.1)
+        player.one_qb_value = Math.round(player.one_qb_value * 1.1)
+      } else {
+        // Checkbox is unchecked, revert the values by 10% and round them
+        // It's important to use the original value here to calculate the decrease
+        player.sf_value = Math.round(player.sf_value / 1.1)
+        player.one_qb_value = Math.round(player.one_qb_value / 1.1)
+      }
+    }
+  })
 }
 
 function consistentHash(value) {
@@ -1005,6 +1030,7 @@ let bpv_value: number | null = null
 
 async function fetchRanks(platform: string, rankType: string) {
   isLoading.value = true
+  tepCheck.value = false
   ranksData.value = []
 
   try {
@@ -1015,7 +1041,6 @@ async function fetchRanks(platform: string, rankType: string) {
       }
     })
     console.log('Pulling Player Values...')
-
     ranksData.value = response.data
 
     options1.value = ranksData.value.map((player) => ({
@@ -1030,23 +1055,18 @@ async function fetchRanks(platform: string, rankType: string) {
       data: player
     }))
 
-    // Set BPV to the value from the dropdown multiplied by 25
     const dropdownValue = parseInt(dropDownValue1.value) // Ensure dropDownValue1 is parsed as an integer
-    const index = parseInt(dropdownValue) * 25
-    // Ensure the index is within the bounds of ranksData.value
+    const index = dropdownValue * 25
     if (ranksData.value && index < ranksData.value.length) {
-      // Assuming the property for BPV is named appropriately in your data
       bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
-      console.log(`BPV recalculated to: ${bpv_value}`)
     } else {
       console.warn('Calculated index is out of bounds of the ranks data array')
-      bpv_value = ranksData.value[299].sf_value // Handle the case where the index is not valid
+      bpv_value = ranksData.value[299]?.sf_value || null // Handle the case where the index is not valid
     }
 
     console.log('BPV set to:', bpv_value)
-    console.log(ranksData.value)
   } catch (error) {
-    console.log('There was an error pulling values...', error)
+    console.error('There was an error pulling values...', error)
   } finally {
     isLoading.value = false
   }
@@ -1082,12 +1102,12 @@ watch(ranksData, () => {
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
   console.log(e.key)
-  const platform = e.key
+  platform.value = e.key
   try {
     clearCalculator()
     clearCalcMemory()
-    fetchRanks(platform, rankType.value) // Ensure fetchRanks is awaited if it's asynchronous
-    selectedSource.value = sources.find((source) => source.key === platform) || sources[0]
+    fetchRanks(platform.value, rankType.value) // Ensure fetchRanks is awaited if it's asynchronous
+    selectedSource.value = sources.find((source) => source.key === platform.value) || sources[0]
   } catch {
     console.log('error loading leagues')
   } finally {
@@ -1291,14 +1311,14 @@ function getCardPositionColor(position: string): string {
     display: block !important; /* Override inline styles to show the divider */
   }
   .trade-calculator {
-    padding: 10px;
+    padding: 6px;
     width: 100%;
   }
   .team-heading {
     text-align: center;
   }
   .responsive-padding {
-    padding: 0 16px; /* Larger padding for larger screens */
+    padding: 0 7px; /* Larger padding for larger screens */
   }
 }
 
