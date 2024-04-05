@@ -4,7 +4,7 @@
 
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
       </a-breadcrumb>
       <div class="header">
         <img :src="logo" alt="Fantasy Affect Logo" class="logo" />
@@ -76,7 +76,7 @@ import AppFooter from '@/components/AppFooter.vue'
 
 // 3rd Part Utils
 import axios from 'axios'
-import { UserOutlined, LockOutlined, InfoCircleOutlined } from '@ant-design/icons-vue'
+import { UserOutlined, LockOutlined, InfoCircleOutlined, HomeOutlined } from '@ant-design/icons-vue'
 
 // Custom Utils
 import { useGuid } from '../utils/guid'

@@ -4,7 +4,7 @@
 
     <a-layout-content style="padding: 0 100px">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/userName">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
         <a-breadcrumb-item>Leagues</a-breadcrumb-item>
       </a-breadcrumb>
 
@@ -63,6 +63,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 // 3rd Party imports
+import { HomeOutlined } from '@ant-design/icons-vue'
 import axios from 'axios'
 
 // Custom Utils imports

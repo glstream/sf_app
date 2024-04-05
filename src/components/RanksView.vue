@@ -3,7 +3,7 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/userName">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
         <a-breadcrumb-item>Ranks</a-breadcrumb-item>
       </a-breadcrumb>
       <h1>{{ source }} Rankings</h1>
@@ -86,6 +86,7 @@ import AppFooter from '@/components/AppFooter.vue'
 // 3rd Party imports
 import axios from 'axios'
 import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
+import { HomeOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 // Source image imports

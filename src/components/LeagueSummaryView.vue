@@ -3,7 +3,7 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
       </a-breadcrumb>
@@ -349,6 +349,7 @@ import axios from 'axios'
 
 // Platform Utils
 import type { TabsProps, message, Spin } from 'ant-design-vue'
+import { HomeOutlined } from '@ant-design/icons-vue'
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'

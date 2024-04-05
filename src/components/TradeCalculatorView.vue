@@ -3,57 +3,61 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
         <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
       </a-breadcrumb>
 
-      <div class="trade-calculator" style="background: #f5f5f5">
-        <a-row align="left" justify="space-between">
-          <a-col flex="300px">
-            <div style="display: flex; align-items: center; gap: 10px">
-              <a-switch
-                size="large"
-                v-model:checked="state.checked1"
-                checked-children="Superflex"
-                un-checked-children="OneQB"
-              />
-              <div>
-                <a-radio-group v-model:value="rankType" button-style="solid" size="small">
-                  <a-radio-button value="dynasty">Dynasty</a-radio-button>
-                  <a-radio-button value="redraft">Redraft</a-radio-button>
-                </a-radio-group>
+      <div class="trade-calculator" style="">
+        <div>
+          <a-row align="left" justify="space-between">
+            <a-col flex="300px">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <a-switch
+                  size="large"
+                  v-model:checked="state.checked1"
+                  checked-children="Superflex"
+                  un-checked-children="OneQB"
+                />
+                <div>
+                  <a-radio-group v-model:value="rankType" button-style="solid" size="small">
+                    <a-radio-button value="dynasty">Dynasty</a-radio-button>
+                    <a-radio-button value="redraft">Redraft</a-radio-button>
+                  </a-radio-group>
+                </div>
               </div>
-            </div>
-          </a-col>
+            </a-col>
 
-          <a-col :flex="auto" style="padding-bottom: 8px">
-            <a-dropdown-button :loading="isLoading" style="margin-right: 16px">
-              <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-              {{ selectedSource.name }}
-              <template #overlay>
-                <a-menu @click="handleMenuClick">
-                  <a-menu-item v-for="source in filteredSources" :key="source.key">
-                    <UserOutlined />
-                    <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                      source.name
-                    }}
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown-button>
-            <a-dropdown-button>
-              Share
-              <template #overlay>
-                <a-menu @click="handleShareClick">
-                  <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                    <img class="social-logos" :src="source.logo" />
-                  </a-menu-item>
-                </a-menu>
-              </template>
-              <template #icon><ShareAltOutlined /></template>
-            </a-dropdown-button>
-          </a-col>
-        </a-row>
+            <a-col :flex="auto" style="padding-bottom: 8px">
+              <a-flex :gap="25">
+                <a-dropdown-button :loading="isLoading">
+                  <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
+                  {{ selectedSource.name }}
+                  <template #overlay>
+                    <a-menu @click="handleMenuClick">
+                      <a-menu-item v-for="source in filteredSources" :key="source.key">
+                        <UserOutlined />
+                        <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
+                          source.name
+                        }}
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown-button>
+                <a-dropdown-button>
+                  Share
+                  <template #overlay>
+                    <a-menu @click="handleShareClick">
+                      <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                        <img class="social-logos" :src="source.logo" />
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                  <template #icon><ShareAltOutlined /></template>
+                </a-dropdown-button>
+              </a-flex>
+            </a-col>
+          </a-row>
+        </div>
         <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
         <a-row :gutter="100" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
@@ -102,7 +106,7 @@
                   </a-card>
                 </a-badge-ribbon>
               </div>
-              <div v-if="showCardA">
+              <div v-if="addAdjustmentA">
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
                     <span> Value Adjustment </span>
@@ -200,19 +204,72 @@
         </a-row>
         <div class="trade-comparison" style="padding-top: 10px">
           <a-row type="flex" justify="center" style="padding-bottom: 10px">
-            <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-              <div
-                v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0"
-                :class="{
-                  'status-message': true,
-                  'fair-trade': isFairTrade,
-                  'favored-trade': isFavoredTrade,
-                  'trade-status': true
-                }"
-              >
-                <ArrowLeftOutlined v-if="bFavoredTrade" class="arrow-icon" />
-                {{ tradeStatusMessage }}
-                <ArrowRightOutlined v-if="aFavoredTrade" class="arrow-icon" />
+            <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+              <div v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
+                <a-card
+                  v-if="aFavoredTrade"
+                  style="
+                    background: rgb(249, 65, 68, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                  "
+                  size="small"
+                >
+                  <div>
+                    <ArrowLeftOutlined style="padding-right: 10px" class="arrow-icon" />
+                    <span>Favors Team A</span>
+                  </div>
+                  <div>
+                    Add
+                    <span style="font-weight: bold">{{
+                      Math.round(balancingPlayerValue).toLocaleString()
+                    }}</span>
+                    to balance trade
+                    <ArrowRightOutlined style="padding-left: 10px" class="arrow-icon" />
+                  </div>
+                </a-card>
+                <a-card
+                  v-if="bFavoredTrade"
+                  style="
+                    background: rgb(249, 65, 68, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                  "
+                  size="small"
+                >
+                  <div>
+                    <span>Favors Team B</span>
+                    <ArrowRightOutlined style="padding-left: 10px" class="arrow-icon" />
+                  </div>
+
+                  <div>
+                    <ArrowLeftOutlined style="padding-right: 10px" class="arrow-icon" />
+                    Add
+                    <span style="font-weight: bold">{{
+                      Math.round(balancingPlayerValue).toLocaleString()
+                    }}</span>
+                    to balance trade
+                  </div>
+                </a-card>
+                <a-card
+                  v-if="isFairTrade"
+                  style="
+                    background: rgb(67, 170, 139, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                  "
+                  ><DoubleLeftOutlined style="padding-right: 10px" />Balanced
+                  <DoubleRightOutlined style="padding-left: 10px"
+                /></a-card>
               </div>
             </a-col>
           </a-row>
@@ -304,9 +361,13 @@ import {
   ArrowRightOutlined,
   ArrowLeftOutlined,
   MinusCircleTwoTone,
-  ShareAltOutlined
+  ShareAltOutlined,
+  SwapOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  HomeOutlined
 } from '@ant-design/icons-vue'
-import Slider from 'primevue/slider'
+import 'primeicons/primeicons.css'
 
 import 'ant-design-vue/dist/reset.css'
 
@@ -431,15 +492,19 @@ const valueDifferenceB = computed(() => totalValue1.value - totalValue2.value)
 const fuzzedValueDifferenceA = computed(() => fuzzValue(valueDifferenceA.value))
 const fuzzedValueDifferenceB = computed(() => fuzzValue(valueDifferenceB.value))
 
-const showCardA = computed(() => {
+const addAdjustmentA = computed(() => {
   return (
-    tradeAnalysis.value.percentageDifference < percentThreshold.value && valueDifferenceA.value > 0
+    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    valueDifferenceA.value > 0 &&
+    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
   )
 })
 
 const showCardB = computed(() => {
   return (
-    tradeAnalysis.value.percentageDifference < percentThreshold.value && valueDifferenceB.value > 0
+    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    valueDifferenceB.value > 0 &&
+    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
   )
 })
 
@@ -575,13 +640,13 @@ function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): n
     let k
     if (index < 5) {
       // Top 5 players
-      k = 1.2
+      k = 1.05
     } else if (index < 10) {
       // Players ranked 6-10
-      k = 1.1
+      k = 1.05
     } else if (index < 20) {
       // Players ranked 11-20
-      k = 1.05
+      k = 1.01
     } else {
       // The rest
       k = 1.005
@@ -786,6 +851,27 @@ const closestBalancingPlayers = computed(() => {
   return closestPlayers
 })
 
+const aFavored = computed(() => {
+  return (
+    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    valueDifferenceA.value > 0 &&
+    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
+  )
+})
+
+const bFavored = computed(() => {
+  return (
+    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    valueDifferenceA.value > 0 &&
+    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
+  )
+})
+
+const fairTrade = computed(() => {
+  const percentageDifference = tradeAnalysis.value.percentageDifference
+  return percentageDifference <= percentThreshold.value
+})
+
 const tradeStatus = computed(() => {
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) {
     return {
@@ -988,7 +1074,10 @@ function getCardPositionColor(position: string): string {
 
 <style scoped>
 .trade-calculator {
-  padding: 42px;
+  padding: 40px;
+  background: #f5f5f5;
+  border: 1px solid lightgray;
+  border-radius: 3px;
 }
 
 .switches {
@@ -1147,8 +1236,8 @@ function getCardPositionColor(position: string): string {
     display: block !important; /* Override inline styles to show the divider */
   }
   .trade-calculator {
-    padding: 15px;
-    width: 98%;
+    padding: 10px;
+    width: 100%;
   }
   .team-heading {
     text-align: center;
