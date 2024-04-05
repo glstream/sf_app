@@ -10,16 +10,16 @@
       <div class="trade-calculator" style="">
         <div>
           <a-row align="left" justify="space-between">
-            <a-col flex="800px">
-              <div style="display: flex; align-items: center; gap: 5px">
+            <a-col :flex="1" style="min-width: 300px">
+              <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap">
                 <a-switch
-                  size="small"
+                  size="large"
                   v-model:checked="state.checked1"
                   checked-children="Superflex"
                   un-checked-children="OneQB"
                 />
                 <div>
-                  <a-radio-group v-model:value="rankType" button-style="solid" size="small">
+                  <a-radio-group v-model:value="rankType" button-style="solid" size="default">
                     <a-radio-button value="dynasty">Dynasty</a-radio-button>
                     <a-radio-button value="redraft">Redraft</a-radio-button>
                   </a-radio-group>
@@ -30,11 +30,11 @@
                   :options="dropDownOptions1"
                   @focus="dropDownfocus"
                   @change="dropDownHandleChange"
-                ></a-select
-                ><span style="font-size: 14px">Team</span>
-                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange"
-                  ><span style="font-size: 14px">TEP</span></a-checkbox
-                >
+                ></a-select>
+                <span style="font-size: 18px">Team</span>
+                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
+                  <span style="font-size: 18px">TEP</span>
+                </a-checkbox>
               </div>
             </a-col>
 
@@ -493,7 +493,8 @@ const tweetPlayers = () => {
   const currentDropDownLabel = dropDownOptions1.value.find(
     (option) => option.value === dropDownValue1.value
   )?.label
-  const tweetText = `${currentDropDownLabel} Team \n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
+  const tepText = tepCheck.value ? 'TEP' : ''
+  const tweetText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
   window.open(tweetUrl, '_blank')
 }
@@ -501,11 +502,15 @@ const tweetPlayers = () => {
 const redditPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
   const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
+  const currentDropDownLabel = dropDownOptions1.value.find(
+    (option) => option.value === dropDownValue1.value
+  )?.label
   const dynastySubReddit = 'DynastyFFTradeAdvice'
   const redraftSubReddit = 'fantasyfootballadvice'
   const subReddit = rankType.value === 'dynasty' ? dynastySubReddit : redraftSubReddit
+  const tepText = tepCheck.value ? 'TEP' : ''
   const redditTitle = 'Which Side Wins?'
-  const redditText = `${state.checked1 ? 'Superflex' : 'OneQB'} ${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2}`
+  const redditText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2}`
   const redditUrl = `https://www.reddit.com/r/${subReddit}/submit?title=${encodeURIComponent(redditTitle)}&text=${encodeURIComponent(redditText)}`
   window.open(redditUrl, '_blank')
 }
@@ -1318,7 +1323,7 @@ function getCardPositionColor(position: string): string {
     text-align: center;
   }
   .responsive-padding {
-    padding: 0 7px; /* Larger padding for larger screens */
+    padding: 0 10px; /* Larger padding for larger screens */
   }
 }
 
