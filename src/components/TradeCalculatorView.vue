@@ -35,8 +35,8 @@
               </div>
             </a-col>
 
-            <a-col :flex="auto" style="padding-bottom: 8px">
-              <a-flex :gap="25">
+            <a-col :flex="auto" style="padding-bottom: 8px; padding-top: 8px">
+              <a-flex :gap="40">
                 <a-dropdown-button :loading="isLoading">
                   <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
                   {{ selectedSource.name }}
@@ -223,11 +223,12 @@
                     justify-content: center;
                     align-items: center;
                     text-align: center;
+                    font-size: 18px;
                   "
                   size="small"
                 >
                   <div>
-                    <ArrowLeftOutlined style="padding-right: 10px" class="arrow-icon" />
+                    <ArrowLeftOutlined style="padding-right: 20px" class="arrow-icon" />
                     <span>Favors Team A</span>
                   </div>
                   <div>
@@ -236,7 +237,7 @@
                       Math.round(balancingPlayerValue).toLocaleString()
                     }}</span>
                     to balance trade
-                    <ArrowRightOutlined style="padding-left: 10px" class="arrow-icon" />
+                    <ArrowRightOutlined style="padding-left: 15px" class="arrow-icon" />
                   </div>
                 </a-card>
                 <a-card
@@ -248,16 +249,17 @@
                     justify-content: center;
                     align-items: center;
                     text-align: center;
+                    font-size: 18px;
                   "
                   size="small"
                 >
                   <div>
                     <span>Favors Team B</span>
-                    <ArrowRightOutlined style="padding-left: 10px" class="arrow-icon" />
+                    <ArrowRightOutlined style="padding-left: 20px" class="arrow-icon" />
                   </div>
 
                   <div>
-                    <ArrowLeftOutlined style="padding-right: 10px" class="arrow-icon" />
+                    <ArrowLeftOutlined style="padding-right: 15px" class="arrow-icon" />
                     Add
                     <span style="font-weight: bold">{{
                       Math.round(balancingPlayerValue).toLocaleString()
@@ -268,15 +270,16 @@
                 <a-card
                   v-if="isFairTrade"
                   style="
-                    background: rgb(67, 170, 139, 0.1);
+                    background: rgb(144, 190, 109, 0.3);
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
                     text-align: center;
+                    font-size: 20px;
                   "
-                  ><DoubleLeftOutlined style="padding-right: 10px" />Balanced
-                  <DoubleRightOutlined style="padding-left: 10px"
+                  ><DoubleLeftOutlined style="padding-right: 25px" />Balanced
+                  <DoubleRightOutlined style="padding-left: 25px"
                 /></a-card>
               </div>
             </a-col>
@@ -1293,6 +1296,9 @@ function getCardPositionColor(position: string): string {
   }
   .team-heading {
     text-align: center;
+  }
+  .responsive-padding {
+    padding: 0 16px; /* Larger padding for larger screens */
   }
 }
 
