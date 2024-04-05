@@ -27,17 +27,7 @@
           </a-col>
 
           <a-col :flex="auto" style="padding-bottom: 8px">
-            <a-dropdown-button style="margin-right: 16px">
-              Trade Help
-              <template #overlay>
-                <a-menu @click="handleShareClick">
-                  <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                    <img class="social-logos" :src="source.logo" />
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown-button>
-            <a-dropdown-button :loading="isLoading" options="">
+            <a-dropdown-button :loading="isLoading" style="margin-right: 16px">
               <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
               {{ selectedSource.name }}
               <template #overlay>
@@ -51,10 +41,21 @@
                 </a-menu>
               </template>
             </a-dropdown-button>
+            <a-dropdown-button>
+              Share
+              <template #overlay>
+                <a-menu @click="handleShareClick">
+                  <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                    <img class="social-logos" :src="source.logo" />
+                  </a-menu-item>
+                </a-menu>
+              </template>
+              <template #icon><ShareAltOutlined /></template>
+            </a-dropdown-button>
           </a-col>
         </a-row>
         <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
-        <a-row :gutter="200" class="teams">
+        <a-row :gutter="100" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
               <div class="search-bar-container">
@@ -81,9 +82,10 @@
                     size="small"
                     :bordered="true"
                     :style="{
-                      backgroundColor: getCardPositionColor(player._position)
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
                     }"
-                    style="border-radius: 3px; border-color: rgb(70, 70, 70, 0.25)"
+                    style="border-radius: 3px"
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} </span>
@@ -151,9 +153,10 @@
                     size="small"
                     :bordered="true"
                     :style="{
-                      backgroundColor: getCardPositionColor(player._position)
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
                     }"
-                    style="border-radius: 3px; border-color: rgb(70, 70, 70, 0.25)"
+                    style="border-radius: 3px"
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
@@ -300,7 +303,8 @@ import {
   PlusCircleTwoTone,
   ArrowRightOutlined,
   ArrowLeftOutlined,
-  MinusCircleTwoTone
+  MinusCircleTwoTone,
+  ShareAltOutlined
 } from '@ant-design/icons-vue'
 import Slider from 'primevue/slider'
 
@@ -320,6 +324,17 @@ const ranksData = ref([{}])
 
 const platform = ref('sf')
 const rankType = ref('dynasty')
+
+const open = ref<boolean>(false)
+
+const showModal = () => {
+  open.value = true
+}
+
+const handleOk = (e: MouseEvent) => {
+  console.log(e)
+  open.value = false
+}
 
 // Sourec image imports
 import sfLogo from '@/assets/sourceLogos/sf.png'
@@ -948,7 +963,7 @@ function getPositionColor(position: string): string {
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
   } else if (position.toUpperCase() === 'PICK') {
-    return 'rgb(249, 199, 79)'
+    return 'rgb(248, 150, 30)'
   } else {
     return 'rgb(0, 0, 0, .00)'
   }
@@ -1212,5 +1227,11 @@ function getCardPositionColor(position: string): string {
 }
 .a-auto-complete input {
   font-size: 16px; /* or larger to prevent zooming on mobile */
+}
+@media (max-width: 390px) {
+  .ant-modal {
+    top: 52% !important;
+    transform: translateY(-90%) !important;
+  }
 }
 </style>
