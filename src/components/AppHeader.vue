@@ -18,7 +18,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import logoImg from '@/assets/logo.webp' // Adjust the path as necessary
+import logoImg from '@/assets/t1.jpg' // Adjust the path as necessary
 
 import { useUserStore } from '@/stores/userStore'
 

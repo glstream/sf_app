@@ -2,7 +2,7 @@
   <a-layout class="layout">
     <AppHeader />
 
-    <a-layout-content style="padding: 0 100px">
+    <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
         <a-breadcrumb-item>Leagues</a-breadcrumb-item>
@@ -14,6 +14,7 @@
           :data-source="data"
           :loading="isLoading"
           :expand-column-width="100"
+          :scroll="{ x: 900 }"
         >
           <template v-slot:[`actionSlot`]="{ record }">
             <a-space>
@@ -88,7 +89,6 @@ const columns = [
     title: 'Type',
     dataIndex: 'league_type',
     key: 'league_type',
-    width: 150,
     filters: [
       {
         text: 'Redraft',
@@ -251,7 +251,6 @@ const getLeagueSummary = (record) => {
 /* Additional styles for layout */
 .layout {
   min-height: 100vh;
-  min-width: 1000px;
 }
 .table-section {
   display: flex;
@@ -262,5 +261,18 @@ const getLeagueSummary = (record) => {
   height: 38px;
   border-radius: 7px;
   border: 1px solid gray;
+}
+
+@media (max-width: 390px) {
+  .responsive-padding {
+    padding: 0 10px; /* Larger padding for larger screens */
+  }
+}
+
+/* Media query for screens wider than 768px */
+@media (min-width: 391px) {
+  .responsive-padding {
+    padding: 0 200px; /* Larger padding for larger screens */
+  }
 }
 </style>

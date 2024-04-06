@@ -611,7 +611,7 @@
               </div>
             </a-spin>
           </TabPanel>
-          <TabPanel header="Players">
+          <TabPanel header="Rosters">
             <h2 style="text-align: left">Full League Rosters</h2>
             <a-row justify="space-around" :gutter="8">
               <a-col
@@ -626,53 +626,27 @@
                 <a-card
                   :title="`${manager.display_name} &bull; ${addOrdinalSuffix(manager.total_rank)} Overall`"
                 >
-                  <div v-for="(player, index) in getPlayers(manager.user_id)">
-                    <div v-if="player.player_position === 'QB'">
-                      <a-tag :style="getPositionTag(player.player_position)">{{
-                        player.player_position
-                      }}</a-tag>
-                      {{ index + 1 }}. {{ player.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value.toLocaleString()
-                      }}
+                  <ul style="width: 100%; padding: 0">
+                    <div v-for="(player, index) in getPlayers(manager.user_id)">
+                      <div>
+                        <li
+                          :style="getPositionTag(player.player_position)"
+                          style="list-style-type: none; color: black"
+                        >
+                          <a-tag :style="getPositionTag(player.player_position)">{{
+                            player.player_position
+                          }}</a-tag>
+
+                          {{ index + 1 }}. {{ player.full_name }} &bull;
+                          {{
+                            player.player_value === -1
+                              ? 'N/A'
+                              : player.player_value.toLocaleString()
+                          }}
+                        </li>
+                      </div>
                     </div>
-                    <div v-if="player.player_position === 'RB'">
-                      <a-tag :style="getPositionTag(player.player_position)">{{
-                        player.player_position
-                      }}</a-tag>
-                      {{ index + 1 }}. {{ player.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value.toLocaleString()
-                      }}
-                    </div>
-                    <div v-if="player.player_position === 'WR'">
-                      <a-tag :style="getPositionTag(player.player_position)">{{
-                        player.player_position
-                      }}</a-tag>
-                      {{ index + 1 }}. {{ player.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value.toLocaleString()
-                      }}
-                    </div>
-                    <div v-if="player.player_position === 'TE'">
-                      <a-tag :style="getPositionTag(player.player_position)">{{
-                        player.player_position
-                      }}</a-tag>
-                      {{ index + 1 }}. {{ player.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value.toLocaleString()
-                      }}
-                    </div>
-                    <div v-if="player.player_position === 'PICKS'">
-                      <a-tag :style="getPositionTag(player.player_position)">{{
-                        player.player_position
-                      }}</a-tag>
-                      {{ index + 1 }}. {{ player.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value.toLocaleString()
-                      }}
-                    </div>
-                  </div>
+                  </ul>
                 </a-card>
               </a-col>
             </a-row>
@@ -683,12 +657,15 @@
               <div v-if="manager.user_id === leagueInfo.userId">
                 <a-row :gutter="{ xs: 8, sm: 16, md: 24 }">
                   <div v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']" :key="position">
-                    <a-col :key="position" xs="24" sm="12" md="8" lg="6">
+                    <a-col :key="position" xs="24" sm="24" md="24" lg="6">
                       <a-card>
                         <template #title>
-                          <a-tag :style="getPositionTag(position)" size="large">{{
-                            position
-                          }}</a-tag>
+                          <a-tag :style="getPositionTag(position)" size="large"
+                            >{{ position }} </a-tag
+                          >&bull;
+                          {{ addOrdinalSuffix(manager[position.toLowerCase() + '_rank'] || '') }}
+                          &bull;
+                          {{ (manager[position.toLowerCase() + '_sum'] || '').toLocaleString() }}
                         </template>
                         <div
                           v-for="(player, index) in getPlayers(manager.user_id)"
@@ -856,15 +833,16 @@
               <h2>Best Available</h2>
               <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
                 <a-col
+                  v-for="(players, position) in groupedPlayers"
+                  :key="position"
                   :xs="24"
                   :sm="12"
                   :md="8"
                   :lg="6"
-                  v-for="(players, position) in groupedPlayers"
-                  :key="position"
                 >
-                  <a-card>
+                  <a-card :head-style="{ background: getPositionColor(position), color: '#fff' }">
                     <template #title>
+                      <span style="font-size: 20px; font-weight: bolder">{{ position }}</span>
                       <a-tag :style="getPositionTag(position)" size="large">{{ position }}</a-tag>
                     </template>
                     <p v-for="player in players" :key="player.sleeper_id">
@@ -2145,5 +2123,8 @@ table {
 
 .load-league-button {
   max-width: 150px; /* Set your desired maximum width */
+}
+.no-bullets li {
+  list-style-type: none;
 }
 </style>
