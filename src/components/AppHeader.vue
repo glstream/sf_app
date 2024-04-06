@@ -18,7 +18,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import logoImg from '@/assets/logo_small.png' // Adjust the path as necessary
+import logoImg from '@/assets/logo.webp' // Adjust the path as necessary
 
 import { useUserStore } from '@/stores/userStore'
 
@@ -32,9 +32,9 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 <style scoped>
 .logo {
   float: left;
-  width: 120px;
-  height: 31px;
-  margin: 16px 24px 16px 0;
+  width: 240px;
+  height: 45px;
+  margin: 5px 24px 12px 0;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

@@ -6,9 +6,7 @@
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
       </a-breadcrumb>
-      <div class="header">
-        <img :src="logo" alt="Fantasy Affect Logo" class="logo" />
-      </div>
+      <div class="header"></div>
 
       <div class="form-container">
         <a-card hoverable style="width: 300px">
@@ -82,7 +80,7 @@ import { UserOutlined, LockOutlined, InfoCircleOutlined, HomeOutlined } from '@a
 import { useGuid } from '../utils/guid'
 import { useUserStore } from '@/stores/userStore'
 
-import landingPage from '@/assets/landing.webp'
+import landingPage from '@/assets/home_page.webp'
 import logo from '@/assets/logo.png'
 
 const open = ref<boolean>(false)
