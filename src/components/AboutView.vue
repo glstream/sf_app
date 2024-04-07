@@ -1,7 +1,7 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content style="padding: 0 100px">
+    <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
         <a-breadcrumb-item>About</a-breadcrumb-item>
@@ -68,4 +68,13 @@ watch(activeKeyRankings, (val) => {
   console.log('Rankings active key:', val)
 })
 </script>
-<style scoped></style>
+<style scoped>
+.responsive-padding {
+  padding: 0 100px; /* Larger padding for larger screens */
+}
+@media (max-width: 390px) {
+  .responsive-padding {
+    padding: 0 10px; /* Larger padding for larger screens */
+  }
+}
+</style>

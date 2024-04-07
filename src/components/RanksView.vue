@@ -310,23 +310,13 @@ async function fetchRanks(platform: string) {
 }
 </script>
 <style scoped>
-.table-section {
-  display: flex;
-  justify-content: center;
-  max-width: 850;
-}
 .rank-logos {
   width: 24px;
   height: 20px;
   vertical-align: middle;
   border-radius: 3px;
 }
-.switch-container .setting-item {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: right;
-  justify-content: space-between;
-}
+
 /* This is the base style, for mobile screens */
 .responsive-padding {
   padding: 0 16px; /* Small padding for small screens */

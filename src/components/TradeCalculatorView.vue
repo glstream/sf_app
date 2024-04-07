@@ -1,6 +1,7 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
+
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
@@ -1160,6 +1161,10 @@ function getCardPositionColor(position: string): string {
   background: #f5f5f5;
   border: 1px solid lightgray;
   border-radius: 3px;
+  min-width: 500px;
+}
+.layout {
+  min-height: 100vh;
 }
 
 .switches {
@@ -1320,6 +1325,7 @@ function getCardPositionColor(position: string): string {
   .trade-calculator {
     padding: 6px;
     width: 100%;
+    min-width: auto;
   }
   .team-heading {
     text-align: center;
@@ -1359,7 +1365,7 @@ function getCardPositionColor(position: string): string {
 /* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 400px; /* Larger padding for larger screens */
+    padding: 0 350px; /* Larger padding for larger screens */
   }
 }
 

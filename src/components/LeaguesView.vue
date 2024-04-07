@@ -1,7 +1,6 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
