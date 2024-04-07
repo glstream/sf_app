@@ -4,7 +4,9 @@
 
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
       </a-breadcrumb>
       <div class="header"></div>
 
@@ -25,17 +27,7 @@
             @finishFailed="onFinishFailed"
             layout="vertical"
           >
-            <a-form-item
-              label=""
-              name="userName"
-              :rules="[
-                {
-                  required: true,
-                  message: 'Please input your userName!',
-                  validator: validateUserName
-                }
-              ]"
-            >
+            <a-form-item label="" name="userName" :rules="[{}]">
               <div style="display: flex; align-items: center; gap: 1px">
                 <a-input v-model:value="formState.userName" placeholder="Sleeper Username">
                   <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>

@@ -3,7 +3,9 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>League Details</a-breadcrumb-item>
       </a-breadcrumb>
@@ -113,10 +115,7 @@
                 <span class="legend-text">TE</span>
               </div>
               <div class="legend-item">
-                <span
-                  class="legend-color"
-                  style="background-color: rgba(189, 195, 199, 0.6)"
-                ></span>
+                <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
                 <span class="legend-text">Picks</span>
               </div>
             </div>
@@ -200,15 +199,21 @@
                   </div>
                   <div>
                     <a-divider orientation="center"></a-divider>
-                    <a-row justify="space-around" gutter="0">
+                    <a-row justify="space-between" gutter="[8,8]">
                       <a-col :span="4">
-                        <a-card :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`">
+                        <a-card
+                          :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('QB'),
+                            color: getPositionColor('QB')
+                          }"
+                        >
                           <div
                             v-for="player in getPlayers(record.user_id)"
                             :key="player.sleeper_id"
                           >
                             <p v-if="player.player_position === 'QB'">
-                              {{ player.full_name }}
+                              {{ player.full_name }} &bull;
                               {{
                                 player.player_value === -1
                                   ? 'N/A'
@@ -222,6 +227,10 @@
                       <a-col :span="4">
                         <a-card
                           :title="`Running Backs ${addOrdinalSuffix(record.rb_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('RB'),
+                            color: getPositionColor('RB')
+                          }"
                           bordered
                         >
                           <div
@@ -229,7 +238,7 @@
                             :key="player.sleeper_id"
                           >
                             <p v-if="player.player_position === 'RB'">
-                              {{ player.full_name }}
+                              {{ player.full_name }} &bull;
                               {{
                                 player.player_value === -1
                                   ? 'N/A'
@@ -243,6 +252,10 @@
                       <a-col :span="4">
                         <a-card
                           :title="`Wide Receivers ${addOrdinalSuffix(record.wr_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('WR'),
+                            color: getPositionColor('WR')
+                          }"
                           bordered
                         >
                           <div
@@ -261,13 +274,19 @@
                         </a-card>
                       </a-col>
                       <a-col :span="4">
-                        <a-card :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`">
+                        <a-card
+                          :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('TE'),
+                            color: getPositionColor('TE')
+                          }"
+                        >
                           <div
                             v-for="player in getPlayers(record.user_id)"
                             :key="player.sleeper_id"
                           >
                             <p v-if="player.player_position === 'TE'">
-                              {{ player.full_name }}
+                              {{ player.full_name }} &bull;
                               {{
                                 player.player_value === -1
                                   ? 'N/A'
@@ -278,13 +297,19 @@
                         </a-card>
                       </a-col>
                       <a-col :span="4">
-                        <a-card :title="`Picks ${addOrdinalSuffix(record.picks_rank)}`">
+                        <a-card
+                          :title="`Picks ${addOrdinalSuffix(record.picks_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('PICKS'),
+                            color: getPositionColor('PICKS')
+                          }"
+                        >
                           <div
                             v-for="player in getPlayers(record.user_id)"
                             :key="player.sleeper_id"
                           >
                             <p v-if="player.player_position === 'PICKS'">
-                              {{ player.full_name }}
+                              {{ player.full_name }} &bull;
                               {{
                                 player.player_value === -1
                                   ? 'N/A'
@@ -374,10 +399,14 @@
                   <div>
                     <a-divider orientation="center"></a-divider>
                     <a-row justify="space-around" gutter="0">
-                      <a-col :xs="12" :sm="12" :md="8" :lg="6" :xl="6">
+                      <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
                         <a-card
                           :title="`Quarterbacks ${addOrdinalSuffix(record.qb_starter_rank)}`"
                           style="margin: 0"
+                          :head-style="{
+                            background: getHeaderColor('QB'),
+                            color: getPositionColor('QB')
+                          }"
                         >
                           <div
                             v-for="player in getStarters(record.user_id)"
@@ -395,9 +424,13 @@
                         </a-card>
                       </a-col>
 
-                      <a-col :xs="12" :sm="12" :md="8" :lg="6" :xl="6">
+                      <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
                         <a-card
                           :title="`Running Backs ${addOrdinalSuffix(record.rb_starter_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('RB'),
+                            color: getPositionColor('RB')
+                          }"
                           bordered
                         >
                           <div
@@ -416,9 +449,13 @@
                         </a-card>
                       </a-col>
 
-                      <a-col :xs="12" :sm="12" :md="8" :lg="6" :xl="6">
+                      <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
                         <a-card
                           :title="`Wide Receivers ${addOrdinalSuffix(record.wr_starter_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('WR'),
+                            color: getPositionColor('WR')
+                          }"
                           bordered
                         >
                           <div
@@ -436,9 +473,13 @@
                           </div>
                         </a-card>
                       </a-col>
-                      <a-col :xs="12" :sm="12" :md="8" :lg="6" :xl="6">
+                      <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
                         <a-card
                           :title="`Tight Ends ${addOrdinalSuffix(record.te_starter_rank)}`"
+                          :head-style="{
+                            background: getHeaderColor('TE'),
+                            color: getPositionColor('TE')
+                          }"
                           bordered
                         >
                           <div
@@ -658,10 +699,14 @@
             <h2 style="text-align: left">Team Dashboard</h2>
             <div v-for="manager in summaryData" :key="manager.user_id">
               <div v-if="manager.user_id === leagueInfo.userId">
-                <a-row :gutter="{ xs: 8, sm: 16, md: 24 }">
-                  <div v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']" :key="position">
-                    <a-col :key="position" xs="24" sm="24" md="24" lg="6">
-                      <a-card>
+                <a-row :gutter="{ xs: 0, sm: 16, md: 24, lg: 16, xl: 16 }" justify="space-around">
+                  <div
+                    v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
+                    :key="position"
+                    style="padding-bottom: 15px"
+                  >
+                    <a-col :key="position" :xs="24" :sm="24" :md="24" :lg="32">
+                      <a-card style="min-width: 220px">
                         <template #title>
                           <a-tag :style="getPositionTag(position)" size="large"
                             >{{ position }} </a-tag
@@ -843,10 +888,14 @@
                   :md="8"
                   :lg="6"
                 >
-                  <a-card :head-style="{ background: getPositionColor(position), color: '#fff' }">
+                  <a-card
+                    :head-style="{
+                      background: getHeaderColor(position),
+                      color: getPositionColor(position)
+                    }"
+                  >
                     <template #title>
-                      <span style="font-size: 20px; font-weight: bolder">{{ position }}</span>
-                      <a-tag :style="getPositionTag(position)" size="large">{{ position }}</a-tag>
+                      <span style="font-size: 18px; font-weight: bolder">{{ position }}</span>
                     </template>
                     <p v-for="player in players" :key="player.sleeper_id">
                       {{ player.full_name }} &bull;
@@ -1533,8 +1582,24 @@ function getPositionColor(position: string): string {
     return 'rgb(67, 170, 139)'
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
-  } else if (position.toUpperCase() === 'Picks') {
-    return 'rgb(70, 70, 70, .6)'
+  } else if (position.toUpperCase() === 'PICKS') {
+    return 'rgb(70, 70, 70,.625)'
+  } else {
+    return 'rgb(0, 0, 0, .00)'
+  }
+}
+
+function getHeaderColor(position: string): string {
+  if (position === 'QB') {
+    return 'rgb(39, 125, 161, .25)'
+  } else if (position === 'RB') {
+    return 'rgb(144, 190, 109, .25)'
+  } else if (position === 'WR') {
+    return 'rgb(67, 170, 139, .25)'
+  } else if (position === 'TE') {
+    return 'rgb(249, 132, 74, .25)'
+  } else if (position.toUpperCase() === 'PICKS') {
+    return 'rgb(70, 70, 70, .25)'
   } else {
     return 'rgb(0, 0, 0, .00)'
   }

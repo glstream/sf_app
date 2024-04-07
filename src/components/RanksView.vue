@@ -3,7 +3,9 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
         <a-breadcrumb-item>Ranks</a-breadcrumb-item>
       </a-breadcrumb>
       <h1>{{ source }} Rankings</h1>

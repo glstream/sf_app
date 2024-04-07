@@ -3,7 +3,9 @@
     <AppHeader />
     <a-layout-content class="responsive-padding">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item href="/username"><home-outlined /></a-breadcrumb-item>
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
       </a-breadcrumb>
@@ -46,7 +48,7 @@
             <a-tabs
               v-model:activeKey="activeKey"
               @change="fetchTabData"
-              tab-position="left"
+              tab-position="top"
               :style="{ height: '300px' }"
               class="custom-tabs"
             >
@@ -228,7 +230,7 @@
             <a-tabs
               v-model:conActiveKey="conActiveKey"
               @change="contenderFetchTabData"
-              tab-position="left"
+              tab-position="top"
               :style="{ height: '250px' }"
               class="custom-tabs"
             >

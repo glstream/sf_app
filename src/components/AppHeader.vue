@@ -1,13 +1,13 @@
 <!-- src/components/AppHeader.vue -->
 <template>
   <a-layout-header>
-    <div class="logo" :style="{ backgroundImage: 'url(' + logoImg + ')' }"></div>
     <a-menu theme="dark" mode="horizontal" :default-selected-keys="['1']">
       <a-menu-item key="1"><router-link to="/username">Home</router-link></a-menu-item>
-      <a-menu-item key="2"><router-link :to="leaguesUrl">Leagues</router-link></a-menu-item>
       <a-menu-item key="3"
         ><router-link to="/tradecalculator">Trade Calculator</router-link></a-menu-item
       >
+      <a-menu-item key="2"><router-link :to="leaguesUrl">Leagues</router-link></a-menu-item>
+
       <a-menu-item key="4"><router-link to="/ranks">Ranks</router-link></a-menu-item>
 
       <a-menu-item key="5"><router-link to="/about">About</router-link></a-menu-item>
@@ -30,17 +30,6 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 </script>
 
 <style scoped>
-.logo {
-  float: left;
-  width: 240px;
-  height: 45px;
-  margin: 5px 24px 12px 0;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: transparent;
-}
-
 .header-class {
   position: sticky;
   top: 0;
