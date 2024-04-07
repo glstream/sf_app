@@ -28,7 +28,13 @@
             <a-form-item
               label=""
               name="userName"
-              :rules="[{ required: true, message: 'Please input your userName!' }]"
+              :rules="[
+                {
+                  required: true,
+                  message: 'Please input your userName!',
+                  validator: validateUserName
+                }
+              ]"
             >
               <div style="display: flex; align-items: center; gap: 1px">
                 <a-input v-model:value="formState.userName" placeholder="Sleeper Username">
@@ -37,15 +43,16 @@
                 </a-input>
                 <a-button type="text" @click="showModal"><InfoCircleOutlined /></a-button>
                 <a-modal v-model:open="open" @ok="handleOk">
-                  <p>Superflex is currently only avilable for sleeper leagues.</p>
+                  <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
                 </a-modal>
               </div>
             </a-form-item>
+
             <a-form-item
               label=""
               name="leagueYear"
               :rules="[{ required: true, message: 'Please select a league year' }]"
-            >
+              ><span>Year</span>
               <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
                 <a-select-option value="2023">2023</a-select-option>
                 <a-select-option value="2022">2022</a-select-option>
@@ -55,7 +62,7 @@
             </a-form-item>
 
             <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-              <a-button type="primary" html-type="submit">Submit</a-button>
+              <a-button type="primary" html-type="submit" :loading="formIsLoading">Submit</a-button>
             </a-form-item>
           </a-form>
         </a-card>
@@ -75,15 +82,16 @@ import AppFooter from '@/components/AppFooter.vue'
 // 3rd Part Utils
 import axios from 'axios'
 import { UserOutlined, LockOutlined, InfoCircleOutlined, HomeOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 
 // Custom Utils
 import { useGuid } from '../utils/guid'
 import { useUserStore } from '@/stores/userStore'
 
 import landingPage from '@/assets/home_page.webp'
-import logo from '@/assets/logo.png'
 
 const open = ref<boolean>(false)
+const formIsLoading = ref(false)
 
 const showModal = () => {
   open.value = true
@@ -112,8 +120,15 @@ const formState = reactive<FormState>({
   leagueYear: '2024'
 })
 
-const onFinish = async (values: any) => {
+const onFinish = async (values) => {
+  formIsLoading.value = true
   try {
+    const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
+    const data = await response.json()
+    if (data === null || Object.keys(data).length === 0) {
+      throw new Error('Invalid username!')
+    }
+
     const { getOrCreateGUID } = useGuid()
     const userGuid = getOrCreateGUID()
 
@@ -125,6 +140,7 @@ const onFinish = async (values: any) => {
       user_name: formState.userName,
       guid: userGuid
     })
+
     console.log('Username submission successful')
     console.log(formState.userName)
 
@@ -133,9 +149,11 @@ const onFinish = async (values: any) => {
     // Redirect to the /leagues endpoint
     router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
   } catch (error) {
-    router.push(`/leagues/${formState.userName}`)
-    console.error('Failed to submit userName:', error)
+    message.error('Username not found. Please try again.')
+
+    console.error('Error:', error.message)
     onFinishFailed(error)
+    formIsLoading.value = false
   }
 }
 

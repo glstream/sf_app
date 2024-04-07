@@ -574,7 +574,7 @@ const fuzzedValueDifferenceB = computed(() => fuzzValue(valueDifferenceB.value))
 
 const addAdjustmentA = computed(() => {
   return (
-    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    tradeAnalysis.value.percentageDifference <= percentThreshold.value &&
     valueDifferenceA.value > 0 &&
     (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
   )
@@ -582,7 +582,7 @@ const addAdjustmentA = computed(() => {
 
 const showCardB = computed(() => {
   return (
-    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
+    tradeAnalysis.value.percentageDifference <= percentThreshold.value &&
     valueDifferenceB.value > 0 &&
     (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
   )
@@ -1357,7 +1357,7 @@ function getCardPositionColor(position: string): string {
 /* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 200px; /* Larger padding for larger screens */
+    padding: 0 400px; /* Larger padding for larger screens */
   }
 }
 
