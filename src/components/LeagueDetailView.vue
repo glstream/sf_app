@@ -79,6 +79,9 @@
               </a-menu>
             </template>
           </a-dropdown-button>
+          <a-button type="default" class="load-league-button" @click="getLeagueSummary()"
+            >League Summary</a-button
+          >
           <a-button
             @click="insertLeagueDetials(leagueInfo.leagueId)"
             type="primary"
@@ -945,7 +948,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -973,6 +976,7 @@ import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
 
 const route = useRoute()
+const router = useRouter() // Use the useRouter composable to get access to the router instance
 
 const state = reactive({
   checked1: true
@@ -994,6 +998,8 @@ const rosterType = route.params.rosterType
 const avatar = route.params.avatar
 const leagueType = route.params.leagueType
 const apiSource = route.params.platform
+const leagueStarters = route.params.leagueStarters
+const leagueSize = route.params.leagueSize
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 
@@ -1826,6 +1832,21 @@ const leagueOwnerDataByPosition = (position) =>
       }))
   })
 
+const getLeagueSummary = async (values: any) => {
+  try {
+    console.log('attempt get league summary')
+
+    const url = `/leaguesummary/${userName}/${userId}/${leagueId}/${leagueName}/${leagueYear}/${leagueStarters}/${leagueSize}/${rosterType}/${guid}/${rosterType}/${avatar}/${rankType}`
+
+    router.push(url)
+  } catch (error) {
+    console.error('Failed to load league details:', error)
+    // Optionally, update leagueDetails to indicate an error or show an error message
+  } finally {
+    console.log('complete')
+  }
+}
+
 const chartData = computed(() => {
   const positions = ['QB', 'RB', 'WR', 'TE'] // Extend this array based on your data
   const colors = {
@@ -2122,7 +2143,7 @@ table {
 }
 
 .load-league-button {
-  max-width: 150px; /* Set your desired maximum width */
+  max-width: 300px;
 }
 .no-bullets li {
   list-style-type: none;

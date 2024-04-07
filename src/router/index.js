@@ -22,12 +22,12 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
-      path: '/leaguesummary/:userName/:userId/:leagueId/:leagueName/:leagueSetting/:leagueYear/:leagueStarters/:leagueSize/:leagueType/:guid/:rosterType/:avatar/:rankType',
+      path: '/leaguesummary/:userName/:userId/:leagueId/:leagueName/:leagueYear/:leagueStarters/:leagueSize/:leagueType/:guid/:rosterType/:avatar/:rankType',
       component: () => import('../components/LeagueSummaryView.vue'),
       beforeEnter: logNavigation
     },
     {
-      path: '/league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/',
+      path: '/league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/:leagueStarters/:leagueSize',
       component: () => import('../components/LeagueDetailView.vue'),
       beforeEnter: logNavigation
     },

@@ -218,7 +218,7 @@ const getLeagueDetail = async (record) => {
     const platform = rankType !== 'Dynasty' ? 'ktc' : 'sf'
 
     router.push(
-      `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/`
+      `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${record.starter_cnt}/${record.total_rosters}`
     )
 
     console.log('Sending to League details')
@@ -242,7 +242,7 @@ const getLeagueSummary = (record) => {
   const avatar = record.avatar
   const rankType = record.league_type
 
-  const url = `/leaguesummary/${userName}/${userId}/${leagueId}/${leagueName}/${rosterType}/${leagueYear}/${record.starter_cnt}/${record.total_rosters}/${record.league_type}/${guid}/${rosterType}/${avatar}/${rankType}`
+  const url = `/leaguesummary/${userName}/${userId}/${leagueId}/${leagueName}/${leagueYear}/${record.starter_cnt}/${record.total_rosters}/${record.league_type}/${guid}/${rosterType}/${avatar}/${rankType}`
 
   router.push(url)
 }
