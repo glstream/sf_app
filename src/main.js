@@ -10,6 +10,9 @@ import PrimeVue from 'primevue/config'
 import 'primevue/resources/themes/aura-light-green/theme.css'
 import 'primeicons/primeicons.css'
 import { Chart, registerables } from 'chart.js'
+import VueGtag from 'vue-gtag'
+
+const gtag = import.meta.env.VITE_GTAG
 
 import App from './App.vue'
 import router from './router'
@@ -23,5 +26,8 @@ app.use(pinia)
 app.use(router)
 app.use(Antd)
 app.use(PrimeVue)
+app.use(VueGtag, {
+  config: { id: gtag }
+})
 
 app.mount('#app')
