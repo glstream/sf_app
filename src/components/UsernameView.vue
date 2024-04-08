@@ -1,14 +1,12 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content class="responsive-padding">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
-        ></a-breadcrumb-item>
-      </a-breadcrumb>
-      <div class="header"></div>
-
+    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
+      <a-breadcrumb-item>
+        <a href="/username"><home-outlined /></a>
+      </a-breadcrumb-item>
+    </a-breadcrumb>
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
       <div class="form-container">
         <a-card hoverable style="width: 300px">
           <template #cover>

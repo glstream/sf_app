@@ -1,14 +1,14 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content class="responsive-padding">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
-        ></a-breadcrumb-item>
-        <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
-        <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
-      </a-breadcrumb>
+    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
+      <a-breadcrumb-item
+        ><a href="/username"><home-outlined /></a
+      ></a-breadcrumb-item>
+      <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
+      <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
+    </a-breadcrumb>
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
       <a-row>
         <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14" style="text-align: right">
           <div style="margin-bottom: 25px" bordered>

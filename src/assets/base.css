@@ -60,8 +60,6 @@ color palette from <https://github.com/vuejs/theme>
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
   transition:
     color 0.5s,
     background-color 0.5s;

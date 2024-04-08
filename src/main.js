@@ -8,6 +8,7 @@ import Antd from 'ant-design-vue'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/aura-light-green/theme.css'
+import 'primeicons/primeicons.css'
 import { Chart, registerables } from 'chart.js'
 
 import App from './App.vue'

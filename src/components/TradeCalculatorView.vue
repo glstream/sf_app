@@ -1,15 +1,14 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
+    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
+      <a-breadcrumb-item
+        ><a href="/username"><home-outlined /></a
+      ></a-breadcrumb-item>
+      <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
+    </a-breadcrumb>
 
-    <a-layout-content class="responsive-padding">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
-        ></a-breadcrumb-item>
-        <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
-      </a-breadcrumb>
-
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
       <div class="trade-calculator" style="">
         <div>
           <a-row align="left" justify="space-between">

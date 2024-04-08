@@ -1,25 +1,23 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content class="responsive-padding">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
-        ></a-breadcrumb-item>
-        <a-breadcrumb-item>Ranks</a-breadcrumb-item>
-      </a-breadcrumb>
-      <h1>{{ source }} Rankings</h1>
+    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
+      <a-breadcrumb-item
+        ><a href="/username"><home-outlined /></a
+      ></a-breadcrumb-item>
+      <a-breadcrumb-item>Ranks</a-breadcrumb-item>
+    </a-breadcrumb>
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
       <div
         style="
-          padding-bottom: 25px;
+          padding-bottom: 5px;
           display: flex;
           justify-content: space-between;
           align-items: center;
         "
       >
         <div class="switch-container">
-          <a-card>
-            <h3 style="margin-bottom: 5px">Settings</h3>
+          <div title="Settings">
             <div class="setting-item">
               <a-switch
                 id="switch1"
@@ -38,23 +36,28 @@
                 un-checked-children="Redraft"
               />
             </div>
-          </a-card>
+          </div>
         </div>
 
-        <a-dropdown-button :loading="isLoading">
-          <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-          {{ selectedSource.name }}
-          <template #overlay>
-            <a-menu @click="handleMenuClick">
-              <a-menu-item v-for="source in filteredSources" :key="source.key">
-                <UserOutlined />
-                <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                  source.name
-                }}
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown-button>
+        <div>
+          <a-flex :gap="10">
+            <a-dropdown-button :loading="isLoading">
+              <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
+              {{ selectedSource.name }}
+              <template #overlay>
+                <a-menu @click="handleMenuClick">
+                  <a-menu-item v-for="source in filteredSources" :key="source.key">
+                    <UserOutlined />
+                    <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
+                      source.name
+                    }}
+                  </a-menu-item>
+                </a-menu>
+              </template>
+            </a-dropdown-button>
+            <a-button @click="downloadData"><DownloadOutlined /></a-button>
+          </a-flex>
+        </div>
       </div>
 
       <a-table
@@ -88,7 +91,7 @@ import AppFooter from '@/components/AppFooter.vue'
 // 3rd Party imports
 import axios from 'axios'
 import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
-import { HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 // Source image imports
@@ -308,6 +311,34 @@ async function fetchRanks(platform: string) {
     isLoading.value = false
   }
 }
+
+function downloadData() {
+  const dataToDownload = filteredData.value // Assuming this is your table's data source
+  let csvContent = 'data:text/csv;charset=utf-8,'
+
+  // Add the header row
+  const headers = playerColumns.map((col) => col.title).join(',')
+  csvContent += headers + '\r\n'
+
+  // Add the data rows
+  dataToDownload.forEach((row) => {
+    const rowData = playerColumns.map((col) => `"${row[col.dataIndex]}"`).join(',')
+    csvContent += rowData + '\r\n'
+  })
+
+  // Create a link and trigger the download
+  const encodedUri = encodeURI(csvContent)
+  const link = document.createElement('a')
+
+  // Use the selected source name for the file name
+  const fileName = `${selectedSource.value.name.replace(/\s+/g, '_')}_ranks_data.csv`
+
+  link.setAttribute('href', encodedUri)
+  link.setAttribute('download', fileName)
+  document.body.appendChild(link) // Required for FF
+  link.click()
+  document.body.removeChild(link)
+}
 </script>
 <style scoped>
 .rank-logos {
@@ -327,5 +358,16 @@ async function fetchRanks(platform: string) {
   .responsive-padding {
     padding: 0 300px; /* Larger padding for larger screens */
   }
+}
+.switch-container > div[title='Settings'] {
+  display: flex;
+  justify-content: start; /* Align items to the start of the container */
+  align-items: center; /* Align items vertically in the center */
+  gap: 10px; /* Adds space between the switches */
+}
+
+.setting-item {
+  display: flex; /* This makes sure the content of each setting item aligns correctly */
+  align-items: center; /* Aligns the switch vertically in the middle */
 }
 </style>
