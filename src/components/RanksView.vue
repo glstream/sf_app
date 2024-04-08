@@ -131,6 +131,7 @@ interface Column {
   title: string
   dataIndex: string
   key: string
+  width: number
 }
 
 type TableDataType = {
@@ -149,7 +150,7 @@ const playerColumns: Column[] = [
     title: 'Rank',
     dataIndex: 'player_rank',
     key: 'player_rank',
-    width: 100,
+    width: 50,
     sorter: {
       compare: (a, b) => a.rank - b.rank,
       multiple: 1
@@ -159,7 +160,7 @@ const playerColumns: Column[] = [
     title: 'Position',
     dataIndex: '_position',
     key: '_position',
-    width: 100,
+    width: 50,
     filters: [
       {
         text: 'QB',

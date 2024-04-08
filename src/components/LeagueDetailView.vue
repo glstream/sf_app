@@ -97,6 +97,7 @@
         <TabView :scrollable="true">
           <TabPanel header="Overall">
             <h2 style="text-align: left">Power Ranks</h2>
+
             <div class="legend">
               <div class="legend-item">
                 <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
@@ -656,7 +657,7 @@
             </a-spin>
           </TabPanel>
           <TabPanel header="Rosters">
-            <h2 style="text-align: left">Full League Rosters</h2>
+            <h2 style="text-align: left">Players by Team</h2>
             <a-row justify="space-around" :gutter="8">
               <a-col
                 v-for="manager in summaryData"
@@ -694,6 +695,112 @@
                 </a-card>
               </a-col>
             </a-row>
+          </TabPanel>
+          <TabPanel header="League View">
+            <h2 style="text-align: left">League Dashboard</h2>
+            <div style="display: flex; justify-content: left">
+              <a-avatar-group
+                maxCount="12"
+                maxPopoverPlacement="bottom"
+                maxPopoverTrigger="hover"
+                :max-count="12"
+              >
+                <div v-for="user in summaryData" :key="user.user_id">
+                  <div
+                    v-if="user.user_id === leagueInfo.userId"
+                    style="position: relative; display: inline-block"
+                  >
+                    <a-tooltip
+                      :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                      placement="top"
+                    >
+                      <a-avatar
+                        :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                        maxPopoverTrigger="hover"
+                        :size="45"
+                        style="border: 2px solid gold"
+                        @click="handleUserClick(user)"
+                        class="avatar"
+                      />
+                    </a-tooltip>
+                    <span class="badge-label">
+                      {{ addOrdinalSuffix(user.total_rank) }}
+                    </span>
+                  </div>
+
+                  <div v-else>
+                    <a-tooltip
+                      :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                      placement="top"
+                    >
+                      <a-avatar
+                        :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                        maxPopoverTrigger="hover"
+                        @click="handleUserClick(user)"
+                        class="avatar"
+                      />
+                    </a-tooltip>
+                  </div>
+                </div> </a-avatar-group
+              ><span style="font-size: small"> (click to highlight)</span>
+            </div>
+            <div class="legend">
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                <span class="legend-text">QB</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                <span class="legend-text">RB</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                <span class="legend-text">WR</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                <span class="legend-text">TE</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
+                <span class="legend-text">Picks</span>
+              </div>
+            </div>
+            <a-row :gutter="16">
+              <a-col
+                v-for="(chunk, chunkIndex) in playerChunks"
+                :key="chunkIndex"
+                :xs="24"
+                :sm="12"
+                :md="8"
+                :lg="6"
+              >
+                <a-card
+                  :title="`Players ${chunkIndex * 50 + 1} - ${Math.min((chunkIndex + 1) * 50, detailData.length)}`"
+                  :bordered="false"
+                >
+                  <ul style="padding: 0">
+                    <li
+                      v-for="(player, index) in chunk"
+                      :key="player.sleeper_id"
+                      :style="getPositionTag(player.player_position)"
+                      style="list-style-type: none; color: black"
+                      :class="{
+                        lighter: clickedManager !== '' && clickedManager !== player.display_name
+                      }"
+                    >
+                      {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
+                      {{
+                        player.player_value === -1 ? 'N/A' : player.player_value?.toLocaleString()
+                      }}
+                      - {{ player.display_name }}
+                    </li>
+                  </ul>
+                </a-card>
+              </a-col>
+            </a-row>
+
+            {{ detailData }}
           </TabPanel>
           <TabPanel header="Manager View">
             <h2 style="text-align: left">Team Dashboard</h2>
@@ -1083,6 +1190,7 @@ const summaryIsLoading = ref(false)
 const detailIsLoading = ref(false)
 const isProjectionLoading = ref(false)
 const isTradesLoading = ref(false)
+const clickedManager = ref('')
 
 const value1 = ref('Choose Projection')
 const sources = [
@@ -1611,36 +1719,52 @@ function getPositionTag(position) {
       return {
         color: 'rgb(39, 125, 161)',
         background: 'rgb(39, 125, 161, .15)',
-        'border-color': 'rgb(39, 125, 161)'
+        'border-color': 'rgb(39, 125, 161)',
+        border: '1px solid rgb(39, 125, 161, .15)'
       }
     case 'RB':
       return {
         color: 'rgb(144, 190, 109)',
         background: 'rgb(144, 190, 109, .15)',
-        'border-color': 'rgb(144, 190, 109)'
+        'border-color': 'rgb(144, 190, 109)',
+        border: '1px solid rgb(144, 190, 109, .15)'
       }
     case 'WR':
       return {
         color: 'rgb(67, 170, 139)',
         background: 'rgb(67, 170, 139, .15)',
-        'border-color': 'rgb(67, 170, 139)'
+        'border-color': 'rgb(67, 170, 139)',
+        border: '1px solid rgb(67, 170, 139, .15)'
       }
     case 'TE':
       return {
         color: 'rgb(249, 132, 74)',
         background: 'rgb(249, 132, 74, .15)',
-        'border-color': 'rgb(249, 132, 74)'
+        'border-color': 'rgb(249, 132, 74)',
+        border: '1px solid rgb(249, 132, 74, .15)'
       }
     case 'PICKS':
       return {
         color: 'rgb(143, 145, 146)',
         background: 'rgb(143, 145, 146, .15)',
-        'border-color': 'rgb(143, 145, 146)'
+        'border-color': 'rgb(143, 145, 146)',
+        border: '1px solid rgb(143, 145, 146, .15)'
       }
     default:
       return {}
   }
 }
+
+// Compute chunks of 50 players
+const playerChunks = computed(() => {
+  const size = 50
+  return detailData.value.reduce((acc, val, i) => {
+    let idx = Math.floor(i / size)
+    let page = acc[idx] || (acc[idx] = [])
+    page.push(val)
+    return acc
+  }, [])
+})
 
 const getStarters = (userId) => {
   const interimData = detailData.value
@@ -1997,7 +2121,7 @@ async function fetchDetailData(
 ) {
   detailIsLoading.value = true
   // empty detail data
-  detailData.value = []
+  // detailData.value = []
   try {
     const response = await axios.get('https://superflex-api.azurewebsites.net/league_detail', {
       params: {
@@ -2016,6 +2140,9 @@ async function fetchDetailData(
   } finally {
     detailIsLoading.value = false
   }
+}
+function handleUserClick(user) {
+  clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
 }
 </script>
 
@@ -2212,5 +2339,21 @@ table {
 }
 .no-bullets li {
   list-style-type: none;
+}
+.highlighted {
+  background-color: #f0f2f5; /* Choose a highlighting color */
+  border: 1px solid red !important; /* Example border color */
+  font-weight: bold; /* Makes the text bold */
+}
+
+.lighter {
+  color: #aaa !important; /* Lighter text color */
+}
+.avatar {
+  transition: transform 0.2s; /* Smooth transition for scaling */
+}
+
+.avatar:hover {
+  transform: scale(1.2); /* Scale the avatar to 120% of its size on hover */
 }
 </style>

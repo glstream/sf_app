@@ -12,6 +12,9 @@
           <a href="">{{ data[0]?.league_year }}</a>
           <template #overlay>
             <a-menu>
+              <a-menu-item @click="getCurrentYear">
+                <a>{{ leagueInfo.leagueYear }}</a>
+              </a-menu-item>
               <a-menu-item @click="getPrevYear">
                 <a>{{ data[0]?.league_year - 1 }}</a>
               </a-menu-item>
@@ -136,16 +139,7 @@ const columns = [
     sorter: (a: TableDataType, b: TableDataType) => a.league_type.length - b.league_type.length,
     sortDirections: ['descend']
   },
-  {
-    title: 'Size',
-    dataIndex: 'total_rosters',
-    key: 'total_rosters',
-    width: 50,
-    sorter: {
-      compare: (a, b) => a.total_rosters - b.total_rosters,
-      multiple: 1
-    }
-  },
+
   {
     title: 'Roster',
     dataIndex: 'roster_type',
@@ -164,6 +158,16 @@ const columns = [
     onFilter: (value: string, record: TableDataType) => record.roster_type.indexOf(value) === 0,
     sorter: (a: TableDataType, b: TableDataType) => a.roster_type.length - b.roster_type.length,
     sortDirections: ['descend']
+  },
+  {
+    title: 'Size',
+    dataIndex: 'total_rosters',
+    key: 'total_rosters',
+    width: 50,
+    sorter: {
+      compare: (a, b) => a.total_rosters - b.total_rosters,
+      multiple: 1
+    }
   },
   {
     title: 'Starters',
@@ -270,6 +274,7 @@ const getLeagueSummary = (record) => {
 }
 
 const getPrevYear = async () => {
+  isLoading.value = true
   if (data.value.length === 0) return
 
   const leaguePrevYear = parseInt(data.value[0].league_year, 10) - 1
@@ -287,6 +292,23 @@ const getPrevYear = async () => {
     console.error('Error performing the action:', error)
   } finally {
     fetchData(leaguePrevYear, userName, guid)
+  }
+}
+const getCurrentYear = async () => {
+  isLoading.value = true
+  const leagueYear = leagueInfo.leagueYear
+  console.log(leagueYear, userName, guid)
+  try {
+    console.log(`/leagues/${leagueYear}/${userName}/${guid}`)
+    await axios.post('http://localhost:8000/user_details', {
+      league_year: `${leagueYear}`,
+      user_name: `${userName}`,
+      guid: `${guid}`
+    })
+  } catch (error) {
+    console.error('Error performing the action:', error)
+  } finally {
+    fetchData(leagueYear, userName, guid)
   }
 }
 </script>
