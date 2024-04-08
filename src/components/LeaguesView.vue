@@ -13,7 +13,7 @@
           <template #overlay>
             <a-menu>
               <a-menu-item @click="getPrevYear">
-                <a>Previous Year </a>
+                <a>{{ data[0]?.league_year - 1 }}</a>
               </a-menu-item>
             </a-menu>
           </template>
