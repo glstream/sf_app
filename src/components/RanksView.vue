@@ -296,9 +296,9 @@ function getPositionTag(position) {
 
 async function fetchRanks(platform: string) {
   isLoading.value = true
-
+  const apiUrl = import.meta.env.VITE_API_URL
   try {
-    const response = await axios.get('https://superflex-api.azurewebsites.net/ranks', {
+    const response = await axios.get(`${apiUrl}/ranks`, {
       params: {
         platform
       }

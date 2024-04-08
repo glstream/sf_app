@@ -110,6 +110,7 @@ const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2024'
 })
+const apiUrl = import.meta.env.VITE_API_URL
 
 const onFinish = async (values) => {
   formIsLoading.value = true
@@ -126,7 +127,7 @@ const onFinish = async (values) => {
     console.log('User GUID:', userGuid)
 
     // Make a POST request to your backend server
-    await axios.post('https://superflex-api.azurewebsites.net/user_details', {
+    await axios.post(`${apiUrl}/user_details`, {
       league_year: formState.leagueYear,
       user_name: formState.userName,
       guid: userGuid

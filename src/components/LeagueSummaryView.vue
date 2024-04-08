@@ -393,6 +393,8 @@ import { addOrdinalSuffix } from '../utils/suffix'
 const route = useRoute()
 const router = useRouter() // Use the useRouter composable to get access to the router instance
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 const conActiveKey = ref('5')
 const activeKey = ref('1')
 
@@ -479,7 +481,7 @@ const insertLeagueDetails = async (values: any) => {
   console.log(guid)
   console.log(leagueYear)
   try {
-    const response = await axios.post('https://superflex-api.azurewebsites.net/roster', {
+    const response = await axios.post(`${apiUrl}/roster`, {
       league_id: leagueId,
       user_id: userId,
       guid: guid,
@@ -529,7 +531,7 @@ const fetchTabData = async (tabKey) => {
     // Use tabData.apiUrl or any other metadata for your API call
     // Example: await axios.get(tabData.apiUrl);
     try {
-      const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
+      const response = await axios.get(`${apiUrl}/league`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
@@ -558,7 +560,7 @@ const contenderFetchTabData = async (tabKey) => {
     // Use tabData.apiUrl or any other metadata for your API call
     // Example: await axios.get(tabData.apiUrl);
     try {
-      const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
+      const response = await axios.get(`${apiUrl}/league`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
@@ -701,7 +703,7 @@ async function fetchLeagueData(
   isLoading.value = true
   console.log('starting league fetch')
   try {
-    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
+    const response = await axios.get(`${apiUrl}/league`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -731,7 +733,7 @@ async function contenderFetchLeagueData(
   contenderIsLoading.value = true
   console.log('starting contender league fetch')
   try {
-    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
+    const response = await axios.get(`${apiUrl}/league`, {
       params: {
         league_id: leagueId,
         platform: platform,

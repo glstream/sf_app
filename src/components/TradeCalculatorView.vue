@@ -387,6 +387,8 @@ import {
 
 import 'ant-design-vue/dist/reset.css'
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 const percentThreshold = ref<number>(5)
 
 const value1 = ref('')
@@ -1058,7 +1060,7 @@ async function fetchRanks(platform: string, rankType: string) {
   ranksData.value = []
 
   try {
-    const response = await axios.get('https://superflex-api.azurewebsites.net/trade_calculator', {
+    const response = await axios.get(`${apiUrl}/trade_calculator`, {
       params: {
         platform: platform,
         rank_type: rankType

@@ -699,12 +699,7 @@
           <TabPanel header="League View">
             <h2 style="text-align: left">League Dashboard</h2>
             <div style="display: flex; justify-content: left">
-              <a-avatar-group
-                maxCount="12"
-                maxPopoverPlacement="bottom"
-                maxPopoverTrigger="hover"
-                :max-count="12"
-              >
+              <a-avatar-group maxCount="12" maxPopoverPlacement="bottom" maxPopoverTrigger="hover">
                 <div v-for="user in summaryData" :key="user.user_id">
                   <div
                     v-if="user.user_id === leagueInfo.userId"
@@ -783,17 +778,24 @@
                     <li
                       v-for="(player, index) in chunk"
                       :key="player.sleeper_id"
-                      :style="getPositionTag(player.player_position)"
-                      style="list-style-type: none; color: black"
+                      :style="getPositionTag(player.player_position, 0.35)"
+                      style="color: black"
                       :class="{
                         lighter: clickedManager !== '' && clickedManager !== player.display_name
                       }"
                     >
-                      {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
-                      {{
-                        player.player_value === -1 ? 'N/A' : player.player_value?.toLocaleString()
-                      }}
-                      - {{ player.display_name }}
+                      <span
+                        :class="{
+                          'dimmed-text':
+                            clickedManager !== '' && clickedManager !== player.display_name
+                        }"
+                      >
+                        {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
+                        {{
+                          player.player_value === -1 ? 'N/A' : player.player_value?.toLocaleString()
+                        }}
+                        - {{ player.display_name }}
+                      </span>
                     </li>
                   </ul>
                 </a-card>
@@ -1158,6 +1160,7 @@ const leagueStarters = route.params.leagueStarters
 const leagueSize = route.params.leagueSize
 
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
+const apiUrl = import.meta.env.VITE_API_URL
 
 // Sample league information
 const leagueInfo = reactive({
@@ -1249,14 +1252,14 @@ const handleProjChange = async (projectionSource: any) => {
   console.log(guid)
   try {
     const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get('https://superflex-api.azurewebsites.net/contender_league_summary', {
+      axios.get(`${apiUrl}/contender_league_summary`, {
         params: {
           league_id: leagueId,
           projection_source: projectionSource,
           guid: guid
         }
       }),
-      axios.get('https://superflex-api.azurewebsites.net/contender_league_detail', {
+      axios.get(`${apiUrl}/contender_league_detail`, {
         params: {
           league_id: leagueId,
           projection_source: projectionSource,
@@ -1713,42 +1716,42 @@ function getHeaderColor(position: string): string {
   }
 }
 
-function getPositionTag(position) {
+function getPositionTag(position, opacity = 0.15) {
   switch (position) {
     case 'QB':
       return {
-        color: 'rgb(39, 125, 161)',
-        background: 'rgb(39, 125, 161, .15)',
-        'border-color': 'rgb(39, 125, 161)',
-        border: '1px solid rgb(39, 125, 161, .15)'
+        color: `rgb(39, 125, 161)`,
+        background: `rgba(39, 125, 161, ${opacity})`,
+        'border-color': `rgb(39, 125, 161)`,
+        border: `1px solid rgba(39, 125, 161, ${opacity})`
       }
     case 'RB':
       return {
-        color: 'rgb(144, 190, 109)',
-        background: 'rgb(144, 190, 109, .15)',
-        'border-color': 'rgb(144, 190, 109)',
-        border: '1px solid rgb(144, 190, 109, .15)'
+        color: `rgb(144, 190, 109)`,
+        background: `rgba(144, 190, 109, ${opacity})`,
+        'border-color': `rgb(144, 190, 109)`,
+        border: `1px solid rgba(144, 190, 109, ${opacity})`
       }
     case 'WR':
       return {
-        color: 'rgb(67, 170, 139)',
-        background: 'rgb(67, 170, 139, .15)',
-        'border-color': 'rgb(67, 170, 139)',
-        border: '1px solid rgb(67, 170, 139, .15)'
+        color: `rgb(67, 170, 139)`,
+        background: `rgba(67, 170, 139, ${opacity})`,
+        'border-color': `rgb(67, 170, 139)`,
+        border: `1px solid rgba(67, 170, 139, ${opacity})`
       }
     case 'TE':
       return {
-        color: 'rgb(249, 132, 74)',
-        background: 'rgb(249, 132, 74, .15)',
-        'border-color': 'rgb(249, 132, 74)',
-        border: '1px solid rgb(249, 132, 74, .15)'
+        color: `rgb(249, 132, 74)`,
+        background: `rgba(249, 132, 74, ${opacity})`,
+        'border-color': `rgb(249, 132, 74)`,
+        border: `1px solid rgba(249, 132, 74, ${opacity})`
       }
     case 'PICKS':
       return {
-        color: 'rgb(143, 145, 146)',
-        background: 'rgb(143, 145, 146, .15)',
-        'border-color': 'rgb(143, 145, 146)',
-        border: '1px solid rgb(143, 145, 146, .15)'
+        color: `rgb(143, 145, 146)`,
+        background: `rgba(143, 145, 146, ${opacity})`,
+        'border-color': `rgb(143, 145, 146)`,
+        border: `1px solid rgba(143, 145, 146, ${opacity})`
       }
     default:
       return {}
@@ -1794,7 +1797,7 @@ const insertLeagueDetials = async (values: any) => {
   console.log(leagueYear)
 
   try {
-    const response = await axios.post('https://superflex-api.azurewebsites.net/roster', {
+    const response = await axios.post(`${apiUrl}/roster`, {
       league_id: leagueInfo.leagueId,
       user_id: leagueInfo.userId,
       guid: leagueInfo.guid,
@@ -1847,7 +1850,7 @@ async function fetchSummaryData(
 ) {
   summaryIsLoading.value = true
   try {
-    const response = await axios.get(`https://superflex-api.azurewebsites.net/league`, {
+    const response = await axios.get(`${apiUrl}/league`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -1901,7 +1904,7 @@ async function fetchBaData(
 ) {
   // detailIsLoading.value = true
   try {
-    const response = await axios.get(`https://superflex-api.azurewebsites.net/best_avialable`, {
+    const response = await axios.get(`${apiUrl}/best_avialable`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -1931,7 +1934,7 @@ async function fetchTrades(
   try {
     console.log('Pulling trades')
     const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get('https://superflex-api.azurewebsites.net/trades_summary', {
+      axios.get(`${apiUrl}/trades_summary`, {
         params: {
           league_id: leagueId,
           platform: platform,
@@ -1940,7 +1943,7 @@ async function fetchTrades(
           rank_type: rankType
         }
       }),
-      axios.get('https://superflex-api.azurewebsites.net/trades_detail', {
+      axios.get(`${apiUrl}/trades_detail`, {
         params: {
           league_id: leagueId,
           platform: platform,
@@ -2123,7 +2126,7 @@ async function fetchDetailData(
   // empty detail data
   // detailData.value = []
   try {
-    const response = await axios.get('https://superflex-api.azurewebsites.net/league_detail', {
+    const response = await axios.get(`${apiUrl}/league_detail`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -2348,6 +2351,7 @@ table {
 
 .lighter {
   color: #aaa !important; /* Lighter text color */
+  opacity: 0.5;
 }
 .avatar {
   transition: transform 0.2s; /* Smooth transition for scaling */
@@ -2355,5 +2359,12 @@ table {
 
 .avatar:hover {
   transform: scale(1.2); /* Scale the avatar to 120% of its size on hover */
+}
+li {
+  list-style-type: none;
+  color: black; /* Default text color */
+}
+.dimmed-text {
+  color: #aaa !important;
 }
 </style>

@@ -87,6 +87,8 @@ import { useUserStore } from '@/stores/userStore'
 // Custom Utils imports
 import defaultimage from '@/assets/t1.jpg'
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 const userStore = useUserStore()
 // Example function that would be called when a user submits their details
 function updateUserDetails(year, name, guid) {
@@ -213,7 +215,7 @@ onMounted(() => {
 async function fetchData(leagueYear: string, userName: string, guid: string) {
   isLoading.value = true
   try {
-    const response = await axios.get('https://superflex-api.azurewebsites.net/leagues', {
+    const response = await axios.get(`${apiUrl}/leagues`, {
       params: {
         league_year: leagueYear,
         user_name: userName,
@@ -280,7 +282,7 @@ const getPrevYear = async () => {
   const leaguePrevYear = parseInt(data.value[0].league_year, 10) - 1
   try {
     console.log(`/leagues/${leaguePrevYear}/${userName}/${guid}`)
-    await axios.post('http://localhost:8000/user_details', {
+    await axios.post(`${apiUrl}/user_details`, {
       league_year: `${leaguePrevYear}`,
       user_name: `${userName}`,
       guid: `${guid}`
@@ -300,7 +302,7 @@ const getCurrentYear = async () => {
   console.log(leagueYear, userName, guid)
   try {
     console.log(`/leagues/${leagueYear}/${userName}/${guid}`)
-    await axios.post('http://localhost:8000/user_details', {
+    await axios.post(`${apiUrl}/user_details`, {
       league_year: `${leagueYear}`,
       user_name: `${userName}`,
       guid: `${guid}`
