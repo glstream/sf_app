@@ -1,14 +1,14 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
-      <a-breadcrumb-item
-        ><a href="/username"><home-outlined /></a
-      ></a-breadcrumb-item>
-      <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
-    </a-breadcrumb>
 
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+      <a-breadcrumb style="padding-top: 10px">
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
+        <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
+      </a-breadcrumb>
       <div class="trade-calculator" style="">
         <div>
           <a-row align="left" justify="space-between">
@@ -629,19 +629,36 @@ const searchPlayer2 = (searchText: string) => {
 
 const selectPlayer1 = (playerId: string) => {
   const player = ranksData.value.find((item) => item.player_id === playerId)
-  if (player && !selectedPlayers1.value.some((p) => p.player_id === player.player_id)) {
+
+  const isAlreadySelected = selectedPlayers1.value.some((p) => p.player_id === player?.player_id)
+  const hasSpecialYear =
+    player?.player_full_name.includes('2024') ||
+    player?.player_full_name.includes('2025') ||
+    player?.player_full_name.includes('2026')
+
+  if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers1.value.push(player)
   }
+
   value1.value = '' // Optionally clear the search box after selection
 }
 
 const selectPlayer2 = (playerId: string) => {
   const player = ranksData.value.find((item) => item.player_id === playerId)
-  if (player && !selectedPlayers2.value.some((p) => p.player_id === player.player_id)) {
+
+  const isAlreadySelected = selectedPlayers2.value.some((p) => p.player_id === player?.player_id)
+  const hasSpecialYear =
+    player?.player_full_name.includes('2024') ||
+    player?.player_full_name.includes('2025') ||
+    player?.player_full_name.includes('2026')
+
+  if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers2.value.push(player)
   }
+
   value2.value = '' // Optionally clear the search box after selection
 }
+
 const removePlayer1 = (index) => {
   selectedPlayers1.value.splice(index, 1) // Remove the player at the specified index
 }

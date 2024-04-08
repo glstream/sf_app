@@ -1,13 +1,24 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
-      <a-breadcrumb-item
-        ><a href="/username"><home-outlined /></a
-      ></a-breadcrumb-item>
-      <a-breadcrumb-item>Leagues</a-breadcrumb-item>
-    </a-breadcrumb>
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
+
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+      <a-breadcrumb style="padding-top: 10px">
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
+        <a-breadcrumb-item>Leagues</a-breadcrumb-item>
+        <a-breadcrumb-item>
+          <a href="">{{ data[0]?.league_year }}</a>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item @click="getPrevYear">
+                <a>Previous Year </a>
+              </a-menu-item>
+            </a-menu>
+          </template>
+        </a-breadcrumb-item>
+      </a-breadcrumb>
       <div class="table-section" style="flex: 2">
         <a-table
           :columns="columns"
@@ -44,7 +55,9 @@
                 class="league-logo"
                 :src="`https://sleepercdn.com/avatars/thumbs/${record.avatar}`"
                 style="width: 30px; height: 30px; margin-right: 10px; vertical-align: middle"
+                @error="(event) => (event.target.src = defaultimage)"
               />
+
               {{ record.league_name }}
             </div></template
           >
@@ -57,7 +70,7 @@
 </template>
 <script lang="ts" setup>
 // Vue Imports
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -66,8 +79,17 @@ import AppFooter from '@/components/AppFooter.vue'
 // 3rd Party imports
 import { HomeOutlined } from '@ant-design/icons-vue'
 import axios from 'axios'
+import { useUserStore } from '@/stores/userStore'
 
 // Custom Utils imports
+import defaultimage from '@/assets/t1.jpg'
+
+const userStore = useUserStore()
+// Example function that would be called when a user submits their details
+function updateUserDetails(year, name, guid) {
+  userStore.setUserDetails(year, name, guid)
+}
+const store = useUserStore()
 
 type TableDataType = {
   key: number
@@ -80,10 +102,17 @@ type TableDataType = {
 
 const columns = [
   {
-    title: 'League',
+    title: '',
     dataIndex: 'league_name',
     key: 'league_name',
     slots: { customRender: 'avatarRender' }
+  },
+  {
+    title: 'League',
+    key: 'actions',
+    align: 'center',
+    width: 150,
+    slots: { customRender: 'actionSlot' }
   },
   {
     title: 'Type',
@@ -111,7 +140,7 @@ const columns = [
     title: 'Size',
     dataIndex: 'total_rosters',
     key: 'total_rosters',
-    width: 100,
+    width: 50,
     sorter: {
       compare: (a, b) => a.total_rosters - b.total_rosters,
       multiple: 1
@@ -121,7 +150,7 @@ const columns = [
     title: 'Roster',
     dataIndex: 'roster_type',
     key: 'roster_type',
-    width: 150,
+    width: 100,
     filters: [
       {
         text: 'SingleQB',
@@ -141,18 +170,11 @@ const columns = [
     dataIndex: 'starter_cnt',
     key: 'starter_cnt',
     align: 'center',
-    width: 100,
+    width: 50,
     sorter: {
       compare: (a, b) => a.starter_cnt - b.starter_cnt,
       multiple: 2
     }
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    align: 'center',
-    width: 150,
-    slots: { customRender: 'actionSlot' }
   }
 ]
 
@@ -165,7 +187,7 @@ const isLoading = ref(false)
 const router = useRouter() // Use the useRouter composable to get access to the router instance
 
 const userName = route.params.userName as string
-const leagueYear = route.params.leagueYear
+const leagueYear = route.params.leagueYear as string
 const guid = route.params.guid as string
 const leagueName = route.params.leagueName as string
 
@@ -245,6 +267,27 @@ const getLeagueSummary = (record) => {
   const url = `/leaguesummary/${userName}/${userId}/${leagueId}/${leagueName}/${leagueYear}/${record.starter_cnt}/${record.total_rosters}/${record.league_type}/${guid}/${rosterType}/${avatar}/${rankType}`
 
   router.push(url)
+}
+
+const getPrevYear = async () => {
+  if (data.value.length === 0) return
+
+  const leaguePrevYear = parseInt(data.value[0].league_year, 10) - 1
+  try {
+    console.log(`/leagues/${leaguePrevYear}/${userName}/${guid}`)
+    await axios.post('http://localhost:8000/user_details', {
+      league_year: `${leaguePrevYear}`,
+      user_name: `${userName}`,
+      guid: `${guid}`
+    })
+
+    console.log('Username submission successful')
+    console.log(userName)
+  } catch (error) {
+    console.error('Error performing the action:', error)
+  } finally {
+    fetchData(leaguePrevYear, userName, guid)
+  }
 }
 </script>
 <style>

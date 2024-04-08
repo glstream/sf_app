@@ -1,14 +1,15 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
-      <a-breadcrumb-item
-        ><a href="/username"><home-outlined /></a
-      ></a-breadcrumb-item>
-      <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
-      <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
-    </a-breadcrumb>
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
+
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+      <a-breadcrumb style="padding-top: 10px">
+        <a-breadcrumb-item
+          ><a href="/username"><home-outlined /></a
+        ></a-breadcrumb-item>
+        <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
+        <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
+      </a-breadcrumb>
       <a-row>
         <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14" style="text-align: right">
           <div style="margin-bottom: 25px" bordered>
@@ -16,7 +17,9 @@
               <img
                 class="league-logo"
                 :src="`https://sleepercdn.com/avatars/thumbs/${leagueInfo.avatar}`"
+                @error="(event) => (event.target.src = defaultimage)"
               />
+
               <span>{{ leagueInfo.leagueName }}</span
               >&bull;<span>{{ leagueInfo.userName }}</span>
             </div>
@@ -382,6 +385,7 @@ import axios from 'axios'
 // Platform Utils
 import type { TabsProps, message, Spin } from 'ant-design-vue'
 import { HomeOutlined } from '@ant-design/icons-vue'
+import defaultimage from '@/assets/t1.jpg'
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'

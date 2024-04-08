@@ -1,12 +1,13 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-breadcrumb style="padding-left: 100px; padding-top: 10px">
-      <a-breadcrumb-item>
-        <a href="/username"><home-outlined /></a>
-      </a-breadcrumb-item>
-    </a-breadcrumb>
+
     <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
+      <a-breadcrumb style="padding-top: 10px">
+        <a-breadcrumb-item>
+          <a href="/username"><home-outlined /></a>
+        </a-breadcrumb-item>
+      </a-breadcrumb>
       <div class="form-container">
         <a-card hoverable style="width: 300px">
           <template #cover>
@@ -61,7 +62,7 @@
   </a-layout>
 </template>
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // Site tags
@@ -96,6 +97,7 @@ const userStore = useUserStore()
 function updateUserDetails(year, name, guid) {
   userStore.setUserDetails(year, name, guid)
 }
+
 const store = useUserStore()
 const router = useRouter()
 
@@ -105,8 +107,8 @@ interface FormState {
 }
 
 const formState = reactive<FormState>({
-  userName: '',
-  leagueYear: '2024'
+  userName: userStore.userName || '',
+  leagueYear: userStore.leagueYear || '2024'
 })
 
 const onFinish = async (values) => {
