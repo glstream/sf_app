@@ -1,7 +1,7 @@
 <!-- src/components/AppHeader.vue -->
 <template>
   <a-layout-header :style="{ position: 'fixed', zIndex: 100, width: '100%' }">
-    <div class="logo" />
+    <img class="logo" :src="logoImg" alt="Logo" />
     <a-menu theme="dark" mode="horizontal" :default-selected-keys="['1']">
       <a-menu-item key="1"><router-link to="/username">Home</router-link></a-menu-item>
       <a-menu-item key="3"
@@ -33,7 +33,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import logoImg from '@/assets/t1.jpg' // Adjust the path as necessary
+import logoImg from '@/assets/logo4.png'
 
 import { useUserStore } from '@/stores/userStore'
 import { CalculatorOutlined } from '@ant-design/icons-vue'
@@ -44,11 +44,10 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 </script>
 
 <style scoped>
-#components-layout-demo-fixed .logo {
-  width: 120px;
-  height: 31px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px 24px 16px 0;
+.logo {
+  width: 60px; /* Adjust the size as needed */
+  height: 60px;
+  margin: 0 0px 0px 0;
   float: left;
 }
 .site-layout .site-layout-background {

@@ -95,18 +95,18 @@ import { HomeOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 // Source image imports
-import sfLogo from '@/assets/sourceLogos/sf.png'
+import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
 
-const platform = ref('sf')
+const platform = ref('fn')
 const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
 
 const sources = [
-  { key: 'sf', name: 'SuperFlex', logo: sfLogo },
+  { key: 'fn', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }

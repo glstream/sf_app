@@ -401,7 +401,7 @@ const selectedPlayers2 = ref([])
 const isLoading = ref(false)
 const ranksData = ref([{}])
 
-const platform = ref('sf')
+const platform = ref('fn')
 const rankType = ref('dynasty')
 const tepCheck = ref(false)
 
@@ -454,7 +454,7 @@ const dropDownHandleChange = (value: string) => {
 }
 
 // Sourec image imports
-import sfLogo from '@/assets/sourceLogos/sf.png'
+import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
@@ -462,7 +462,7 @@ import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
 
 const sources = [
-  { key: 'sf', name: 'SuperFlex', logo: sfLogo },
+  { key: 'fn', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
@@ -478,7 +478,7 @@ const selectedSource = ref(sources[0])
 const filteredSources = computed(() => {
   if (rankType.value !== 'dynasty') {
     return sources.filter(
-      (source) => source.key === 'fc' || source.key === 'ktc' || source.key === 'sf'
+      (source) => source.key === 'fc' || source.key === 'ktc' || source.key === 'fn'
     )
   }
   return sources

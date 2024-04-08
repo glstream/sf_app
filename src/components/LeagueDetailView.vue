@@ -1128,7 +1128,7 @@ import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/colorTable'
 
 // Sourec image imports
-import sfLogo from '@/assets/sourceLogos/sf.png'
+import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
@@ -1197,7 +1197,7 @@ const clickedManager = ref('')
 
 const value1 = ref('Choose Projection')
 const sources = [
-  { key: 'sf', name: 'SuperFlex', logo: sfLogo },
+  { key: 'fn', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }

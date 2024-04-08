@@ -99,7 +99,7 @@
                 </div>
               </a-tab-pane>
 
-              <a-tab-pane key="2" tab="Superflex" data-metadata="sf">
+              <a-tab-pane key="2" tab="FantasyNavigator" data-metadata="sf">
                 <a-spin :spinning="isLoading">
                   <div class="scrollable-content">
                     <div class="tags-container" v-if="positionalRanks.length > 0">
