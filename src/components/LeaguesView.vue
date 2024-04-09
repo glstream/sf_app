@@ -16,7 +16,7 @@
                 <a>{{ leagueInfo.leagueYear }}</a>
               </a-menu-item>
               <a-menu-item @click="getPrevYear">
-                <a>{{ data[0]?.league_year - 1 }}</a>
+                <a>Previous Year</a>
               </a-menu-item>
             </a-menu>
           </template>
@@ -213,6 +213,8 @@ onMounted(() => {
 })
 
 async function fetchData(leagueYear: string, userName: string, guid: string) {
+  console.log('fetching data')
+  console.log(leagueYear, userName, guid)
   isLoading.value = true
   try {
     const response = await axios.get(`${apiUrl}/leagues`, {
@@ -276,27 +278,10 @@ const getLeagueSummary = (record) => {
 }
 
 const getPrevYear = async () => {
-  isLoading.value = true
-  if (data.value.length === 0) return
-
-  const leaguePrevYear = parseInt(data.value[0].league_year, 10) - 1
-  try {
-    console.log(`/leagues/${leaguePrevYear}/${userName}/${guid}`)
-    await axios.post(`${apiUrl}/user_details`, {
-      league_year: `${leaguePrevYear}`,
-      user_name: `${userName}`,
-      guid: `${guid}`
-    })
-
-    console.log('Username submission successful')
-    console.log(userName)
-  } catch (error) {
-    console.error('Error performing the action:', error)
-  } finally {
-    fetchData(leaguePrevYear, userName, guid)
-  }
+  router.push(`/username/`)
 }
 const getCurrentYear = async () => {
+  console.log('get current year')
   isLoading.value = true
   const leagueYear = leagueInfo.leagueYear
   console.log(leagueYear, userName, guid)

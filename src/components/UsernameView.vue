@@ -62,6 +62,7 @@
                 :rules="[{ required: true, message: 'Please select a league year' }]"
                 ><span>Year</span>
                 <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
+                  <a-select-option value="2024">2024</a-select-option>
                   <a-select-option value="2023">2023</a-select-option>
                   <a-select-option value="2022">2022</a-select-option>
                   <a-select-option value="2021">2021</a-select-option>
