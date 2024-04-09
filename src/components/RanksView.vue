@@ -59,23 +59,58 @@
           </a-flex>
         </div>
       </div>
+      <a-spin :spinning="isLoading">
+        <div class="card-list">
+          <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="16">
+              <div class="gutter-box-playername">RANK</div>
+            </a-col>
+            <a-col class="gutter-row" :span="2">
+              <div class="gutter-box"></div>
+            </a-col>
+            <a-col class="gutter-row" :span="2">
+              <div class="gutter-box">AGE</div>
+            </a-col>
+            <a-col class="gutter-row" :span="4">
+              <div class="gutter-box">VALUE</div>
+            </a-col>
+          </a-row>
 
-      <a-table
-        :columns="playerColumns"
-        :data-source="filteredData"
-        :loading="isLoading"
-        :expand-column-width="100"
-        :pagination="{ pageSize: 75 }"
-        :scroll="{ x: '850px' }"
-      >
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'pos_rank'">
-            <span>
-              <a-tag :style="getPositionTag(record._position)">{{ record.pos_rank }}</a-tag>
-            </span>
-          </template>
-        </template>
-      </a-table>
+          <div v-for="(asset, index) in paginatedData" :key="asset._rownum">
+            <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }" class="ranks-row">
+              <a-col class="gutter-row" :span="16">
+                <div class="gutter-box-playername">
+                  <a-avatar shape="square" class="avatar">{{
+                    (currentPage - 1) * perPage + index + 1
+                  }}</a-avatar>
+
+                  <div class="player-name">{{ asset.player_full_name }}</div>
+                  <a-tag class="position-tag" :style="getPositionTag(asset._position)"
+                    >{{ asset._position }} {{ asset.pos_ranked }}</a-tag
+                  >
+                </div>
+              </a-col>
+              <a-col class="gutter-row" :span="2">
+                <div v-if="asset.team" class="gutter-box">{{ asset.team }}</div>
+                <div v-else class="gutter-box">N/A</div>
+              </a-col>
+              <a-col class="gutter-row" :span="2">
+                <div v-if="asset.age" class="gutter-box">{{ asset.age }}</div>
+                <div v-else class="gutter-box">N/A</div>
+              </a-col>
+              <a-col class="gutter-row" :span="4">
+                <div class="gutter-box-value">{{ asset.player_value.toLocaleString() }}</div>
+              </a-col>
+            </a-row>
+          </div>
+        </div>
+        <a-pagination
+          :current="currentPage"
+          :total="filteredData.length"
+          :pageSize="perPage"
+          @change="handlePageChange"
+        ></a-pagination>
+      </a-spin>
     </a-layout-content>
     <AppFooter />
   </a-layout>
@@ -104,6 +139,10 @@ const platform = ref('sf')
 const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
+const currentPage = ref(1)
+const perPage = ref(100)
+
+const filterOn = ref(false)
 
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
@@ -152,7 +191,7 @@ const playerColumns: Column[] = [
     key: 'player_rank',
     width: 50,
     sorter: {
-      compare: (a, b) => a.rank - b.rank,
+      compare: (a, b) => a.player_rank - b.player_rank,
       multiple: 1
     }
   },
@@ -179,8 +218,8 @@ const playerColumns: Column[] = [
         value: 'TE'
       },
       {
-        text: 'Pick',
-        value: 'Pick'
+        text: 'PICK',
+        value: 'PICK'
       }
     ],
     onFilter: (value: string, record: TableDataType) => record._position.indexOf(value) === 0
@@ -234,7 +273,7 @@ watchEffect(() => {
 })
 
 const filteredData = computed(() => {
-  return ranksData.value.filter((item) => {
+  const filtered = ranksData.value.filter((item) => {
     const rankTypeCondition = state.checked2
       ? item.rank_type === 'dynasty'
       : item.rank_type === 'redraft'
@@ -243,6 +282,26 @@ const filteredData = computed(() => {
       : item.roster_type === 'one_qb_value'
     return rankTypeCondition && rosterTypeCondition
   })
+
+  // Group by _position
+  const grouped = filtered.reduce((acc, item) => {
+    acc[item._position] = acc[item._position] || []
+    acc[item._position].push(item)
+    return acc
+  }, {})
+
+  // Sort each group in descending order and assign pos_ranked
+  Object.keys(grouped).forEach((position) => {
+    grouped[position].sort((a, b) => b.player_value - a.player_value) // Sort in descending order
+    grouped[position].forEach((item, index) => {
+      item.pos_ranked = index + 1 // Rank within the position
+    })
+  })
+
+  // Flatten the grouped object back into an array
+  return Object.values(grouped)
+    .flat()
+    .sort((a, b) => b.player_value - a.player_value)
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
@@ -340,6 +399,17 @@ function downloadData() {
   link.click()
   document.body.removeChild(link)
 }
+// Computed property to get the current page's data
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value
+  const end = start + perPage.value
+  return filteredData.value.slice(start, end)
+})
+
+// Method to handle page change
+function handlePageChange(page) {
+  currentPage.value = page
+}
 </script>
 <style scoped>
 .rank-logos {
@@ -370,5 +440,56 @@ function downloadData() {
 .setting-item {
   display: flex; /* This makes sure the content of each setting item aligns correctly */
   align-items: center; /* Aligns the switch vertically in the middle */
+}
+.card-list {
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  border: 1px solid #f0f0f0;
+  border-radius: 5px;
+}
+
+.avatar {
+  background-color: rgb(87, 117, 144);
+}
+
+.player-name {
+  margin-right: 5px; /* Space between name and tag */
+}
+
+.gutter-box {
+  padding: 12px 0;
+  text-align: center;
+  align-items: center;
+  gap: 0.5rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+.gutter-box-value {
+  padding: 12px 0;
+  text-align: center;
+  font-weight: bold;
+  align-items: center;
+  gap: 0.5rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+.gutter-box-playername {
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ranks-row {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  margin-bottom: 5px;
 }
 </style>

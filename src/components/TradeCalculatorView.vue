@@ -71,7 +71,7 @@
             </a-col>
           </a-row>
         </div>
-        <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
+        <a-divider></a-divider>
         <a-row :gutter="100" class="teams">
           <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <div>
@@ -1383,7 +1383,7 @@ function getCardPositionColor(position: string): string {
 /* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 350px; /* Larger padding for larger screens */
+    padding: 0 300px; /* Larger padding for larger screens */
   }
 }
 
