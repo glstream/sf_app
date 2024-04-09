@@ -1197,7 +1197,7 @@ const clickedManager = ref('')
 
 const value1 = ref('Choose Projection')
 const sources = [
-  { key: 'fn', name: 'FantasyNavigator', logo: fnLogo },
+  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
@@ -1355,10 +1355,6 @@ function formatGaugeData(record) {
       value: record.picks_percent
     }
   ]
-}
-
-const getLogoPath = (path) => {
-  return require('@/assets/sourceLogos/' + path)
 }
 
 const starterColumns: Column[] = [
