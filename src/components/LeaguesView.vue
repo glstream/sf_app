@@ -16,7 +16,7 @@
                 <a>{{ leagueInfo.leagueYear }}</a>
               </a-menu-item>
               <a-menu-item @click="getPrevYear">
-                <a>Previous Year</a>
+                <a>Change Year</a>
               </a-menu-item>
             </a-menu>
           </template>
