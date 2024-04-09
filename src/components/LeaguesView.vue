@@ -9,7 +9,7 @@
         ></a-breadcrumb-item>
         <a-breadcrumb-item>Leagues</a-breadcrumb-item>
         <a-breadcrumb-item>
-          <a href="">{{ data[0]?.league_year }}</a>
+          {{ data[0]?.league_year }}
           <template #overlay>
             <a-menu>
               <a-menu-item @click="getCurrentYear">
