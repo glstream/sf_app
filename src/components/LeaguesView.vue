@@ -46,97 +46,101 @@
           </a-select>
         </a-flex>
       </div>
-
-      <div>
-        <div class="leagues-container" v-for="league in filteredData" :key="league.league_id">
-          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="24">
-              <div class="gutter-box-header">
-                <div>
-                  <img
-                    class="league-logo"
-                    :src="`https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
-                    style="vertical-align: middle"
-                    @error="(event) => (event.target.src = defaultimage)"
-                  />
-                  <span style="font-size: larger; padding-left: 5px">{{ league.league_name }}</span>
+      <a-spin :spinning="isLoading">
+        <div>
+          <div class="leagues-container" v-for="league in filteredData" :key="league.league_id">
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="24">
+                <div class="gutter-box-header">
+                  <div>
+                    <img
+                      class="league-logo"
+                      :src="`https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
+                      style="vertical-align: middle"
+                      @error="(event) => (event.target.src = defaultimage)"
+                    />
+                    <span style="font-size: larger; padding-left: 5px">{{
+                      league.league_name
+                    }}</span>
+                  </div>
                 </div>
-              </div>
-            </a-col>
-          </a-row>
-          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="10">
-              <div class="gutter-box-header">
-                <a-tag
-                  :color="
-                    league.league_type === 'Dynasty'
-                      ? 'cyan'
-                      : league.league_type === 'Redraft'
-                        ? 'green'
-                        : 'red'
-                  "
-                >
-                  {{ league.league_type }}</a-tag
-                >
-                <a-tag>{{ league.roster_type }}</a-tag>
-              </div>
-            </a-col>
-            <a-col class="gutter-row" :span="14">
-              <div class="gutter-box-search">
-                <a-flex :gap="30">
-                  <a-tooltip>
-                    <template #title>League Details</template>
-                    <a-button size="small" type="primary" @click="getLeagueDetail(league)"
-                      >Detail <BarChartOutlined
-                    /></a-button>
-                  </a-tooltip>
-                  <a-tooltip>
-                    <template #title>League Summary</template>
-                    <a-button size="small" type="primary" @click="getLeagueSummary(league)"
-                      >Summary<FileSearchOutlined
-                    /></a-button>
-                  </a-tooltip>
-                </a-flex>
-              </div>
-            </a-col>
-          </a-row>
-          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="24">
-              <div class="gutter-box">
-                <span style="padding-right: 5px">League Size</span>
-                <a-tag>{{ league.total_rosters }}</a-tag>
-                <span style="padding-right: 5px">Starters</span>
-                <a-tag>{{ league.starter_cnt }}</a-tag>
-                <span style="padding-right: 5px">Roster Size</span>
-                <a-tag>{{ league.total_roster_cnt }}</a-tag>
-              </div>
-            </a-col>
-          </a-row>
-          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="24">
-              <div class="gutter-box-panel">
-                <a-collapse>
-                  <a-collapse-panel key="1" header="League at a glance">
-                    <p><strong>Overall</strong></p>
-                    <p>
-                      KeepTradeCut: <a-tag>{{ addOrdinalSuffix(league.ktc_power_rank) }}</a-tag>
-                    </p>
-                    <p>
-                      FantasyNavigator: <a-tag>{{ addOrdinalSuffix(league.sf_power_rank) }}</a-tag>
-                    </p>
-                    <p>
-                      FantasyCalc: <a-tag>{{ addOrdinalSuffix(league.fc_power_rank) }}</a-tag>
-                    </p>
-                    <p>
-                      DynastyProcess: <a-tag>{{ addOrdinalSuffix(league.dp_power_rank) }}</a-tag>
-                    </p>
-                  </a-collapse-panel>
-                </a-collapse>
-              </div>
-            </a-col>
-          </a-row>
+              </a-col>
+            </a-row>
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="10">
+                <div class="gutter-box-header">
+                  <a-tag
+                    :color="
+                      league.league_type === 'Dynasty'
+                        ? 'cyan'
+                        : league.league_type === 'Redraft'
+                          ? 'green'
+                          : 'red'
+                    "
+                  >
+                    {{ league.league_type }}</a-tag
+                  >
+                  <a-tag> {{ league.roster_type }}</a-tag>
+                </div>
+              </a-col>
+              <a-col class="gutter-row" :span="14">
+                <div class="gutter-box-search">
+                  <a-flex :gap="8">
+                    <a-tooltip>
+                      <template #title>League Details</template>
+                      <a-button size="default" type="primary" @click="getLeagueDetail(league)"
+                        >Detail <BarChartOutlined
+                      /></a-button>
+                    </a-tooltip>
+                    <a-tooltip>
+                      <template #title>League Summary</template>
+                      <a-button size="default" type="primary" @click="getLeagueSummary(league)"
+                        >Summary<FileSearchOutlined
+                      /></a-button>
+                    </a-tooltip>
+                  </a-flex>
+                </div>
+              </a-col>
+            </a-row>
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="24">
+                <div class="gutter-box">
+                  <span style="padding-right: 5px">League Size</span>
+                  <a-tag class="standard-tag">{{ league.total_rosters }}</a-tag>
+                  <span style="padding-right: 5px">Starters</span>
+                  <a-tag class="standard-tag">{{ league.starter_cnt }}</a-tag>
+                  <span style="padding-right: 5px">Roster Size</span>
+                  <a-tag class="standard-tag">{{ league.total_roster_cnt }}</a-tag>
+                </div>
+              </a-col>
+            </a-row>
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="24">
+                <div class="gutter-box-panel">
+                  <a-collapse>
+                    <a-collapse-panel key="1" header="League at a glance">
+                      <p><strong>Overall</strong></p>
+                      <p>
+                        KeepTradeCut: <a-tag>{{ addOrdinalSuffix(league.ktc_power_rank) }}</a-tag>
+                      </p>
+                      <p>
+                        FantasyNavigator:
+                        <a-tag>{{ addOrdinalSuffix(league.sf_power_rank) }}</a-tag>
+                      </p>
+                      <p>
+                        FantasyCalc: <a-tag>{{ addOrdinalSuffix(league.fc_power_rank) }}</a-tag>
+                      </p>
+                      <p>
+                        DynastyProcess: <a-tag>{{ addOrdinalSuffix(league.dp_power_rank) }}</a-tag>
+                      </p>
+                    </a-collapse-panel>
+                  </a-collapse>
+                </div>
+              </a-col>
+            </a-row>
+          </div>
         </div>
-      </div>
+      </a-spin>
     </a-layout-content>
 
     <AppFooter />
@@ -391,5 +395,8 @@ const getCurrentYear = async () => {
   padding: 8px 5px;
   display: flex;
   justify-content: center;
+}
+.standard-tag {
+  color: #f3722c;
 }
 </style>
