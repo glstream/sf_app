@@ -9,7 +9,7 @@
         ></a-breadcrumb-item>
         <a-breadcrumb-item>Leagues</a-breadcrumb-item>
         <a-breadcrumb-item>
-          {{ data[0]?.league_year }}
+          {{ leagueYear }}
           <template #overlay>
             <a-menu>
               <a-menu-item @click="getCurrentYear">
@@ -22,49 +22,120 @@
           </template>
         </a-breadcrumb-item>
       </a-breadcrumb>
-      <div class="table-section" style="flex: 2">
-        <a-table
-          :columns="columns"
-          :data-source="data"
-          :loading="isLoading"
-          :expand-column-width="100"
-          :scroll="{ x: 900 }"
-        >
-          <template v-slot:[`actionSlot`]="{ record }">
-            <a-space>
-              <a-button type="primary" @click="getLeagueDetail(record)">Details</a-button>
-              <a-button type="primary" @click="getLeagueSummary(record)">Summary</a-button>
-            </a-space>
-          </template>
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'league_type'">
-              <span>
+      <div style="padding-top: 30px">
+        <a-flex :gap="20">
+          <a-select
+            placeholder="Select League Type"
+            :options="leagueOptions"
+            style="width: 175px"
+            @change="handleLeagueChange"
+            v-model="selectedLeagueType"
+            mode="multiple"
+            :max-tag-count="3"
+          >
+          </a-select>
+          <a-select
+            placeholder="Select Roster Type"
+            :options="rosterOptions"
+            style="width: 175px"
+            @change="handleRosterChange"
+            v-model="selectedRosterType"
+            mode="multiple"
+            :max-tag-count="3"
+          >
+          </a-select>
+        </a-flex>
+      </div>
+
+      <div>
+        <div class="leagues-container" v-for="league in filteredData" :key="league.league_id">
+          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <div class="gutter-box-header">
+                <div>
+                  <img
+                    class="league-logo"
+                    :src="`https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
+                    style="vertical-align: middle"
+                    @error="(event) => (event.target.src = defaultimage)"
+                  />
+                  <span style="font-size: larger; padding-left: 5px">{{ league.league_name }}</span>
+                </div>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="10">
+              <div class="gutter-box-header">
                 <a-tag
                   :color="
-                    record.league_type === 'Dynasty'
+                    league.league_type === 'Dynasty'
                       ? 'cyan'
-                      : record.league_type === 'Redraft'
+                      : league.league_type === 'Redraft'
                         ? 'green'
                         : 'red'
                   "
-                  >{{ record.league_type }}</a-tag
                 >
-              </span>
-            </template>
-          </template>
-          <template v-slot:avatarRender="{ record }">
-            <div>
-              <img
-                class="league-logo"
-                :src="`https://sleepercdn.com/avatars/thumbs/${record.avatar}`"
-                style="width: 30px; height: 30px; margin-right: 10px; vertical-align: middle"
-                @error="(event) => (event.target.src = defaultimage)"
-              />
-
-              {{ record.league_name }}
-            </div></template
-          >
-        </a-table>
+                  {{ league.league_type }}</a-tag
+                >
+                <a-tag>{{ league.roster_type }}</a-tag>
+              </div>
+            </a-col>
+            <a-col class="gutter-row" :span="14">
+              <div class="gutter-box-search">
+                <a-flex :gap="30">
+                  <a-tooltip>
+                    <template #title>League Details</template>
+                    <a-button size="small" type="primary" @click="getLeagueDetail(league)"
+                      >Detail <BarChartOutlined
+                    /></a-button>
+                  </a-tooltip>
+                  <a-tooltip>
+                    <template #title>League Summary</template>
+                    <a-button size="small" type="primary" @click="getLeagueSummary(league)"
+                      >Summary<FileSearchOutlined
+                    /></a-button>
+                  </a-tooltip>
+                </a-flex>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <div class="gutter-box">
+                <span style="padding-right: 5px">League Size</span>
+                <a-tag>{{ league.total_rosters }}</a-tag>
+                <span style="padding-right: 5px">Starters</span>
+                <a-tag>{{ league.starter_cnt }}</a-tag>
+                <span style="padding-right: 5px">Roster Size</span>
+                <a-tag>{{ league.total_roster_cnt }}</a-tag>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+            <a-col class="gutter-row" :span="24">
+              <div class="gutter-box-panel">
+                <a-collapse>
+                  <a-collapse-panel key="1" header="League at a glance">
+                    <p><strong>Overall</strong></p>
+                    <p>
+                      KeepTradeCut: <a-tag>{{ addOrdinalSuffix(league.ktc_power_rank) }}</a-tag>
+                    </p>
+                    <p>
+                      FantasyNavigator: <a-tag>{{ addOrdinalSuffix(league.sf_power_rank) }}</a-tag>
+                    </p>
+                    <p>
+                      FantasyCalc: <a-tag>{{ addOrdinalSuffix(league.fc_power_rank) }}</a-tag>
+                    </p>
+                    <p>
+                      DynastyProcess: <a-tag>{{ addOrdinalSuffix(league.dp_power_rank) }}</a-tag>
+                    </p>
+                  </a-collapse-panel>
+                </a-collapse>
+              </div>
+            </a-col>
+          </a-row>
+        </div>
       </div>
     </a-layout-content>
 
@@ -73,16 +144,21 @@
 </template>
 <script lang="ts" setup>
 // Vue Imports
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 // 3rd Party imports
-import { HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, FileSearchOutlined, BarChartOutlined } from '@ant-design/icons-vue'
+import type { SelectProps } from 'ant-design-vue'
+
 import axios from 'axios'
 import { useUserStore } from '@/stores/userStore'
+
+// Custom Utils
+import { addOrdinalSuffix } from '../utils/suffix'
 
 // Custom Utils imports
 import defaultimage from '@/assets/t1.jpg'
@@ -96,106 +172,20 @@ function updateUserDetails(year, name, guid) {
 }
 const store = useUserStore()
 
-type TableDataType = {
-  key: number
-  league_name: string
-  league_type: string
-  total_rosters: number
-  roster_type: string
-  starter_cnt: number
-}
-
-const columns = [
-  {
-    title: '',
-    dataIndex: 'league_name',
-    key: 'league_name',
-    slots: { customRender: 'avatarRender' }
-  },
-  {
-    title: 'League',
-    key: 'actions',
-    align: 'center',
-    width: 150,
-    slots: { customRender: 'actionSlot' }
-  },
-  {
-    title: 'Type',
-    dataIndex: 'league_type',
-    key: 'league_type',
-    filters: [
-      {
-        text: 'Redraft',
-        value: 'Redraft'
-      },
-      {
-        text: 'Keeper',
-        value: 'Keeper'
-      },
-      {
-        text: 'Dynasty',
-        value: 'Dynasty'
-      }
-    ],
-    onFilter: (value: string, record: TableDataType) => record.league_type.indexOf(value) === 0,
-    sorter: (a: TableDataType, b: TableDataType) => a.league_type.length - b.league_type.length,
-    sortDirections: ['descend']
-  },
-
-  {
-    title: 'Roster',
-    dataIndex: 'roster_type',
-    key: 'roster_type',
-    width: 100,
-    filters: [
-      {
-        text: 'SingleQB',
-        value: 'SingleQB'
-      },
-      {
-        text: 'Superflex',
-        value: 'Superflex'
-      }
-    ],
-    onFilter: (value: string, record: TableDataType) => record.roster_type.indexOf(value) === 0,
-    sorter: (a: TableDataType, b: TableDataType) => a.roster_type.length - b.roster_type.length,
-    sortDirections: ['descend']
-  },
-  {
-    title: 'Size',
-    dataIndex: 'total_rosters',
-    key: 'total_rosters',
-    width: 50,
-    sorter: {
-      compare: (a, b) => a.total_rosters - b.total_rosters,
-      multiple: 1
-    }
-  },
-  {
-    title: 'Starters',
-    dataIndex: 'starter_cnt',
-    key: 'starter_cnt',
-    align: 'center',
-    width: 50,
-    sorter: {
-      compare: (a, b) => a.starter_cnt - b.starter_cnt,
-      multiple: 2
-    }
-  }
-]
-
 // configs
 const activeKey = ref([])
-// Assuming 'data' is the property used as the data source for your table
-const data = ref([])
+const leaguesData = ref([])
 const route = useRoute()
 const isLoading = ref(false)
-const router = useRouter() // Use the useRouter composable to get access to the router instance
+const router = useRouter()
 
 const userName = route.params.userName as string
 const leagueYear = route.params.leagueYear as string
 const guid = route.params.guid as string
 const leagueName = route.params.leagueName as string
+
+const selectedLeagueType = ref('')
+const selectedRosterType = ref('')
 
 const leagueInfo = reactive({
   userName: userName,
@@ -212,6 +202,49 @@ onMounted(() => {
   }
 })
 
+const filteredData = computed(() => {
+  return leaguesData.value.filter((league) => {
+    const matchesLeagueType =
+      selectedLeagueType.value.length === 0 || selectedLeagueType.value.includes(league.league_type)
+    const matchesRosterType =
+      selectedRosterType.value.length === 0 || selectedRosterType.value.includes(league.roster_type)
+    return matchesLeagueType && matchesRosterType
+  })
+})
+
+const handleLeagueChange = (value: string) => {
+  console.log(value)
+  selectedLeagueType.value = value
+}
+
+const handleRosterChange = (value: string) => {
+  selectedRosterType.value = value
+}
+
+const leagueOptions = ref<SelectProps['options']>([
+  {
+    value: 'Dynasty',
+    label: 'Dynasty'
+  },
+  {
+    value: 'Keeper',
+    label: 'Keeper'
+  },
+  {
+    value: 'Redraft',
+    label: 'Redraft'
+  }
+])
+const rosterOptions = ref<SelectProps['options']>([
+  {
+    value: 'Superflex',
+    label: 'Superflex'
+  },
+  {
+    value: 'Single QB',
+    label: 'Single QB'
+  }
+])
 async function fetchData(leagueYear: string, userName: string, guid: string) {
   console.log('fetching data')
   console.log(leagueYear, userName, guid)
@@ -224,8 +257,8 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
         guid: guid
       }
     })
-    data.value = response.data // Assuming the server response format matches your table data format
-    console.log(data.value)
+    leaguesData.value = response.data // Assuming the server response format matches your table data format
+    console.log(leaguesData.value)
   } catch (error) {
     console.error('There was an error fetching the leagues data:', error)
   } finally {
@@ -299,7 +332,7 @@ const getCurrentYear = async () => {
   }
 }
 </script>
-<style>
+<style scoped>
 /* Additional styles for layout */
 .layout {
   min-height: 100vh;
@@ -309,8 +342,8 @@ const getCurrentYear = async () => {
   justify-content: left;
 }
 .league-logo {
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border-radius: 7px;
   border: 1px solid gray;
 }
@@ -326,5 +359,37 @@ const getCurrentYear = async () => {
   .responsive-padding {
     padding: 0 200px; /* Larger padding for larger screens */
   }
+}
+.gutter-box {
+  padding: 8px 0;
+}
+.gutter-box-search {
+  padding: 8px 0;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.leagues-container {
+  border: 1px solid #d9d9d9;
+  border-radius: 5px;
+  margin-top: 15px;
+}
+.gutter-box {
+  padding: 8px 5px;
+}
+
+.gutter-box-panel {
+  padding: 8px 5px;
+  padding-right: 45px;
+}
+.gutter-box-header {
+  padding: 8px 5px;
+}
+.gutter-box-detail {
+  padding: 8px 5px;
+  display: flex;
+  justify-content: center;
 }
 </style>

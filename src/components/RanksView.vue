@@ -77,7 +77,7 @@
           </a-row>
 
           <div v-for="(asset, index) in paginatedData" :key="asset._rownum">
-            <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }" class="ranks-row">
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="ranks-row">
               <a-col class="gutter-row" :span="16">
                 <div class="gutter-box-playername">
                   <a-avatar shape="square" class="avatar">{{
