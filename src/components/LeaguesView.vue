@@ -117,8 +117,10 @@
             <div class="leagues-stats-container">
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col class="gutter-row" :span="12">
-                  <div class="gutter-box-stats-top" style="font-weight: bold"></div
-                ></a-col>
+                  <div class="gutter-box-stats-top-header" style="font-weight: bold">
+                    Rankings
+                  </div></a-col
+                >
                 <a-col class="gutter-row" :span="6">
                   <div class="gutter-box-stats-top" style="font-weight: bold">Power</div></a-col
                 >
@@ -485,5 +487,11 @@ const getCurrentYear = async () => {
   font-size: 1em;
   display: flex;
   justify-content: center;
+}
+.gutter-box-stats-top-header {
+  padding: 1px 10px;
+  font-size: 1em;
+  display: flex;
+  justify-content: left;
 }
 </style>

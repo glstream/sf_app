@@ -189,39 +189,41 @@ import { message } from 'ant-design-vue'
 import { useGuid } from '../utils/guid'
 import { useUserStore } from '@/stores/userStore'
 
+// Image imports
 import landingPage from '@/assets/home_page.webp'
 
-const open = ref<boolean>(false)
-const formIsLoading = ref(false)
-
-const showModal = () => {
-  open.value = true
-}
-
-const handleOk = (e: MouseEvent) => {
-  console.log(e)
-  open.value = false
-}
-
-const userStore = useUserStore()
-// Example function that would be called when a user submits their details
-function updateUserDetails(year, name, guid) {
-  userStore.setUserDetails(year, name, guid)
-}
-
+// routes and stores
 const store = useUserStore()
 const router = useRouter()
+
+// const instances
+const open = ref<boolean>(false)
+const formIsLoading = ref(false)
+const apiUrl = import.meta.env.VITE_API_URL
 
 interface FormState {
   userName: string
   leagueYear: string
 }
 
+const showModal = () => {
+  open.value = true
+}
+
+const handleOk = (e: MouseEvent) => {
+  open.value = false
+}
+
+const userStore = useUserStore()
+
+function updateUserDetails(year, name, guid) {
+  userStore.setUserDetails(year, name, guid)
+}
+
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2024'
 })
-const apiUrl = import.meta.env.VITE_API_URL
 
 const onFinish = async (values) => {
   formIsLoading.value = true
@@ -300,10 +302,6 @@ const onFinishFailed = (errorInfo: any) => {
 }
 .message-row {
   margin-bottom: 25px; /* Spacing between the message row and the form row */
-}
-
-.form-card {
-  /* Custom styles for the form card if needed */
 }
 
 @media (min-width: 992px) {
