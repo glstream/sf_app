@@ -375,7 +375,8 @@ import {
   MinusCircleTwoTone,
   ShareAltOutlined,
   DoubleLeftOutlined,
-  DoubleRightOutlined
+  DoubleRightOutlined,
+  HomeOutlined
 } from '@ant-design/icons-vue'
 
 // Sourec image imports
