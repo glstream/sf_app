@@ -114,30 +114,95 @@
                 </div>
               </a-col>
             </a-row>
-            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-              <a-col class="gutter-row" :span="24">
-                <div class="gutter-box-panel">
-                  <a-collapse>
-                    <a-collapse-panel key="1" header="League at a glance">
-                      <p><strong>Overall</strong></p>
-                      <p>
-                        KeepTradeCut: <a-tag>{{ addOrdinalSuffix(league.ktc_power_rank) }}</a-tag>
-                      </p>
-                      <p>
-                        FantasyNavigator:
-                        <a-tag>{{ addOrdinalSuffix(league.sf_power_rank) }}</a-tag>
-                      </p>
-                      <p>
-                        FantasyCalc: <a-tag>{{ addOrdinalSuffix(league.fc_power_rank) }}</a-tag>
-                      </p>
-                      <p>
-                        DynastyProcess: <a-tag>{{ addOrdinalSuffix(league.dp_power_rank) }}</a-tag>
-                      </p>
-                    </a-collapse-panel>
-                  </a-collapse>
-                </div>
-              </a-col>
-            </a-row>
+            <div class="leagues-stats-container">
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col class="gutter-row" :span="12">
+                  <div class="gutter-box-stats-top" style="font-weight: bold"></div
+                ></a-col>
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats-top" style="font-weight: bold">Power</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats-top" style="font-weight: bold">Starters</div></a-col
+                >
+              </a-row>
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col class="gutter-row" :span="12">
+                  <div class="gutter-box-stats-header">FantasyNavigator</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(league.sf_power_rank)">{{
+                      addOrdinalSuffix(league.sf_power_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.sf_starters_rank))">{{
+                      addOrdinalSuffix(league.sf_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+              </a-row>
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col class="gutter-row" :span="12">
+                  <div class="gutter-box-stats-header">KeepTradeCut</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(league.ktc_power_rank)">{{
+                      addOrdinalSuffix(league.ktc_power_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.ktc_starters_rank))">{{
+                      addOrdinalSuffix(league.ktc_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+              </a-row>
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col class="gutter-row" :span="12">
+                  <div class="gutter-box-stats-header">DynastyProcess</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(league.dp_power_rank)">{{
+                      addOrdinalSuffix(league.dp_power_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.dp_starters_rank))">{{
+                      addOrdinalSuffix(league.dp_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+              </a-row>
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col class="gutter-row" :span="12">
+                  <div class="gutter-box-stats-header">FantasyCalc</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(league.fc_power_rank)">{{
+                      addOrdinalSuffix(league.fc_power_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.fc_starters_rank))">{{
+                      addOrdinalSuffix(league.fc_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+              </a-row>
+            </div>
           </div>
         </div>
       </a-spin>
@@ -163,6 +228,7 @@ import { useUserStore } from '@/stores/userStore'
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
+import { getCellStyle } from '../utils/dynamicColorTable'
 
 // Custom Utils imports
 import defaultimage from '@/assets/t1.jpg'
@@ -380,6 +446,11 @@ const getCurrentYear = async () => {
   border-radius: 5px;
   margin-top: 15px;
 }
+.leagues-stats-container {
+  border-radius: 5px;
+  margin-top: 15px;
+  margin: 5px 5px;
+}
 .gutter-box {
   padding: 8px 5px;
 }
@@ -397,6 +468,22 @@ const getCurrentYear = async () => {
   justify-content: center;
 }
 .standard-tag {
-  color: #f3722c;
+  color: #black;
+  border: 1px solid gray;
+}
+
+.gutter-box-stats {
+  padding: 1px 1px;
+  display: flex;
+  justify-content: center;
+}
+.gutter-box-stats-header {
+  padding: 1px 10px;
+}
+.gutter-box-stats-top {
+  padding: 1px 10px;
+  font-size: 1em;
+  display: flex;
+  justify-content: center;
 }
 </style>

@@ -1,6 +1,6 @@
 export function getCellStyle(rank: number) {
   if (rank === 1) {
-    return { backgroundColor: 'rgba(68, 184, 73, 0.69)' } // Green for rank 1
+    return { backgroundColor: 'rgba(68, 184, 73, 0.69)' }
   } else if (rank === 2) {
     return { backgroundColor: 'rgba(104, 178, 68, 0.69)' } // Slightly different green for rank 2
   } else if (rank === 3) {

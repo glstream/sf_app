@@ -1,6 +1,6 @@
 export function addOrdinalSuffix(number: any) {
   if (number === null) {
-    return '--'
+    return '-/-'
   }
   const j = number % 10,
     k = number % 100

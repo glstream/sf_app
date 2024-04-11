@@ -1887,7 +1887,17 @@ async function fetchSummaryData(
     console.error('There was an error fetching the leagues summary data:', error)
     message.error('Failed to fetch league summary data.')
   } finally {
+    const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
     summaryIsLoading.value = false
+
+    const response = await axios.post(`${apiUrl}/ranks_summary`, {
+      user_id: leagueInfo.userId,
+      display_name: leagueInfo.userName,
+      league_id: leagueInfo.leagueId,
+      rank_source: platform,
+      power_rank: userSummary.total_rank,
+      starters_rank: userSummary.starters_rank
+    })
   }
 }
 
