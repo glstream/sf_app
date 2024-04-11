@@ -116,7 +116,7 @@
             </a-row>
             <div class="leagues-stats-container">
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
+                <a-col class="gutter-row" :span="6">
                   <div class="gutter-box-stats-top-header" style="font-weight: bold">
                     Rankings
                   </div></a-col
@@ -126,6 +126,9 @@
                 >
                 <a-col class="gutter-row" :span="6">
                   <div class="gutter-box-stats-top" style="font-weight: bold">Starters</div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats-top" style="font-weight: bold">Bench</div></a-col
                 >
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -162,6 +165,13 @@
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.ktc_starters_rank))">{{
                       addOrdinalSuffix(league.ktc_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="6">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.ktc_bench_rank))">{{
+                      addOrdinalSuffix(league.ktc_bench_rank)
                     }}</a-tag>
                   </div></a-col
                 >

@@ -538,7 +538,7 @@ const contenderFetchTabData = async (tabKey) => {
     console.log('Contender Fetching data for:', tabData.source)
 
     try {
-      const response = await axios.get(`${apiUrl}/league`, {
+      const response = await axios.get(`${apiUrl}/league_summary`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
