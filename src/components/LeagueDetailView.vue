@@ -1134,15 +1134,11 @@ import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
 
 const route = useRoute()
-const router = useRouter() // Use the useRouter composable to get access to the router instance
+const router = useRouter()
 
 const state = reactive({
   checked1: true
 })
-
-const handleButtonClick = (e: Event) => {
-  console.log('click left button', e)
-}
 
 const leagueName = route.params.leagueName
 const leagueYear = route.params.leagueYear
@@ -1162,7 +1158,7 @@ const leagueSize = route.params.leagueSize
 const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
 const apiUrl = import.meta.env.VITE_API_URL
 
-// Sample league information
+// league information
 const leagueInfo = reactive({
   leagueName: leagueName as string,
   leagueId: leagueId as string,
@@ -1803,7 +1799,6 @@ const insertLeagueDetials = async (values: any) => {
     console.log('Rosters loading...')
   } catch (error) {
     console.error('Error loading rosters', error)
-    // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
     isLoading.value = false // Update loading state
 
@@ -1908,7 +1903,6 @@ async function fetchBaData(
   guid: string,
   rosterType: string
 ) {
-  // detailIsLoading.value = true
   try {
     const response = await axios.get(`${apiUrl}/best_avialable`, {
       params: {
@@ -1925,7 +1919,7 @@ async function fetchBaData(
     console.error('There was an error fetching the best available data:', error)
     message.error('Failed to fetch best available data.')
   } finally {
-    // detailIsLoading.value = false
+    console.log('Best available data fetched')
   }
 }
 
@@ -2023,10 +2017,10 @@ const leagueOwnerDataByPosition = (position) =>
     return detailData.value
       .filter((item) => item.user_id === leagueInfo.userId && item.player_position === position)
       .map((player) => ({
-        x: player.age, // Or another relevant metric
+        x: player.age,
         y: player.player_value,
-        r: 7, // Or calculate based on a metric
-        label: player.full_name // Adding full_name as label for tooltips
+        r: 7,
+        label: player.full_name
       }))
   })
 
@@ -2039,14 +2033,13 @@ const getLeagueSummary = async (values: any) => {
     router.push(url)
   } catch (error) {
     console.error('Failed to load league details:', error)
-    // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
     console.log('complete')
   }
 }
 
 const chartData = computed(() => {
-  const positions = ['QB', 'RB', 'WR', 'TE'] // Extend this array based on your data
+  const positions = ['QB', 'RB', 'WR', 'TE']
   const colors = {
     QB: 'rgb(39, 125, 161)',
     RB: 'rgb(144, 190, 109)',
@@ -2065,13 +2058,13 @@ const chartData = computed(() => {
 const chartOptions = computed(() => {
   return {
     responsive: true,
-    maintainAspectRatio: false, // Set to false to fully fit the container, true to maintain aspect ratio
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: true,
         labels: {
           font: {
-            size: 12 // Smaller font size for better readability on small screens
+            size: 12
           }
         }
       },
@@ -2090,7 +2083,7 @@ const chartOptions = computed(() => {
         max: 40,
         ticks: {
           font: {
-            size: 10 // Smaller font size for x-axis ticks
+            size: 10
           }
         }
       },
@@ -2099,7 +2092,7 @@ const chartOptions = computed(() => {
         max: 9999,
         ticks: {
           font: {
-            size: 10 // Smaller font size for y-axis ticks
+            size: 10
           }
         }
       }
@@ -2129,8 +2122,6 @@ async function fetchDetailData(
   rosterType: string
 ) {
   detailIsLoading.value = true
-  // empty detail data
-  // detailData.value = []
   try {
     const response = await axios.get(`${apiUrl}/league_detail`, {
       params: {
@@ -2167,20 +2158,17 @@ table {
   border-radius: 4px;
   background: #fff;
 }
-/* Target the table rows in the table body */
 .ant-table-tbody > tr {
-  border-bottom: 1px solid white; /* Adds a white line between rows */
+  border-bottom: 1px solid white;
 }
 
-/* Target the cells in the table body */
 .ant-table-tbody > tr > td {
-  color: white; /* Makes the font color white */
+  color: white;
 }
 
-/* If you also want to style the header */
 .ant-table-thead > tr > th {
-  color: white; /* Makes the font color white in the header */
-  border-bottom: 2px solid white; /* Adds a white line below the header */
+  color: white;
+  border-bottom: 2px solid white;
 }
 .user-progress {
   margin-bottom: 20px;
@@ -2195,9 +2183,9 @@ table {
   position: relative;
 }
 .median-line {
-  bottom: 200; /* Position it at the bottom of the container */
-  width: 20px; /* or the thickness you want for the line */
-  background-color: red; /* or any color for the median line */
+  bottom: 200;
+  width: 20px;
+  background-color: red;
 }
 .overlay-progress {
   position: absolute;
@@ -2253,14 +2241,14 @@ table {
 }
 
 .legend-color {
-  width: 15px; /* Circle size */
-  height: 15px; /* Circle size */
-  border-radius: 25%; /* Make it round */
-  margin-right: 5px; /* Space between circle and text */
+  width: 15px;
+  height: 15px;
+  border-radius: 25%;
+  margin-right: 5px;
 }
 
 .legend-text {
-  font-size: 14px; /* Adjust text size */
+  font-size: 14px;
 }
 .table-section {
   display: flex;
@@ -2299,15 +2287,13 @@ table {
     width: 100%;
   }
 }
-/* This is the base style, for mobile screens */
 .responsive-padding {
-  padding: 0 16px; /* Small padding for small screens */
+  padding: 0 16px;
 }
 
-/* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 100px; /* Larger padding for larger screens */
+    padding: 0 100px;
   }
 }
 
@@ -2321,10 +2307,10 @@ table {
 
 .league-title {
   display: flex;
-  align-items: center; /* Aligns the children vertically in the center */
-  justify-content: left; /* Centers the children horizontally */
-  flex-wrap: wrap; /* Allows children to wrap to next line as needed */
-  text-align: center; /* Ensures text is centered if it wraps */
+  align-items: center;
+  justify-content: left;
+  flex-wrap: wrap;
+  text-align: center;
 }
 .rank-logos {
   width: 24px;
@@ -2336,8 +2322,6 @@ table {
   width: 38px;
   height: 32px;
   flex: 0 0 38px;
-  /* float: left; */
-  /* background: center center / cover rgb(239, 239, 239); */
   border-radius: 50%;
   background-color: transparent;
   border: 2px solid rgb(39, 125, 161);
@@ -2350,25 +2334,25 @@ table {
   list-style-type: none;
 }
 .highlighted {
-  background-color: #f0f2f5; /* Choose a highlighting color */
-  border: 1px solid red !important; /* Example border color */
-  font-weight: bold; /* Makes the text bold */
+  background-color: #f0f2f5;
+  border: 1px solid red !important;
+  font-weight: bold;
 }
 
 .lighter {
-  color: #aaa !important; /* Lighter text color */
+  color: #aaa !important;
   opacity: 0.5;
 }
 .avatar {
-  transition: transform 0.2s; /* Smooth transition for scaling */
+  transition: transform 0.2s;
 }
 
 .avatar:hover {
-  transform: scale(1.2); /* Scale the avatar to 120% of its size on hover */
+  transform: scale(1.2);
 }
 li {
   list-style-type: none;
-  color: black; /* Default text color */
+  color: black;
 }
 .dimmed-text {
   color: #aaa !important;

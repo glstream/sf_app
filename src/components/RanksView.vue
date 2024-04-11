@@ -142,14 +142,13 @@ const rankType = ref('dynasty')
 const currentPage = ref(1)
 const perPage = ref(100)
 
-const filterOn = ref(false)
-
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
+
 const selectedSource = ref(sources[0])
 
 const filteredSources = computed(() => {
@@ -165,104 +164,6 @@ const state = reactive({
   checked1: true,
   checked2: true
 })
-
-interface Column {
-  title: string
-  dataIndex: string
-  key: string
-  width: number
-}
-
-type TableDataType = {
-  key: number
-  player_rank: number
-  _position: string
-  player_full_name: string
-  pos_rank: string
-  team: string
-  age: number
-  player_value: number
-}
-
-const playerColumns: Column[] = [
-  {
-    title: 'Rank',
-    dataIndex: 'player_rank',
-    key: 'player_rank',
-    width: 50,
-    sorter: {
-      compare: (a, b) => a.player_rank - b.player_rank,
-      multiple: 1
-    }
-  },
-  {
-    title: 'Position',
-    dataIndex: '_position',
-    key: '_position',
-    width: 50,
-    filters: [
-      {
-        text: 'QB',
-        value: 'QB'
-      },
-      {
-        text: 'RB',
-        value: 'RB'
-      },
-      {
-        text: 'WR',
-        value: 'WR'
-      },
-      {
-        text: 'TE',
-        value: 'TE'
-      },
-      {
-        text: 'PICK',
-        value: 'PICK'
-      }
-    ],
-    onFilter: (value: string, record: TableDataType) => record._position.indexOf(value) === 0
-  },
-  {
-    title: 'Player',
-    dataIndex: 'player_full_name',
-    key: 'player_full_name',
-    width: 250
-  },
-  {
-    title: 'Pos Rank',
-    dataIndex: 'pos_rank',
-    key: 'pos_rank',
-    width: 100
-  },
-  {
-    title: 'Team',
-    dataIndex: 'team',
-    key: 'team',
-    width: 100
-  },
-  {
-    title: 'Age',
-    dataIndex: 'age',
-    key: 'age',
-    width: 100,
-    sorter: {
-      compare: (a, b) => a.age - b.age,
-      multiple: 1
-    }
-  },
-  {
-    title: 'Value',
-    dataIndex: 'player_value',
-    key: 'player_value',
-    width: 100,
-    sorter: {
-      compare: (a, b) => a.player_value - b.player_value,
-      multiple: 1
-    }
-  }
-]
 
 onMounted(() => {
   fetchRanks(platform.value)

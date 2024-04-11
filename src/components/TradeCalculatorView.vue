@@ -359,15 +359,11 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 //  Custom Utils
-// Custom Utils
-import { addOrdinalSuffix } from '../utils/suffix'
-import { getCellStyle } from '../utils/colorTable'
 
 // 3rd Party imports
 import axios from 'axios'
@@ -378,34 +374,41 @@ import {
   ArrowLeftOutlined,
   MinusCircleTwoTone,
   ShareAltOutlined,
-  SwapOutlined,
   DoubleLeftOutlined,
-  DoubleRightOutlined,
-  HomeOutlined,
-  CompassOutlined
+  DoubleRightOutlined
 } from '@ant-design/icons-vue'
 
-import 'ant-design-vue/dist/reset.css'
+// Sourec image imports
+import fnLogo from '@/assets/sourceLogos/fn.png'
+import ktcLogo from '@/assets/sourceLogos/ktc.png'
+import dpLogo from '@/assets/sourceLogos/dp.png'
+import fcLogo from '@/assets/sourceLogos/fc.png'
+import xLogo from '@/assets/socialLogos/x.png'
+import redditLogo from '@/assets/socialLogos/reddit.png'
 
 const apiUrl = import.meta.env.VITE_API_URL
-
 const percentThreshold = ref<number>(5)
-
 const value1 = ref('')
 const value2 = ref('')
 const options1 = ref<TeamA[]>([])
 const options2 = ref<TeamB[]>([])
 const selectedPlayers1 = ref([])
 const selectedPlayers2 = ref([])
-
 const isLoading = ref(false)
 const ranksData = ref([{}])
-
 const platform = ref('sf')
 const rankType = ref('dynasty')
 const tepCheck = ref(false)
-
 const dropDownValue1 = ref('12')
+
+// interfaces
+interface TeamA {
+  value: string
+}
+interface TeamB {
+  value: string
+}
+
 const dropDownOptions1 = ref<SelectProps['options']>([
   {
     value: '8',
@@ -434,8 +437,6 @@ const dropDownfocus = () => {
 }
 
 const dropDownHandleChange = (value: string) => {
-  console.log(`selected ${value}`)
-
   // Convert the selected value to an integer and multiply by 25 to get the index
   const index = parseInt(value) * 25
 
@@ -449,17 +450,8 @@ const dropDownHandleChange = (value: string) => {
     bpv_value = null // Handle the case where the index is not valid
   }
 
-  // Clear the calculator
   clearCalculator()
 }
-
-// Sourec image imports
-import fnLogo from '@/assets/sourceLogos/fn.png'
-import ktcLogo from '@/assets/sourceLogos/ktc.png'
-import dpLogo from '@/assets/sourceLogos/dp.png'
-import fcLogo from '@/assets/sourceLogos/fc.png'
-import xLogo from '@/assets/socialLogos/x.png'
-import redditLogo from '@/assets/socialLogos/reddit.png'
 
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
@@ -468,12 +460,12 @@ const sources = [
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
 
+const selectedSource = ref(sources[0])
+
 const shareTradeSources = [
   { key: 'x', name: 'X', logo: xLogo },
   { key: 'reddit', name: 'Reddit', logo: redditLogo }
 ]
-
-const selectedSource = ref(sources[0])
 
 const filteredSources = computed(() => {
   if (rankType.value !== 'dynasty') {
@@ -483,13 +475,6 @@ const filteredSources = computed(() => {
   }
   return sources
 })
-
-interface TeamA {
-  value: string
-}
-interface TeamB {
-  value: string
-}
 
 const tweetPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
@@ -527,7 +512,6 @@ const handleShareClick = (item) => {
   if (item.key === 'reddit') {
     redditPlayers()
   }
-  // Add more conditions for other share sources if necessary
 }
 
 async function onCheckTepChange(event: Event): Promise<void> {
@@ -537,12 +521,9 @@ async function onCheckTepChange(event: Event): Promise<void> {
   ranksData.value.forEach((player) => {
     if (player._position === 'TE') {
       if (checked) {
-        // Checkbox is checked, increase values by 10% and round them
         player.sf_value = Math.round(player.sf_value * 1.1)
         player.one_qb_value = Math.round(player.one_qb_value * 1.1)
       } else {
-        // Checkbox is unchecked, revert the values by 10% and round them
-        // It's important to use the original value here to calculate the decrease
         player.sf_value = Math.round(player.sf_value / 1.1)
         player.one_qb_value = Math.round(player.one_qb_value / 1.1)
       }
@@ -641,8 +622,6 @@ const selectPlayer1 = (playerId: string) => {
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers1.value.push(player)
   }
-
-  value1.value = '' // Optionally clear the search box after selection
 }
 
 const selectPlayer2 = (playerId: string) => {
@@ -658,15 +637,15 @@ const selectPlayer2 = (playerId: string) => {
     selectedPlayers2.value.push(player)
   }
 
-  value2.value = '' // Optionally clear the search box after selection
+  value2.value = ''
 }
 
 const removePlayer1 = (index) => {
-  selectedPlayers1.value.splice(index, 1) // Remove the player at the specified index
+  selectedPlayers1.value.splice(index, 1)
 }
 
 const removePlayer2 = (index) => {
-  selectedPlayers2.value.splice(index, 1) // Remove the player at the specified index
+  selectedPlayers2.value.splice(index, 1)
 }
 
 const clearCalculator = () => {
@@ -682,7 +661,6 @@ const clearCalcMemory = () => {
 }
 
 const addPlayerToTrade = (player) => {
-  // Determine which side has a lower total value
   const sideToAdd =
     totalValueSideA.value <= totalValueSideB.value ? selectedPlayers1 : selectedPlayers2
 
@@ -841,7 +819,7 @@ function findBalancingPlayerValue(
   // Return the estimated player value that would balance the trade
   return estimateValue
 }
-// Updated computed property
+
 const balancingPlayerValue = computed(() => {
   console.log('starting bvp')
   const valueA = totalValueSideA.value
@@ -855,8 +833,6 @@ const balancingPlayerValue = computed(() => {
 })
 
 function findTeamValue(totalValueSide: number): number {
-  // Assuming the function's goal is to find a value adjustment for a single side
-
   // Define the target value or some logic to determine what the adjusted value should be
   const targetValue = totalValueSide // This might need more logic based on your requirements
 
@@ -1028,8 +1004,6 @@ const tradeStatus = computed(() => {
 const isFairTrade = computed(() => tradeStatus.value.isFair)
 const aFavoredTrade = computed(() => tradeStatus.value.aFavored)
 const bFavoredTrade = computed(() => tradeStatus.value.bFavored)
-const isFavoredTrade = computed(() => tradeStatus.value.isFavored)
-const tradeStatusMessage = computed(() => tradeStatus.value.message)
 
 function valueState(teamValue, compareToValue, percentThreshold) {
   const percDiff = tradeAnalysis.value.percentageDifference
@@ -1102,7 +1076,6 @@ onMounted(() => {
   fetchRanks(platform.value, rankType.value)
 })
 
-// Watch the rankType and fetch ranks whenever it changes
 watch(rankType, (newRankType) => {
   fetchRanks(platform.value, newRankType)
 })
@@ -1239,37 +1212,36 @@ function getCardPositionColor(position: string): string {
 }
 
 .player-card {
-  margin-bottom: 5px; /* Adds space between cards */
-  position: relative; /* For absolute positioning of the close icon */
+  margin-bottom: 5px;
+  position: relative;
   width: 100%;
 }
 
 .player-card .close-icon {
   position: absolute;
-  top: 11px; /* P.playerosition the icon slightly inside the card boundary */
-  left: -11px; /* Position the icon on the left side of the card */
-  cursor: pointer; /* Change cursor to indicate it's clickable */
-  z-index: 10; /* Ensure the icon is above other elements */
+  top: 11px;
+  left: -11px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .player-card .close-icon:hover {
-  /* Add your desired hover styles here */
-  opacity: 0.8; /* Example: Change the icon's opacity on hover */
-  transform: scale(1.3); /* Example: Slightly increase the icon size on hover */
+  opacity: 0.8;
+  transform: scale(1.3);
 }
 
 .player-card .a-card {
-  padding-left: 24px; /* Add padding to prevent content from hiding behind the icon */
-  transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+  padding-left: 24px;
+  transition: box-shadow 0.3s;
 }
 
 .player-card .a-card:hover {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Example hover effect */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .player-card-nearest {
-  margin-bottom: 5px; /* Adds space between cards */
-  position: relative; /* For absolute positioning of the close icon */
+  margin-bottom: 5px;
+  position: relative;
   width: 100%;
   padding-left: 10px;
   padding-bottom: 6px;
@@ -1277,25 +1249,24 @@ function getCardPositionColor(position: string): string {
 
 .player-card-nearest .close-icon {
   position: absolute;
-  top: 11px; /* P.playerosition the icon slightly inside the card boundary */
-  left: -11px; /* Position the icon on the left side of the card */
-  cursor: pointer; /* Change cursor to indicate it's clickable */
-  z-index: 10; /* Ensure the icon is above other elements */
+  top: 11px;
+  left: -11px;
+  cursor: pointer;
+  z-index: 10;
 }
 
 .player-card-nearest .close-icon:hover {
-  /* Add your desired hover styles here */
-  opacity: 0.8; /* Example: Change the icon's opacity on hover */
-  transform: scale(1.3); /* Example: Slightly increase the icon size on hover */
+  opacity: 0.8;
+  transform: scale(1.3);
 }
 
 .player-card-nearest .a-card {
-  padding-left: 24px; /* Add padding to prevent content from hiding behind the icon */
-  transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+  padding-left: 24px;
+  transition: box-shadow 0.3s;
 }
 
 .player-card-nearest .a-card:hover {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Example hover effect */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .total-value {
@@ -1304,41 +1275,41 @@ function getCardPositionColor(position: string): string {
   font-weight: bold;
 }
 .search-bar-container {
-  /* Other styles for the search bar container might already be here */
-  margin-bottom: 20px; /* Adjust the value as needed for desired spacing */
+  margin-bottom: 20px;
 }
 .trade-comparison .a-alert {
-  margin-top: 20px; /* Adds some space above the alert */
-  margin-bottom: 20px; /* Adds some space below the alert */
-  text-align: center; /* Centers the text inside the alert */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .slider-container {
-  margin: 20px 0; /* Adds top and bottom margin for the slider container */
+  margin: 20px 0;
 }
 
 .slider-label {
-  text-align: center; /* Centers the label text */
-  margin-bottom: 10px; /* Space between the label and the slider */
-  font-weight: bold; /* Makes the label text bold */
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 .nearest-players {
-  max-width: 450px; /* Maximum width of the div */
-  width: 100%; /* Makes the width responsive to the container */
-  margin: 0 auto; /* Centers the div */
-  padding: 5px; /* Optional: Adds some padding inside the div */
+  max-width: 450px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 5px;
 }
 
 @media (max-width: 390px) {
   .nearest-players {
-    width: auto; /* Allows the div to adjust to the screen size below 500px */
-    padding: 5px; /* Reduces padding on smaller screens */
+    width: auto;
+    padding: 5px;
   }
   .trade-comparison .trade-status {
-    font-size: 14px; /* or whatever size you prefer */
+    font-size: 14px;
   }
+  /* some work here on the divider */
   .mobile-divider {
-    display: block !important; /* Override inline styles to show the divider */
+    display: block !important;
   }
   .trade-calculator {
     padding: 6px;
@@ -1349,7 +1320,7 @@ function getCardPositionColor(position: string): string {
     text-align: center;
   }
   .responsive-padding {
-    padding: 0 10px; /* Larger padding for larger screens */
+    padding: 0 10px;
   }
 }
 
@@ -1361,29 +1332,26 @@ function getCardPositionColor(position: string): string {
 }
 
 .fair-trade {
-  background-color: #f6ffedc1; /* A green tint */
-  color: #90be6d; /* A green color */
+  background-color: #f6ffedc1;
+  color: #90be6d;
   border: 1px solid #90be6d;
 }
 
 .favored-trade {
-  background-color: #ffedede6; /* Red color for favored trade */
-  color: #f94144; /* White text color */
+  background-color: #ffedede6;
+  color: #f94144;
   border: 1px solid #f94144;
 }
 
 .total-assets-container {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* This will vertically align them if they have different heights */
+  align-items: center;
 }
 
-/* This is the base style, for mobile screens */
-
-/* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 300px; /* Larger padding for larger screens */
+    padding: 0 300px;
   }
 }
 
@@ -1391,32 +1359,32 @@ function getCardPositionColor(position: string): string {
   padding: 2px;
   border: 1px solid rgba(87, 117, 144, 0.5);
   border-radius: 5px;
-  background-color: rgb(164, 159, 159); /* Light gray background */
-  color: white; /* White text color */
+  background-color: rgb(164, 159, 159);
+  color: white;
   font-weight: bolder;
 }
 
 .nearest-players {
   max-height: 400px;
-  overflow-y: auto; /* Enables vertical scrolling */
-  overflow-x: hidden; /* Prevents horizontal scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 5px;
   width: 100%;
   margin-top: 20px;
-  box-sizing: border-box; /* Ensures padding is included in the width */
+  box-sizing: border-box;
 }
 .team-heading.none {
   border: none;
 }
 .team-heading.behind {
-  border: 1px solid rgba(249, 65, 68, 0.6); /* #f94144 at 60% opacity */
+  border: 1px solid rgba(249, 65, 68, 0.6);
 }
 
 .team-heading.ahead {
-  border: 1px solid rgba(144, 190, 109, 0.6); /* #90be6d at 60% opacity */
+  border: 1px solid rgba(144, 190, 109, 0.6);
 }
 .team-heading.fair {
-  border: 1px solid rgba(30, 144, 255, 0.6); /* Blue with 60% opacity */
+  border: 1px solid rgba(30, 144, 255, 0.6);
 }
 .va-card {
   border: 1px solid rgb(70, 70, 70, 0.55);
@@ -1424,7 +1392,7 @@ function getCardPositionColor(position: string): string {
   background: rgb(70, 70, 70, 0.15);
 }
 .a-auto-complete input {
-  font-size: 16px; /* or larger to prevent zooming on mobile */
+  font-size: 16px;
 }
 @media (max-width: 390px) {
   .ant-modal {

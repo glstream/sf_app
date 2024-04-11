@@ -49,7 +49,6 @@ import { useRoute } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
-const text = `A dog is a type of domesticated animal. Known for its loyalty and faithfulness, it can be found as a welcome guest in many households across the world.`
 const activeKeyCalculator = ref(['1'])
 const activeKeyRankings = ref(['4'])
 
@@ -70,11 +69,11 @@ watch(activeKeyRankings, (val) => {
 </script>
 <style scoped>
 .responsive-padding {
-  padding: 0 100px; /* Larger padding for larger screens */
+  padding: 0 100px;
 }
 @media (max-width: 390px) {
   .responsive-padding {
-    padding: 0 10px; /* Larger padding for larger screens */
+    padding: 0 10px;
   }
 }
 </style>

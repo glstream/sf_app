@@ -26,7 +26,6 @@
           ><span class="pi pi-question-circle'"></span> About</router-link
         ></a-menu-item
       >
-      <!-- Add more menu items as needed -->
     </a-menu>
   </a-layout-header>
 </template>
@@ -45,7 +44,7 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 
 <style scoped>
 .logo {
-  width: 60px; /* Adjust the size as needed */
+  width: 60px;
   height: 60px;
   margin: 0 0px 0px 0;
   float: left;

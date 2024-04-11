@@ -233,23 +233,14 @@ import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
 
 // Custom Utils imports
-import defaultimage from '@/assets/t1.jpg'
-
-const apiUrl = import.meta.env.VITE_API_URL
-
-const userStore = useUserStore()
-// Example function that would be called when a user submits their details
-function updateUserDetails(year, name, guid) {
-  userStore.setUserDetails(year, name, guid)
-}
-const store = useUserStore()
+import defaultimage from '@/assets/logo4.png'
 
 // configs
-const activeKey = ref([])
 const leaguesData = ref([])
 const route = useRoute()
 const isLoading = ref(false)
 const router = useRouter()
+const apiUrl = import.meta.env.VITE_API_URL
 
 const userName = route.params.userName as string
 const leagueYear = route.params.leagueYear as string
@@ -307,6 +298,7 @@ const leagueOptions = ref<SelectProps['options']>([
     label: 'Redraft'
   }
 ])
+
 const rosterOptions = ref<SelectProps['options']>([
   {
     value: 'Superflex',
@@ -317,9 +309,8 @@ const rosterOptions = ref<SelectProps['options']>([
     label: 'Single QB'
   }
 ])
+
 async function fetchData(leagueYear: string, userName: string, guid: string) {
-  console.log('fetching data')
-  console.log(leagueYear, userName, guid)
   isLoading.value = true
   try {
     const response = await axios.get(`${apiUrl}/leagues`, {
@@ -385,8 +376,8 @@ const getLeagueSummary = (record) => {
 const getPrevYear = async () => {
   router.push(`/username/`)
 }
+
 const getCurrentYear = async () => {
-  console.log('get current year')
   isLoading.value = true
   const leagueYear = leagueInfo.leagueYear
   console.log(leagueYear, userName, guid)
@@ -470,7 +461,7 @@ const getCurrentYear = async () => {
   justify-content: center;
 }
 .standard-tag {
-  color: #black;
+  color: black;
   border: 1px solid gray;
 }
 

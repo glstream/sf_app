@@ -1,7 +1,6 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item
@@ -73,14 +72,12 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in rankInfo.greenTags"
                             :key="`${rankInfo.position}-green-${n}`"
                             :class="getColorByRank(rankInfo.rank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
                           <a-tag
                             v-for="n in rankInfo.greyTags"
                             :key="`${rankInfo.position}-grey-${n}`"
@@ -117,14 +114,12 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in rankInfo.greenTags"
                             :key="`${rankInfo.position}-green-${n}`"
                             :class="getColorByRank(rankInfo.rank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
                           <a-tag
                             v-for="n in rankInfo.greyTags"
                             :key="`${rankInfo.position}-grey-${n}`"
@@ -158,14 +153,12 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in rankInfo.greenTags"
                             :key="`${rankInfo.position}-green-${n}`"
                             :class="getColorByRank(rankInfo.rank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
                           <a-tag
                             v-for="n in rankInfo.greyTags"
                             :key="`${rankInfo.position}-grey-${n}`"
@@ -200,14 +193,12 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in rankInfo.greenTags"
                             :key="`${rankInfo.position}-green-${n}`"
                             :class="getColorByRank(rankInfo.rank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
                           <a-tag
                             v-for="n in rankInfo.greyTags"
                             :key="`${rankInfo.position}-grey-${n}`"
@@ -297,14 +288,12 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in conRankInfo.conGreenTags"
                             :key="`${conRankInfo.conPosition}-green-${n}`"
                             :class="getColorByRank(conRankInfo.conRank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
                           <a-tag
                             v-for="n in conRankInfo.conGreyTags"
                             :key="`${conRankInfo.conPosition}-grey-${n}`"
@@ -339,14 +328,13 @@
                           >
                         </a-tooltip>
                         <div class="tag-badges">
-                          <!-- Render green tags if any -->
                           <a-tag
                             v-for="n in conrankInfo.conGreenTags"
                             :key="`${conrankInfo.conPosition}-green-${n}`"
                             :class="getColorByRank(conrankInfo.conRank)"
                             >&nbsp;</a-tag
                           >
-                          <!-- Then render grey tags -->
+
                           <a-tag
                             v-for="n in conrankInfo.conGreyTags"
                             :key="`${conrankInfo.conPosition}-grey-${n}`"
@@ -373,6 +361,7 @@
 </template>
 
 <script lang="ts" setup>
+// Vue imports
 import { reactive, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -385,24 +374,22 @@ import axios from 'axios'
 // Platform Utils
 import type { TabsProps, message, Spin } from 'ant-design-vue'
 import { HomeOutlined } from '@ant-design/icons-vue'
-import defaultimage from '@/assets/t1.jpg'
+import defaultimage from '@/assets/logo4.png'
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
 
 const route = useRoute()
-const router = useRouter() // Use the useRouter composable to get access to the router instance
+const router = useRouter()
 
 const apiUrl = import.meta.env.VITE_API_URL
 
 const conActiveKey = ref('5')
 const activeKey = ref('1')
-
-const leagueDetails = reactive({}) // This will store the fetched league details
-const isLoading = ref(false) // Optional: To track loading state
-const contenderIsLoading = ref(false) // Optional: To track loading state
-const data = ref({}) // Consider defining a more specific type or interface for your dataconst pdata
-const conData = ref({}) // Consider defining a more specific type or interface for your dataconst pdata
+const isLoading = ref(false)
+const contenderIsLoading = ref(false)
+const data = ref({})
+const conData = ref({})
 
 const leagueName = route.params.leagueName
 const leagueId = route.params.leagueId
@@ -417,7 +404,6 @@ const guid = route.params.guid
 const rosterType = route.params.rosterType
 const avatar = route.params.avatar
 const rankType = route.params.rankType
-
 const leaguesUrl = `/leagues/${leagueYear}/${userName}/${guid}`
 
 const tabsMetadata = {
@@ -448,7 +434,7 @@ onMounted(() => {
   }
 })
 
-// Sample league information
+// league information
 const leagueInfo = reactive({
   leagueName: leagueName,
   leagueId: leagueId as string,
@@ -465,9 +451,6 @@ const leagueInfo = reactive({
   avatar: avatar as string
 })
 
-const goBack = () => {
-  window.history.go(-1) // Go back one step in the browser history
-}
 const callback: TabsProps['onTabScroll'] = (val) => {
   console.log(val)
 }
@@ -491,7 +474,6 @@ const insertLeagueDetails = async (values: any) => {
     console.log('League details fetched successfully')
   } catch (error) {
     console.error('Failed to load league details:', error)
-    // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
     isLoading.value = false // Update loading state
     contenderIsLoading.value = false
@@ -517,7 +499,6 @@ const getLeagueDetail = async (values: any) => {
     )
   } catch (error) {
     console.error('Failed to load league details:', error)
-    // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
     console.log('complete')
   }
@@ -528,8 +509,7 @@ const fetchTabData = async (tabKey) => {
   const tabData = tabsMetadata[tabKey]
   if (tabData) {
     console.log('Fetching data for:', tabData.source)
-    // Use tabData.apiUrl or any other metadata for your API call
-    // Example: await axios.get(tabData.apiUrl);
+
     try {
       const response = await axios.get(`${apiUrl}/league`, {
         params: {
@@ -545,9 +525,8 @@ const fetchTabData = async (tabKey) => {
       data.value = filteredData.length > 0 ? filteredData[0] : {}
     } catch (error) {
       console.error('Failed to load league details:', error)
-      // Optionally, update leagueDetails to indicate an error or show an error message
     } finally {
-      isLoading.value = false // Update loading state
+      isLoading.value = false
     }
   }
 }
@@ -557,8 +536,7 @@ const contenderFetchTabData = async (tabKey) => {
   const tabData = tabsMetadata[tabKey]
   if (tabData) {
     console.log('Contender Fetching data for:', tabData.source)
-    // Use tabData.apiUrl or any other metadata for your API call
-    // Example: await axios.get(tabData.apiUrl);
+
     try {
       const response = await axios.get(`${apiUrl}/league`, {
         params: {
@@ -576,7 +554,6 @@ const contenderFetchTabData = async (tabKey) => {
       conData.value = contenderFilteredData.length > 0 ? contenderFilteredData[0] : {}
     } catch (error) {
       console.error('Failed to load league details:', error)
-      // Optionally, update leagueDetails to indicate an error or show an error message
     } finally {
       contenderIsLoading.value = false // Update loading state
     }
@@ -593,7 +570,6 @@ const getPositionalRanks = (data, leagueInfo) => {
 
     const leagueSize = parseInt(leagueInfo.leagueSize, 10)
 
-    // Define a mapping of positions to their respective colors
     const positionColors = {
       QB: '#277DA1',
       RB: '#90BE6D',
@@ -630,13 +606,11 @@ const getPositionalRanks = (data, leagueInfo) => {
       }
     )
 
-    isLoading.value = false // Update loading state
+    isLoading.value = false
     return ranks
   })
 }
 
-// Usage
-// Assuming `data` and `leagueInfo` are reactive/ref references
 const positionalRanks = getPositionalRanks(data, leagueInfo)
 
 const contenderGetPositionalRanks = (conData, leagueInfo) => {
@@ -649,7 +623,6 @@ const contenderGetPositionalRanks = (conData, leagueInfo) => {
 
     const leagueSize = parseInt(leagueInfo.leagueSize, 10)
 
-    // Define a mapping of positions to their respective colors
     const positionColors = {
       QB: '#277DA1',
       RB: '#90BE6D',
@@ -684,13 +657,12 @@ const contenderGetPositionalRanks = (conData, leagueInfo) => {
       }
     })
 
-    contenderIsLoading.value = false // Update loading state
+    contenderIsLoading.value = false
     return ranks
   })
 }
 
 // Usage
-// Assuming `data` and `leagueInfo` are reactive/ref references
 const contenderPositionalRanks = contenderGetPositionalRanks(conData, leagueInfo)
 
 async function fetchLeagueData(
@@ -712,7 +684,6 @@ async function fetchLeagueData(
         roster_type: rosterType
       }
     })
-    // data.value = response.data // Update this line based on the structure of your actual data
     const filteredData = response.data.filter((record) => record.user_id === leagueInfo.userId)
     data.value = filteredData.length > 0 ? filteredData[0] : {}
 
@@ -742,7 +713,6 @@ async function contenderFetchLeagueData(
         roster_type: rosterType
       }
     })
-    // data.value = response.data // Update this line based on the structure of your actual data
     const filteredData = response.data.filter((record) => record.user_id === leagueInfo.userId)
     conData.value = filteredData.length > 0 ? filteredData[0] : {}
 
@@ -756,43 +726,38 @@ async function contenderFetchLeagueData(
 
 function getColorByRank(rank) {
   if (rank >= 0 && rank <= 3) {
-    return 'green-tag' // Assuming 'red' is a predefined class or a valid color value
+    return 'green-tag'
   } else if (rank >= 4 && rank <= 6) {
     return 'yellow-tag'
   } else if (rank >= 7 && rank <= 9) {
-    return 'gray-tag' // Assuming 'grey' is a predefined class or a valid color value
+    return 'gray-tag'
   } else {
-    return 'red-tag' // Assuming 'green' is a predefined class or a valid color value
+    return 'red-tag'
   }
 }
 </script>
 
 <style>
-/* Basic styling */
 .layout {
   min-height: 100vh;
 }
 
 .tags-vertical {
   flex-direction: column;
-  gap: 8px; /* Adjust the space between tags as needed */
+  gap: 8px;
 }
 .custom-position-tag {
-  margin-bottom: 2px; /* Add space between the tags */
-  white-space: nowrap; /* Prevent text inside tags from wrapping */
-  overflow: hidden; /* Hide overflowed content */
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  white-space: nowrap; /* Prevent text from wrapping */
-  margin-right: 8px; /* Space between the tag and the grey tags */
+  white-space: nowrap;
+  margin-right: 8px;
   min-width: 75px;
   font-weight: bold;
 }
-/* .grid-container {
-  display: grid;
-  gap: 8px; 
-} */
 
 .tag-row {
   display: flex;
@@ -800,43 +765,43 @@ function getColorByRank(rank) {
   justify-content: flex-start;
 }
 .grey-tag {
-  background-color: #f0f0f0; /* Grey background */
+  background-color: #f0f0f0;
   border: 0.5px solid gray;
-  margin-right: 2px; /* Spacing between grey tags */
+  margin-right: 2px;
   max-width: 5px;
 }
 .green-tag {
-  background-color: #22de6a; /* Grey background */
+  background-color: #22de6a;
   border: 0.5px solid gray;
-  margin-right: 2px; /* Spacing between grey tags */
+  margin-right: 2px;
   max-width: 5px;
 }
 .gray-tag {
-  background-color: rgb(146, 152, 156); /* Grey background */
+  background-color: rgb(146, 152, 156);
   border: 0.5px solid gray;
-  margin-right: 2px; /* Spacing between grey tags */
+  margin-right: 2px;
   max-width: 5px;
 }
 .yellow-tag {
-  background-color: rgb(223, 234, 13); /* Grey background */
+  background-color: rgb(223, 234, 13);
   border: 0.5px solid gray;
-  margin-right: 2px; /* Spacing between grey tags */
+  margin-right: 2px;
   max-width: 5px;
 }
 .red-tag {
-  background-color: #e55050; /* Grey background */
+  background-color: #e55050;
   border: 0.5px solid gray;
-  margin-right: 2px; /* Spacing between grey tags */
+  margin-right: 2px;
   max-width: 5px;
 }
 .tag-group {
   display: flex;
-  align-items: flex-start; /* Align the tags to the start of the container */
-  margin-right: 16px; /* Adjust the right margin to create space between tag groups */
+  align-items: flex-start;
+  margin-right: 16px;
 }
 
 .tag-hover:hover {
-  background-color: #f0f0f0; /* Lighter color on hover */
+  background-color: #f0f0f0;
 }
 .summary-badge {
   margin-left: 15px;
@@ -848,23 +813,22 @@ function getColorByRank(rank) {
 
 @media (max-width: 390px) {
   .responsive-padding {
-    padding: 0 10px; /* Larger padding for larger screens */
+    padding: 0 10px;
   }
 }
 
-/* Media query for screens wider than 768px */
 @media (min-width: 391px) {
   .responsive-padding {
-    padding: 0 200px; /* Larger padding for larger screens */
+    padding: 0 200px;
   }
 }
 
 .scrollable-content {
-  overflow-x: auto; /* Enables horizontal scrolling */
-  overflow-y: hidden; /* Prevents vertical scrolling */
-  white-space: nowrap; /* Ensures the contents flow in a single line horizontally */
-  display: flex; /* Aligns children in a row */
-  flex-wrap: nowrap; /* Prevents wrapping into multiple lines */
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
 }
 
 .league-logo {
@@ -873,9 +837,8 @@ function getColorByRank(rank) {
   border-radius: 7px;
   border: 1px solid gray;
 }
-/* Increasing specificity to override */
-/* Using !important to forcefully override */
+
 :where(.css-dev-only-do-not-override-iwmiiu) .ant-card .ant-card-head-title {
-  flex: none; /* or flex: 0 */
+  flex: none;
 }
 </style>
