@@ -1841,7 +1841,7 @@ async function fetchSummaryData(
 ) {
   summaryIsLoading.value = true
   try {
-    const response = await axios.get(`${apiUrl}/league`, {
+    const response = await axios.get(`${apiUrl}/league_summary`, {
       params: {
         league_id: leagueId,
         platform: platform,
