@@ -414,8 +414,7 @@ const tabsMetadata = {
   '5': { id: '5', source: 'espn', type: 'contender' },
   '6': { id: '6', source: 'nfl', type: 'contender' },
   '7': { id: '7', source: 'fc', type: 'contender' },
-  '8': { id: '8', source: 'fp', type: 'contender' },
-  '9': { id: '9', source: 'cbs', type: 'contender' }
+  '8': { id: '8', source: 'cbs', type: 'contender' }
 }
 
 onMounted(() => {
@@ -511,7 +510,7 @@ const fetchTabData = async (tabKey) => {
     console.log('Fetching data for:', tabData.source)
 
     try {
-      const response = await axios.get(`${apiUrl}/league`, {
+      const response = await axios.get(`${apiUrl}/league_summary`, {
         params: {
           league_id: leagueInfo.leagueId,
           platform: tabData.source,
@@ -675,7 +674,7 @@ async function fetchLeagueData(
   isLoading.value = true
   console.log('starting league fetch')
   try {
-    const response = await axios.get(`${apiUrl}/league`, {
+    const response = await axios.get(`${apiUrl}/league_summary`, {
       params: {
         league_id: leagueId,
         platform: platform,
@@ -704,7 +703,7 @@ async function contenderFetchLeagueData(
   contenderIsLoading.value = true
   console.log('starting contender league fetch')
   try {
-    const response = await axios.get(`${apiUrl}/league`, {
+    const response = await axios.get(`${apiUrl}/league_summary`, {
       params: {
         league_id: leagueId,
         platform: platform,
