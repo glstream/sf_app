@@ -719,16 +719,16 @@ function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): n
     let k
     if (index < 5) {
       // Top 5 players
-      k = 1
+      k = 0.8
     } else if (index < 10) {
       // Players ranked 6-10
-      k = 1
+      k = 0.8
     } else if (index < 20) {
       // Players ranked 11-20
-      k = 1
+      k = 0.8
     } else {
       // The rest
-      k = 1
+      k = 0.8
     }
 
     // Power Curve Component
