@@ -61,7 +61,9 @@
             />
             {{ leagueInfo.leagueName }}
 
-            <a-tag color="cyan" size="large" style="margin-left: 15px">{{ source }}</a-tag>
+            <a-tag color="cyan" size="large" style="margin-left: 15px">{{
+              selectedSource.name
+            }}</a-tag>
             <a-tag style="margin-left: 15px">{{ leagueInfo.rosterType }}</a-tag>
             <a-tag style="margin-left: 15px">{{ leagueInfo.rankType }}</a-tag>
           </h2>
@@ -1198,8 +1200,8 @@ const sources = [
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
-const source = ref('SuperFlex')
-const selectedSource = ref(sources[0])
+const source = ref(platform)
+const selectedSource = ref(sources.find((source) => source.key === platform) || sources[0])
 
 const filteredSources = computed(() => {
   if (leagueInfo.rankType !== 'Dynasty') {
@@ -1211,6 +1213,7 @@ const filteredSources = computed(() => {
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
+  console.log('event', e)
   const leagueId = leagueInfo.leagueId
   const leagueYear = leagueInfo.leagueYear
   const platform = e.key
@@ -1891,7 +1894,9 @@ async function fetchSummaryData(
       league_id: leagueInfo.leagueId,
       rank_source: platform,
       power_rank: userSummary.total_rank,
-      starters_rank: userSummary.starters_rank
+      starters_rank: userSummary.starters_rank,
+      bench_rank: userSummary.bench_rank,
+      picks_rank: userSummary.picks_rank
     })
   }
 }

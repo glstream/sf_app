@@ -61,44 +61,61 @@
                     />
                     <span style="font-size: larger; padding-left: 5px">{{
                       league.league_name
-                    }}</span>
+                    }}</span
+                    ><a-tag
+                      style="margin-left: 10px"
+                      :color="
+                        league.league_type === 'Dynasty'
+                          ? 'cyan'
+                          : league.league_type === 'Redraft'
+                            ? 'green'
+                            : 'red'
+                      "
+                    >
+                      {{ league.league_type }}</a-tag
+                    >
                   </div>
                 </div>
               </a-col>
             </a-row>
             <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-              <a-col class="gutter-row" :span="10">
+              <a-col class="gutter-row" :span="8">
                 <div class="gutter-box-header">
-                  <a-tag
-                    :color="
-                      league.league_type === 'Dynasty'
-                        ? 'cyan'
-                        : league.league_type === 'Redraft'
-                          ? 'green'
-                          : 'red'
-                    "
-                  >
-                    {{ league.league_type }}</a-tag
-                  >
                   <a-tag> {{ league.roster_type }}</a-tag>
                 </div>
               </a-col>
-              <a-col class="gutter-row" :span="14">
+              <a-col class="gutter-row" :span="8">
                 <div class="gutter-box-search">
-                  <a-flex :gap="8">
-                    <a-tooltip>
-                      <template #title>League Details</template>
-                      <a-button size="default" type="primary" @click="getLeagueDetail(league)"
-                        >Detail <BarChartOutlined
-                      /></a-button>
-                    </a-tooltip>
-                    <a-tooltip>
-                      <template #title>League Summary</template>
-                      <a-button size="default" type="primary" @click="getLeagueSummary(league)"
-                        >Summary<FileSearchOutlined
-                      /></a-button>
-                    </a-tooltip>
-                  </a-flex>
+                  <a-tooltip>
+                    <template #title>League Summary</template>
+                    <a-button size="default" type="primary" @click="getLeagueSummary(league)"
+                      >Summary<FileSearchOutlined size="small"
+                    /></a-button>
+                  </a-tooltip>
+                </div>
+              </a-col>
+              <a-col class="gutter-row" :span="8">
+                <div class="gutter-box-search">
+                  <a-tooltip>
+                    <template #title>League Details</template>
+
+                    <a-dropdown-button type="primary">
+                      Detail
+                      <template #overlay>
+                        <a-menu @click="(e) => getLeagueDetail(e, league)">
+                          <a-menu-item v-for="source in sources" :key="source.key">
+                            <UserOutlined />
+                            <img
+                              style="padding-right: 5px"
+                              class="rank-logos"
+                              :src="source.logo"
+                            />{{ source.name }}
+                          </a-menu-item>
+                        </a-menu>
+                      </template>
+                      <template #icon><BarChartOutlined /></template>
+                    </a-dropdown-button>
+                  </a-tooltip>
                 </div>
               </a-col>
             </a-row>
@@ -116,100 +133,152 @@
             </a-row>
             <div class="leagues-stats-container">
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="8">
                   <div class="gutter-box-stats-top-header" style="font-weight: bold">
                     Rankings
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
-                  <div class="gutter-box-stats-top" style="font-weight: bold">Power</div></a-col
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats" style="font-weight: bold">Power</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
-                  <div class="gutter-box-stats-top" style="font-weight: bold">Starters</div></a-col
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats" style="font-weight: bold">Starters</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
-                  <div class="gutter-box-stats-top" style="font-weight: bold">Bench</div></a-col
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats" style="font-weight: bold">Bench</div></a-col
+                >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats" style="font-weight: bold">Picks</div></a-col
                 >
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
+                <a-col class="gutter-row" :span="8">
                   <div class="gutter-box-stats-header">FantasyNavigator</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(league.sf_power_rank)">{{
                       addOrdinalSuffix(league.sf_power_rank)
                     }}</a-tag>
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.sf_starters_rank))">{{
                       addOrdinalSuffix(league.sf_starters_rank)
                     }}</a-tag>
                   </div></a-col
                 >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.sf_bench_rank))">{{
+                      addOrdinalSuffix(league.sf_bench_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.sf_picks_rank))">{{
+                      addOrdinalSuffix(league.sf_picks_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
+                <a-col class="gutter-row" :span="8">
                   <div class="gutter-box-stats-header">KeepTradeCut</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(league.ktc_power_rank)">{{
                       addOrdinalSuffix(league.ktc_power_rank)
                     }}</a-tag>
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.ktc_starters_rank))">{{
                       addOrdinalSuffix(league.ktc_starters_rank)
                     }}</a-tag>
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.ktc_bench_rank))">{{
                       addOrdinalSuffix(league.ktc_bench_rank)
                     }}</a-tag>
                   </div></a-col
                 >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.ktc_picks_rank))">{{
+                      addOrdinalSuffix(league.ktc_picks_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
+                <a-col class="gutter-row" :span="8">
                   <div class="gutter-box-stats-header">DynastyProcess</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(league.dp_power_rank)">{{
                       addOrdinalSuffix(league.dp_power_rank)
                     }}</a-tag>
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.dp_starters_rank))">{{
                       addOrdinalSuffix(league.dp_starters_rank)
                     }}</a-tag>
                   </div></a-col
                 >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.dp_bench_rank))">{{
+                      addOrdinalSuffix(league.dp_bench_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.dp_picks_rank))">{{
+                      addOrdinalSuffix(league.dp_picks_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
+                <a-col class="gutter-row" :span="8">
                   <div class="gutter-box-stats-header">FantasyCalc</div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(league.fc_power_rank)">{{
                       addOrdinalSuffix(league.fc_power_rank)
                     }}</a-tag>
                   </div></a-col
                 >
-                <a-col class="gutter-row" :span="6">
+                <a-col class="gutter-row" :span="4">
                   <div class="gutter-box-stats">
                     <a-tag :style="getCellStyle(Number(league.fc_starters_rank))">{{
                       addOrdinalSuffix(league.fc_starters_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.fc_bench_rank))">{{
+                      addOrdinalSuffix(league.fc_bench_rank)
+                    }}</a-tag>
+                  </div></a-col
+                >
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-stats">
+                    <a-tag :style="getCellStyle(Number(league.fc_picks_rank))">{{
+                      addOrdinalSuffix(league.fc_picks_rank)
                     }}</a-tag>
                   </div></a-col
                 >
@@ -233,7 +302,9 @@ import AppFooter from '@/components/AppFooter.vue'
 
 // 3rd Party imports
 import { HomeOutlined, FileSearchOutlined, BarChartOutlined } from '@ant-design/icons-vue'
-import type { SelectProps } from 'ant-design-vue'
+import type { SelectProps, MenuProps } from 'ant-design-vue'
+
+import 'primeicons/primeicons.css'
 
 import axios from 'axios'
 import { useUserStore } from '@/stores/userStore'
@@ -242,8 +313,12 @@ import { useUserStore } from '@/stores/userStore'
 import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
 
-// Custom Utils imports
+// Source image imports
 import defaultimage from '@/assets/logo4.png'
+import fnLogo from '@/assets/sourceLogos/fn.png'
+import ktcLogo from '@/assets/sourceLogos/ktc.png'
+import dpLogo from '@/assets/sourceLogos/dp.png'
+import fcLogo from '@/assets/sourceLogos/fc.png'
 
 // configs
 const leaguesData = ref([])
@@ -259,6 +334,13 @@ const leagueName = route.params.leagueName as string
 
 const selectedLeagueType = ref('')
 const selectedRosterType = ref('')
+
+const sources = [
+  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
+  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
+  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
+]
 
 const leagueInfo = reactive({
   userName: userName,
@@ -292,6 +374,10 @@ const handleLeagueChange = (value: string) => {
 
 const handleRosterChange = (value: string) => {
   selectedRosterType.value = value
+}
+const handleMenuClick: MenuProps['onClick'] = (e, league) => {
+  console.log('click', e.key)
+  console.log('league click', league)
 }
 
 const leagueOptions = ref<SelectProps['options']>([
@@ -338,23 +424,25 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
     isLoading.value = false
   }
 }
-const getLeagueDetail = async (record) => {
+const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
-    const leagueId = record.league_id
-    const guid = record.session_id
-    const leagueYear = record.league_year
-    const userName = record.user_name
-    const leagueName = record.league_name
-    const userId = record.user_id
-    const avatar = record.avatar
-    const rankType = record.league_type
-    const rosterType = record.roster_type
+    console.log('click', e)
 
-    // Determine the path segment based on rankType
-    const platform = rankType !== 'Dynasty' ? 'ktc' : 'sf'
+    const leagueId = league.league_id
+    const guid = league.session_id
+    const leagueYear = league.league_year
+    const userName = league.user_name
+    const leagueName = league.league_name
+    const userId = league.user_id
+    const avatar = league.avatar
+    const rankType = league.league_type
+    const rosterType = league.roster_type
+    const platform = e.key
+    const starterCnt = league.starter_cnt
+    const totalRosters = league.total_rosters
 
     router.push(
-      `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${record.starter_cnt}/${record.total_rosters}`
+      `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}`
     )
 
     console.log('Sending to League details')
@@ -480,6 +568,7 @@ const getCurrentYear = async () => {
   display: flex;
   justify-content: center;
 }
+
 .gutter-box-stats-header {
   padding: 1px 10px;
 }
@@ -494,5 +583,11 @@ const getCurrentYear = async () => {
   font-size: 1em;
   display: flex;
   justify-content: left;
+}
+.rank-logos {
+  width: 24px;
+  height: 20px;
+  vertical-align: middle;
+  border-radius: 3px;
 }
 </style>
