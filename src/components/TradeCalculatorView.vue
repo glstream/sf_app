@@ -623,6 +623,7 @@ const selectPlayer1 = (playerId: string) => {
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers1.value.push(player)
   }
+  value1.value = ''
 }
 
 const selectPlayer2 = (playerId: string) => {
