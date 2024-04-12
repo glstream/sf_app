@@ -32,7 +32,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import logoImg from '@/assets/logo4.png'
+import logoImg from '@/assets/logo5.png'
 
 import { useUserStore } from '@/stores/userStore'
 import { CalculatorOutlined } from '@ant-design/icons-vue'
@@ -44,9 +44,9 @@ const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName
 
 <style scoped>
 .logo {
-  width: 60px;
-  height: 60px;
-  margin: 0 0px 0px 0;
+  width: 50px;
+  height: 50px;
+  margin: 5px 0px 0px 0;
   float: left;
 }
 .site-layout .site-layout-background {

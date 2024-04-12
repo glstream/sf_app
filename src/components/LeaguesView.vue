@@ -80,12 +80,12 @@
             </a-row>
             <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
               <a-col class="gutter-row" :span="8">
-                <div class="gutter-box-header">
+                <div class="gutter-box">
                   <a-tag> {{ league.roster_type }}</a-tag>
                 </div>
               </a-col>
               <a-col class="gutter-row" :span="8">
-                <div class="gutter-box-search">
+                <div class="gutter-box">
                   <a-tooltip>
                     <template #title>League Summary</template>
                     <a-button size="default" type="primary" @click="getLeagueSummary(league)"
@@ -95,7 +95,7 @@
                 </div>
               </a-col>
               <a-col class="gutter-row" :span="8">
-                <div class="gutter-box-search">
+                <div class="gutter-box">
                   <a-tooltip>
                     <template #title>League Details</template>
 
