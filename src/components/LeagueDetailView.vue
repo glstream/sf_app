@@ -45,11 +45,15 @@
             </a-row>
             <a-row>
               <a-col class="gutter-row" :span="12">
-                <div class="gutter-box-dropdown">
+                <div class="gutter-box-button">
+                  <a-button type="default" @click="getLeagueSummary()">
+                    <FileSearchOutlined />Summary</a-button
+                  >
+                </div>
+              </a-col>
+              <a-col class="gutter-row" :span="12">
+                <div class="gutter-box-refresh">
                   <a-flex :gap="10">
-                    <a-button type="default" class="load-league-button" @click="getLeagueSummary()">
-                      <FileSearchOutlined />Summary</a-button
-                    >
                     <a-dropdown-button :loading="summaryIsLoading">
                       <img
                         style="padding-right: 5px"
