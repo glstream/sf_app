@@ -1151,7 +1151,7 @@ function getCardPositionColor(position: string): string {
 .trade-calculator {
   padding: 40px;
   background: #f5f5f5;
-  border: 1px solid lightgray;
+  border: 1px solid rgb(39, 125, 161);
   border-radius: 3px;
   min-width: 500px;
 }

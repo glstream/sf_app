@@ -533,7 +533,7 @@ const getCurrentYear = async () => {
 }
 
 .leagues-container {
-  border: 1px solid #d9d9d9;
+  border: 1px solid rgb(39, 125, 161);
   border-radius: 5px;
   margin-top: 15px;
 }
