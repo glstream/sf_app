@@ -1186,6 +1186,7 @@ import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
+import ddLogo from '@/assets/sourceLogos/dd.svg'
 
 const route = useRoute()
 const router = useRouter()
@@ -1250,7 +1251,8 @@ const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
+  { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
 ]
 const source = ref(platform)
 const selectedSource = ref(sources.find((source) => source.key === platform) || sources[0])

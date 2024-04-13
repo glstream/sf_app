@@ -288,6 +288,39 @@
                     </div></a-col
                   >
                 </a-row>
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats-header">DynastyDaddy</div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.dd_power_rank)">{{
+                        addOrdinalSuffix(league.dd_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_starters_rank))">{{
+                        addOrdinalSuffix(league.dd_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_bench_rank))">{{
+                        addOrdinalSuffix(league.dd_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_picks_rank))">{{
+                        addOrdinalSuffix(league.dd_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </a-row>
               </div>
             </div>
           </a-row>
@@ -325,6 +358,7 @@ import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
+import ddLogo from '@/assets/sourceLogos/dd.svg'
 
 // configs
 const leaguesData = ref([])
@@ -345,7 +379,8 @@ const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
   { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
+  { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
 ]
 
 const leagueInfo = reactive({
