@@ -550,14 +550,14 @@ const getCurrentYear = async () => {
   border: 1px solid gray;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 440px) {
   .responsive-padding {
     padding: 0 10px; /* Larger padding for larger screens */
   }
 }
 
 /* Media query for screens wider than 768px */
-@media (min-width: 391px) {
+@media (min-width: 440px) {
   .responsive-padding {
     padding: 0 200px; /* Larger padding for larger screens */
   }

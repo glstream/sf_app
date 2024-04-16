@@ -852,13 +852,13 @@ function getColorByRank(rank) {
   min-width: 10px;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 440px) {
   .responsive-padding {
     padding: 0 10px;
   }
 }
 
-@media (min-width: 391px) {
+@media (min-width: 440px) {
   .responsive-padding {
     padding: 0 200px;
   }
