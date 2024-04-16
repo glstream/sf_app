@@ -318,24 +318,30 @@ async function fetchRanks(platform: string) {
 }
 
 function downloadData() {
-  const dataToDownload = filteredData.value // Assuming this is your table's data source
+  // Ensuring data to download is actually the paginated data
+  const dataToDownload = paginatedData.value // Now correctly points to paginated data
+
   let csvContent = 'data:text/csv;charset=utf-8,'
 
-  // Add the header row
-  const headers = playerColumns.map((col) => col.title).join(',')
-  csvContent += headers + '\r\n'
+  // Assuming each data entry is an object, we take headers from the first entry if available
+  if (dataToDownload.length > 0) {
+    const headers = Object.keys(dataToDownload[0]).join(',') // Adjust this if you have specific headers
+    csvContent += headers + '\r\n'
 
-  // Add the data rows
-  dataToDownload.forEach((row) => {
-    const rowData = playerColumns.map((col) => `"${row[col.dataIndex]}"`).join(',')
-    csvContent += rowData + '\r\n'
-  })
+    // Add the data rows
+    dataToDownload.forEach((row) => {
+      const rowData = Object.values(row)
+        .map((field) => `"${field}"`)
+        .join(',')
+      csvContent += rowData + '\r\n'
+    })
+  }
 
   // Create a link and trigger the download
   const encodedUri = encodeURI(csvContent)
   const link = document.createElement('a')
 
-  // Use the selected source name for the file name
+  // Assuming selectedSource.value.name is defined and provides a meaningful name
   const fileName = `${selectedSource.value.name.replace(/\s+/g, '_')}_ranks_data.csv`
 
   link.setAttribute('href', encodedUri)
@@ -344,6 +350,7 @@ function downloadData() {
   link.click()
   document.body.removeChild(link)
 }
+
 // Computed property to get the current page's data
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * perPage.value
