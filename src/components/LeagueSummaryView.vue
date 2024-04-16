@@ -470,10 +470,7 @@ onMounted(() => {
   const rosterType = route.params.rosterType as string
   const rankType = route.params.rankType as string
 
-  if (leagueId && platform && rankType && guid) {
-    fetchLeagueData(leagueId, platform, rankType, guid, rosterType)
-    contenderFetchLeagueData(leagueId, contenderPlatform, contenderRankType, guid, rosterType)
-  }
+  insertLeagueDetails(leagueId)
 })
 
 // league information

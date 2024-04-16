@@ -496,7 +496,7 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
 }
 
 // Function to handle click event
-const getLeagueSummary = (record) => {
+const getLeagueSummary = async (record) => {
   const leagueId = record.league_id
   const guid = record.session_id
   const leagueYear = record.league_year
