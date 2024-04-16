@@ -82,7 +82,7 @@ const handleHeaderClick = () => {
 /* Larger screens */
 @media (min-width: 481px) {
   .menu-item-link {
-    font-size: 16px; /* Larger font size for non-small screens */
+    font-size: 14px; /* Larger font size for non-small screens */
   }
 }
 
