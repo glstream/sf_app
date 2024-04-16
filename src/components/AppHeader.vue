@@ -69,6 +69,21 @@ const handleHeaderClick = () => {
   display: flex;
   align-items: center;
   justify-content: left;
+  font-size: 16px; /* Default smaller font size for mobile devices */
+}
+
+/* iPhone 5/SE and similar small devices (portrait) */
+@media (min-width: 320px) and (max-width: 480px) {
+  .menu-item-link {
+    font-size: 20px; /* Adjust if different size is desired for small screens */
+  }
+}
+
+/* Larger screens */
+@media (min-width: 481px) {
+  .menu-item-link {
+    font-size: 16px; /* Larger font size for non-small screens */
+  }
 }
 
 .pi {
