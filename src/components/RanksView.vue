@@ -8,39 +8,42 @@
       <a-breadcrumb-item>Ranks</a-breadcrumb-item>
     </a-breadcrumb>
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
-      <div
-        style="
-          padding-bottom: 5px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <div class="switch-container">
-          <div title="Settings">
-            <div class="setting-item">
-              <a-switch
-                id="switch1"
-                size="large"
-                v-model:checked="state.checked1"
-                checked-children="Superflex"
-                un-checked-children="OneQB"
-              />
-            </div>
-            <div class="setting-item">
-              <a-switch
-                id="switch2"
-                size="large"
-                v-model:checked="state.checked2"
-                checked-children="Dynasty"
-                un-checked-children="Redraft"
-              />
+      <a-row style="margin-bottom: 20px">
+        <a-col :span="12">
+          <div
+            style="
+              padding-bottom: 5px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div class="switch-container">
+              <div title="Settings">
+                <div class="setting-item">
+                  <a-switch
+                    id="switch1"
+                    size="large"
+                    v-model:checked="state.checked1"
+                    checked-children="Superflex"
+                    un-checked-children="OneQB"
+                  />
+                </div>
+                <div class="setting-item">
+                  <a-switch
+                    id="switch2"
+                    size="large"
+                    v-model:checked="state.checked2"
+                    checked-children="Dynasty"
+                    un-checked-children="Redraft"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div>
-          <a-flex :gap="10">
+        </a-col>
+        <a-col :span="12">
+          <div style="float: right">
             <a-dropdown-button :loading="isLoading">
               <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
               {{ selectedSource.name }}
@@ -55,10 +58,26 @@
                 </a-menu>
               </template>
             </a-dropdown-button>
-            <a-button @click="downloadData"><DownloadOutlined /></a-button>
-          </a-flex>
-        </div>
-      </div>
+          </div>
+        </a-col>
+      </a-row>
+      <a-row>
+        <a-col :span="20">
+          <a-checkbox
+            v-model:checked="checkState.checkAll"
+            :indeterminate="checkState.indeterminate"
+            @change="onCheckAllChange"
+          >
+            Check all
+          </a-checkbox>
+          <a-checkbox-group v-model:value="checkState.checkedList" :options="plainOptions" />
+        </a-col>
+        <a-col :span="4">
+          <a-button type="default" @click="downloadData" style="float: right">
+            <DownloadOutlined />
+          </a-button>
+        </a-col>
+      </a-row>
       <a-spin :spinning="isLoading">
         <div class="card-list">
           <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }">
@@ -92,11 +111,11 @@
               </a-col>
               <a-col class="gutter-row" :span="2">
                 <div v-if="asset.team" class="gutter-box">{{ asset.team }}</div>
-                <div v-else class="gutter-box">N/A</div>
+                <div v-else class="gutter-box">--</div>
               </a-col>
               <a-col class="gutter-row" :span="2">
                 <div v-if="asset.age" class="gutter-box">{{ asset.age }}</div>
-                <div v-else class="gutter-box">N/A</div>
+                <div v-else class="gutter-box">--</div>
               </a-col>
               <a-col class="gutter-row" :span="4">
                 <div class="gutter-box-value">{{ asset.player_value.toLocaleString() }}</div>
@@ -117,7 +136,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -140,7 +159,29 @@ const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
 const currentPage = ref(1)
-const perPage = ref(100)
+const perPage = ref(75)
+
+const plainOptions = ['QB', 'RB', 'WR', 'TE', 'PICK']
+
+const checkState = reactive({
+  indeterminate: true,
+  checkAll: false,
+  checkedList: ['QB', 'RB', 'WR', 'TE', 'PICK']
+})
+
+const onCheckAllChange = (e: any) => {
+  Object.assign(checkState, {
+    checkedList: e.target.checked ? plainOptions : [],
+    indeterminate: false
+  })
+}
+watch(
+  () => checkState.checkedList,
+  (val) => {
+    checkState.indeterminate = !!val.length && val.length < plainOptions.length
+    checkState.checkAll = val.length === plainOptions.length
+  }
+)
 
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
@@ -175,31 +216,34 @@ watchEffect(() => {
 
 const filteredData = computed(() => {
   const filtered = ranksData.value.filter((item) => {
+    // Maintain existing conditions based on rank type and roster type
     const rankTypeCondition = state.checked2
       ? item.rank_type === 'dynasty'
       : item.rank_type === 'redraft'
     const rosterTypeCondition = state.checked1
       ? item.roster_type === 'sf_value'
       : item.roster_type === 'one_qb_value'
-    return rankTypeCondition && rosterTypeCondition
+
+    // New condition for QB visibility based on checkedList
+    const positionCondition = checkState.checkedList.includes(item._position)
+
+    return rankTypeCondition && rosterTypeCondition && positionCondition
   })
 
-  // Group by _position
+  // Group and sort logic remains unchanged
   const grouped = filtered.reduce((acc, item) => {
     acc[item._position] = acc[item._position] || []
     acc[item._position].push(item)
     return acc
   }, {})
 
-  // Sort each group in descending order and assign pos_ranked
   Object.keys(grouped).forEach((position) => {
-    grouped[position].sort((a, b) => b.player_value - a.player_value) // Sort in descending order
+    grouped[position].sort((a, b) => b.player_value - a.player_value)
     grouped[position].forEach((item, index) => {
-      item.pos_ranked = index + 1 // Rank within the position
+      item.pos_ranked = index + 1
     })
   })
 
-  // Flatten the grouped object back into an array
   return Object.values(grouped)
     .flat()
     .sort((a, b) => b.player_value - a.player_value)
@@ -305,6 +349,10 @@ const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * perPage.value
   const end = start + perPage.value
   return filteredData.value.slice(start, end)
+})
+
+const checkedFilteredData = computed(() => {
+  return ranksData.value.filter((rank) => checkState.checkedList.includes(rank.position))
 })
 
 // Method to handle page change

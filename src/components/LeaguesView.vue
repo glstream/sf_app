@@ -93,7 +93,7 @@
                   <div class="gutter-box">
                     <a-tooltip>
                       <template #title>League Summary</template>
-                      <a-button size="default" type="primary" @click="getLeagueSummary(league)"
+                      <a-button size="default" type="default" @click="getLeagueSummary(league)"
                         >Summary<FileSearchOutlined size="small"
                       /></a-button>
                     </a-tooltip>
