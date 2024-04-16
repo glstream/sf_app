@@ -53,7 +53,7 @@
               </a-col>
               <a-col class="gutter-row" :span="12">
                 <div class="gutter-box-refresh">
-                  <a-flex :gap="10">
+                  <a-flex :gap="5">
                     <a-dropdown-button :loading="summaryIsLoading">
                       <img
                         style="padding-right: 5px"

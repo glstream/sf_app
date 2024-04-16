@@ -84,7 +84,7 @@
                 </a-col>
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="8">
+                <a-col class="gutter-row" :span="7">
                   <div class="gutter-box">
                     <a-tag> {{ league.roster_type }}</a-tag>
                   </div>
@@ -99,7 +99,7 @@
                     </a-tooltip>
                   </div>
                 </a-col>
-                <a-col class="gutter-row" :span="8">
+                <a-col class="gutter-row" :span="9">
                   <div class="gutter-box">
                     <a-tooltip>
                       <template #title>League Details</template>
@@ -639,7 +639,7 @@ const getCurrentYear = async () => {
   border-radius: 3px;
 }
 .max-width-container {
-  max-width: 400px;
+  max-width: 360px;
   margin: auto; /* Center the div */
   width: 100%;
   margin: 10px 10px;
