@@ -68,7 +68,7 @@ const handleHeaderClick = () => {
 .menu-item-link {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
 }
 
 .pi {
