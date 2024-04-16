@@ -421,6 +421,50 @@
               </div>
             </TabPanel>
             <TabPanel header="Starters">
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-col :span="24">
+                  <a-avatar-group
+                    maxCount="12"
+                    maxPopoverPlacement="bottom"
+                    maxPopoverTrigger="hover"
+                    :max-count="12"
+                  >
+                    <div v-for="user in starterSummaryData" :key="user.user_id">
+                      <div
+                        v-if="user.user_id === leagueInfo.userId"
+                        style="position: relative; display: inline-block"
+                      >
+                        <a-tooltip
+                          :title="`${addOrdinalSuffix(user.starters_rank)} ${user.display_name}`"
+                          placement="top"
+                        >
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                            :size="45"
+                            style="border: 2px solid gold"
+                          />
+                        </a-tooltip>
+                        <span class="badge-label">
+                          {{ addOrdinalSuffix(user.starters_rank) }}
+                        </span>
+                      </div>
+
+                      <div v-else>
+                        <a-tooltip
+                          :title="`${addOrdinalSuffix(user.starters_rank)} ${user.display_name}`"
+                          placement="top"
+                        >
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                          />
+                        </a-tooltip>
+                      </div>
+                    </div>
+                  </a-avatar-group>
+                </a-col>
+              </a-row>
               <h2 style="text-align: left">Starting Rosters</h2>
               <div class="table-section" style="flex: 2">
                 <a-table
@@ -700,7 +744,7 @@
               </a-spin>
             </TabPanel>
             <TabPanel header="Rosters">
-              <h2 style="text-align: left">Players by Team</h2>
+              <h2 style="text-align: left">Players by Manager</h2>
               <a-row justify="space-around" :gutter="8">
                 <a-col
                   v-for="manager in summaryData"
@@ -711,35 +755,45 @@
                   lg="{6}"
                   style="min-width: 300px; max-width: 315px"
                 >
-                  <a-card
-                    :title="`${manager.display_name} &bull; ${addOrdinalSuffix(manager.total_rank)} Overall`"
-                  >
+                  <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
+                    <h3 style="padding: 10px 10px">
+                      <img
+                        class="manager-logos"
+                        :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                        alt="League Logo"
+                      />
+                      {{ manager.display_name }} &bull;
+                      {{ addOrdinalSuffix(manager.total_rank) }} Overall
+                    </h3>
                     <ul style="width: 100%; padding: 0">
                       <div v-for="(player, index) in getPlayers(manager.user_id)">
-                        <div>
-                          <li
-                            :style="getPositionTag(player.player_position)"
-                            style="list-style-type: none; color: black"
-                          >
-                            <a-tag :style="getPositionTag(player.player_position)">{{
-                              player.player_position
-                            }}</a-tag>
+                        <div
+                          style="display: flex; justify-content: space-between"
+                          :style="getPositionTag(player.player_position)"
+                        >
+                          <div style="display: flex; align-items: center">
+                            <span style="color: black"> {{ index + 1 }}.</span>
 
-                            {{ index + 1 }}. {{ player.full_name }} &bull;
-                            {{
-                              player.player_value === -1
-                                ? 'N/A'
-                                : player.player_value.toLocaleString()
-                            }}
-                          </li>
+                            <li style="list-style-type: none; color: black">
+                              {{ player.full_name }} &bull;
+                              {{
+                                player.player_value === -1
+                                  ? 'N/A'
+                                  : player.player_value.toLocaleString()
+                              }}
+                            </li>
+                          </div>
+                          <a-tag :style="getPositionTag(player.player_position)">{{
+                            player.player_position
+                          }}</a-tag>
                         </div>
                       </div>
                     </ul>
-                  </a-card>
+                  </div>
                 </a-col>
               </a-row>
             </TabPanel>
-            <TabPanel header="League View">
+            <TabPanel header="Players View">
               <h2 style="text-align: left">League Dashboard</h2>
               <div style="display: flex; justify-content: left">
                 <a-avatar-group
@@ -817,9 +871,13 @@
                   :md="8"
                   :lg="6"
                 >
-                  <a-card
-                    :title="`Players ${chunkIndex * 50 + 1} - ${Math.min((chunkIndex + 1) * 50, detailData.length)}`"
-                    :bordered="false"
+                  <div
+                    style="
+                      border: 1px solid lightgray;
+                      border-radius: 5px;
+                      margin: 10px;
+                      padding: 10px;
+                    "
                   >
                     <ul style="padding: 0">
                       <li
@@ -847,7 +905,7 @@
                         </span>
                       </li>
                     </ul>
-                  </a-card>
+                  </div>
                 </a-col>
               </a-row>
 
@@ -1839,6 +1897,10 @@ const getStarters = (userId) => {
   return interimData
 }
 
+const starterSummaryData = computed(() => {
+  return [...summaryData.value].sort((a, b) => a.starters_rank - b.starters_rank)
+})
+
 const getPlayers = (userId) => {
   const interimData = detailData.value.filter((item) => item.user_id === userId)
   return interimData
@@ -2390,6 +2452,13 @@ table {
   vertical-align: middle;
   border-radius: 3px;
 }
+.manager-logos {
+  width: 328x;
+  height: 28px;
+  vertical-align: middle;
+  border-radius: 50%;
+  border: 1px solid gray;
+}
 .avatar-traded-asset {
   width: 38px;
   height: 32px;
@@ -2445,5 +2514,8 @@ li {
   display: flex;
   justify-content: right;
   align-items: baseline;
+}
+.ant-card .ant-card-body {
+  padding: 8px !important; /* Reducing padding and using !important to ensure override */
 }
 </style>
