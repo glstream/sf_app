@@ -1663,6 +1663,19 @@ const projColumns: Column[] = [
     }
   },
   {
+    title: 'Starters',
+    dataIndex: 'starters_rank_display',
+    key: 'starter_rank_display',
+    align: 'center',
+    slots: { customRender: 'totalValueTooltip' },
+    customCell: (record: any) => ({
+      style: getCellStyle(record.starters_rank)
+    }),
+    sorter: {
+      compare: (a, b) => a.starters_rank - b.starters_rank
+    }
+  },
+  {
     title: 'QB',
     dataIndex: 'qb_rank_display',
     key: 'qb_rank',

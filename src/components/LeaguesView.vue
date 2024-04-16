@@ -577,6 +577,13 @@ const getCurrentYear = async () => {
   border: 1px solid rgb(39, 125, 161);
   border-radius: 5px;
   margin-top: 15px;
+  background-color: white;
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.leagues-container:hover {
+  border-color: #43aa8b; /* Darker border on hover */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Optional: Add shadow for better visual effect */
 }
 .leagues-stats-container {
   border-radius: 5px;

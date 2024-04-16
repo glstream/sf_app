@@ -274,12 +274,25 @@ const onFinishFailed = (errorInfo: any) => {
 .layout {
   min-height: 100vh;
 }
+.layout {
+  flex-direction: column;
+  min-height: 100vh;
+}
+.layout-content {
+  margin: 0 auto; /* Centers content horizontally */
+  max-width: 1200px; /* Maximum width of the content area */
+  width: 100%; /* Ensures it takes up the necessary width */
+}
+
 .form-style {
   width: 100%;
   max-width: 400px; /* Adjust based on your preference */
   padding: 25px;
   background-color: white;
   border-radius: 15px;
+}
+.form-card {
+  background-color: #white;
 }
 .logo {
   max-width: 100%; /* Ensures the image is responsive */
@@ -312,5 +325,22 @@ const onFinishFailed = (errorInfo: any) => {
 }
 .image-cards-col {
   padding-bottom: 20px;
+}
+@media (max-width: 599px) {
+  .layout-content {
+    padding: 0 20px; /* Smaller padding on smaller screens */
+  }
+}
+
+@media (min-width: 600px) {
+  .layout-content {
+    padding: 0 50px; /* Increased padding for larger screens */
+  }
+}
+
+@media (min-width: 1200px) {
+  .layout-content {
+    padding: 0 100px; /* More padding for very large screens */
+  }
 }
 </style>

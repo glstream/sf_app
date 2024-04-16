@@ -218,6 +218,49 @@
                     </div>
                   </div> </a-spin
               ></a-tab-pane>
+              <a-tab-pane key="5" tab="DynastyDaddy">
+                <a-spin :spinning="isLoading">
+                  <div class="scrollable-content">
+                    <div class="tags-container" v-if="positionalRanks.length > 0">
+                      <div
+                        class="tag-group"
+                        v-for="rankInfo in positionalRanks"
+                        :key="rankInfo.position"
+                      >
+                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                          <a-tag
+                            :color="rankInfo.color"
+                            :title="rankInfo.rank"
+                            class="custom-position-tag"
+                            >{{ rankInfo.position }}</a-tag
+                          >
+                        </a-tooltip>
+                        <div class="tag-badges">
+                          <a-tag
+                            v-for="n in rankInfo.greenTags"
+                            :key="`${rankInfo.position}-green-${n}`"
+                            :class="getColorByRank(rankInfo.rank)"
+                            >&nbsp;</a-tag
+                          >
+                          <a-tag
+                            v-for="n in rankInfo.greyTags"
+                            :key="`${rankInfo.position}-grey-${n}`"
+                            class="grey-tag"
+                            >&nbsp;</a-tag
+                          ><a-tag class="summary-badge">{{
+                            addOrdinalSuffix(rankInfo.rank)
+                          }}</a-tag>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else style="text-align: center">
+                      <a-empty />
+                    </div>
+                    <div v-else style="text-align: center">
+                      <a-empty />
+                    </div>
+                  </div> </a-spin
+              ></a-tab-pane>
             </a-tabs>
           </a-card>
           <a-card title="Projections" bordered>
@@ -411,10 +454,11 @@ const tabsMetadata = {
   '2': { id: '2', source: 'sf', type: 'power' },
   '3': { id: '3', source: 'fc', type: 'power' },
   '4': { id: '4', source: 'dp', type: 'power' },
-  '5': { id: '5', source: 'espn', type: 'contender' },
-  '6': { id: '6', source: 'nfl', type: 'contender' },
-  '7': { id: '7', source: 'fc', type: 'contender' },
-  '8': { id: '8', source: 'cbs', type: 'contender' }
+  '5': { id: '5', source: 'dd', type: 'power' },
+  '6': { id: '6', source: 'espn', type: 'contender' },
+  '7': { id: '7', source: 'nfl', type: 'contender' },
+  '8': { id: '8', source: 'fc', type: 'contender' },
+  '9': { id: '9', source: 'cbs', type: 'contender' }
 }
 
 onMounted(() => {
