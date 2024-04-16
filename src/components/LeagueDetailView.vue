@@ -793,7 +793,118 @@
                 </a-col>
               </a-row>
             </TabPanel>
-            <TabPanel header="Players View">
+            <TabPanel header="Positions">
+              <h2 style="text-align: left">League Dashboard</h2>
+              <div style="display: flex; justify-content: left">
+                <a-avatar-group
+                  maxCount="12"
+                  maxPopoverPlacement="bottom"
+                  maxPopoverTrigger="hover"
+                >
+                  <div v-for="user in summaryData" :key="user.user_id">
+                    <div
+                      v-if="user.user_id === leagueInfo.userId"
+                      style="position: relative; display: inline-block"
+                    >
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          :size="45"
+                          style="border: 2px solid gold"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                      <span class="badge-label">
+                        {{ addOrdinalSuffix(user.total_rank) }}
+                      </span>
+                    </div>
+
+                    <div v-else>
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                    </div>
+                  </div> </a-avatar-group
+                ><span style="font-size: small"> (click to highlight)</span>
+              </div>
+              <div class="legend">
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                  <span class="legend-text">QB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                  <span class="legend-text">RB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                  <span class="legend-text">WR</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                  <span class="legend-text">TE</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
+                  <span class="legend-text">Picks</span>
+                </div>
+              </div>
+
+              <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                <a-col
+                  v-for="(players, position) in playersByPosition"
+                  :key="position"
+                  xs="{24}"
+                  sm="{12}"
+                  md="{8}"
+                  lg="{6}"
+                  style="min-width: 260px; max-width: 315px"
+                >
+                  <div>
+                    <h3>{{ position }}</h3>
+                    <ul style="padding: 0; list-style: none">
+                      <li
+                        v-for="(player, index) in players"
+                        :key="player.sleeper_id"
+                        :style="getPositionTag(player.player_position, 0.35)"
+                        style="color: black"
+                        :class="{
+                          lighter: clickedManager !== '' && clickedManager !== player.display_name
+                        }"
+                      >
+                        <span
+                          :class="{
+                            'dimmed-text':
+                              clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          {{ index + 1 }}. {{ player?.full_name }} &bull;
+                          {{
+                            player.player_value === -1
+                              ? 'N/A'
+                              : player.player_value?.toLocaleString()
+                          }}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </a-col>
+              </a-row>
+            </TabPanel>
+            <TabPanel header="Players">
               <h2 style="text-align: left">League Dashboard</h2>
               <div style="display: flex; justify-content: left">
                 <a-avatar-group
@@ -908,8 +1019,6 @@
                   </div>
                 </a-col>
               </a-row>
-
-              {{ detailData }}
             </TabPanel>
             <TabPanel header="Manager View">
               <h2 style="text-align: left">Team Dashboard</h2>
@@ -1322,6 +1431,10 @@ const filteredSources = computed(() => {
     )
   }
   return sources
+})
+
+const props = defineProps({
+  detailData: Array
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
@@ -2278,6 +2391,31 @@ async function fetchDetailData(
 function handleUserClick(user) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
 }
+const playersByPosition = computed(() => {
+  const order = ['QB', 'RB', 'WR', 'TE', 'PICKS'] // Define the order of positions
+  const groups = {}
+
+  // Initialize the groups object with keys in the desired order
+  order.forEach((position) => {
+    groups[position] = []
+  })
+
+  // Populate the groups object with players
+  detailData.value.forEach((player) => {
+    if (groups.hasOwnProperty(player.player_position)) {
+      groups[player.player_position].push(player)
+    }
+  })
+
+  // Filter out any positions that end up being empty to prevent empty categories
+  order.forEach((position) => {
+    if (groups[position].length === 0) {
+      delete groups[position]
+    }
+  })
+
+  return groups
+})
 </script>
 
 <style scoped>
@@ -2517,5 +2655,30 @@ li {
 }
 .ant-card .ant-card-body {
   padding: 8px !important; /* Reducing padding and using !important to ensure override */
+}
+
+.position-card h3 {
+  color: #333;
+}
+.position-card ul {
+  padding-left: 20px;
+}
+.position-card li {
+  list-style-type: none;
+}
+.position-card {
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: Add media queries for finer control */
+@media (max-width: 600px) {
+  .position-card {
+    padding: 10px;
+  }
 }
 </style>

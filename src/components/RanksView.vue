@@ -85,7 +85,7 @@
               <div class="gutter-box-playername">RANK</div>
             </a-col>
             <a-col class="gutter-row" :span="2">
-              <div class="gutter-box"></div>
+              <div class="gutter-box">TEAM</div>
             </a-col>
             <a-col class="gutter-row" :span="2">
               <div class="gutter-box">AGE</div>
