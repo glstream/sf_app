@@ -54,7 +54,46 @@
               :style="{ height: '300px' }"
               class="custom-tabs"
             >
-              <a-tab-pane key="1" tab="Keep Trade Cut" data-metadata="ktc">
+              <a-tab-pane key="1" tab="FantasyNavigator" data-metadata="sf">
+                <a-spin :spinning="isLoading">
+                  <div class="scrollable-content">
+                    <div class="tags-container" v-if="positionalRanks.length > 0">
+                      <div
+                        class="tag-group"
+                        v-for="rankInfo in positionalRanks"
+                        :key="rankInfo.position"
+                      >
+                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                          <a-tag
+                            :color="rankInfo.color"
+                            :title="rankInfo.rank"
+                            class="custom-position-tag"
+                            >{{ rankInfo.position }}</a-tag
+                          >
+                        </a-tooltip>
+                        <div class="tag-badges">
+                          <a-tag
+                            v-for="n in rankInfo.greenTags"
+                            :key="`${rankInfo.position}-green-${n}`"
+                            :class="getColorByRank(rankInfo.rank)"
+                            >&nbsp;</a-tag
+                          >
+                          <a-tag
+                            v-for="n in rankInfo.greyTags"
+                            :key="`${rankInfo.position}-grey-${n}`"
+                            class="grey-tag"
+                            >&nbsp;</a-tag
+                          ><a-tag class="summary-badge">{{
+                            addOrdinalSuffix(rankInfo.rank)
+                          }}</a-tag>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else style="text-align: center">
+                      <a-empty />
+                    </div></div></a-spin
+              ></a-tab-pane>
+              <a-tab-pane key="2" tab="Keep Trade Cut" data-metadata="ktc">
                 <div class="scrollable-content">
                   <a-spin :spinning="isLoading">
                     <div class="tags-container" v-if="positionalRanks.length > 0">
@@ -95,46 +134,6 @@
                   </a-spin>
                 </div>
               </a-tab-pane>
-
-              <a-tab-pane key="2" tab="FantasyNavigator" data-metadata="sf">
-                <a-spin :spinning="isLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div></div></a-spin
-              ></a-tab-pane>
               <a-tab-pane key="3" tab="FantasyCalc">
                 <a-spin :spinning="isLoading">
                   <div class="scrollable-content">
@@ -637,12 +636,12 @@ const getPositionalRanks = (data, leagueInfo) => {
           position.length <= 2
             ? position.toUpperCase()
             : position[0].toUpperCase() + position.slice(1)
-        const color = positionColors[formattedPosition.toUpperCase()] || '#108ee9'
+        const color = positionColors[formattedPosition.toUpperCase()] || 'cyan'
 
         return {
           position: formattedPosition,
-          greyTags: Math.round(greyTags * 1.5),
-          greenTags: Math.round(greenTags * 1.5),
+          greyTags: Math.round(greyTags),
+          greenTags: Math.round(greenTags),
           color: color,
           rank: rank
         }
@@ -689,12 +688,12 @@ const contenderGetPositionalRanks = (conData, leagueInfo) => {
         position.length <= 2
           ? position.toUpperCase()
           : position[0].toUpperCase() + position.slice(1)
-      const color = positionColors[formattedPosition.toUpperCase()] || '#108ee9'
+      const color = positionColors[formattedPosition.toUpperCase()] || 'cyan'
 
       return {
         conPosition: formattedPosition,
-        conGreyTags: Math.round(greyTags * 1.5),
-        conGreenTags: Math.round(greenTags * 1.5),
+        conGreyTags: Math.round(greyTags),
+        conGreenTags: Math.round(greenTags),
         conColor: color,
         conRank: rank
       }
@@ -810,31 +809,31 @@ function getColorByRank(rank) {
 .grey-tag {
   background-color: #f0f0f0;
   border: 0.5px solid gray;
-  margin-right: 2px;
+  margin-right: 1px;
   max-width: 5px;
 }
 .green-tag {
   background-color: #22de6a;
   border: 0.5px solid gray;
-  margin-right: 2px;
+  margin-right: 1px;
   max-width: 5px;
 }
 .gray-tag {
   background-color: rgb(146, 152, 156);
   border: 0.5px solid gray;
-  margin-right: 2px;
+  margin-right: 1px;
   max-width: 5px;
 }
 .yellow-tag {
   background-color: rgb(223, 234, 13);
   border: 0.5px solid gray;
-  margin-right: 2px;
+  margin-right: 1px;
   max-width: 5px;
 }
 .red-tag {
   background-color: #e55050;
   border: 0.5px solid gray;
-  margin-right: 2px;
+  margin-right: 1px;
   max-width: 5px;
 }
 .tag-group {
@@ -850,8 +849,7 @@ function getColorByRank(rank) {
   margin-left: 15px;
   align-items: center;
   justify-content: center;
-  min-width: 45px;
-  display: inline-flex;
+  min-width: 10px;
 }
 
 @media (max-width: 390px) {
@@ -867,8 +865,6 @@ function getColorByRank(rank) {
 }
 
 .scrollable-content {
-  overflow-x: auto;
-  overflow-y: hidden;
   white-space: nowrap;
   display: flex;
   flex-wrap: nowrap;
