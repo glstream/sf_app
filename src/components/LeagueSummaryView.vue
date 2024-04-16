@@ -46,7 +46,7 @@
             </a-flex>
           </div>
 
-          <a-card style="margin-bottom: 25px" title="Power Rankings" bordered>
+          <a-card style="margin-bottom: 25px; max-width: 400" title="Power Rankings" bordered>
             <a-tabs
               v-model:activeKey="activeKey"
               @change="fetchTabData"
