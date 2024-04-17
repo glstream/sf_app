@@ -10,7 +10,7 @@
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
       </a-breadcrumb>
       <a-row>
-        <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14" style="text-align: right">
+        <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
           <div style="margin-bottom: 25px" bordered>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px">
               <img
@@ -41,12 +41,12 @@
                 type="default"
                 @click="insertLeagueDetails(leagueInfo.leagueId)"
                 :loading="isLoading"
-                >Load League</a-button
+                ><ReloadOutlined /> League League</a-button
               >
             </a-flex>
           </div>
 
-          <a-card style="margin-bottom: 25px; max-width: 400" title="Power Rankings" bordered>
+          <a-card style="margin-bottom: 25px; max-width: 400px" title="Power Rankings" bordered>
             <a-tabs
               v-model:activeKey="activeKey"
               @change="fetchTabData"
@@ -90,9 +90,19 @@
                       </div>
                     </div>
                     <div v-else style="text-align: center">
-                      <a-empty />
-                    </div></div></a-spin
-              ></a-tab-pane>
+                      <a-empty>
+                        <a-button
+                          size="small"
+                          type="default"
+                          @click="insertLeagueDetails(leagueInfo.leagueId)"
+                          :loading="isLoading"
+                          >Load League</a-button
+                        >
+                      </a-empty>
+                    </div>
+                  </div></a-spin
+                ></a-tab-pane
+              >
               <a-tab-pane key="2" tab="Keep Trade Cut" data-metadata="ktc">
                 <div class="scrollable-content">
                   <a-spin :spinning="isLoading">
@@ -129,7 +139,15 @@
                       </div>
                     </div>
                     <div v-else style="text-align: center">
-                      <a-empty />
+                      <a-empty>
+                        <a-button
+                          size="small"
+                          type="default"
+                          @click="insertLeagueDetails(leagueInfo.leagueId)"
+                          :loading="isLoading"
+                          >Load League</a-button
+                        >
+                      </a-empty>
                     </div>
                   </a-spin>
                 </div>
@@ -262,7 +280,7 @@
               ></a-tab-pane>
             </a-tabs>
           </a-card>
-          <a-card title="Projections" bordered>
+          <a-card style="margin-bottom: 25px; max-width: 400px" title="Projections" bordered>
             <a-tabs
               v-model:conActiveKey="conActiveKey"
               @change="contenderFetchTabData"
@@ -415,7 +433,7 @@ import axios from 'axios'
 
 // Platform Utils
 import type { TabsProps, message, Spin } from 'ant-design-vue'
-import { HomeOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, ReloadOutlined } from '@ant-design/icons-vue'
 import defaultimage from '@/assets/logo4.png'
 
 // Custom Utils
