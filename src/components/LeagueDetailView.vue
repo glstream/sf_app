@@ -2139,7 +2139,7 @@ async function fetchBaData(
   rosterType: string
 ) {
   try {
-    const response = await axios.get(`${apiUrl}/best_avialable`, {
+    const response = await axios.get(`${apiUrl}/best_available`, {
       params: {
         league_id: leagueId,
         platform: platform,
