@@ -1438,7 +1438,6 @@ const props = defineProps({
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
-  console.log('event', e)
   const leagueId = leagueInfo.leagueId
   const leagueYear = leagueInfo.leagueYear
   const platform = e.key
@@ -1471,9 +1470,6 @@ const projChartOptions = {
 
 const handleProjChange = async (projectionSource: any) => {
   isProjectionLoading.value = true
-  console.log(leagueId)
-  console.log(projectionSource)
-  console.log(guid)
   try {
     const [summaryResponse, detailResponse] = await Promise.all([
       axios.get(`${apiUrl}/contender_league_summary`, {
@@ -1491,10 +1487,6 @@ const handleProjChange = async (projectionSource: any) => {
         }
       })
     ])
-
-    console.log('API summaryResponse response:', summaryResponse.data)
-    console.log('API detail Response response:', detailResponse.data)
-
     const projectionDetailData = detailResponse.data
     projDetailData.value = projectionDetailData
 
@@ -2028,10 +2020,6 @@ const insertLeagueDetials = async (values: any) => {
   detailIsLoading.value = true
   summaryIsLoading.value = true
   console.log('trying insert rosters')
-  console.log(leagueId)
-  console.log(userId)
-  console.log(guid)
-  console.log(leagueYear)
 
   try {
     const response = await axios.post(`${apiUrl}/roster`, {
@@ -2200,9 +2188,6 @@ async function fetchTrades(
         }
       })
     ])
-
-    console.log('Trades API: summaryResponse response:', summaryResponse.data)
-    console.log('Trades API: detail Response response:', detailResponse.data)
 
     const sDetailData = summaryResponse.data
     const tDetailData = detailResponse.data

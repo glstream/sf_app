@@ -237,8 +237,6 @@ const onFinish = async (values) => {
     const { getOrCreateGUID } = useGuid()
     const userGuid = getOrCreateGUID()
 
-    console.log('User GUID:', userGuid)
-
     // Make a POST request to your backend server
     await axios.post(`${apiUrl}/user_details`, {
       league_year: formState.leagueYear,
@@ -247,7 +245,6 @@ const onFinish = async (values) => {
     })
 
     console.log('Username submission successful')
-    console.log(formState.userName)
 
     store.setUserDetails(formState.leagueYear, formState.userName, userGuid)
 

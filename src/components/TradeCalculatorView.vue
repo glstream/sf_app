@@ -445,7 +445,7 @@ const dropDownHandleChange = (value: string) => {
   if (ranksData.value && index < ranksData.value.length) {
     // Assuming the property for BPV is named appropriately in your data
     bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
-    console.log(`BPV recalculated to: ${bpv_value}`)
+    // console.log(`BPV recalculated to: ${bpv_value}`)
   } else {
     console.warn('Calculated index is out of bounds of the ranks data array')
     bpv_value = null // Handle the case where the index is not valid
@@ -506,7 +506,6 @@ const redditPlayers = () => {
 }
 
 const handleShareClick = (item) => {
-  console.log('Clicked menu item key:', item.key)
   if (item.key === 'x') {
     tweetPlayers()
   }
@@ -517,7 +516,7 @@ const handleShareClick = (item) => {
 
 async function onCheckTepChange(event: Event): Promise<void> {
   const checked = (event.target as HTMLInputElement).checked
-  console.log('TEP checked:', checked)
+  // console.log('TEP checked:', checked)
 
   ranksData.value.forEach((player) => {
     if (player._position === 'TE') {
@@ -678,8 +677,6 @@ const totalValueSideA = computed(() => {
   const playerValues = selectedPlayers1.value.map((player) =>
     state.checked1 ? player.sf_value : player.one_qb_value
   )
-  console.log('Side A', playerValues)
-  console.log('Side A total', calculateTradeValue(playerValues))
 
   // Calculate the trade value with the new function
   return calculateTradeValue(playerValues)
@@ -690,9 +687,6 @@ const totalValueSideB = computed(() => {
   const playerValues = selectedPlayers2.value.map((player) =>
     state.checked1 ? player.sf_value : player.one_qb_value
   )
-  console.log('Side B', playerValues)
-  console.log('Side B total', calculateTradeValue(playerValues))
-
   // Calculate the trade value with the new function
   return calculateTradeValue(playerValues) // You can adjust k if needed
 })
@@ -701,8 +695,6 @@ const totalValueSideB = computed(() => {
 // const bpv_value = 35
 
 function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): number {
-  console.log('BPV Source Value', BPV)
-
   // Sort playerValues in descending order to rank them
   const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
 
@@ -1065,8 +1057,6 @@ async function fetchRanks(platform: string, rankType: string) {
       console.warn('Calculated index is out of bounds of the ranks data array')
       bpv_value = ranksData.value[299]?.sf_value || null // Handle the case where the index is not valid
     }
-
-    console.log('BPV set to:', bpv_value)
   } catch (error) {
     console.error('There was an error pulling values...', error)
   } finally {
@@ -1102,7 +1092,6 @@ watch(ranksData, () => {
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
-  console.log(e.key)
   platform.value = e.key
   try {
     clearCalculator()

@@ -409,16 +409,11 @@ const filteredData = computed(() => {
 })
 
 const handleLeagueChange = (value: string) => {
-  console.log(value)
   selectedLeagueType.value = value
 }
 
 const handleRosterChange = (value: string) => {
   selectedRosterType.value = value
-}
-const handleMenuClick: MenuProps['onClick'] = (e, league) => {
-  console.log('click', e.key)
-  console.log('league click', league)
 }
 
 const leagueOptions = ref<SelectProps['options']>([
@@ -458,7 +453,6 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
       }
     })
     leaguesData.value = response.data // Assuming the server response format matches your table data format
-    console.log(leaguesData.value)
   } catch (error) {
     console.error('There was an error fetching the leagues data:', error)
   } finally {
@@ -467,8 +461,6 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
 }
 const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
-    console.log('click', e)
-
     const leagueId = league.league_id
     const guid = league.session_id
     const leagueYear = league.league_year
@@ -519,9 +511,7 @@ const getPrevYear = async () => {
 const getCurrentYear = async () => {
   isLoading.value = true
   const leagueYear = leagueInfo.leagueYear
-  console.log(leagueYear, userName, guid)
   try {
-    console.log(`/leagues/${leagueYear}/${userName}/${guid}`)
     await axios.post(`${apiUrl}/user_details`, {
       league_year: `${leagueYear}`,
       user_name: `${userName}`,

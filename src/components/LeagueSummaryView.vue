@@ -497,11 +497,11 @@ const callback: TabsProps['onTabScroll'] = (val) => {
 const insertLeagueDetails = async (values: any) => {
   isLoading.value = true
   contenderIsLoading.value = true
-  console.log('trying insert rosters')
-  console.log(leagueId)
-  console.log(userId)
-  console.log(guid)
-  console.log(leagueYear)
+  // console.log('trying insert rosters')
+  // console.log(leagueId)
+  // console.log(userId)
+  // console.log(guid)
+  // console.log(leagueYear)
   try {
     const response = await axios.post(`${apiUrl}/roster`, {
       league_id: leagueId,
@@ -547,7 +547,7 @@ const fetchTabData = async (tabKey) => {
   isLoading.value = true
   const tabData = tabsMetadata[tabKey]
   if (tabData) {
-    console.log('Fetching data for:', tabData.source)
+    // console.log('Fetching data for:', tabData.source)
 
     try {
       const response = await axios.get(`${apiUrl}/league_summary`, {
@@ -559,7 +559,7 @@ const fetchTabData = async (tabKey) => {
           roster_type: leagueInfo.rosterType
         }
       })
-      console.log('calling ', tabData.source)
+      // console.log('calling ', tabData.source)
       const filteredData = response.data.filter((record) => record.user_id === leagueInfo.userId)
       data.value = filteredData.length > 0 ? filteredData[0] : {}
     } catch (error) {
@@ -574,7 +574,7 @@ const contenderFetchTabData = async (tabKey) => {
   contenderIsLoading.value = true
   const tabData = tabsMetadata[tabKey]
   if (tabData) {
-    console.log('Contender Fetching data for:', tabData.source)
+    // console.log('Contender Fetching data for:', tabData.source)
 
     try {
       const response = await axios.get(`${apiUrl}/league_summary`, {
@@ -586,7 +586,7 @@ const contenderFetchTabData = async (tabKey) => {
           roster_type: leagueInfo.rosterType
         }
       })
-      console.log('contender calling ', tabData.source)
+      // console.log('contender calling ', tabData.source)
       const contenderFilteredData = response.data.filter(
         (record) => record.user_id === leagueInfo.userId
       )
@@ -754,8 +754,6 @@ async function contenderFetchLeagueData(
     })
     const filteredData = response.data.filter((record) => record.user_id === leagueInfo.userId)
     conData.value = filteredData.length > 0 ? filteredData[0] : {}
-
-    console.log(conData.value)
   } catch (error) {
     console.error('There was an error fetching the leagues data:', error)
   } finally {
