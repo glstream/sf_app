@@ -72,16 +72,17 @@
 
               <a-form-item>
                 <a-row :gutter="16">
-                  <a-col :span="8">
+                  <a-col :span="12">
                     <a-button
                       type="default"
-                      html-type="button"
+                      html-type="submit"
+                      :block="true"
                       :loading="demoFormIsLoading"
                       @click="setDemoUser"
                       >Try a Demo</a-button
                     >
                   </a-col>
-                  <a-col :span="16">
+                  <a-col :span="12">
                     <a-button
                       type="primary"
                       html-type="submit"
@@ -271,6 +272,10 @@ interface FormState {
   leagueYear: string
 }
 
+onMounted(() => {
+  clearFormIfBudgee()
+})
+
 const showModal = () => {
   open.value = true
 }
@@ -289,10 +294,25 @@ const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2024'
 })
-function setDemoUser() {
-  formState.value.userName = 'budgee' // Set userName to 'Budgee'
-  console.log('Demo user set:', formState.value.userName)
+
+function clearFormIfBudgee() {
+  if (formState.userName === 'budgee') {
+    // Resetting the values
+    formState.userName = ''
+    formState.leagueYear = '2024' // Assuming you want to reset to the default year
+    console.log('Form state has been cleared')
+  }
 }
+function setDemoUser() {
+  if (formState) {
+    // Checking if formState is defined
+    formState.userName = 'budgee' // Directly set userName on the reactive object
+    console.log('Demo user set:', formState.userName)
+  } else {
+    console.log('formState is not defined or initialized correctly')
+  }
+}
+
 const onFinish = async (values) => {
   formIsLoading.value = true
   if (formState.userName === 'Budgee') {
