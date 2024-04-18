@@ -3,7 +3,7 @@
     <AppHeader />
     <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
       <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/username">Home</a></a-breadcrumb-item>
+        <a-breadcrumb-item><a href="/">Home</a></a-breadcrumb-item>
         <a-breadcrumb-item>About</a-breadcrumb-item>
       </a-breadcrumb>
       <div>

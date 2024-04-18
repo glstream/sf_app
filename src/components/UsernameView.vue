@@ -70,10 +70,20 @@
                 </a-select>
               </a-form-item>
 
-              <a-form-item :wrapper-col="{ offset: 10, span: 20 }">
-                <a-button type="primary" html-type="submit" :loading="formIsLoading"
-                  >Submit</a-button
-                >
+              <a-form-item :wrapper-col="{ offset: 5, span: 20 }">
+                <a-flex :gap="35">
+                  <a-button type="primary" html-type="submit" :loading="formIsLoading"
+                    >Submit</a-button
+                  >
+                  <a-button
+                    type="default"
+                    html-type="submit"
+                    :loading="demoFormIsLoading"
+                    @click="setDemoUser"
+                  >
+                    Try a Demo</a-button
+                  >
+                </a-flex>
               </a-form-item>
             </a-form>
           </a-card>
@@ -199,6 +209,7 @@ const router = useRouter()
 // const instances
 const open = ref<boolean>(false)
 const formIsLoading = ref(false)
+const demoFormIsLoading = ref(false)
 const apiUrl = import.meta.env.VITE_API_URL
 
 interface FormState {
@@ -224,9 +235,15 @@ const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2024'
 })
-
+function setDemoUser() {
+  formState.value.userName = 'budgee' // Set userName to 'Budgee'
+  console.log('Demo user set:', formState.value.userName)
+}
 const onFinish = async (values) => {
   formIsLoading.value = true
+  if (formState.userName === 'Budgee') {
+    demoFormIsLoading.value = true // Set demo form loading if username is Budgee
+  }
   try {
     const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
     const data = await response.json()
@@ -256,6 +273,11 @@ const onFinish = async (values) => {
     console.error('Error:', error.message)
     onFinishFailed(error)
     formIsLoading.value = false
+  } finally {
+    formIsLoading.value = false
+    if (formState.userName === 'Budgee') {
+      demoFormIsLoading.value = false
+    }
   }
 }
 

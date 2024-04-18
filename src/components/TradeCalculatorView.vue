@@ -5,7 +5,7 @@
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
+          ><a href="/"><home-outlined /></a
         ></a-breadcrumb-item>
         <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
       </a-breadcrumb>
@@ -1218,16 +1218,14 @@ function getCardPositionColor(position: string): string {
 
 .player-card .close-icon:hover {
   opacity: 0.8;
-  transform: scale(1.3);
+  transform: scale(1.05);
 }
 
 .player-card .a-card {
   padding-left: 24px;
-  transition: box-shadow 0.3s;
 }
 
 .player-card .a-card:hover {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .player-card-nearest {
@@ -1248,7 +1246,7 @@ function getCardPositionColor(position: string): string {
 
 .player-card-nearest .close-icon:hover {
   opacity: 0.8;
-  transform: scale(1.3);
+  transform: scale(1.05);
 }
 
 .player-card-nearest .a-card {

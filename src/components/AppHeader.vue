@@ -3,7 +3,7 @@
   <a-layout-header :style="{ position: 'fixed', zIndex: 100, width: '100%' }">
     <img class="logo" :src="logoImg" alt="Logo" />
     <a-menu theme="dark" mode="horizontal" :default-selected-keys="['1']">
-      <a-menu-item key="1"><router-link to="/username">Home</router-link></a-menu-item>
+      <a-menu-item key="1"><router-link to="/">Home</router-link></a-menu-item>
       <a-menu-item key="3"
         ><router-link to="/tradecalculator" class="menu-item-link"
           ><span class="pi pi-calculator"></span> Trade Calculator</router-link

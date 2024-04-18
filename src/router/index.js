@@ -53,7 +53,7 @@ const router = createRouter({
     },
     {
       path: '/:catchAll(.*)',
-      name: 'UsernameView',
+      name: '/',
       component: () => import('../components/UsernameView.vue'), // Make sure you have a NotFoundView component
       beforeEnter: logNavigation
     }

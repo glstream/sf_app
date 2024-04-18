@@ -3,7 +3,7 @@
     <AppHeader />
     <a-breadcrumb style="padding-top: 10px">
       <a-breadcrumb-item
-        ><a href="/username"><home-outlined /></a
+        ><a href="/"><home-outlined /></a
       ></a-breadcrumb-item>
       <a-breadcrumb-item>Ranks</a-breadcrumb-item>
     </a-breadcrumb>

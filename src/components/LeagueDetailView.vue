@@ -4,7 +4,7 @@
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
+          ><a href="/"><home-outlined /></a
         ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>League Details</a-breadcrumb-item>
@@ -87,14 +87,15 @@
         <a-spin tip="Loading..." :spinning="summaryIsLoading">
           <TabView :scrollable="true">
             <TabPanel header="Overall">
-              <h2 style="text-align: left">Power Ranks</h2>
+              <h2 class="tab-sub-header">Power Ranks</h2>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col :span="24">
                   <a-avatar-group
-                    maxCount="12"
+                    maxCount="10"
                     maxPopoverPlacement="bottom"
                     maxPopoverTrigger="hover"
                     :max-count="12"
+                    class="avatar-group-container"
                   >
                     <div v-for="user in summaryData" :key="user.user_id">
                       <div
@@ -237,123 +238,131 @@
                       <a-divider orientation="center"></a-divider>
                       <a-row justify="space-between" gutter="[8,8]">
                         <a-col :span="4">
-                          <a-card
-                            :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('QB'),
-                              color: getPositionColor('QB')
-                            }"
-                          >
-                            <div
+                          <div>
+                            <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
-                              :key="player.sleeper_id"
                             >
-                              <p v-if="player.player_position === 'QB'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'QB'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
 
                         <a-col :span="4">
-                          <a-card
-                            :title="`Running Backs ${addOrdinalSuffix(record.rb_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('RB'),
-                              color: getPositionColor('RB')
-                            }"
-                            bordered
-                          >
-                            <div
+                          <div>
+                            <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
-                              :key="player.sleeper_id"
                             >
-                              <p v-if="player.player_position === 'RB'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'RB'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
 
                         <a-col :span="4">
-                          <a-card
-                            :title="`Wide Receivers ${addOrdinalSuffix(record.wr_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('WR'),
-                              color: getPositionColor('WR')
-                            }"
-                            bordered
-                          >
-                            <div
+                          <div>
+                            <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
-                              :key="player.sleeper_id"
                             >
-                              <p v-if="player.player_position === 'WR'">
-                                {{ player.full_name }}
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'WR'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
                         <a-col :span="4">
-                          <a-card
-                            :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('TE'),
-                              color: getPositionColor('TE')
-                            }"
-                          >
-                            <div
+                          <div>
+                            <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
-                              :key="player.sleeper_id"
                             >
-                              <p v-if="player.player_position === 'TE'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'TE'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
                         <a-col :span="4">
-                          <a-card
-                            :title="`Picks ${addOrdinalSuffix(record.picks_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('PICKS'),
-                              color: getPositionColor('PICKS')
-                            }"
-                          >
-                            <div
+                          <div>
+                            <h3>Picks {{ addOrdinalSuffix(record.picks_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
-                              :key="player.sleeper_id"
                             >
-                              <p v-if="player.player_position === 'PICKS'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'PICKS'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
                       </a-row>
                     </div>
@@ -471,13 +480,13 @@
               </a-row>
             </TabPanel>
             <TabPanel header="Positions">
-              <h2 style="text-align: left">Rankings by Position</h2>
+              <h2 class="tab-sub-header">Rankings by Position</h2>
               <div style="display: flex; justify-content: left">
                 <a-avatar-group
-                  maxCount="12"
+                  maxCount="10"
                   maxPopoverPlacement="bottom"
                   maxPopoverTrigger="hover"
-                  style="margin-bottom: 20px"
+                  class="avatar-group-container"
                 >
                   <div v-for="user in summaryData" :key="user.user_id">
                     <div
@@ -491,7 +500,7 @@
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
-                          :size="45"
+                          :size="55"
                           style="border: 2px solid gold"
                           @click="handleUserClick(user)"
                           class="avatar"
@@ -511,6 +520,7 @@
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
                           @click="handleUserClick(user)"
+                          :style="avatarStyle(user)"
                           class="avatar"
                         />
                       </a-tooltip>
@@ -581,7 +591,7 @@
                 </div>
               </div>
 
-              <div v-else class="mirrored-unselected">
+              <div v-else class="mirrored-user">
                 <div class="user-card">
                   <a-row>
                     <a-col :span="9">
@@ -696,9 +706,8 @@
                   @change="handleProjChange"
                 >
                   <a-select-option value="espn">ESPN</a-select-option>
-                  <a-select-option value="nfl">NFL</a-select-option>
-                  <a-select-option value="cbs">CBS</a-select-option>
-                  <a-select-option value="fc" disabled>FantasyCalc</a-select-option>
+                  <a-select-option value="nfl" disabled>NFL</a-select-option>
+                  <a-select-option value="cbs" disabled>CBS</a-select-option>
                 </a-select>
               </a-space>
               <h2 style="text-align: center">League Projections</h2>
@@ -727,80 +736,106 @@
                           <a-divider orientation="center"></a-divider>
                           <a-row justify="space-around" gutter="0">
                             <a-col :span="6">
-                              <a-card :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`">
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
+                              <div>
+                                <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+                                <ul
+                                  style="padding: 0; list-style: none"
+                                  v-for="player in getPlayers(record.user_id)"
                                 >
-                                  <p v-if="player.player_position === 'QB'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
+                                  <li
+                                    v-if="player.player_position === 'QB'"
+                                    :key="player.sleeper_id"
+                                    :style="getPositionTag(player.player_position, 0.35)"
+                                    style="color: black"
+                                  >
+                                    <span
+                                      >{{ player?.full_name }} &bull;
+                                      {{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
                             </a-col>
 
                             <a-col :span="6">
-                              <a-card
-                                :title="`Running Backs ${addOrdinalSuffix(record.rb_rank)}`"
-                                bordered
-                              >
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
+                              <div>
+                                <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+                                <ul
+                                  style="padding: 0; list-style: none"
+                                  v-for="player in getPlayers(record.user_id)"
                                 >
-                                  <p v-if="player.player_position === 'RB'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
+                                  <li
+                                    v-if="player.player_position === 'RB'"
+                                    :key="player.sleeper_id"
+                                    :style="getPositionTag(player.player_position, 0.35)"
+                                    style="color: black"
+                                  >
+                                    <span
+                                      >{{ player?.full_name }} &bull;
+                                      {{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
                             </a-col>
 
                             <a-col :span="6">
-                              <a-card
-                                :title="`Wide Receivers ${addOrdinalSuffix(record.wr_rank)}`"
-                                bordered
-                              >
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
+                              <div>
+                                <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+                                <ul
+                                  style="padding: 0; list-style: none"
+                                  v-for="player in getPlayers(record.user_id)"
                                 >
-                                  <p v-if="player.player_position === 'WR'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
+                                  <li
+                                    v-if="player.player_position === 'WR'"
+                                    :key="player.sleeper_id"
+                                    :style="getPositionTag(player.player_position, 0.35)"
+                                    style="color: black"
+                                  >
+                                    <span
+                                      >{{ player?.full_name }} &bull;
+                                      {{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
                             </a-col>
                             <a-col :span="6">
-                              <a-card :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`">
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
+                              <div>
+                                <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+                                <ul
+                                  style="padding: 0; list-style: none"
+                                  v-for="player in getPlayers(record.user_id)"
                                 >
-                                  <p v-if="player.player_position === 'TE'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
+                                  <li
+                                    v-if="player.player_position === 'TE'"
+                                    :key="player.sleeper_id"
+                                    :style="getPositionTag(player.player_position, 0.35)"
+                                    style="color: black"
+                                  >
+                                    <span
+                                      >{{ player?.full_name }} &bull;
+                                      {{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
                             </a-col>
                           </a-row>
                         </div>
@@ -813,12 +848,13 @@
             </TabPanel>
 
             <TabPanel header="Players">
-              <h2 style="text-align: left">League Dashboard</h2>
+              <h2 class="tab-sub-header">All Players in League</h2>
               <div style="display: flex; justify-content: left">
                 <a-avatar-group
-                  maxCount="12"
+                  maxCount="10"
                   maxPopoverPlacement="bottom"
                   maxPopoverTrigger="hover"
+                  class="avatar-group-container"
                 >
                   <div v-for="user in summaryData" :key="user.user_id">
                     <div
@@ -832,7 +868,7 @@
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
-                          :size="45"
+                          :size="55"
                           style="border: 2px solid gold"
                           @click="handleUserClick(user)"
                           class="avatar"
@@ -853,6 +889,7 @@
                           maxPopoverTrigger="hover"
                           @click="handleUserClick(user)"
                           class="avatar"
+                          :style="avatarStyle(user)"
                         />
                       </a-tooltip>
                     </div>
@@ -921,7 +958,7 @@
                 </div>
               </div>
 
-              <div v-else class="mirrored-unselected">
+              <div v-else class="mirrored-user">
                 <div class="user-card">
                   <a-row>
                     <a-col :span="9">
@@ -1031,13 +1068,15 @@
               </a-row>
             </TabPanel>
             <TabPanel header="Starters">
+              <h2 class="tab-sub-header">Starting Rosters</h2>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col :span="24">
                   <a-avatar-group
-                    maxCount="12"
+                    maxCount="10"
                     maxPopoverPlacement="bottom"
                     maxPopoverTrigger="hover"
-                    :max-count="12"
+                    :max-count="10"
+                    class="avatar-group-container"
                   >
                     <div v-for="user in starterSummaryData" :key="user.user_id">
                       <div
@@ -1075,7 +1114,7 @@
                   </a-avatar-group>
                 </a-col>
               </a-row>
-              <h2 style="text-align: left">Starting Rosters</h2>
+
               <div class="table-section" style="flex: 2">
                 <a-table
                   :data-source="summaryData"
@@ -1090,102 +1129,106 @@
                       <a-divider orientation="center"></a-divider>
                       <a-row justify="space-around" gutter="0">
                         <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <a-card
-                            :title="`Quarterbacks ${addOrdinalSuffix(record.qb_starter_rank)}`"
-                            style="margin: 0"
-                            :head-style="{
-                              background: getHeaderColor('QB'),
-                              color: getPositionColor('QB')
-                            }"
-                          >
-                            <div
-                              v-for="player in getStarters(record.user_id)"
-                              :key="player.sleeper_id"
+                          <div>
+                            <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
+                              v-for="player in getPlayers(record.user_id)"
                             >
-                              <p v-if="player.player_position === 'QB'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'QB'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
 
                         <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <a-card
-                            :title="`Running Backs ${addOrdinalSuffix(record.rb_starter_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('RB'),
-                              color: getPositionColor('RB')
-                            }"
-                            bordered
-                          >
-                            <div
-                              v-for="player in getStarters(record.user_id)"
-                              :key="player.sleeper_id"
+                          <div>
+                            <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
+                              v-for="player in getPlayers(record.user_id)"
                             >
-                              <p v-if="player.player_position === 'RB'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'RB'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
 
                         <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <a-card
-                            :title="`Wide Receivers ${addOrdinalSuffix(record.wr_starter_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('WR'),
-                              color: getPositionColor('WR')
-                            }"
-                            bordered
-                          >
-                            <div
-                              v-for="player in getStarters(record.user_id)"
-                              :key="player.sleeper_id"
+                          <div>
+                            <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
+                              v-for="player in getPlayers(record.user_id)"
                             >
-                              <p v-if="player.player_position === 'WR'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'WR'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
                         <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <a-card
-                            :title="`Tight Ends ${addOrdinalSuffix(record.te_starter_rank)}`"
-                            :head-style="{
-                              background: getHeaderColor('TE'),
-                              color: getPositionColor('TE')
-                            }"
-                            bordered
-                          >
-                            <div
-                              v-for="player in getStarters(record.user_id)"
-                              :key="player.sleeper_id"
+                          <div>
+                            <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
+                              v-for="player in getPlayers(record.user_id)"
                             >
-                              <p v-if="player.player_position === 'TE'">
-                                {{ player.full_name }} &bull;
-                                {{
-                                  player.player_value === -1
-                                    ? 'N/A'
-                                    : player.player_value.toLocaleString()
-                                }}
-                              </p>
-                            </div>
-                          </a-card>
+                              <li
+                                v-if="player.player_position === 'TE'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.35)"
+                                style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
                         </a-col>
                       </a-row>
                     </div>
@@ -1229,7 +1272,7 @@
               </div>
             </TabPanel>
             <TabPanel header="Manager View">
-              <h2 style="text-align: left">Team Dashboard</h2>
+              <h2 class="tab-sub-header">Team Dashboard</h2>
               <div v-for="manager in summaryData" :key="manager.user_id">
                 <div v-if="manager.user_id === leagueInfo.userId">
                   <a-row :gutter="{ xs: 0, sm: 16, md: 24, lg: 16, xl: 16 }" justify="space-around">
@@ -1253,12 +1296,22 @@
                             :key="player.full_name"
                           >
                             <div v-if="player.player_position === position">
-                              {{ index + 1 }}. {{ player.full_name }} &bull;
-                              {{
-                                player.player_value === -1
-                                  ? 'N/A'
-                                  : player.player_value.toLocaleString()
-                              }}
+                              <ul style="padding: 0; list-style: none">
+                                <li
+                                  :key="player.sleeper_id"
+                                  :style="getPositionTag(player.player_position, 0.35)"
+                                  style="color: black"
+                                >
+                                  <span>
+                                    {{ index + 1 }}. {{ player?.full_name }} &bull;
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value?.toLocaleString()
+                                    }}
+                                  </span>
+                                </li>
+                              </ul>
                             </div>
                           </div>
                         </a-card>
@@ -1425,21 +1478,28 @@
                     :md="8"
                     :lg="6"
                   >
-                    <a-card
-                      :head-style="{
-                        background: getHeaderColor(position),
-                        color: getPositionColor(position)
-                      }"
-                    >
+                    <a-card>
                       <template #title>
                         <span style="font-size: 18px; font-weight: bolder">{{ position }}</span>
                       </template>
-                      <p v-for="player in players" :key="player.sleeper_id">
-                        {{ player.full_name }} &bull;
-                        {{
-                          player.player_value === -1 ? 'N/A' : player.player_value?.toLocaleString()
-                        }}
-                      </p>
+                      <span v-for="player in players" :key="player.sleeper_id">
+                        <ul style="padding: 0; list-style: none">
+                          <li
+                            :key="player.sleeper_id"
+                            :style="getPositionTag(player.player_position, 0.35)"
+                            style="color: black"
+                          >
+                            <span>
+                              {{ player?.full_name }} &bull;
+                              {{
+                                player.player_value === -1
+                                  ? 'N/A'
+                                  : player.player_value?.toLocaleString()
+                              }}
+                            </span>
+                          </li>
+                        </ul>
+                      </span>
                     </a-card>
                   </a-col>
                 </a-row>
@@ -1611,7 +1671,8 @@ const projSummaryData = ref([{}])
 const tradesDetailData = ref([{}])
 const tradesSummaryData = ref([{}])
 const bestAvailableData = ref([{}])
-const selectedUser = ref(null) // To store the currently selected user's details
+const selectedUser = ref(null)
+const selectedUserId = ref(null)
 
 const leaguesUrl = `/leagues/${leagueYear}/${userName}/${guid}`
 
@@ -2590,6 +2651,12 @@ function handleUserClick(user) {
     selectedUser.value = user // Set the selectedUser to the clicked user
   }
 }
+
+function avatarStyle(user) {
+  return {
+    border: selectedUserId.value === user.user_id ? '2px solid red' : 'none'
+  }
+}
 const playersByPosition = computed(() => {
   const order = ['QB', 'RB', 'WR', 'TE', 'PICKS'] // Define the order of positions
   const groups = {}
@@ -2826,7 +2893,7 @@ table {
 }
 
 .avatar:hover {
-  transform: scale(1.2);
+  transform: scale(1.4);
 }
 li {
   list-style-type: none;
@@ -2917,10 +2984,13 @@ h4 {
 }
 .mirrored-user {
   max-width: 500px;
-  margin: 1px 1px;
+  margin: 15px 1px;
 }
-.mirrored-unselected {
-  margin: 5px 5px;
-  max-width: 500px;
+.tab-sub-header {
+  text-align: left;
+  margin-bottom: 25px;
+}
+.avatar-group-container {
+  margin-bottom: 20px;
 }
 </style>

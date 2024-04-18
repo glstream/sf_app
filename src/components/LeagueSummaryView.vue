@@ -4,7 +4,7 @@
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
+          ><a href="/"><home-outlined /></a
         ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>

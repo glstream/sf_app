@@ -5,7 +5,7 @@
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item
-          ><a href="/username"><home-outlined /></a
+          ><a href="/"><home-outlined /></a
         ></a-breadcrumb-item>
         <a-breadcrumb-item>Leagues</a-breadcrumb-item>
         <a-breadcrumb-item>
@@ -47,6 +47,9 @@
         </a-flex>
       </div>
       <a-spin :spinning="isLoading">
+        <div v-if="!isLoading && filteredData.length === 0">
+          <div class="no-leagues-card">No complete leagues found for this year...</div>
+        </div>
         <div>
           <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
             <div
@@ -633,5 +636,13 @@ const getCurrentYear = async () => {
   margin: auto; /* Center the div */
   width: 100%;
   margin: 10px 10px;
+}
+.no-leagues-card {
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 20px;
 }
 </style>
