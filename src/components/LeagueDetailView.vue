@@ -581,7 +581,7 @@
                 </div>
               </div>
 
-              <div v-else class="user-card mirrored-unselected">
+              <div v-else class="mirrored-unselected">
                 <div class="user-card">
                   <a-row>
                     <a-col :span="9">
@@ -921,7 +921,7 @@
                 </div>
               </div>
 
-              <div v-else class="user-card mirrored-unselected">
+              <div v-else class="mirrored-unselected">
                 <div class="user-card">
                   <a-row>
                     <a-col :span="9">
