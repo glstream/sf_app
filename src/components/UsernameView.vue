@@ -70,20 +70,27 @@
                 </a-select>
               </a-form-item>
 
-              <a-form-item :wrapper-col="{ offset: 5, span: 20 }">
-                <a-flex :gap="35">
-                  <a-button type="primary" html-type="submit" :loading="formIsLoading"
-                    >Submit</a-button
-                  >
-                  <a-button
-                    type="default"
-                    html-type="submit"
-                    :loading="demoFormIsLoading"
-                    @click="setDemoUser"
-                  >
-                    Try a Demo</a-button
-                  >
-                </a-flex>
+              <a-form-item>
+                <a-row :gutter="16">
+                  <a-col :span="8">
+                    <a-button
+                      type="default"
+                      html-type="button"
+                      :loading="demoFormIsLoading"
+                      @click="setDemoUser"
+                      >Try a Demo</a-button
+                    >
+                  </a-col>
+                  <a-col :span="16">
+                    <a-button
+                      type="primary"
+                      html-type="submit"
+                      :block="true"
+                      :loading="formIsLoading"
+                      >Submit</a-button
+                    >
+                  </a-col>
+                </a-row>
               </a-form-item>
             </a-form>
           </a-card>
@@ -95,7 +102,7 @@
           <a-card>
             <template #cover>
               <img
-                src="@/assets/site/leagueComp.png"
+                src="@/assets/site/power_ranks.png"
                 alt="League Composition Metrics"
                 style="width: 100%"
               />
@@ -112,7 +119,24 @@
           <a-card>
             <template #cover>
               <img
-                src="@/assets/site/leagueView.png"
+                src="@/assets/site/league_details.png"
+                alt="Players Stack Ranked"
+                style="width: 100%"
+              />
+            </template>
+            <a-card-meta title="Manager League Summary">
+              <template #description>
+                Compare your leagues roster across all rankings sources with custom rankimgs built
+                for your league settings.
+              </template>
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img
+                src="@/assets/site/league_position.png"
                 alt="Players Stack Ranked"
                 style="width: 100%"
               />
@@ -121,6 +145,34 @@
               <template #description>
                 Compare your roster against the league with stack rankings to identify your
                 strengths and uncover potential trade opportunities.
+              </template>
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/trade_calc.png" alt="Trade Calculator" style="width: 100%" />
+            </template>
+            <a-card-meta title="Trade Calculator">
+              <template #description>
+                Discover a more precise way to evaluate your trades with our advanced Trade
+                Calculator. Our Calculator considers a wide array of factors to ensure you receive
+                an accurate assessment. Plus, with our new sharing feature, you can easily post
+                trade details and gather opinions from others.
+              </template>
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/agevalue.png" alt="Age Vs Value" style="width: 100%" />
+            </template>
+            <a-card-meta title="Age Vs Value Analysis">
+              <template #description>
+                Gain insights into how a player's age correlates with their market value, helping
+                you strategize long-term team development and make smarter trade decisions.
               </template>
             </a-card-meta>
           </a-card>
@@ -143,10 +195,9 @@
             <template #cover>
               <img src="@/assets/site/leagueSummary.png" alt="Summary Views" style="width: 100%" />
             </template>
-            <a-card-meta title="Summary Views">
+            <a-card-meta title="Single League Summary">
               <template #description>
-                Get a comprehensive overview of league trends, player stats, and performance metrics
-                in one unified dashboard.
+                Get a comprehensive overview a league from multiple different ranking sources.
               </template>
             </a-card-meta>
           </a-card>
@@ -154,12 +205,15 @@
         <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
           <a-card>
             <template #cover>
-              <img src="@/assets/site/agevalue.png" alt="Age Vs Value" style="width: 100%" />
+              <img
+                src="@/assets/site/roster_view_manager.png"
+                alt="Projections"
+                style="width: 100%"
+              />
             </template>
-            <a-card-meta title="Age Vs Value Analysis">
+            <a-card-meta title="Team Composition">
               <template #description>
-                Gain insights into how a player's age correlates with their market value, helping
-                you strategize long-term team development and make smarter trade decisions.
+                See the makeup of your team and compare it to the rest of the league.
               </template>
             </a-card-meta>
           </a-card>
@@ -167,7 +221,7 @@
         <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
           <a-card>
             <template #cover>
-              <img src="@/assets/site/rosters.png" alt="Rosters By Manager" style="width: 100%" />
+              <img src="@/assets/site/leagueView.png" alt="Projections" style="width: 100%" />
             </template>
             <a-card-meta title="Rosters By Manager">
               <template #description>

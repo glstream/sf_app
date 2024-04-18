@@ -4,7 +4,6 @@
     <br />
     Data provided by <a href="https://sleeper.app/" target="_blank">Sleeper</a>,
     <a href="https://keeptradecut.com/" target="_blank">KeepTradeCut</a>,
-    <a href="https://www.fantasypros.com/" target="_blank">FantasyPros</a>,
     <a href="https://www.fantasycalc.com/" target="_blank">FantasyCalc</a>,
     <a href="https://www.dynasty-daddy.com/" target="_blank">DynastyDaddy</a>,
     <a href="https://www.espn.com/" target="_blank">ESPN</a>,
@@ -12,7 +11,7 @@
     <a href="https://dynastyprocess.com/" target="_blank">Dynasty Process</a>. All trademarks and
     copyrights are the property of their respective owners.
     <br />
-    <a href="https://twitter.com/fantasynav1" target="_blank">Follow Us on Twitter</a>
+    <a href="https://twitter.com/fantasynav1" target="_blank">Follow Us on X</a>
     |
     <a href="https://www.buymeacoffee.com/superflex" target="_blank">Donate</a>
   </a-layout-footer>
@@ -22,7 +21,7 @@
 .custom-footer {
   text-align: center;
   padding-top: 10px;
-  font-size: 14px; /* Smaller font size */
+  font-size: 10px; /* Smaller font size */
   color: #666; /* Less dark color */
 }
 </style>
