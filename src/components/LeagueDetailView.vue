@@ -2921,5 +2921,6 @@ h4 {
 }
 .mirrored-unselected {
   margin: 5px 5px;
+  max-width: 500px;
 }
 </style>
