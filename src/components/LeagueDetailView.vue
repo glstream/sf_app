@@ -8,6 +8,7 @@
         ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>League Details</a-breadcrumb-item>
+        <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
       <div style="">
         <div class="">

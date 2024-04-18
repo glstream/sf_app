@@ -21,6 +21,7 @@
             </a-menu>
           </template>
         </a-breadcrumb-item>
+        <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
       <div style="padding-top: 30px">
         <a-flex :gap="20">

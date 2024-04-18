@@ -8,6 +8,7 @@
         ></a-breadcrumb-item>
         <a-breadcrumb-item><a :href="leaguesUrl">Leagues</a></a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
+        <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
       <a-row>
         <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="14">
@@ -19,8 +20,7 @@
                 @error="(event) => (event.target.src = defaultimage)"
               />
 
-              <span>{{ leagueInfo.leagueName }}</span
-              >&bull;<span>{{ leagueInfo.userName }}</span>
+              <span>{{ leagueInfo.leagueName }}</span>
             </div>
             <div style="text-align: left">
               <a-tag>{{ leagueInfo.leagueYear }}</a-tag>
@@ -41,378 +41,406 @@
                 type="default"
                 @click="insertLeagueDetails(leagueInfo.leagueId)"
                 :loading="isLoading"
-                ><ReloadOutlined /> League League</a-button
+                >Load League</a-button
               >
             </a-flex>
           </div>
+          <a-row>
+            <a-col :span="24">
+              <div style="">
+                <a-card
+                  style="margin-bottom: 25px; max-width: 700px; margin: 0 auto"
+                  title="Power Rankings"
+                  bordered
+                >
+                  <a-tabs
+                    v-model:activeKey="activeKey"
+                    @change="fetchTabData"
+                    tab-position="top"
+                    :style="{ height: '300px' }"
+                    class="custom-tabs"
+                  >
+                    <a-tab-pane key="1" tab="FantasyNavigator" data-metadata="sf">
+                      <a-spin :spinning="isLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="positionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="rankInfo in positionalRanks"
+                              :key="rankInfo.position"
+                            >
+                              <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                                <a-tag
+                                  :color="rankInfo.color"
+                                  :title="rankInfo.rank"
+                                  class="custom-position-tag"
+                                  >{{ rankInfo.position }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in rankInfo.greenTags"
+                                  :key="`${rankInfo.position}-green-${n}`"
+                                  :class="getColorByRank(rankInfo.rank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in rankInfo.greyTags"
+                                  :key="`${rankInfo.position}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(rankInfo.rank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty>
+                              <a-button
+                                size="small"
+                                type="default"
+                                @click="insertLeagueDetails(leagueInfo.leagueId)"
+                                :loading="isLoading"
+                                >Load League</a-button
+                              >
+                            </a-empty>
+                          </div>
+                        </div></a-spin
+                      ></a-tab-pane
+                    >
+                    <a-tab-pane key="2" tab="Keep Trade Cut" data-metadata="ktc">
+                      <div class="scrollable-content">
+                        <a-spin :spinning="isLoading">
+                          <div class="tags-container" v-if="positionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="rankInfo in positionalRanks"
+                              :key="rankInfo.position"
+                            >
+                              <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                                <a-tag
+                                  :color="rankInfo.color"
+                                  :title="rankInfo.rank"
+                                  class="custom-position-tag"
+                                  >{{ rankInfo.position }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in rankInfo.greenTags"
+                                  :key="`${rankInfo.position}-green-${n}`"
+                                  :class="getColorByRank(rankInfo.rank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in rankInfo.greyTags"
+                                  :key="`${rankInfo.position}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(rankInfo.rank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty>
+                              <a-button
+                                size="small"
+                                type="default"
+                                @click="insertLeagueDetails(leagueInfo.leagueId)"
+                                :loading="isLoading"
+                                >Load League</a-button
+                              >
+                            </a-empty>
+                          </div>
+                        </a-spin>
+                      </div>
+                    </a-tab-pane>
+                    <a-tab-pane key="3" tab="FantasyCalc">
+                      <a-spin :spinning="isLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="positionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="rankInfo in positionalRanks"
+                              :key="rankInfo.position"
+                            >
+                              <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                                <a-tag
+                                  :color="rankInfo.color"
+                                  :title="rankInfo.rank"
+                                  class="custom-position-tag"
+                                  >{{ rankInfo.position }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in rankInfo.greenTags"
+                                  :key="`${rankInfo.position}-green-${n}`"
+                                  :class="getColorByRank(rankInfo.rank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in rankInfo.greyTags"
+                                  :key="`${rankInfo.position}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(rankInfo.rank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                    <a-tab-pane key="4" tab="DynastyProcess">
+                      <a-spin :spinning="isLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="positionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="rankInfo in positionalRanks"
+                              :key="rankInfo.position"
+                            >
+                              <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                                <a-tag
+                                  :color="rankInfo.color"
+                                  :title="rankInfo.rank"
+                                  class="custom-position-tag"
+                                  >{{ rankInfo.position }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in rankInfo.greenTags"
+                                  :key="`${rankInfo.position}-green-${n}`"
+                                  :class="getColorByRank(rankInfo.rank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in rankInfo.greyTags"
+                                  :key="`${rankInfo.position}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(rankInfo.rank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                    <a-tab-pane key="5" tab="DynastyDaddy">
+                      <a-spin :spinning="isLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="positionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="rankInfo in positionalRanks"
+                              :key="rankInfo.position"
+                            >
+                              <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
+                                <a-tag
+                                  :color="rankInfo.color"
+                                  :title="rankInfo.rank"
+                                  class="custom-position-tag"
+                                  >{{ rankInfo.position }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in rankInfo.greenTags"
+                                  :key="`${rankInfo.position}-green-${n}`"
+                                  :class="getColorByRank(rankInfo.rank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in rankInfo.greyTags"
+                                  :key="`${rankInfo.position}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(rankInfo.rank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                  </a-tabs>
+                </a-card>
+              </div>
+            </a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="24">
+              <div style="">
+                <a-card
+                  style="margin-bottom: 25px; max-width: 700px; margin: 0 auto"
+                  title="Projections"
+                  bordered
+                >
+                  <a-tabs
+                    v-model:conActiveKey="conActiveKey"
+                    @change="contenderFetchTabData"
+                    tab-position="top"
+                    :style="{ height: '250px' }"
+                    class="custom-tabs"
+                  >
+                    <a-tab-pane key="5" tab="ESPN" force-render>
+                      <a-spin :spinning="contenderIsLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="conRankInfo in contenderPositionalRanks"
+                              :key="conRankInfo.conPosition"
+                            >
+                              <a-tooltip
+                                :title="addOrdinalSuffix(conRankInfo.conRank)"
+                                placement="top"
+                              >
+                                <a-tag
+                                  :color="conRankInfo.conColor"
+                                  :title="conRankInfo.conRank"
+                                  class="custom-position-tag"
+                                  >{{ conRankInfo.conPosition }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <!-- Render green tags if any -->
+                                <a-tag
+                                  v-for="n in conRankInfo.conGreenTags"
+                                  :key="`${conRankInfo.conPosition}-green-${n}`"
+                                  :class="getColorByRank(conRankInfo.conRank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <!-- Then render grey tags -->
+                                <a-tag
+                                  v-for="n in conRankInfo.conGreyTags"
+                                  :key="`${conRankInfo.conPosition}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(conRankInfo.conRank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                    <a-tab-pane key="6" tab="NFL" force-render disabled>
+                      <a-spin :spinning="contenderIsLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="conRankInfo in contenderPositionalRanks"
+                              :key="conRankInfo.conPosition"
+                            >
+                              <a-tooltip
+                                :title="addOrdinalSuffix(conRankInfo.conRank)"
+                                placement="top"
+                              >
+                                <a-tag
+                                  :color="conRankInfo.conColor"
+                                  :title="conRankInfo.conRank"
+                                  class="custom-position-tag"
+                                  >{{ conRankInfo.conPosition }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in conRankInfo.conGreenTags"
+                                  :key="`${conRankInfo.conPosition}-green-${n}`"
+                                  :class="getColorByRank(conRankInfo.conRank)"
+                                  >&nbsp;</a-tag
+                                >
+                                <a-tag
+                                  v-for="n in conRankInfo.conGreyTags"
+                                  :key="`${conRankInfo.conPosition}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(conRankInfo.conRank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                    <a-tab-pane key="8" tab="CBS" force-render disabled>
+                      <a-spin :spinning="contenderIsLoading">
+                        <div class="scrollable-content">
+                          <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
+                            <div
+                              class="tag-group"
+                              v-for="conrankInfo in contenderPositionalRanks"
+                              :key="conrankInfo.conPosition"
+                            >
+                              <a-tooltip
+                                :title="addOrdinalSuffix(conrankInfo.conRank)"
+                                placement="top"
+                              >
+                                <a-tag
+                                  :color="conrankInfo.conColor"
+                                  :title="conrankInfo.conRank"
+                                  class="custom-position-tag"
+                                  >{{ conrankInfo.conPosition }}</a-tag
+                                >
+                              </a-tooltip>
+                              <div class="tag-badges">
+                                <a-tag
+                                  v-for="n in conrankInfo.conGreenTags"
+                                  :key="`${conrankInfo.conPosition}-green-${n}`"
+                                  :class="getColorByRank(conrankInfo.conRank)"
+                                  >&nbsp;</a-tag
+                                >
 
-          <a-card style="margin-bottom: 25px; max-width: 400px" title="Power Rankings" bordered>
-            <a-tabs
-              v-model:activeKey="activeKey"
-              @change="fetchTabData"
-              tab-position="top"
-              :style="{ height: '300px' }"
-              class="custom-tabs"
-            >
-              <a-tab-pane key="1" tab="FantasyNavigator" data-metadata="sf">
-                <a-spin :spinning="isLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty>
-                        <a-button
-                          size="small"
-                          type="default"
-                          @click="insertLeagueDetails(leagueInfo.leagueId)"
-                          :loading="isLoading"
-                          >Load League</a-button
-                        >
-                      </a-empty>
-                    </div>
-                  </div></a-spin
-                ></a-tab-pane
-              >
-              <a-tab-pane key="2" tab="Keep Trade Cut" data-metadata="ktc">
-                <div class="scrollable-content">
-                  <a-spin :spinning="isLoading">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty>
-                        <a-button
-                          size="small"
-                          type="default"
-                          @click="insertLeagueDetails(leagueInfo.leagueId)"
-                          :loading="isLoading"
-                          >Load League</a-button
-                        >
-                      </a-empty>
-                    </div>
-                  </a-spin>
-                </div>
-              </a-tab-pane>
-              <a-tab-pane key="3" tab="FantasyCalc">
-                <a-spin :spinning="isLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-              <a-tab-pane key="4" tab="DynastyProcess">
-                <a-spin :spinning="isLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-              <a-tab-pane key="5" tab="DynastyDaddy">
-                <a-spin :spinning="isLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="positionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="rankInfo in positionalRanks"
-                        :key="rankInfo.position"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(rankInfo.rank)" placement="top">
-                          <a-tag
-                            :color="rankInfo.color"
-                            :title="rankInfo.rank"
-                            class="custom-position-tag"
-                            >{{ rankInfo.position }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in rankInfo.greenTags"
-                            :key="`${rankInfo.position}-green-${n}`"
-                            :class="getColorByRank(rankInfo.rank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in rankInfo.greyTags"
-                            :key="`${rankInfo.position}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(rankInfo.rank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-            </a-tabs>
-          </a-card>
-          <a-card style="margin-bottom: 25px; max-width: 400px" title="Projections" bordered>
-            <a-tabs
-              v-model:conActiveKey="conActiveKey"
-              @change="contenderFetchTabData"
-              tab-position="top"
-              :style="{ height: '250px' }"
-              class="custom-tabs"
-            >
-              <a-tab-pane key="5" tab="ESPN" force-render>
-                <a-spin :spinning="contenderIsLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="conRankInfo in contenderPositionalRanks"
-                        :key="conRankInfo.conPosition"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(conRankInfo.conRank)" placement="top">
-                          <a-tag
-                            :color="conRankInfo.conColor"
-                            :title="conRankInfo.conRank"
-                            class="custom-position-tag"
-                            >{{ conRankInfo.conPosition }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <!-- Render green tags if any -->
-                          <a-tag
-                            v-for="n in conRankInfo.conGreenTags"
-                            :key="`${conRankInfo.conPosition}-green-${n}`"
-                            :class="getColorByRank(conRankInfo.conRank)"
-                            >&nbsp;</a-tag
-                          >
-                          <!-- Then render grey tags -->
-                          <a-tag
-                            v-for="n in conRankInfo.conGreyTags"
-                            :key="`${conRankInfo.conPosition}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(conRankInfo.conRank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-              <a-tab-pane key="6" tab="NFL" force-render>
-                <a-spin :spinning="contenderIsLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="conRankInfo in contenderPositionalRanks"
-                        :key="conRankInfo.conPosition"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(conRankInfo.conRank)" placement="top">
-                          <a-tag
-                            :color="conRankInfo.conColor"
-                            :title="conRankInfo.conRank"
-                            class="custom-position-tag"
-                            >{{ conRankInfo.conPosition }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in conRankInfo.conGreenTags"
-                            :key="`${conRankInfo.conPosition}-green-${n}`"
-                            :class="getColorByRank(conRankInfo.conRank)"
-                            >&nbsp;</a-tag
-                          >
-                          <a-tag
-                            v-for="n in conRankInfo.conGreyTags"
-                            :key="`${conRankInfo.conPosition}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(conRankInfo.conRank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-              <a-tab-pane key="8" tab="CBS" force-render>
-                <a-spin :spinning="contenderIsLoading">
-                  <div class="scrollable-content">
-                    <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
-                      <div
-                        class="tag-group"
-                        v-for="conrankInfo in contenderPositionalRanks"
-                        :key="conrankInfo.conPosition"
-                      >
-                        <a-tooltip :title="addOrdinalSuffix(conrankInfo.conRank)" placement="top">
-                          <a-tag
-                            :color="conrankInfo.conColor"
-                            :title="conrankInfo.conRank"
-                            class="custom-position-tag"
-                            >{{ conrankInfo.conPosition }}</a-tag
-                          >
-                        </a-tooltip>
-                        <div class="tag-badges">
-                          <a-tag
-                            v-for="n in conrankInfo.conGreenTags"
-                            :key="`${conrankInfo.conPosition}-green-${n}`"
-                            :class="getColorByRank(conrankInfo.conRank)"
-                            >&nbsp;</a-tag
-                          >
-
-                          <a-tag
-                            v-for="n in conrankInfo.conGreyTags"
-                            :key="`${conrankInfo.conPosition}-grey-${n}`"
-                            class="grey-tag"
-                            >&nbsp;</a-tag
-                          ><a-tag class="summary-badge">{{
-                            addOrdinalSuffix(conrankInfo.conRank)
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </div>
-                    <div v-else style="text-align: center">
-                      <a-empty />
-                    </div>
-                  </div> </a-spin
-              ></a-tab-pane>
-            </a-tabs>
-          </a-card>
+                                <a-tag
+                                  v-for="n in conrankInfo.conGreyTags"
+                                  :key="`${conrankInfo.conPosition}-grey-${n}`"
+                                  class="grey-tag"
+                                  >&nbsp;</a-tag
+                                ><a-tag class="summary-badge">{{
+                                  addOrdinalSuffix(conrankInfo.conRank)
+                                }}</a-tag>
+                              </div>
+                            </div>
+                          </div>
+                          <div v-else style="text-align: center">
+                            <a-empty />
+                          </div>
+                        </div> </a-spin
+                    ></a-tab-pane>
+                  </a-tabs>
+                </a-card>
+              </div>
+            </a-col>
+          </a-row>
         </a-col>
       </a-row>
     </a-layout-content>
