@@ -106,6 +106,7 @@
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} </span>
+                      <span class="age-value"> Age {{ player.age }} </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -177,6 +178,7 @@
                   >
                     <div class="card-content">
                       <span>{{ player.player_full_name }}</span>
+                      <span class="age-value"> Age {{ player.age }} </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -1198,6 +1200,10 @@ function getCardPositionColor(position: string): string {
 
 .player-value {
   font-weight: bold;
+  margin-left: auto;
+  padding-right: 8px;
+}
+.age-value {
   margin-left: auto;
   padding-right: 8px;
 }
