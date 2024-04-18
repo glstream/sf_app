@@ -87,6 +87,7 @@
         <a-spin tip="Loading..." :spinning="summaryIsLoading">
           <TabView :scrollable="true">
             <TabPanel header="Overall">
+              <h2 style="text-align: left">Power Ranks</h2>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col :span="24">
                   <a-avatar-group
@@ -131,7 +132,6 @@
                   </a-avatar-group>
                 </a-col>
               </a-row>
-              <h2 style="text-align: left">Power Ranks</h2>
 
               <div class="legend">
                 <div class="legend-item">
@@ -420,6 +420,616 @@
                 </a-table>
               </div>
             </TabPanel>
+            <TabPanel header="Rosters">
+              <h2 style="text-align: left">Players by Manager</h2>
+              <a-row justify="space-around" :gutter="8">
+                <a-col
+                  v-for="manager in summaryData"
+                  :key="manager.user_id"
+                  xs="{24}"
+                  sm="{12}"
+                  md="{8}"
+                  lg="{6}"
+                  style="min-width: 300px; max-width: 315px"
+                >
+                  <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
+                    <h3 style="padding: 10px 10px">
+                      <img
+                        class="manager-logos"
+                        :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                        alt="League Logo"
+                      />
+                      {{ manager.display_name }} &bull;
+                      {{ addOrdinalSuffix(manager.total_rank) }} Overall
+                    </h3>
+                    <ul style="width: 100%; padding: 0">
+                      <div v-for="(player, index) in getPlayers(manager.user_id)">
+                        <div
+                          style="display: flex; justify-content: space-between"
+                          :style="getPositionTag(player.player_position)"
+                        >
+                          <div style="display: flex; align-items: center">
+                            <span style="color: black"> {{ index + 1 }}.</span>
+
+                            <li style="list-style-type: none; color: black">
+                              {{ player.full_name }} &bull;
+                              {{
+                                player.player_value === -1
+                                  ? 'N/A'
+                                  : player.player_value.toLocaleString()
+                              }}
+                            </li>
+                          </div>
+                          <a-tag :style="getPositionTag(player.player_position)">{{
+                            player.player_position
+                          }}</a-tag>
+                        </div>
+                      </div>
+                    </ul>
+                  </div>
+                </a-col>
+              </a-row>
+            </TabPanel>
+            <TabPanel header="Positions">
+              <h2 style="text-align: left">League Dashboard</h2>
+              <div style="display: flex; justify-content: left">
+                <a-avatar-group
+                  maxCount="12"
+                  maxPopoverPlacement="bottom"
+                  maxPopoverTrigger="hover"
+                  style="margin-bottom: 20px"
+                >
+                  <div v-for="user in summaryData" :key="user.user_id">
+                    <div
+                      v-if="user.user_id === leagueInfo.userId"
+                      style="position: relative; display: inline-block"
+                    >
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          :size="45"
+                          style="border: 2px solid gold"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                      <span class="badge-label">
+                        {{ addOrdinalSuffix(user.total_rank) }}
+                      </span>
+                    </div>
+
+                    <div v-else>
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                    </div>
+                  </div> </a-avatar-group
+                ><span style="font-size: small"> (click to highlight)</span>
+              </div>
+
+              <div v-if="selectedUser" class="mirrored-user">
+                <div class="user-card">
+                  <a-row>
+                    <a-col :span="9">
+                      <div class="gutter-box">
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                          :size="24"
+                          style="border: 2px solid rgb(39, 125, 161)"
+                          class="avatar"
+                        />
+                      </div>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">QB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">RB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">WR</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">TE</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">Picks</span>
+                    </a-col>
+                  </a-row>
+                  <a-row>
+                    <a-col :span="9">
+                      <h4>{{ selectedUser.display_name }}</h4>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.qb_rank))">{{
+                        addOrdinalSuffix(selectedUser.qb_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
+                        addOrdinalSuffix(selectedUser.rb_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
+                        addOrdinalSuffix(selectedUser.wr_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.te_rank))">{{
+                        addOrdinalSuffix(selectedUser.te_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">{{
+                        addOrdinalSuffix(selectedUser.picks_rank)
+                      }}</a-tag>
+                    </a-col>
+                  </a-row>
+                </div>
+              </div>
+
+              <div v-else class="user-card mirrored-unselected">
+                <div class="user-card">
+                  <a-row>
+                    <a-col :span="9">
+                      <div class="gutter-box">
+                        <a-avatar
+                          :size="24"
+                          style="border: 2px solid rgb(39, 125, 161)"
+                          class="avatar"
+                        />
+                      </div>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">QB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">RB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">WR</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">TE</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">Picks</span>
+                    </a-col>
+                  </a-row>
+                  <a-row>
+                    <a-col :span="9">
+                      <h4>Select Team</h4>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                  </a-row>
+                </div>
+              </div>
+
+              <div class="legend">
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                  <span class="legend-text">QB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                  <span class="legend-text">RB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                  <span class="legend-text">WR</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                  <span class="legend-text">TE</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
+                  <span class="legend-text">Picks</span>
+                </div>
+              </div>
+
+              <a-row style="justify-content: center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                <a-col
+                  v-for="(players, position) in playersByPosition"
+                  :key="position"
+                  xs="{24}"
+                  sm="{12}"
+                  md="{8}"
+                  lg="{6}"
+                  style="min-width: 260px; max-width: 400px"
+                >
+                  <div>
+                    <h3>{{ position }}</h3>
+                    <ul style="padding: 0; list-style: none">
+                      <li
+                        v-for="(player, index) in players"
+                        :key="player.sleeper_id"
+                        :style="getPositionTag(player.player_position, 0.35)"
+                        style="color: black"
+                        :class="{
+                          lighter: clickedManager !== '' && clickedManager !== player.display_name
+                        }"
+                      >
+                        <span
+                          :class="{
+                            'dimmed-text':
+                              clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          {{ index + 1 }}. {{ player?.full_name }} &bull;
+                          {{
+                            player.player_value === -1
+                              ? 'N/A'
+                              : player.player_value?.toLocaleString()
+                          }}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </a-col>
+              </a-row>
+            </TabPanel>
+            <TabPanel header="Projections">
+              <a-space>
+                <a-select
+                  ref="select"
+                  v-model:value="value1"
+                  style="width: 175px"
+                  @focus="focus"
+                  @change="handleProjChange"
+                >
+                  <a-select-option value="espn">ESPN</a-select-option>
+                  <a-select-option value="nfl">NFL</a-select-option>
+                  <a-select-option value="cbs">CBS</a-select-option>
+                  <a-select-option value="fc" disabled>FantasyCalc</a-select-option>
+                </a-select>
+              </a-space>
+              <h2 style="text-align: center">League Projections</h2>
+              <a-spin :spinning="isProjectionLoading">
+                <div>
+                  <!-- Check if the data is loading and display a loading indicator or empty state -->
+                  <a-empty
+                    v-if="!projChartData.datasets || projChartData.datasets.length === 0"
+                    :image="simpleImage"
+                  />
+
+                  <div v-else>
+                    <div class="chart-container">
+                      <Chart type="bar" :data="projChartData" :options="projChartOptions" />
+                    </div>
+                    <a-table
+                      :data-source="projSummaryData"
+                      :columns="projColumns"
+                      :pagination="{ pageSize: 20 }"
+                      style="width: 100%; max-width: 1150px"
+                      row-key="user_id"
+                      :expand-column-width="100"
+                      :scroll="{ x: '850px' }"
+                      ><template #expandedRowRender="{ record }">
+                        <div>
+                          <a-divider orientation="center"></a-divider>
+                          <a-row justify="space-around" gutter="0">
+                            <a-col :span="6">
+                              <a-card :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`">
+                                <div
+                                  v-for="player in projPlayers(record.user_id)"
+                                  :key="player.sleeper_id"
+                                >
+                                  <p v-if="player.player_position === 'QB'">
+                                    {{ player.full_name }}
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value.toLocaleString()
+                                    }}
+                                  </p>
+                                </div>
+                              </a-card>
+                            </a-col>
+
+                            <a-col :span="6">
+                              <a-card
+                                :title="`Running Backs ${addOrdinalSuffix(record.rb_rank)}`"
+                                bordered
+                              >
+                                <div
+                                  v-for="player in projPlayers(record.user_id)"
+                                  :key="player.sleeper_id"
+                                >
+                                  <p v-if="player.player_position === 'RB'">
+                                    {{ player.full_name }}
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value.toLocaleString()
+                                    }}
+                                  </p>
+                                </div>
+                              </a-card>
+                            </a-col>
+
+                            <a-col :span="6">
+                              <a-card
+                                :title="`Wide Receivers ${addOrdinalSuffix(record.wr_rank)}`"
+                                bordered
+                              >
+                                <div
+                                  v-for="player in projPlayers(record.user_id)"
+                                  :key="player.sleeper_id"
+                                >
+                                  <p v-if="player.player_position === 'WR'">
+                                    {{ player.full_name }}
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value.toLocaleString()
+                                    }}
+                                  </p>
+                                </div>
+                              </a-card>
+                            </a-col>
+                            <a-col :span="6">
+                              <a-card :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`">
+                                <div
+                                  v-for="player in projPlayers(record.user_id)"
+                                  :key="player.sleeper_id"
+                                >
+                                  <p v-if="player.player_position === 'TE'">
+                                    {{ player.full_name }}
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value.toLocaleString()
+                                    }}
+                                  </p>
+                                </div>
+                              </a-card>
+                            </a-col>
+                          </a-row>
+                        </div>
+                      </template>
+                    </a-table>
+                    {{ projDetailData }}
+                  </div>
+                </div>
+              </a-spin>
+            </TabPanel>
+
+            <TabPanel header="Players">
+              <h2 style="text-align: left">League Dashboard</h2>
+              <div style="display: flex; justify-content: left">
+                <a-avatar-group
+                  maxCount="12"
+                  maxPopoverPlacement="bottom"
+                  maxPopoverTrigger="hover"
+                >
+                  <div v-for="user in summaryData" :key="user.user_id">
+                    <div
+                      v-if="user.user_id === leagueInfo.userId"
+                      style="position: relative; display: inline-block"
+                    >
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          :size="45"
+                          style="border: 2px solid gold"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                      <span class="badge-label">
+                        {{ addOrdinalSuffix(user.total_rank) }}
+                      </span>
+                    </div>
+
+                    <div v-else>
+                      <a-tooltip
+                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
+                        placement="top"
+                      >
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                          maxPopoverTrigger="hover"
+                          @click="handleUserClick(user)"
+                          class="avatar"
+                        />
+                      </a-tooltip>
+                    </div>
+                  </div> </a-avatar-group
+                ><span style="font-size: small"> (click to highlight)</span>
+              </div>
+              <div v-if="selectedUser" class="mirrored-user">
+                <div class="user-card">
+                  <a-row>
+                    <a-col :span="9">
+                      <div class="gutter-box">
+                        <a-avatar
+                          :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                          :size="24"
+                          style="border: 2px solid rgb(39, 125, 161)"
+                          class="avatar"
+                        />
+                      </div>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">QB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">RB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">WR</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">TE</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">Picks</span>
+                    </a-col>
+                  </a-row>
+                  <a-row>
+                    <a-col :span="9">
+                      <h4>{{ selectedUser.display_name }}</h4>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.qb_rank))">{{
+                        addOrdinalSuffix(selectedUser.qb_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
+                        addOrdinalSuffix(selectedUser.rb_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
+                        addOrdinalSuffix(selectedUser.wr_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.te_rank))">{{
+                        addOrdinalSuffix(selectedUser.te_rank)
+                      }}</a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">{{
+                        addOrdinalSuffix(selectedUser.picks_rank)
+                      }}</a-tag>
+                    </a-col>
+                  </a-row>
+                </div>
+              </div>
+
+              <div v-else class="user-card mirrored-unselected">
+                <div class="user-card">
+                  <a-row>
+                    <a-col :span="9">
+                      <div class="gutter-box">
+                        <a-avatar
+                          :size="24"
+                          style="border: 2px solid rgb(39, 125, 161)"
+                          class="avatar"
+                        />
+                      </div>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">QB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">RB</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">WR</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">TE</span>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3">
+                      <span style="font-weight: bold">Picks</span>
+                    </a-col>
+                  </a-row>
+                  <a-row>
+                    <a-col :span="9">
+                      <h4>Select Team</h4>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                  </a-row>
+                </div>
+              </div>
+              <div class="legend">
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                  <span class="legend-text">QB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                  <span class="legend-text">RB</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                  <span class="legend-text">WR</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                  <span class="legend-text">TE</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
+                  <span class="legend-text">Picks</span>
+                </div>
+              </div>
+              <a-row :gutter="16">
+                <a-col
+                  v-for="(chunk, chunkIndex) in playerChunks"
+                  :key="chunkIndex"
+                  :xs="24"
+                  :sm="12"
+                  :md="8"
+                  :lg="6"
+                >
+                  <div
+                    style="
+                      border: 1px solid lightgray;
+                      border-radius: 5px;
+                      margin: 10px;
+                      padding: 10px;
+                    "
+                  >
+                    <ul style="padding: 0">
+                      <li
+                        v-for="(player, index) in chunk"
+                        :key="player.sleeper_id"
+                        :style="getPositionTag(player.player_position, 0.35)"
+                        style="color: black"
+                        :class="{
+                          lighter: clickedManager !== '' && clickedManager !== player.display_name
+                        }"
+                      >
+                        <span
+                          :class="{
+                            'dimmed-text':
+                              clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
+                          {{
+                            player.player_value === -1
+                              ? 'N/A'
+                              : player.player_value?.toLocaleString()
+                          }}
+                          - {{ player.display_name }}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </a-col>
+              </a-row>
+            </TabPanel>
             <TabPanel header="Starters">
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col :span="24">
@@ -617,408 +1227,6 @@
                   </template>
                 </a-table>
               </div>
-            </TabPanel>
-            <TabPanel header="Projections">
-              <a-space>
-                <a-select
-                  ref="select"
-                  v-model:value="value1"
-                  style="width: 175px"
-                  @focus="focus"
-                  @change="handleProjChange"
-                >
-                  <a-select-option value="espn">ESPN</a-select-option>
-                  <a-select-option value="nfl">NFL</a-select-option>
-                  <a-select-option value="cbs">CBS</a-select-option>
-                  <a-select-option value="fc" disabled>FantasyCalc</a-select-option>
-                </a-select>
-              </a-space>
-              <h2 style="text-align: center">League Projections</h2>
-              <a-spin :spinning="isProjectionLoading">
-                <div>
-                  <!-- Check if the data is loading and display a loading indicator or empty state -->
-                  <a-empty
-                    v-if="!projChartData.datasets || projChartData.datasets.length === 0"
-                    :image="simpleImage"
-                  />
-
-                  <div v-else>
-                    <div class="chart-container">
-                      <Chart type="bar" :data="projChartData" :options="projChartOptions" />
-                    </div>
-                    <a-table
-                      :data-source="projSummaryData"
-                      :columns="projColumns"
-                      :pagination="{ pageSize: 20 }"
-                      style="width: 100%; max-width: 1150px"
-                      row-key="user_id"
-                      :expand-column-width="100"
-                      :scroll="{ x: '850px' }"
-                      ><template #expandedRowRender="{ record }">
-                        <div>
-                          <a-divider orientation="center"></a-divider>
-                          <a-row justify="space-around" gutter="0">
-                            <a-col :span="6">
-                              <a-card :title="`Quarterbacks ${addOrdinalSuffix(record.qb_rank)}`">
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
-                                >
-                                  <p v-if="player.player_position === 'QB'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
-                            </a-col>
-
-                            <a-col :span="6">
-                              <a-card
-                                :title="`Running Backs ${addOrdinalSuffix(record.rb_rank)}`"
-                                bordered
-                              >
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
-                                >
-                                  <p v-if="player.player_position === 'RB'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
-                            </a-col>
-
-                            <a-col :span="6">
-                              <a-card
-                                :title="`Wide Receivers ${addOrdinalSuffix(record.wr_rank)}`"
-                                bordered
-                              >
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
-                                >
-                                  <p v-if="player.player_position === 'WR'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
-                            </a-col>
-                            <a-col :span="6">
-                              <a-card :title="`Tight Ends ${addOrdinalSuffix(record.te_rank)}`">
-                                <div
-                                  v-for="player in projPlayers(record.user_id)"
-                                  :key="player.sleeper_id"
-                                >
-                                  <p v-if="player.player_position === 'TE'">
-                                    {{ player.full_name }}
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value.toLocaleString()
-                                    }}
-                                  </p>
-                                </div>
-                              </a-card>
-                            </a-col>
-                          </a-row>
-                        </div>
-                      </template>
-                    </a-table>
-                    {{ projDetailData }}
-                  </div>
-                </div>
-              </a-spin>
-            </TabPanel>
-            <TabPanel header="Rosters">
-              <h2 style="text-align: left">Players by Manager</h2>
-              <a-row justify="space-around" :gutter="8">
-                <a-col
-                  v-for="manager in summaryData"
-                  :key="manager.user_id"
-                  xs="{24}"
-                  sm="{12}"
-                  md="{8}"
-                  lg="{6}"
-                  style="min-width: 300px; max-width: 315px"
-                >
-                  <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
-                    <h3 style="padding: 10px 10px">
-                      <img
-                        class="manager-logos"
-                        :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
-                        alt="League Logo"
-                      />
-                      {{ manager.display_name }} &bull;
-                      {{ addOrdinalSuffix(manager.total_rank) }} Overall
-                    </h3>
-                    <ul style="width: 100%; padding: 0">
-                      <div v-for="(player, index) in getPlayers(manager.user_id)">
-                        <div
-                          style="display: flex; justify-content: space-between"
-                          :style="getPositionTag(player.player_position)"
-                        >
-                          <div style="display: flex; align-items: center">
-                            <span style="color: black"> {{ index + 1 }}.</span>
-
-                            <li style="list-style-type: none; color: black">
-                              {{ player.full_name }} &bull;
-                              {{
-                                player.player_value === -1
-                                  ? 'N/A'
-                                  : player.player_value.toLocaleString()
-                              }}
-                            </li>
-                          </div>
-                          <a-tag :style="getPositionTag(player.player_position)">{{
-                            player.player_position
-                          }}</a-tag>
-                        </div>
-                      </div>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
-            </TabPanel>
-            <TabPanel header="Positions">
-              <h2 style="text-align: left">League Dashboard</h2>
-              <div style="display: flex; justify-content: left">
-                <a-avatar-group
-                  maxCount="12"
-                  maxPopoverPlacement="bottom"
-                  maxPopoverTrigger="hover"
-                >
-                  <div v-for="user in summaryData" :key="user.user_id">
-                    <div
-                      v-if="user.user_id === leagueInfo.userId"
-                      style="position: relative; display: inline-block"
-                    >
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          :size="45"
-                          style="border: 2px solid gold"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                      <span class="badge-label">
-                        {{ addOrdinalSuffix(user.total_rank) }}
-                      </span>
-                    </div>
-
-                    <div v-else>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                    </div>
-                  </div> </a-avatar-group
-                ><span style="font-size: small"> (click to highlight)</span>
-              </div>
-              <div class="legend">
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
-                  <span class="legend-text">QB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
-                  <span class="legend-text">RB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
-                  <span class="legend-text">WR</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
-                  <span class="legend-text">TE</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
-                  <span class="legend-text">Picks</span>
-                </div>
-              </div>
-
-              <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                <a-col
-                  v-for="(players, position) in playersByPosition"
-                  :key="position"
-                  xs="{24}"
-                  sm="{12}"
-                  md="{8}"
-                  lg="{6}"
-                  style="min-width: 260px; max-width: 315px"
-                >
-                  <div>
-                    <h3>{{ position }}</h3>
-                    <ul style="padding: 0; list-style: none">
-                      <li
-                        v-for="(player, index) in players"
-                        :key="player.sleeper_id"
-                        :style="getPositionTag(player.player_position, 0.35)"
-                        style="color: black"
-                        :class="{
-                          lighter: clickedManager !== '' && clickedManager !== player.display_name
-                        }"
-                      >
-                        <span
-                          :class="{
-                            'dimmed-text':
-                              clickedManager !== '' && clickedManager !== player.display_name
-                          }"
-                        >
-                          {{ index + 1 }}. {{ player?.full_name }} &bull;
-                          {{
-                            player.player_value === -1
-                              ? 'N/A'
-                              : player.player_value?.toLocaleString()
-                          }}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
-            </TabPanel>
-            <TabPanel header="Players">
-              <h2 style="text-align: left">League Dashboard</h2>
-              <div style="display: flex; justify-content: left">
-                <a-avatar-group
-                  maxCount="12"
-                  maxPopoverPlacement="bottom"
-                  maxPopoverTrigger="hover"
-                >
-                  <div v-for="user in summaryData" :key="user.user_id">
-                    <div
-                      v-if="user.user_id === leagueInfo.userId"
-                      style="position: relative; display: inline-block"
-                    >
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          :size="45"
-                          style="border: 2px solid gold"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                      <span class="badge-label">
-                        {{ addOrdinalSuffix(user.total_rank) }}
-                      </span>
-                    </div>
-
-                    <div v-else>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                    </div>
-                  </div> </a-avatar-group
-                ><span style="font-size: small"> (click to highlight)</span>
-              </div>
-              <div class="legend">
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
-                  <span class="legend-text">QB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
-                  <span class="legend-text">RB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
-                  <span class="legend-text">WR</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
-                  <span class="legend-text">TE</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
-                  <span class="legend-text">Picks</span>
-                </div>
-              </div>
-              <a-row :gutter="16">
-                <a-col
-                  v-for="(chunk, chunkIndex) in playerChunks"
-                  :key="chunkIndex"
-                  :xs="24"
-                  :sm="12"
-                  :md="8"
-                  :lg="6"
-                >
-                  <div
-                    style="
-                      border: 1px solid lightgray;
-                      border-radius: 5px;
-                      margin: 10px;
-                      padding: 10px;
-                    "
-                  >
-                    <ul style="padding: 0">
-                      <li
-                        v-for="(player, index) in chunk"
-                        :key="player.sleeper_id"
-                        :style="getPositionTag(player.player_position, 0.35)"
-                        style="color: black"
-                        :class="{
-                          lighter: clickedManager !== '' && clickedManager !== player.display_name
-                        }"
-                      >
-                        <span
-                          :class="{
-                            'dimmed-text':
-                              clickedManager !== '' && clickedManager !== player.display_name
-                          }"
-                        >
-                          {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
-                          {{
-                            player.player_value === -1
-                              ? 'N/A'
-                              : player.player_value?.toLocaleString()
-                          }}
-                          - {{ player.display_name }}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
             </TabPanel>
             <TabPanel header="Manager View">
               <h2 style="text-align: left">Team Dashboard</h2>
@@ -1346,7 +1554,7 @@ import 'primeicons/primeicons.css'
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
-import { getCellStyle } from '../utils/colorTable'
+import { getCellStyle } from '../utils/dynamicColorTable'
 
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
@@ -1403,6 +1611,7 @@ const projSummaryData = ref([{}])
 const tradesDetailData = ref([{}])
 const tradesSummaryData = ref([{}])
 const bestAvailableData = ref([{}])
+const selectedUser = ref(null) // To store the currently selected user's details
 
 const leaguesUrl = `/leagues/${leagueYear}/${userName}/${guid}`
 
@@ -2375,6 +2584,11 @@ async function fetchDetailData(
 }
 function handleUserClick(user) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
+  if (selectedUser.value && selectedUser.value.user_id === user.user_id) {
+    selectedUser.value = null
+  } else {
+    selectedUser.value = user // Set the selectedUser to the clicked user
+  }
 }
 const playersByPosition = computed(() => {
   const order = ['QB', 'RB', 'WR', 'TE', 'PICKS'] // Define the order of positions
@@ -2665,5 +2879,47 @@ li {
   .position-card {
     padding: 10px;
   }
+}
+
+.user-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px 4px;
+}
+
+.user-info h3,
+.user-info p {
+  margin: 5px 0;
+}
+
+.placeholder {
+  text-align: center;
+  color: #666;
+}
+.gutter-box {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gutter-box-stats {
+  padding: 5px 1px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+h4 {
+  white-space: normal; /* Allows text to wrap */
+  word-wrap: break-word; /* Ensures long words do not overflow */
+  hyphens: auto; /* Optionally add hyphenation to properly hyphenate words at line breaks */
+  overflow-wrap: break-word; /* Ensures the text breaks to prevent overflow */
+}
+.mirrored-user {
+  max-width: 500px;
+  margin: 1px 1px;
+}
+.mirrored-unselected {
+  margin: 5px 5px;
 }
 </style>
