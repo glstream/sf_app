@@ -509,7 +509,7 @@ const getLeagueSummary = async (record) => {
 }
 
 const getPrevYear = async () => {
-  router.push(`/username/`)
+  router.push(`/`)
 }
 
 const getCurrentYear = async () => {

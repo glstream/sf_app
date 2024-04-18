@@ -2173,10 +2173,7 @@ onMounted(() => {
   const rosterType = route.params.rosterType as string
   const userId = route.params.userId as string
   if (leagueId && platform && rankType && guid && userId) {
-    fetchSummaryData(leagueId, platform, rankType, guid, rosterType)
-    fetchDetailData(leagueId, platform, rankType, guid, rosterType)
-    fetchBaData(leagueId, platform, rankType, guid, rosterType)
-    fetchTrades(leagueId, platform, rosterType, leagueYear, rankType)
+    insertLeagueDetials()
   }
 })
 
@@ -2265,14 +2262,6 @@ const playerChunks = computed(() => {
   }, [])
 })
 
-const getStarters = (userId) => {
-  const interimData = detailData.value
-    .filter((item) => item.user_id === userId)
-    .filter((item) => item.fantasy_designation === 'STARTER')
-    .filter((item) => item.player_position != 'PICKS')
-  return interimData
-}
-
 const starterSummaryData = computed(() => {
   return [...summaryData.value].sort((a, b) => a.starters_rank - b.starters_rank)
 })
@@ -2280,10 +2269,6 @@ const starterSummaryData = computed(() => {
 const getPlayers = (userId) => {
   const interimData = detailData.value.filter((item) => item.user_id === userId)
   return interimData
-}
-const projPlayers = (userId) => {
-  const projInterimData = projDetailData.value.filter((item) => item.user_id === userId)
-  return projInterimData
 }
 
 const insertLeagueDetials = async (values: any) => {
@@ -2386,7 +2371,16 @@ async function fetchSummaryData(
     console.error('There was an error fetching the leagues summary data:', error)
     message.error('Failed to fetch league summary data.')
   } finally {
+    console.log('leagueInfo.userId', leagueInfo.userId)
     const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
+
+    if (!userSummary) {
+      console.error('No summary data found for user:', leagueInfo.userId)
+      message.error('Load league')
+      summaryIsLoading.value = false // Ensure loading is turned off
+      return // Exit the function or handle differently as required
+    }
+
     summaryIsLoading.value = false
 
     const response = await axios.post(`${apiUrl}/ranks_summary`, {

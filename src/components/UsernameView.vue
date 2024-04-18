@@ -75,10 +75,10 @@
                   <a-col :span="12">
                     <a-button
                       type="default"
-                      html-type="submit"
+                      html-type="button"
                       :block="true"
                       :loading="demoFormIsLoading"
-                      @click="setDemoUser"
+                      @click="navigateToDemoPage"
                       >Try a Demo</a-button
                     >
                   </a-col>
@@ -272,14 +272,14 @@ interface FormState {
   leagueYear: string
 }
 
-onMounted(() => {
-  clearFormIfBudgee()
-})
+onMounted(() => {})
 
 const showModal = () => {
   open.value = true
 }
-
+const navigateToDemoPage = () => {
+  router.push('/leagues/2024/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
+}
 const handleOk = (e: MouseEvent) => {
   open.value = false
 }
@@ -295,29 +295,8 @@ const formState = reactive<FormState>({
   leagueYear: userStore.leagueYear || '2024'
 })
 
-function clearFormIfBudgee() {
-  if (formState.userName === 'budgee') {
-    // Resetting the values
-    formState.userName = ''
-    formState.leagueYear = '2024' // Assuming you want to reset to the default year
-    console.log('Form state has been cleared')
-  }
-}
-function setDemoUser() {
-  if (formState) {
-    // Checking if formState is defined
-    formState.userName = 'budgee' // Directly set userName on the reactive object
-    console.log('Demo user set:', formState.userName)
-  } else {
-    console.log('formState is not defined or initialized correctly')
-  }
-}
-
 const onFinish = async (values) => {
   formIsLoading.value = true
-  if (formState.userName === 'Budgee') {
-    demoFormIsLoading.value = true // Set demo form loading if username is Budgee
-  }
   try {
     const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
     const data = await response.json()
@@ -349,9 +328,6 @@ const onFinish = async (values) => {
     formIsLoading.value = false
   } finally {
     formIsLoading.value = false
-    if (formState.userName === 'Budgee') {
-      demoFormIsLoading.value = false
-    }
   }
 }
 
