@@ -471,7 +471,7 @@
               </a-row>
             </TabPanel>
             <TabPanel header="Positions">
-              <h2 style="text-align: left">League Dashboard</h2>
+              <h2 style="text-align: left">Rankings by Position</h2>
               <div style="display: flex; justify-content: left">
                 <a-avatar-group
                   maxCount="12"
