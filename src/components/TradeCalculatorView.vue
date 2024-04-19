@@ -40,7 +40,7 @@
               </div>
             </a-col>
 
-            <a-col :flex="auto" style="padding-bottom: 8px; padding-top: 8px">
+            <a-col style="padding-bottom: 8px; padding-top: 8px">
               <a-flex :gap="35">
                 <a-dropdown-button :loading="isLoading">
                   <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
@@ -106,7 +106,6 @@
                   >
                     <div class="card-content">
                       <span> {{ player.player_full_name }} </span>
-                      <span class="age-value"> Age {{ player.age }} </span>
                       <span class="player-value">{{
                         state.checked1 ? player.sf_value : player.one_qb_value
                       }}</span>
@@ -292,7 +291,7 @@
             </a-col>
           </a-row>
           <a-collapse :bordered="false" style="background: rgb(255, 255, 255)"
-            ><a-collapse-panel key="1" header="Options" :style="customStyle">
+            ><a-collapse-panel key="1" header="Options">
               <a-row type="flex" justify="left">
                 <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
                   <div class="slider-label">Acceptable Variance</div>
@@ -675,13 +674,22 @@ const addPlayerToTrade = (player) => {
 }
 
 const totalValueSideA = computed(() => {
-  // Extract the relevant player values based on the current switch state
-  const playerValues = selectedPlayers1.value.map((player) =>
-    state.checked1 ? player.sf_value : player.one_qb_value
-  )
+  console.log('selectedPlayers1.value', selectedPlayers1.value)
+  const playerValues = selectedPlayers1.value.map((player) => {
+    // Convert the values to integers using parseInt or the unary plus operator (+)
+    const value = state.checked1 ? parseInt(player.sf_value, 10) : parseInt(player.one_qb_value, 10)
+    return value
+  })
+
+  console.log('playerValues', playerValues)
+
+  // Sort the values after making sure they are integers
+  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
+
+  console.log('Sorted Player Values:', sortedPlayerValues)
 
   // Calculate the trade value with the new function
-  return calculateTradeValue(playerValues)
+  return calculateTradeValue(sortedPlayerValues) // Assuming you might want to use the sorted values
 })
 
 const totalValueSideB = computed(() => {
@@ -695,10 +703,11 @@ const totalValueSideB = computed(() => {
 
 // const k_value = 1.005
 // const bpv_value = 35
+let bpv_value: number | null = null
 
-function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): number {
-  // Sort playerValues in descending order to rank them
-  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
+function calculateTradeValue(playerValues, BPV = bpv_value) {
+  console.log('Test Player Value:', playerValues)
+  console.log('BPV Value:', BPV)
 
   // Validate input
   if (
@@ -709,36 +718,32 @@ function calculateTradeValue(playerValues: number[], BPV: number = bpv_value): n
     return 0
   }
 
-  // Calculate the trade value using the power curve with tiered k values and DRS component
-  const tradeValue = sortedPlayerValues.reduce((total, value, index) => {
-    // Determine the k value based on rank
+  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
+
+  const tradeValue = sortedPlayerValues.reduce((total, value) => {
+    // Dynamic k value based on player value
     let k
-    if (index < 5) {
-      // Top 5 players
-      k = 0.8
-    } else if (index < 10) {
-      // Players ranked 6-10
-      k = 0.8
-    } else if (index < 20) {
-      // Players ranked 11-20
-      k = 0.8
+    if (value >= BPV * 1.5) {
+      k = 1.1 // Top tier
+    } else if (value >= BPV * 1.2) {
+      k = 1.05 // High mid tier
+    } else if (value >= BPV) {
+      k = 1.0 // Mid tier
     } else {
-      // The rest
-      k = 0.8
+      k = 0.9 // Lower tier
     }
 
-    // Power Curve Component
     const powerCurveValue = Math.pow(value, k)
+    console.log('PowerCurveValue for value:', value, 'is:', powerCurveValue)
 
-    // DRS Component
-    const DRSValue = BPV + Math.pow((powerCurveValue - BPV) / BPV, 2) * BPV
+    const DRSValue = BPV + Math.pow((powerCurveValue - BPV) / Math.max(1, BPV), 2) * BPV
+    console.log('DRSValue for value:', value, 'is:', DRSValue)
 
-    // Ensure that the DRSValue is not negative
     const adjustedValue = Math.max(0, DRSValue)
-
     return total + adjustedValue
   }, 0)
 
+  console.log('Calculated Trade Value:', tradeValue)
   return tradeValue
 }
 
@@ -1022,8 +1027,6 @@ const state = reactive({
   checked2: true
 })
 
-let bpv_value: number | null = null
-
 async function fetchRanks(platform: string, rankType: string) {
   isLoading.value = true
   tepCheck.value = false
@@ -1038,6 +1041,7 @@ async function fetchRanks(platform: string, rankType: string) {
     })
     console.log('Pulling Player Values...')
     ranksData.value = response.data
+    console.log('ranksData', ranksData)
 
     options1.value = ranksData.value.map((player) => ({
       label: player.player_full_name,
@@ -1051,13 +1055,13 @@ async function fetchRanks(platform: string, rankType: string) {
       data: player
     }))
 
-    const dropdownValue = parseInt(dropDownValue1.value) // Ensure dropDownValue1 is parsed as an integer
-    const index = dropdownValue * 25
-    if (ranksData.value && index < ranksData.value.length) {
-      bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
+    const dropdownValue = parseInt(dropDownValue1.value)
+    const index = Math.min(dropdownValue * 25, ranksData.value.length - 1) // Ensures index is always within bounds
+    if (ranksData.value.length > 0) {
+      bpv_value = ranksData.value[index].sf_value
     } else {
-      console.warn('Calculated index is out of bounds of the ranks data array')
-      bpv_value = ranksData.value[299]?.sf_value || null // Handle the case where the index is not valid
+      console.warn('No data available to set bpv_value')
+      bpv_value = null // or a default value that makes sense in context
     }
   } catch (error) {
     console.error('There was an error pulling values...', error)
