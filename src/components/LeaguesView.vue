@@ -98,7 +98,7 @@
                     <a-tooltip>
                       <template #title>League Details</template>
 
-                      <a-dropdown-button size="large" type="primary">
+                      <a-dropdown-button size="default" type="primary">
                         Power Ranks
                         <template #overlay>
                           <a-menu @click="(e) => getLeagueDetail(e, league)">
