@@ -599,7 +599,7 @@ const searchPlayer1 = (searchText: string) => {
   const filteredData = ranksData.value
     .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
     .map((item) => ({
-      label: item.player_full_name, // display name
+      label: `${item.player_full_name} - ${item._position}`, // display name
       value: item.player_id, // unique identifier
       data: item // keep the full player data
     }))
@@ -611,7 +611,7 @@ const searchPlayer2 = (searchText: string) => {
   const filteredData = ranksData.value
     .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
     .map((item) => ({
-      label: item.player_full_name, // display name
+      label: `${item.player_full_name} - ${item._position}`, // display name
       value: item.player_id, // unique identifier
       data: item // keep the full player data
     }))
@@ -1052,13 +1052,13 @@ async function fetchRanks(platform: string, rankType: string) {
     console.log('ranksData', ranksData)
 
     options1.value = ranksData.value.map((player) => ({
-      label: `${player.player_full_name} - ${player.sf_value}`, // display name with value
+      label: `${player.player_full_name} - ${player._position}`, // display name with value
       value: player.player_id,
       data: player
     }))
 
     options2.value = ranksData.value.map((player) => ({
-      label: `${player.player_full_name} - ${player.sf_value}`, // display name with value
+      label: `${player.player_full_name} - ${player._position}`, // display name with value
       value: player.player_id,
       data: player
     }))
