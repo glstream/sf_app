@@ -70,46 +70,36 @@
                       />
                       <span style="font-size: larger; padding-left: 5px">{{
                         league.league_name
-                      }}</span
-                      ><a-tag
-                        style="margin-left: 10px"
-                        :color="
-                          league.league_type === 'Dynasty'
-                            ? 'cyan'
-                            : league.league_type === 'Redraft'
-                              ? 'green'
-                              : 'red'
-                        "
-                      >
-                        {{ league.league_type }}</a-tag
-                      >
+                      }}</span>
                     </div>
                   </div>
                 </a-col>
               </a-row>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="7">
+                <a-col class="gutter-row" :span="12">
                   <div class="gutter-box">
                     <a-tag> {{ league.roster_type }}</a-tag>
+                    <a-tag
+                      style="margin-left: 10px"
+                      :color="
+                        league.league_type === 'Dynasty'
+                          ? 'cyan'
+                          : league.league_type === 'Redraft'
+                            ? 'green'
+                            : 'red'
+                      "
+                    >
+                      {{ league.league_type }}</a-tag
+                    >
                   </div>
                 </a-col>
                 <a-col class="gutter-row" :span="8">
                   <div class="gutter-box">
                     <a-tooltip>
-                      <template #title>League Summary</template>
-                      <a-button size="default" type="default" @click="getLeagueSummary(league)"
-                        >Summary<FileSearchOutlined size="small"
-                      /></a-button>
-                    </a-tooltip>
-                  </div>
-                </a-col>
-                <a-col class="gutter-row" :span="9">
-                  <div class="gutter-box">
-                    <a-tooltip>
                       <template #title>League Details</template>
 
-                      <a-dropdown-button type="primary">
-                        Detail
+                      <a-dropdown-button size="large" type="primary">
+                        Power Ranks
                         <template #overlay>
                           <a-menu @click="(e) => getLeagueDetail(e, league)">
                             <a-menu-item v-for="source in sources" :key="source.key">
@@ -120,9 +110,10 @@
                                 :src="source.logo"
                               />{{ source.name }}
                             </a-menu-item>
+                            <a-menu-divider />
+                            <a-menu-item key="3">Summary</a-menu-item>
                           </a-menu>
                         </template>
-                        <template #icon><BarChartOutlined /></template>
                       </a-dropdown-button>
                     </a-tooltip>
                   </div>
@@ -477,7 +468,7 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     const platform = e.key
     const starterCnt = league.starter_cnt
     const totalRosters = league.total_rosters
-
+    console.log('e', e)
     router.push(
       `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}`
     )
