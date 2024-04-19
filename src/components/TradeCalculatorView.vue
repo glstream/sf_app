@@ -3,7 +3,7 @@
     <AppHeader />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
-      <a-breadcrumb style="padding-top: 10px">
+      <a-breadcrumb style="padding: 20px 0">
         <a-breadcrumb-item
           ><a href="/"><home-outlined /></a
         ></a-breadcrumb-item>
@@ -11,9 +11,40 @@
       </a-breadcrumb>
       <div class="trade-calculator" style="">
         <div>
-          <a-row align="left" justify="space-between">
-            <a-col :flex="1" style="min-width: 300px">
-              <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap">
+          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
+            <a-col class="gutter-box-options-left" :xs="12" :sm="12" :md="12" :lg="12"
+              ><a-radio-group v-model:value="rankType" button-style="solid" size="small">
+                <a-radio-button value="dynasty">Dynasty</a-radio-button>
+                <a-radio-button value="redraft">Redraft</a-radio-button>
+              </a-radio-group></a-col
+            >
+            <a-col class="gutter-box-refresh" :xs="12" :sm="12" :md="12" :lg="12"
+              ><a-dropdown-button>
+                Share
+                <template #overlay>
+                  <a-menu @click="handleShareClick">
+                    <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                      <img class="social-logos" :src="source.logo" />
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+                <template #icon><ShareAltOutlined /></template>
+              </a-dropdown-button>
+              <a-button type="text" @click="showModal"><QuestionCircleOutlined /> </a-button>
+              <a-modal v-model:open="open" @ok="handleOk">
+                <p>
+                  Fantasy Navigator Rankings are derived from an extensive array of sources,
+                  including millions of crowd-sourced data points, expert consensus rankings, and
+                  real trade analyses. This comprehensive approach ensures that our rankings are not
+                  only well-informed but also reflect the most current trends and insights in
+                  fantasy sports.
+                </p>
+              </a-modal></a-col
+            >
+          </a-row>
+          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
+            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-left">
+              <a-flex :gap="10" :wrap="true" style="align-items: center">
                 <a-switch
                   size="large"
                   v-model:checked="state.checked1"
@@ -21,53 +52,23 @@
                   un-checked-children="OneQB"
                 />
                 <div>
-                  <a-radio-group v-model:value="rankType" button-style="solid" size="default">
-                    <a-radio-button value="dynasty">Dynasty</a-radio-button>
-                    <a-radio-button value="redraft">Redraft</a-radio-button>
-                  </a-radio-group>
-                </div>
-                <a-select
-                  ref="select"
-                  v-model:value="dropDownValue1"
-                  :options="dropDownOptions1"
-                  @focus="dropDownfocus"
-                  @change="dropDownHandleChange"
-                ></a-select>
-                <span style="font-size: 18px">Team</span>
-                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
-                  <span style="font-size: 18px">TEP</span>
-                </a-checkbox>
-              </div>
-            </a-col>
+                  <a-select
+                    ref="select"
+                    v-model:value="dropDownValue1"
+                    :options="dropDownOptions1"
+                    @focus="dropDownfocus"
+                    @change="dropDownHandleChange"
+                  ></a-select>
 
-            <a-col style="padding-bottom: 8px; padding-top: 8px">
-              <a-flex :gap="35">
-                <a-dropdown-button :loading="isLoading">
-                  <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-                  {{ selectedSource.name }}
-                  <template #overlay>
-                    <a-menu @click="handleMenuClick">
-                      <a-menu-item v-for="source in filteredSources" :key="source.key">
-                        <UserOutlined />
-                        <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                          source.name
-                        }}
-                      </a-menu-item>
-                    </a-menu>
-                  </template>
-                </a-dropdown-button>
-                <a-dropdown-button>
-                  Share
-                  <template #overlay>
-                    <a-menu @click="handleShareClick">
-                      <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                        <img class="social-logos" :src="source.logo" />
-                      </a-menu-item>
-                    </a-menu>
-                  </template>
-                  <template #icon><ShareAltOutlined /></template>
-                </a-dropdown-button>
+                  <span style="font-size: 16px; margin-left: 5px">Team</span>
+                </div>
+                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
+                  <span style="font-size: 16px">TE Premium</span>
+                </a-checkbox>
               </a-flex>
+            </a-col>
+            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-right">
+              <a-flex :gap="0"> </a-flex>
             </a-col>
           </a-row>
         </div>
@@ -377,14 +378,15 @@ import {
   ShareAltOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
-  HomeOutlined
+  HomeOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons-vue'
 
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
-import ktcLogo from '@/assets/sourceLogos/ktc.png'
-import dpLogo from '@/assets/sourceLogos/dp.png'
-import fcLogo from '@/assets/sourceLogos/fc.png'
+// import ktcLogo from '@/assets/sourceLogos/ktc.png'
+// import dpLogo from '@/assets/sourceLogos/dp.png'
+// import fcLogo from '@/assets/sourceLogos/fc.png'
 import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
 
@@ -402,6 +404,7 @@ const platform = ref('sf')
 const rankType = ref('dynasty')
 const tepCheck = ref(false)
 const dropDownValue1 = ref('12')
+const open = ref<boolean>(false)
 
 // interfaces
 interface TeamA {
@@ -456,10 +459,10 @@ const dropDownHandleChange = (value: string) => {
 }
 
 const sources = [
-  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
-  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
-  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
+  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo }
+  // { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
+  // { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
+  // { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
 ]
 
 const selectedSource = ref(sources[0])
@@ -514,7 +517,12 @@ const handleShareClick = (item) => {
     redditPlayers()
   }
 }
-
+const showModal = () => {
+  open.value = true
+}
+const handleOk = (e: MouseEvent) => {
+  open.value = false
+}
 async function onCheckTepChange(event: Event): Promise<void> {
   const checked = (event.target as HTMLInputElement).checked
   // console.log('TEP checked:', checked)
@@ -724,9 +732,9 @@ function calculateTradeValue(playerValues, BPV = bpv_value) {
     // Dynamic k value based on player value
     let k
     if (value >= BPV * 1.5) {
-      k = 1.1 // Top tier
+      k = 1.02 // Top tier
     } else if (value >= BPV * 1.2) {
-      k = 1.05 // High mid tier
+      k = 1.01 // High mid tier
     } else if (value >= BPV) {
       k = 1.0 // Mid tier
     } else {
@@ -1044,13 +1052,13 @@ async function fetchRanks(platform: string, rankType: string) {
     console.log('ranksData', ranksData)
 
     options1.value = ranksData.value.map((player) => ({
-      label: player.player_full_name,
+      label: `${player.player_full_name} - ${player.sf_value}`, // display name with value
       value: player.player_id,
       data: player
     }))
 
     options2.value = ranksData.value.map((player) => ({
-      label: player.player_full_name,
+      label: `${player.player_full_name} - ${player.sf_value}`, // display name with value
       value: player.player_id,
       data: player
     }))
@@ -1298,7 +1306,7 @@ function getCardPositionColor(position: string): string {
   padding: 5px;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 440px) {
   .nearest-players {
     width: auto;
     padding: 5px;
@@ -1393,10 +1401,26 @@ function getCardPositionColor(position: string): string {
 .a-auto-complete input {
   font-size: 16px;
 }
-@media (max-width: 390px) {
+@media (max-width: 4400px) {
   .ant-modal {
     top: 52% !important;
     transform: translateY(-90%) !important;
   }
+}
+.gutter-box-refresh {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: right;
+  align-items: baseline;
+}
+.gutter-box-options-left {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+.gutter-box-options-right {
+  display: flex;
+  justify-content: right;
+  align-items: center;
 }
 </style>

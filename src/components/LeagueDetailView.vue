@@ -735,13 +735,13 @@
                       ><template #expandedRowRender="{ record }">
                         <div>
                           <a-divider orientation="center"></a-divider>
-                          <a-row justify="space-around" gutter="0">
-                            <a-col :span="6">
+                          <a-row justify="space-between" gutter="[8,8]">
+                            <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
                               <div>
                                 <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
                                 <ul
                                   style="padding: 0; list-style: none"
-                                  v-for="player in getPlayers(record.user_id)"
+                                  v-for="player in getPlayersProj(record.user_id)"
                                 >
                                   <li
                                     v-if="player.player_position === 'QB'"
@@ -767,7 +767,7 @@
                                 <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
                                 <ul
                                   style="padding: 0; list-style: none"
-                                  v-for="player in getPlayers(record.user_id)"
+                                  v-for="player in getPlayersProj(record.user_id)"
                                 >
                                   <li
                                     v-if="player.player_position === 'RB'"
@@ -793,7 +793,7 @@
                                 <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
                                 <ul
                                   style="padding: 0; list-style: none"
-                                  v-for="player in getPlayers(record.user_id)"
+                                  v-for="player in getPlayersProj(record.user_id)"
                                 >
                                   <li
                                     v-if="player.player_position === 'WR'"
@@ -818,7 +818,7 @@
                                 <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
                                 <ul
                                   style="padding: 0; list-style: none"
-                                  v-for="player in getPlayers(record.user_id)"
+                                  v-for="player in getPlayersProj(record.user_id)"
                                 >
                                   <li
                                     v-if="player.player_position === 'TE'"
@@ -1128,8 +1128,8 @@
                   ><template #expandedRowRender="{ record }">
                     <div>
                       <a-divider orientation="center"></a-divider>
-                      <a-row justify="space-around" gutter="0">
-                        <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
+                      <a-row justify="space-between" gutter="[8,8]">
+                        <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
                           <div>
                             <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
                             <ul
@@ -2269,6 +2269,11 @@ const starterSummaryData = computed(() => {
 const getPlayers = (userId) => {
   const interimData = detailData.value.filter((item) => item.user_id === userId)
   return interimData
+}
+
+const getPlayersProj = (userId) => {
+  const interimProjData = projDetailData.value.filter((item) => item.user_id === userId)
+  return interimProjData
 }
 
 const insertLeagueDetials = async (values: any) => {
