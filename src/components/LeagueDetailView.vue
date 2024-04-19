@@ -110,7 +110,7 @@
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                             maxPopoverTrigger="hover"
-                            :size="45"
+                            :size="40"
                             style="border: 2px solid gold"
                           />
                         </a-tooltip>
@@ -501,7 +501,7 @@
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
-                          :size="55"
+                          :size="40"
                           style="border: 2px solid gold"
                           @click="handleUserClick(user)"
                           class="avatar"
@@ -1091,7 +1091,7 @@
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                             maxPopoverTrigger="hover"
-                            :size="45"
+                            :size="40"
                             style="border: 2px solid gold"
                           />
                         </a-tooltip>
