@@ -93,8 +93,8 @@
                     >
                   </div>
                 </a-col>
-                <a-col class="gutter-row" :span="8">
-                  <div class="gutter-box">
+                <a-col :span="8">
+                  <div class="gutter-box-refresh">
                     <a-tooltip>
                       <template #title>League Details</template>
 
@@ -111,7 +111,7 @@
                               />{{ source.name }}
                             </a-menu-item>
                             <a-menu-divider />
-                            <a-menu-item key="3">Summary</a-menu-item>
+                            <a-menu-item key="3"> <FileSearchOutlined /> Summary</a-menu-item>
                           </a-menu>
                         </template>
                       </a-dropdown-button>
@@ -636,5 +636,11 @@ const getCurrentYear = async () => {
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-top: 20px;
+}
+.gutter-box-refresh {
+  display: flex;
+  justify-content: right;
+  margin-right: 5px;
+  align-items: baseline;
 }
 </style>
