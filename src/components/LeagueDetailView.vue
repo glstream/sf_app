@@ -134,29 +134,9 @@
                   </a-avatar-group>
                 </a-col>
               </a-row>
-
-              <div class="legend">
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
-                  <span class="legend-text">QB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
-                  <span class="legend-text">RB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
-                  <span class="legend-text">WR</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
-                  <span class="legend-text">TE</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
-                  <span class="legend-text">Picks</span>
-                </div>
-              </div>
+              <a-row
+                ><a-col :span="24"> <BarChart :chartData="bchartData" /></a-col
+              ></a-row>
               <div class="table-section" style="flex: 2">
                 <a-table
                   :columns="columns"
@@ -624,11 +604,11 @@
                     <a-col :span="9">
                       <h4>Select Team</h4>
                     </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
                   </a-row>
                 </div>
               </div>
@@ -673,7 +653,7 @@
                         v-for="(player, index) in players"
                         :key="player.sleeper_id"
                         :style="getPositionTag(player.player_position, 0.35)"
-                        style="color: black"
+                        style="color: black; border-radius: 2px; margin: 2px"
                         :class="{
                           lighter: clickedManager !== '' && clickedManager !== player.display_name
                         }"
@@ -991,11 +971,11 @@
                     <a-col :span="9">
                       <h4>Select Team</h4>
                     </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
                   </a-row>
                 </div>
               </div>
@@ -1595,7 +1575,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -1612,7 +1592,9 @@ import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import Chart from 'primevue/chart'
 import 'primeicons/primeicons.css'
-
+import ProgressBar from 'primevue/progressbar'
+import BarChart from '@/components/BarChart.vue'
+const bchartData = ref([])
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
@@ -1685,6 +1667,11 @@ const isTradesLoading = ref(false)
 const clickedManager = ref('')
 
 const value1 = ref('Choose Projection')
+
+const customLabel = () => {
+  return `QB`
+}
+
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
   { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
@@ -2348,6 +2335,7 @@ async function fetchSummaryData(
 
     const rawData = response.data
     const maxTotalValue = Math.max(...rawData.map((item) => item.total_value))
+
     // summaryData.value = response.data // Update this line based on the structure of your actual data
     summaryData.value = response.data.map((item) => {
       return {
@@ -2372,10 +2360,54 @@ async function fetchSummaryData(
         picks_percent: (item.picks_sum / maxTotalValue) * 100
       }
     })
+    // Calculate the total sum of all total_values
+    const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
+
+    // Example modification to include ranks in the data
+    bchartData.value = rawData.flatMap((item) => [
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.qb_sum,
+        position: 'QB',
+        rank: item.qb_rank // Add rank information
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.rb_sum,
+        position: 'RB',
+        rank: item.rb_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.wr_sum,
+        position: 'WR',
+        rank: item.wr_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.te_sum,
+        position: 'TE',
+        rank: item.te_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.picks_sum,
+        position: 'Picks',
+        rank: item.picks_rank
+      }
+    ])
+
+    console.log('bchartData', bchartData)
   } catch (error) {
     console.error('There was an error fetching the leagues summary data:', error)
     message.error('Failed to fetch league summary data.')
   } finally {
+    console.log(summaryData)
     console.log('leagueInfo.userId', leagueInfo.userId)
     const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
 
@@ -2681,6 +2713,23 @@ const playersByPosition = computed(() => {
   })
 
   return groups
+})
+const visualStartPercentage = 20
+const max = 100
+const min = max - visualStartPercentage // Actual value that corresponds to 20% visually
+const actualValue = ref(70) // Change this as needed
+const progressBarWidth = computed(() => {
+  if (actualValue.value < min) {
+    return `${visualStartPercentage}%` // Start at 20%
+  } else if (actualValue.value > max) {
+    return '100%' // Max out at 100%
+  } else {
+    // Scale percentage from 20% to 100%
+    const scaledValue =
+      ((actualValue.value - min) / (max - min)) * (100 - visualStartPercentage) +
+      visualStartPercentage
+    return `${scaledValue.toFixed(2)}%`
+  }
 })
 </script>
 
@@ -2992,5 +3041,15 @@ h4 {
 }
 .avatar-group-container {
   margin-bottom: 20px;
+}
+.progress-container {
+  height: 20px;
+  border-radius: 5px;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease-in-out;
 }
 </style>

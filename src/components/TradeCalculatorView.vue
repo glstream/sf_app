@@ -105,18 +105,29 @@
                     }"
                     style="border-radius: 3px"
                   >
-                    <div class="card-content">
-                      <span> {{ player.player_full_name }} </span>
-                      <span class="player-value">{{
-                        state.checked1 ? player.sf_value : player.one_qb_value
-                      }}</span>
+                    <a-row justify="space-between">
+                      <a-col :span="12" class="gutter-box-player">
+                        <span>{{ player.player_full_name }}</span>
+                      </a-col>
+                      <a-col :span="6" class="gutter-box">
+                        <span class="age-value" v-if="player.age !== null"
+                          >Age {{ player.age }}</span
+                        >
+                      </a-col>
+
+                      <a-col :span="4" class="gutter-box-value">
+                        <span class="player-value">{{
+                          state.checked1 ? player.sf_value : player.one_qb_value
+                        }}</span>
+                      </a-col>
+
                       <MinusCircleTwoTone
                         class="close-icon"
                         two-tone-color="darkgray"
                         :style="{ fontSize: '22px' }"
-                        @click.stop="removePlayer1(index)"
+                        @click.stop="removePlayer2(index)"
                       />
-                    </div>
+                    </a-row>
                   </a-card>
                 </a-badge-ribbon>
               </div>
@@ -175,20 +186,29 @@
                       borderColor: getPositionColor(player._position)
                     }"
                     style="border-radius: 3px"
-                  >
-                    <div class="card-content">
-                      <span>{{ player.player_full_name }}</span>
-                      <span class="age-value"> Age {{ player.age }} </span>
-                      <span class="player-value">{{
-                        state.checked1 ? player.sf_value : player.one_qb_value
-                      }}</span>
+                    ><a-row justify="space-between">
+                      <a-col :span="12" class="gutter-box-player">
+                        <span>{{ player.player_full_name }}</span>
+                      </a-col>
+                      <a-col :span="6" class="gutter-box">
+                        <span class="age-value" v-if="player.age !== null"
+                          >Age {{ player.age }}</span
+                        >
+                      </a-col>
+
+                      <a-col :span="4" class="gutter-box-value">
+                        <span class="player-value">{{
+                          state.checked1 ? player.sf_value : player.one_qb_value
+                        }}</span>
+                      </a-col>
+
                       <MinusCircleTwoTone
                         class="close-icon"
                         two-tone-color="darkgray"
                         :style="{ fontSize: '22px' }"
                         @click.stop="removePlayer2(index)"
                       />
-                    </div>
+                    </a-row>
                   </a-card>
                 </a-badge-ribbon>
               </div>
@@ -1422,5 +1442,20 @@ function getCardPositionColor(position: string): string {
   display: flex;
   justify-content: right;
   align-items: center;
+}
+.gutter-box {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+}
+.gutter-box-player {
+  display: flex;
+  justify-content: left;
+  align-items: baseline;
+}
+.gutter-box-value {
+  justify-content: left;
+
+  align-items: baseline;
 }
 </style>
