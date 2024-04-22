@@ -146,8 +146,8 @@
                   :pagination="{ pageSize: 20 }"
                   row-key="user_id"
                   :expand-column-width="100"
-                  style="width: 100%; max-width: 1150px"
-                  :scroll="{ x: '1150px' }"
+                  style="width: 100%; max-width: 900px"
+                  :scroll="{ x: '900px' }"
                 >
                   <template #expandedRowRender="{ record }">
                     Team Composition:
@@ -156,7 +156,7 @@
                     </div>
                     <div>
                       <a-divider orientation="center"></a-divider>
-                      <a-row justify="space-between" gutter="[8,8]">
+                      <a-row justify="space-around" :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
                         <a-col :span="4">
                           <div>
                             <h3>
@@ -482,15 +482,12 @@
                   maxPopoverTrigger="hover"
                   class="avatar-group-container"
                 >
-                  <div v-for="user in summaryData" :key="user.user_id">
+                  <div v-for="user in sortedSummaryData" :key="user.user_id">
                     <div
                       v-if="user.user_id === leagueInfo.userId"
                       style="position: relative; display: inline-block"
                     >
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
+                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
@@ -501,15 +498,12 @@
                         />
                       </a-tooltip>
                       <span class="badge-label">
-                        {{ addOrdinalSuffix(user.total_rank) }}
+                        {{ getRank(user) }}
                       </span>
                     </div>
 
                     <div v-else>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
+                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
@@ -557,29 +551,88 @@
                       <h4>{{ selectedUser.display_name }}</h4>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.qb_rank))">{{
-                        addOrdinalSuffix(selectedUser.qb_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.qb_rank)
+                              : Number(selectedUser.qb_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.qb_rank
+                              : selectedUser.qb_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
-                        addOrdinalSuffix(selectedUser.rb_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.rb_rank)
+                              : Number(selectedUser.rb_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.rb_rank
+                              : selectedUser.rb_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
-                        addOrdinalSuffix(selectedUser.wr_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.wr_rank)
+                              : Number(selectedUser.wr_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.wr_rank
+                              : selectedUser.wr_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.te_rank))">{{
-                        addOrdinalSuffix(selectedUser.te_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.te_rank)
+                              : Number(selectedUser.te_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.te_rank
+                              : selectedUser.te_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">{{
-                        addOrdinalSuffix(selectedUser.picks_rank)
-                      }}</a-tag>
+                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
+                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
+                        {{ addOrdinalSuffix(selectedUser.picks_rank) }}
+                      </a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
+                      <a-tag> -- </a-tag>
                     </a-col>
                   </a-row>
                 </div>
@@ -850,15 +903,12 @@
                   maxPopoverTrigger="hover"
                   class="avatar-group-container"
                 >
-                  <div v-for="user in summaryData" :key="user.user_id">
+                  <div v-for="user in sortedSummaryData" :key="user.user_id">
                     <div
                       v-if="user.user_id === leagueInfo.userId"
                       style="position: relative; display: inline-block"
                     >
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
+                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
@@ -869,15 +919,12 @@
                         />
                       </a-tooltip>
                       <span class="badge-label">
-                        {{ addOrdinalSuffix(user.total_rank) }}
+                        {{ getRank(user) }}
                       </span>
                     </div>
 
                     <div v-else>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                        placement="top"
-                      >
+                      <a-tooltip :title="`${getRank(user)}${user.display_name}`" placement="top">
                         <a-avatar
                           :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                           maxPopoverTrigger="hover"
@@ -924,29 +971,88 @@
                       <h4>{{ selectedUser.display_name }}</h4>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.qb_rank))">{{
-                        addOrdinalSuffix(selectedUser.qb_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.qb_rank)
+                              : Number(selectedUser.qb_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.qb_rank
+                              : selectedUser.qb_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
-                        addOrdinalSuffix(selectedUser.rb_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.rb_rank)
+                              : Number(selectedUser.rb_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.rb_rank
+                              : selectedUser.rb_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.wr_rank))">{{
-                        addOrdinalSuffix(selectedUser.wr_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.wr_rank)
+                              : Number(selectedUser.wr_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.wr_rank
+                              : selectedUser.wr_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
                     <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.te_rank))">{{
-                        addOrdinalSuffix(selectedUser.te_rank)
-                      }}</a-tag>
+                      <a-tag
+                        :style="
+                          getCellStyle(
+                            overallFilter === 'all'
+                              ? Number(selectedUser.te_rank)
+                              : Number(selectedUser.te_starter_rank)
+                          )
+                        "
+                      >
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all'
+                              ? selectedUser.te_rank
+                              : selectedUser.te_starter_rank
+                          )
+                        }}
+                      </a-tag>
                     </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">{{
-                        addOrdinalSuffix(selectedUser.picks_rank)
-                      }}</a-tag>
+                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
+                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
+                        {{ addOrdinalSuffix(selectedUser.picks_rank) }}
+                      </a-tag>
+                    </a-col>
+                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
+                      <a-tag> -- </a-tag>
                     </a-col>
                   </a-row>
                 </div>
@@ -1867,7 +1973,7 @@ const columns = computed(() => {
       width: 1
     },
     {
-      title: overallFilter.value === 'all' ? 'Overall Rank' : 'Starter Rank',
+      title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
       dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
       key: 'overall_rank',
       align: 'center',
@@ -2128,7 +2234,7 @@ function getPositionTag(position, opacity = 0.15) {
 // Compute chunks of 50 players
 const playerChunks = computed(() => {
   const size = 50
-  return detailData.value.reduce((acc, val, i) => {
+  return filteredData.value.reduce((acc, val, i) => {
     let idx = Math.floor(i / size)
     let page = acc[idx] || (acc[idx] = [])
     page.push(val)
@@ -2558,7 +2664,7 @@ const playersByPosition = computed(() => {
   })
 
   // Populate the groups object with players
-  detailData.value.forEach((player) => {
+  filteredData.value.forEach((player) => {
     if (groups.hasOwnProperty(player.player_position)) {
       groups[player.player_position].push(player)
     }
