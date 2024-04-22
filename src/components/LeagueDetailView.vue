@@ -14,7 +14,7 @@
         <div class="">
           <div class="">
             <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-              <a-col :span="24">
+              <a-col :span="18">
                 <h2 class="league-title">
                   <img
                     class="league-logo"
@@ -24,6 +24,13 @@
                   {{ leagueInfo.leagueName }}
                 </h2>
               </a-col>
+              <a-col :span="6">
+                <div class="gutter-box-refresh">
+                  <a-button @click="insertLeagueDetials(leagueInfo.leagueId)" type="primary">
+                    <ReloadOutlined /> League
+                  </a-button>
+                </div></a-col
+              >
             </a-row>
           </div>
 
@@ -38,18 +45,19 @@
               </a-col>
               <a-col :span="8">
                 <div class="gutter-box-refresh">
-                  <a-button @click="insertLeagueDetials(leagueInfo.leagueId)" type="primary">
-                    <ReloadOutlined /> League
-                  </a-button>
+                  <a-button type="default" @click="getLeagueSummary()">
+                    <FileSearchOutlined />Summary</a-button
+                  >
                 </div>
               </a-col>
             </a-row>
             <a-row>
               <a-col class="gutter-row" :span="12">
                 <div class="gutter-box-button">
-                  <a-button type="default" @click="getLeagueSummary()">
-                    <FileSearchOutlined />Summary</a-button
-                  >
+                  <a-radio-group v-model:value="overallFilter">
+                    <a-radio-button value="all">All Players</a-radio-button>
+                    <a-radio-button value="STARTER">Starters</a-radio-button>
+                  </a-radio-group>
                 </div>
               </a-col>
               <a-col class="gutter-row" :span="12">
@@ -98,15 +106,12 @@
                     :max-count="12"
                     class="avatar-group-container"
                   >
-                    <div v-for="user in summaryData" :key="user.user_id">
+                    <div v-for="user in sortedSummaryData" :key="user.user_id">
                       <div
                         v-if="user.user_id === leagueInfo.userId"
                         style="position: relative; display: inline-block"
                       >
-                        <a-tooltip
-                          :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                          placement="top"
-                        >
+                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                             maxPopoverTrigger="hover"
@@ -115,15 +120,12 @@
                           />
                         </a-tooltip>
                         <span class="badge-label">
-                          {{ addOrdinalSuffix(user.total_rank) }}
+                          {{ getRank(user) }}
                         </span>
                       </div>
 
                       <div v-else>
-                        <a-tooltip
-                          :title="`${addOrdinalSuffix(user.total_rank)} ${user.display_name}`"
-                          placement="top"
-                        >
+                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                             maxPopoverTrigger="hover"
@@ -147,69 +149,6 @@
                   style="width: 100%; max-width: 1150px"
                   :scroll="{ x: '1150px' }"
                 >
-                  <template v-slot:customProgressBar="{ record }">
-                    <div>
-                      <a-progress
-                        :percent="
-                          record.qb_percent +
-                          record.rb_percent +
-                          record.wr_percent +
-                          record.te_percent +
-                          record.picks_percent
-                        "
-                        :strokeColor="getPositionColor('Picks')"
-                        strokeWidth="25"
-                        class="overlay-progress-overall"
-                        :show-info="false"
-                      />
-                      <a-tooltip title="Total Progress Tooltip">
-                        <a-progress
-                          :percent="
-                            record.qb_percent +
-                            record.rb_percent +
-                            record.wr_percent +
-                            record.te_percent
-                          "
-                          :strokeColor="getPositionColor('TE')"
-                          strokeWidth="25"
-                          class="overlay-progress-overall"
-                          :show-info="false"
-                        />
-                      </a-tooltip>
-
-                      <a-progress
-                        :percent="record.qb_percent + record.rb_percent + record.wr_percent"
-                        :strokeColor="getPositionColor('WR')"
-                        strokeWidth="25"
-                        class="overlay-progress-overall"
-                        :show-info="false"
-                      />
-
-                      <a-progress
-                        :percent="record.qb_percent + record.rb_percent"
-                        :strokeColor="getPositionColor('RB')"
-                        strokeWidth="25"
-                        class="overlay-progress-overall"
-                        :show-info="false"
-                      />
-
-                      <a-tooltip
-                        :title="`QB: ${record.qb_sum.toLocaleString()}
-          RB: ${record.rb_sum.toLocaleString()}
-          WR: ${record.wr_sum.toLocaleString()}
-          TE: ${record.te_sum.toLocaleString()}
-          Picks: ${record.picks_sum.toLocaleString()}
-          `"
-                        ><a-progress
-                          :percent="record.qb_percent"
-                          :strokeColor="getPositionColor('QB')"
-                          strokeWidth="25"
-                          class="overlay-progress-overall"
-                          :show-info="false"
-                        />
-                      </a-tooltip>
-                    </div>
-                  </template>
                   <template #expandedRowRender="{ record }">
                     Team Composition:
                     <div class="card" bordered>
@@ -220,7 +159,16 @@
                       <a-row justify="space-between" gutter="[8,8]">
                         <a-col :span="4">
                           <div>
-                            <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+                            <h3>
+                              Quarterbacks
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter.value === 'all'
+                                    ? record.qb_rank
+                                    : record.qb_starter_rank
+                                )
+                              }}
+                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -246,7 +194,16 @@
 
                         <a-col :span="4">
                           <div>
-                            <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+                            <h3>
+                              Runningbacks
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter.value === 'all'
+                                    ? record.rb_rank
+                                    : record.rb_starter_rank
+                                )
+                              }}
+                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -272,7 +229,16 @@
 
                         <a-col :span="4">
                           <div>
-                            <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+                            <h3>
+                              Wide Receivers
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter.value === 'all'
+                                    ? record.wr_rank
+                                    : record.wr_starter_rank
+                                )
+                              }}
+                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -297,7 +263,16 @@
                         </a-col>
                         <a-col :span="4">
                           <div>
-                            <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+                            <h3>
+                              Tight Ends
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter.value === 'all'
+                                    ? record.te_rank
+                                    : record.te_starter_rank
+                                )
+                              }}
+                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -320,7 +295,7 @@
                             </ul>
                           </div>
                         </a-col>
-                        <a-col :span="4">
+                        <a-col :span="4" v-if="overallFilter === 'all'">
                           <div>
                             <h3>Picks {{ addOrdinalSuffix(record.picks_rank) }}</h3>
                             <ul
@@ -332,6 +307,31 @@
                                 :key="player.sleeper_id"
                                 :style="getPositionTag(player.player_position, 0.35)"
                                 style="color: black"
+                              >
+                                <span
+                                  >{{ player?.full_name }} &bull;
+                                  {{
+                                    player.player_value === -1
+                                      ? 'N/A'
+                                      : player.player_value?.toLocaleString()
+                                  }}
+                                </span>
+                              </li>
+                            </ul>
+                          </div>
+                        </a-col>
+                        <a-col :span="4" v-if="overallFilter !== 'all'">
+                          <div>
+                            <h3>Bench {{ addOrdinalSuffix(record.bench_rank) }}</h3>
+                            <ul
+                              style="padding: 0; list-style: none"
+                              v-for="player in getAllPlayers(record.user_id)"
+                            >
+                              <li
+                                v-if="player.fantasy_designation === 'BENCH'"
+                                :key="player.sleeper_id"
+                                :style="getPositionTag(player.player_position, 0.2)"
+                                style="color: black; border: 1px solid rgba(0, 0, 0, 0.2)"
                               >
                                 <span
                                   >{{ player?.full_name }} &bull;
@@ -423,15 +423,28 @@
                   style="min-width: 300px; max-width: 315px"
                 >
                   <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
-                    <h3 style="padding: 10px 10px">
+                    <h4 style="padding: 5px 5px">
                       <img
                         class="manager-logos"
                         :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
                         alt="League Logo"
                       />
                       {{ manager.display_name }} &bull;
-                      {{ addOrdinalSuffix(manager.total_rank) }} Overall
-                    </h3>
+                      {{ overallFilter === 'all' ? 'Overall' : 'Starters' }}
+                      {{
+                        addOrdinalSuffix(
+                          overallFilter === 'all' ? manager.total_rank : manager.starters_rank
+                        )
+                      }}
+                      <a-tag>
+                        {{
+                          (overallFilter === 'all'
+                            ? manager.total_value
+                            : manager.starters_sum || 0
+                          ).toLocaleString()
+                        }}</a-tag
+                      >
+                    </h4>
                     <ul style="width: 100%; padding: 0">
                       <div v-for="(player, index) in getPlayers(manager.user_id)">
                         <div
@@ -1048,210 +1061,7 @@
                 </a-col>
               </a-row>
             </TabPanel>
-            <TabPanel header="Starters">
-              <h2 class="tab-sub-header">Starting Rosters</h2>
-              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col :span="24">
-                  <a-avatar-group
-                    maxCount="10"
-                    maxPopoverPlacement="bottom"
-                    maxPopoverTrigger="hover"
-                    :max-count="10"
-                    class="avatar-group-container"
-                  >
-                    <div v-for="user in starterSummaryData" :key="user.user_id">
-                      <div
-                        v-if="user.user_id === leagueInfo.userId"
-                        style="position: relative; display: inline-block"
-                      >
-                        <a-tooltip
-                          :title="`${addOrdinalSuffix(user.starters_rank)} ${user.display_name}`"
-                          placement="top"
-                        >
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            :size="40"
-                            style="border: 2px solid gold"
-                          />
-                        </a-tooltip>
-                        <span class="badge-label">
-                          {{ addOrdinalSuffix(user.starters_rank) }}
-                        </span>
-                      </div>
 
-                      <div v-else>
-                        <a-tooltip
-                          :title="`${addOrdinalSuffix(user.starters_rank)} ${user.display_name}`"
-                          placement="top"
-                        >
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                          />
-                        </a-tooltip>
-                      </div>
-                    </div>
-                  </a-avatar-group>
-                </a-col>
-              </a-row>
-
-              <div class="table-section" style="flex: 2">
-                <a-table
-                  :data-source="summaryData"
-                  :columns="starterColumns"
-                  :pagination="{ pageSize: 20 }"
-                  style="width: 100%; max-width: 850px"
-                  row-key="user_id"
-                  :expand-column-width="100"
-                  :scroll="{ x: '850px' }"
-                  ><template #expandedRowRender="{ record }">
-                    <div>
-                      <a-divider orientation="center"></a-divider>
-                      <a-row justify="space-between" gutter="[8,8]">
-                        <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-                          <div>
-                            <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'QB'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTag(player.player_position, 0.35)"
-                                style="color: black"
-                              >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </a-col>
-
-                        <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <div>
-                            <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'RB'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTag(player.player_position, 0.35)"
-                                style="color: black"
-                              >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </a-col>
-
-                        <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <div>
-                            <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'WR'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTag(player.player_position, 0.35)"
-                                style="color: black"
-                              >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </a-col>
-                        <a-col :xs="6" :sm="12" :md="8" :lg="6" :xl="6">
-                          <div>
-                            <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'TE'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTag(player.player_position, 0.35)"
-                                style="color: black"
-                              >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </a-col>
-                      </a-row>
-                    </div>
-                  </template>
-                  <template v-slot:starterValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`Starters: ${record.starters_sum?.toLocaleString()}`"
-                      ><span>{{ record.starters_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:qbStarterValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`QB: ${record.qb_starter_sum?.toLocaleString()}`"
-                      ><span>{{ record.qb_starter_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:rbStarterValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`RB: ${record.rb_starter_sum?.toLocaleString()}`"
-                      ><span>{{ record.rb_starter_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:wrStarterValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`WR: ${record.wr_starter_sum?.toLocaleString()}`"
-                      ><span>{{ record.wr_starter_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:teStarterValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`TE: ${record.te_starter_sum?.toLocaleString()}`"
-                      ><span>{{ record.te_starter_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                </a-table>
-              </div>
-            </TabPanel>
             <TabPanel header="Manager View">
               <h2 class="tab-sub-header">Team Dashboard</h2>
               <div v-for="manager in summaryData" :key="manager.user_id">
@@ -1575,7 +1385,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -1667,10 +1477,92 @@ const isTradesLoading = ref(false)
 const clickedManager = ref('')
 
 const value1 = ref('Choose Projection')
+const overallFilter = ref('all')
 
-const customLabel = () => {
-  return `QB`
+const filteredData = computed(() => {
+  console.log('Filtering data with', overallFilter.value) // Debug filter value
+  console.log('Current detail data', detailData.value) // Debug data being filtered
+
+  if (overallFilter.value === 'all') {
+    return detailData.value
+  } else {
+    return detailData.value.filter((item) => {
+      console.log(item.fantasy_designation) // See each item's designation
+      return item.fantasy_designation === overallFilter.value
+    })
+  }
+})
+
+const updateBchartData = (rawData) => {
+  bchartData.value = rawData.flatMap((item) => {
+    // Start with an array containing all positions except 'Picks'
+    const data = [
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.qb_sum : item.qb_starter_sum,
+        position: 'QB',
+        rank: overallFilter.value === 'all' ? item.qb_rank : item.qb_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.rb_sum : item.rb_starter_sum,
+        position: 'RB',
+        rank: overallFilter.value === 'all' ? item.rb_rank : item.rb_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.wr_sum : item.wr_starter_sum,
+        position: 'WR',
+        rank: overallFilter.value === 'all' ? item.wr_rank : item.wr_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.te_sum : item.te_starter_sum,
+        position: 'TE',
+        rank: overallFilter.value === 'all' ? item.te_rank : item.te_starter_rank
+      }
+    ]
+
+    // Add 'Picks' only if overallFilter is set to 'all'
+    if (overallFilter.value === 'all') {
+      data.push({
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: item.picks_sum,
+        position: 'Picks',
+        rank: item.picks_rank
+      })
+    }
+
+    return data
+  })
 }
+
+function getRank(user) {
+  return addOrdinalSuffix(overallFilter.value === 'all' ? user.total_rank : user.starters_rank)
+}
+const sortedSummaryData = computed(() => {
+  if (summaryData.value.length === 0) return []
+
+  return [...summaryData.value].sort((a, b) => {
+    if (overallFilter.value === 'all') {
+      return a.total_rank - b.total_rank
+    } else if (overallFilter.value === 'STARTER') {
+      return a.starters_rank - b.starters_rank
+    }
+  })
+})
+
+watch(overallFilter, () => {
+  // Assuming you have a way to call fetchSummaryData or just update the relevant parts
+  if (summaryData.value.length) {
+    updateBchartData(summaryData.value) // Re-calculate the chart data when filter changes
+  }
+})
 
 const sources = [
   { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
@@ -1799,35 +1691,49 @@ const handleProjChange = async (projectionSource: any) => {
   }
 }
 
-function formatGaugeData(record) {
-  // Assuming 'record' has a property 'usedSpace' you want to display
+const positionTitles = {
+  QB: 'Quarterbacks',
+  RB: 'Runningbacks',
+  WR: 'Wide Receivers',
+  TE: 'Tight Ends',
+  PICKS: 'Picks'
+}
+
+function formatGaugeData(record, overallFilterValue) {
+  // Check if the current view is 'all' or 'starter'
+  const isAll = overallFilter.value === 'all'
+
   return [
     {
-      label: `QB: ${record.qb_sum.toLocaleString()}`,
+      label: `QB: ${isAll ? record.qb_sum.toLocaleString() : record.qb_starter_sum.toLocaleString()}`,
       color: 'rgb(39, 125, 161)',
-      value: record.qb_percent,
-      total: record.qb_value
+      value: isAll ? record.qb_percent : record.qb_starter_percent
     },
     {
-      label: `RB: ${record.rb_sum.toLocaleString()}`,
+      label: `RB: ${isAll ? record.rb_sum.toLocaleString() : record.rb_starter_sum.toLocaleString()}`,
       color: 'rgb(144, 190, 109)',
-      value: record.rb_percent
+      value: isAll ? record.rb_percent : record.rb_starter_percent
     },
     {
-      label: `WR: ${record.wr_sum.toLocaleString()}`,
+      label: `WR: ${isAll ? record.wr_sum.toLocaleString() : record.wr_starter_sum.toLocaleString()}`,
       color: 'rgb(67, 170, 139)',
-      value: record.wr_percent
+      value: isAll ? record.wr_percent : record.wr_starter_percent
     },
     {
-      label: `TE: ${record.te_sum.toLocaleString()}`,
+      label: `TE: ${isAll ? record.te_sum.toLocaleString() : record.te_starter_sum.toLocaleString()}`,
       color: 'rgb(249, 132, 74)',
-      value: record.te_percent
+      value: isAll ? record.te_percent : record.te_starter_percent
     },
-    {
-      label: `Picks: ${record.picks_sum.toLocaleString()}`,
-      color: 'rgba(189, 195, 199, 0.6)',
-      value: record.picks_percent
-    }
+    // Include the Picks data only when viewing 'all'
+    ...(isAll
+      ? [
+          {
+            label: `Picks: ${record.picks_sum.toLocaleString()}`,
+            color: 'rgba(189, 195, 199, 0.6)',
+            value: record.picks_percent
+          }
+        ]
+      : [])
   ]
 }
 
@@ -1950,116 +1856,97 @@ const tradeColumns: Column[] = [
     }
   }
 ]
-const columns: Column[] = [
-  {
-    title: '',
-    dataIndex: 'display_name',
-    key: 'display_name',
-    align: 'left',
-    width: 1
-  },
-  {
-    title: 'Stack Rank',
-    dataIndex: 'display_name',
-    key: 'display_name',
-    align: 'left',
-    slots: { customRender: 'customProgressBar' },
-    width: 220
-  },
+const columns = computed(() => {
+  // Define base columns common to all views
+  let baseColumns = [
+    {
+      title: '',
+      dataIndex: 'display_name',
+      key: 'display_name',
+      align: 'left',
+      width: 1
+    },
+    {
+      title: overallFilter.value === 'all' ? 'Overall Rank' : 'Starter Rank',
+      dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
+      key: 'overall_rank',
+      align: 'center',
+      customRender: ({ record }) =>
+        `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
+      sorter: (a, b) =>
+        overallFilter.value === 'all'
+          ? a.total_rank - b.total_rank
+          : a.starters_rank - b.starters_rank,
+      customCell: (record) => ({
+        style: getCellStyle(
+          overallFilter.value === 'all' ? record.total_rank : record.starters_rank
+        )
+      })
+    },
+    // Map over positions, skipping Picks and Bench when not 'all'
+    ...['QB', 'RB', 'WR', 'TE'].map((position) => ({
+      title: position,
+      dataIndex:
+        overallFilter.value === 'all'
+          ? `${position.toLowerCase()}_rank`
+          : `${position.toLowerCase()}_starter_rank`,
+      key: `${position.toLowerCase()}_rank`,
+      align: 'center',
+      customRender: ({ record }) =>
+        `${addOrdinalSuffix(record[overallFilter.value === 'all' ? `${position.toLowerCase()}_rank` : `${position.toLowerCase()}_starter_rank`])}`,
+      sorter: (a, b) =>
+        a[
+          overallFilter.value === 'all'
+            ? `${position.toLowerCase()}_rank`
+            : `${position.toLowerCase()}_starter_rank`
+        ] -
+        b[
+          overallFilter.value === 'all'
+            ? `${position.toLowerCase()}_rank`
+            : `${position.toLowerCase()}_starter_rank`
+        ],
+      customCell: (record) => ({
+        style: getCellStyle(
+          record[
+            overallFilter.value === 'all'
+              ? `${position.toLowerCase()}_rank`
+              : `${position.toLowerCase()}_starter_rank`
+          ]
+        )
+      })
+    }))
+  ]
 
-  {
-    title: 'Overall',
-    dataIndex: 'total_rank_display',
-    key: 'total_rank_display',
-    align: 'center',
-    slots: { customRender: 'totalValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.total_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.total_rank - b.total_rank
-    }
-  },
-  {
-    title: 'QB',
-    dataIndex: 'qb_rank',
-    key: 'qb_rank',
-    align: 'center',
-    slots: { customRender: 'qbValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.qb_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.qb_rank - b.qb_rank
-    }
-  },
-  {
-    title: 'RB',
-    dataIndex: 'rb_rank',
-    key: 'rb_rank',
-    align: 'center',
-    slots: { customRender: 'rbValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.rb_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.rb_rank - b.rb_rank
-    }
-  },
-  {
-    title: 'WR',
-    dataIndex: 'wr_rank',
-    key: 'wr_rank',
-    align: 'center',
-    slots: { customRender: 'wrValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.wr_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.wr_rank - b.wr_rank
-    }
-  },
-  {
-    title: 'TE',
-    dataIndex: 'te_rank',
-    key: 'te_rank',
-    align: 'center',
-    slots: { customRender: 'teValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.te_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.te_rank - b.te_rank
-    }
-  },
-  {
-    title: 'Picks',
-    dataIndex: 'picks_rank',
-    key: 'picks_rank',
-    align: 'center',
-    slots: { customRender: 'picksValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.picks_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.picks_rank - b.picks_rank
-    }
-  },
-  {
-    title: 'Bench',
-    dataIndex: 'bench_rank',
-    key: 'bench_rank',
-    align: 'center',
-    slots: { customRender: 'benchValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.bench_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.bench_rank - b.bench_rank
-    }
+  // Add Picks and Bench only if 'all'
+  if (overallFilter.value === 'all') {
+    baseColumns = baseColumns.concat([
+      {
+        title: 'Picks',
+        dataIndex: 'picks_rank',
+        key: 'picks_rank',
+        align: 'center',
+        customRender: ({ record }) => `${addOrdinalSuffix(record.picks_rank)}`,
+        sorter: (a, b) => a.picks_rank - b.picks_rank,
+        customCell: (record) => ({
+          style: getCellStyle(record.picks_rank)
+        })
+      },
+      {
+        title: 'Bench',
+        dataIndex: 'bench_rank',
+        key: 'bench_rank',
+        align: 'center',
+        customRender: ({ record }) => `${addOrdinalSuffix(record.bench_rank)}`,
+        sorter: (a, b) => a.bench_rank - b.bench_rank,
+        customCell: (record) => ({
+          style: getCellStyle(record.bench_rank)
+        })
+      }
+    ])
   }
-  // Add more columns as needed
-]
+
+  return baseColumns
+})
 
 const projColumns: Column[] = [
   {
@@ -2254,6 +2141,11 @@ const starterSummaryData = computed(() => {
 })
 
 const getPlayers = (userId) => {
+  const interimData = filteredData.value.filter((item) => item.user_id === userId)
+  return interimData
+}
+
+const getAllPlayers = (userId) => {
   const interimData = detailData.value.filter((item) => item.user_id === userId)
   return interimData
 }
@@ -2334,7 +2226,6 @@ async function fetchSummaryData(
     })
 
     const rawData = response.data
-    const maxTotalValue = Math.max(...rawData.map((item) => item.total_value))
 
     // summaryData.value = response.data // Update this line based on the structure of your actual data
     summaryData.value = response.data.map((item) => {
@@ -2352,55 +2243,22 @@ async function fetchSummaryData(
         te_starter_rank_display: addOrdinalSuffix(item.te_starter_rank),
         picks_rank_display: addOrdinalSuffix(item.picks_rank),
         bench_rank_display: addOrdinalSuffix(item.bench_rank),
-        total_percent: (item.total_value / maxTotalValue) * 100,
-        qb_percent: (item.qb_sum / maxTotalValue) * 100,
-        rb_percent: (item.rb_sum / maxTotalValue) * 100,
-        wr_percent: (item.wr_sum / maxTotalValue) * 100,
-        te_percent: (item.te_sum / maxTotalValue) * 100,
-        picks_percent: (item.picks_sum / maxTotalValue) * 100
+        total_percent: (item.total_value / item.total_value) * 100,
+        qb_percent: (item.qb_sum / item.total_value) * 100,
+        qb_starter_percent: (item.qb_starter_sum / item.starters_sum) * 100,
+        rb_percent: (item.rb_sum / item.total_value) * 100,
+        rb_starter_percent: (item.rb_starter_sum / item.starters_sum) * 100,
+        wr_percent: (item.wr_sum / item.total_value) * 100,
+        wr_starter_percent: (item.wr_starter_sum / item.starters_sum) * 100,
+        te_percent: (item.te_sum / item.total_value) * 100,
+        te_starter_percent: (item.te_starter_sum / item.starters_sum) * 100,
+        picks_percent: (item.picks_sum / item.total_value) * 100
       }
     })
     // Calculate the total sum of all total_values
     const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
 
-    // Example modification to include ranks in the data
-    bchartData.value = rawData.flatMap((item) => [
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.qb_sum,
-        position: 'QB',
-        rank: item.qb_rank // Add rank information
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.rb_sum,
-        position: 'RB',
-        rank: item.rb_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.wr_sum,
-        position: 'WR',
-        rank: item.wr_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.te_sum,
-        position: 'TE',
-        rank: item.te_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.picks_sum,
-        position: 'Picks',
-        rank: item.picks_rank
-      }
-    ])
+    updateBchartData(rawData)
 
     console.log('bchartData', bchartData)
   } catch (error) {
@@ -2675,6 +2533,7 @@ async function fetchDetailData(
     detailIsLoading.value = false
   }
 }
+
 function handleUserClick(user) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
   if (selectedUser.value && selectedUser.value.user_id === user.user_id) {

@@ -23,12 +23,44 @@ const positionColors = {
   TE: 'rgb(249, 132, 74, .9)',
   Picks: 'rgb(70, 70, 70,.625)'
 }
+const positionOrder = ['QB', 'RB', 'WR', 'TE', 'Picks']
+
+// Calculate total values for each display name
+const displayNameTotals = computed(() => {
+  const totals = {}
+  props.chartData.forEach((item) => {
+    if (!totals[item.display_name]) {
+      totals[item.display_name] = 0
+    }
+    totals[item.display_name] += item.value
+  })
+  return totals
+})
+
+// Group and sort data based on total values for display names
+const sortedChartData = computed(() => {
+  // Group data by position
+  const groups = props.chartData.reduce((acc, item) => {
+    if (!acc[item.position]) acc[item.position] = []
+    acc[item.position].push(item)
+    return acc
+  }, {})
+
+  // Sort each group by the total values of display names
+  return positionOrder.flatMap((position) => {
+    return (
+      groups[position]?.sort(
+        (a, b) => displayNameTotals.value[b.display_name] - displayNameTotals.value[a.display_name]
+      ) || []
+    )
+  })
+})
 
 onMounted(() => {
   const maxValue = Math.max(...props.chartData.map((item) => item.value))
   // Initialize the chart with an empty data set initially
   stackedBarPlot = new Bar(chartContainer.value, {
-    data: props.chartData,
+    data: sortedChartData.value,
     isStack: true,
     xField: 'value',
     yField: 'display_name',
@@ -40,6 +72,7 @@ onMounted(() => {
       itemWidth: 50, // Optionally, constrain the width of each legend item
       flipPage: true // Allows pagination in the legend if there are many items
     },
+
     // tooltip: {
     //   // Define custom content function
     //   customContent: (title, items) => {
@@ -64,17 +97,14 @@ onMounted(() => {
     },
     xAxis: {
       nice: false // Disables rounding and padding beyond the max value
-
-      // Additional x-axis configurations can go here
     }
   })
   stackedBarPlot.render()
 })
 
-// Use watchEffect to react to changes in props.chartData
 watchEffect(() => {
-  if (props.chartData.length > 0 && stackedBarPlot) {
-    stackedBarPlot.update({ data: props.chartData })
+  if (sortedChartData.value.length > 0 && stackedBarPlot) {
+    stackedBarPlot.update({ data: sortedChartData.value })
   }
 })
 </script>
