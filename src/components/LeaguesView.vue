@@ -75,7 +75,7 @@
                   </div>
                 </a-col>
               </a-row>
-              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-row justify="space-between" :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col class="gutter-row" :span="12">
                   <div class="gutter-box">
                     <a-tag> {{ league.roster_type }}</a-tag>
