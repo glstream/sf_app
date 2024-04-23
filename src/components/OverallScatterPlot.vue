@@ -47,7 +47,7 @@ onMounted(() => {
     },
     yAxis: {
       title: {
-        text: 'Players Projections'
+        text: 'Player Projections'
       }
     },
     interactions: [
