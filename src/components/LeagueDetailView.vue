@@ -136,9 +136,14 @@
                   </a-avatar-group>
                 </a-col>
               </a-row>
-              <a-row
-                ><a-col :span="24"> <BarChart :chartData="bchartData" /></a-col
-              ></a-row>
+              <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                  <BarChart :chartData="bchartData" />
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                  <ScatterPlot :scatterPlotData="scatterPlotData" />
+                </a-col>
+              </a-row>
               <div class="table-section" style="flex: 2">
                 <a-table
                   :columns="columns"
@@ -1510,7 +1515,10 @@ import Chart from 'primevue/chart'
 import 'primeicons/primeicons.css'
 import ProgressBar from 'primevue/progressbar'
 import BarChart from '@/components/BarChart.vue'
+import ScatterPlot from '@/components/ScatterPlot.vue'
 const bchartData = ref([])
+const scatterPlotData = ref([])
+
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
@@ -1648,6 +1656,29 @@ const updateBchartData = (rawData) => {
   })
 }
 
+const updateScatterPlotData = (rawData) => {
+  scatterPlotData.value = rawData.flatMap((item) => {
+    // Define the positions that will be included in the scatter plot
+    const positions = ['QB', 'RB', 'WR', 'TE']
+
+    // Map over each position to create a data entry for the scatter plot
+    const data = positions.map((position) => {
+      // Define the suffix for properties based on the overallFilter
+      const suffix = overallFilter.value === 'all' ? '' : '_starter'
+
+      return {
+        display_name: item.display_name,
+        value: item[`${position.toLowerCase()}${suffix}_average_value`], // Total value of the position
+        age: item[`${position.toLowerCase()}${suffix}_average_age`], // Conditionally use starter or regular average age
+        position: position,
+        rank: item[`${position.toLowerCase()}${suffix}_rank`] // Use rank based on the filter
+      }
+    })
+
+    return data
+  })
+}
+
 function getRank(user) {
   return addOrdinalSuffix(overallFilter.value === 'all' ? user.total_rank : user.starters_rank)
 }
@@ -1666,7 +1697,8 @@ const sortedSummaryData = computed(() => {
 watch(overallFilter, () => {
   // Assuming you have a way to call fetchSummaryData or just update the relevant parts
   if (summaryData.value.length) {
-    updateBchartData(summaryData.value) // Re-calculate the chart data when filter changes
+    updateBchartData(summaryData.value)
+    updateScatterPlotData(summaryData.value)
   }
 })
 
@@ -2365,6 +2397,7 @@ async function fetchSummaryData(
     const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
 
     updateBchartData(rawData)
+    updateScatterPlotData(rawData)
 
     console.log('bchartData', bchartData)
   } catch (error) {
