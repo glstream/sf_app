@@ -1670,7 +1670,7 @@ const updateScatterPlotData = (rawData) => {
         Manager: item.display_name,
         Value: item[`${position.toLowerCase()}${suffix}_average_value`], // Total value of the position
         Age: item[`${position.toLowerCase()}${suffix}_average_age`], // Conditionally use starter or regular average age
-        Rosition: position,
+        position: position,
         rank: item[`${position.toLowerCase()}${suffix}_rank`] // Use rank based on the filter
       }
     })

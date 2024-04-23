@@ -24,7 +24,7 @@ onMounted(() => {
     data: props.scatterPlotData,
     xField: 'Age',
     yField: 'Value',
-    colorField: 'Position',
+    colorField: 'position',
     sizeField: 'Manager',
     shape: 'circle',
     size: 6,
