@@ -12,6 +12,16 @@ const props = defineProps({
 
 const container = ref(null)
 let scatterPlot = null
+const medianX = calculateMedian(props.scatterPlotData.map((d) => d.Value))
+const medianY = calculateMedian(props.scatterPlotData.map((d) => d.Projection))
+function calculateMedian(numbers) {
+  const sorted = numbers.slice().sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  if (sorted.length % 2 === 0) {
+    return (sorted[middle - 1] + sorted[middle]) / 2
+  }
+  return sorted[middle]
+}
 
 onMounted(() => {
   scatterPlot = new Scatter(container.value, {
@@ -19,11 +29,10 @@ onMounted(() => {
     xField: 'Value',
     yField: 'Projection',
     sizeField: 'Manager',
-    // colorField: 'Manager',
     shape: 'circle',
     size: 7,
     pointStyle: {
-      stroke: '#7777',
+      stroke: '#777',
       lineWidth: 1,
       fill: '#277DA1'
     },
@@ -48,6 +57,78 @@ onMounted(() => {
           start: [{ trigger: 'plot:mousemove', action: 'tooltip:show' }],
           end: [{ trigger: 'plot:mouseleave', action: 'tooltip:hide' }]
         }
+      }
+    ],
+    annotations: [
+      // Lines
+      {
+        type: 'line',
+        start: ['median', 'min'],
+        end: ['median', 'max'],
+        style: {
+          stroke: '#7777',
+          lineWidth: 2,
+          lineDash: [4, 4]
+        }
+      },
+      {
+        type: 'line',
+        start: ['min', 'median'],
+        end: ['max', 'median'],
+        style: {
+          stroke: '#7777',
+          lineWidth: 2,
+          lineDash: [4, 4]
+        }
+      },
+      // Texts
+      {
+        type: 'text',
+        position: ['max', 'max'],
+        content: 'Elite',
+        style: {
+          textAlign: 'right',
+          textBaseline: 'top',
+          fill: '#666'
+        },
+        offsetX: -10,
+        offsetY: 10
+      },
+      {
+        type: 'text',
+        position: ['min', 'max'],
+        content: 'Contenders',
+        style: {
+          textAlign: 'left',
+          textBaseline: 'top',
+          fill: '#666'
+        },
+        offsetX: 10,
+        offsetY: 10
+      },
+      {
+        type: 'text',
+        position: ['min', 'min'],
+        content: 'Teardown',
+        style: {
+          textAlign: 'left',
+          textBaseline: 'bottom',
+          fill: '#666'
+        },
+        offsetX: 10,
+        offsetY: -10
+      },
+      {
+        type: 'text',
+        position: ['max', 'min'],
+        content: 'Rebuilding',
+        style: {
+          textAlign: 'right',
+          textBaseline: 'bottom',
+          fill: '#666'
+        },
+        offsetX: -10,
+        offsetY: -10
       }
     ]
   })

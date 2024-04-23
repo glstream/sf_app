@@ -54,42 +54,44 @@
             <a-row>
               <a-col class="gutter-row" :span="12">
                 <div class="gutter-box-button">
-                  <a-radio-group v-model:value="overallFilter">
-                    <a-radio-button value="all">All Players</a-radio-button>
-                    <a-radio-button value="STARTER">Starters</a-radio-button>
-                  </a-radio-group>
+                  <span style="padding-right: 5px">Proj.</span>
+                  <a-select ref="select" v-model:value="value1" @change="handleProjChange">
+                    <a-select-option value="espn">ESPN</a-select-option>
+                    <a-select-option value="nfl" disabled>NFL</a-select-option>
+                    <a-select-option value="cbs" disabled>CBS</a-select-option>
+                  </a-select>
                 </div>
               </a-col>
               <a-col class="gutter-row" :span="12">
                 <div class="gutter-box-refresh">
-                  <a-flex :gap="5">
-                    <a-dropdown-button :loading="summaryIsLoading">
-                      <img
-                        style="padding-right: 5px"
-                        class="rank-logos"
-                        :src="selectedSource.logo"
-                      />
-                      {{ selectedSource.name }}
-                      <template #overlay>
-                        <a-menu @click="handleMenuClick">
-                          <a-menu-item v-for="source in filteredSources" :key="source.key">
-                            <UserOutlined />
-                            <img
-                              style="padding-right: 5px"
-                              class="rank-logos"
-                              :src="source.logo"
-                            />{{ source.name }}
-                          </a-menu-item>
-                        </a-menu>
-                      </template>
-                    </a-dropdown-button>
-                  </a-flex>
+                  <span style="padding-right: 5px">Ranks:</span>
+                  <a-dropdown-button :loading="summaryIsLoading">
+                    <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
+                    {{ selectedSource.name }}
+                    <template #overlay>
+                      <a-menu @click="handleMenuClick">
+                        <a-menu-item v-for="source in filteredSources" :key="source.key">
+                          <UserOutlined />
+                          <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
+                            source.name
+                          }}
+                        </a-menu-item>
+                      </a-menu>
+                    </template>
+                  </a-dropdown-button>
                 </div>
               </a-col>
-              <a-col class="gutter-row" :span="12">
-                <div class="gutter-box-dropdown"></div>
-              </a-col>
             </a-row>
+            <a-row
+              ><a-col class="gutter-row" :span="12"
+                ><div class="gutter-box-dropdown">
+                  <a-radio-group v-model:value="overallFilter">
+                    <a-radio-button value="all">All Players</a-radio-button>
+                    <a-radio-button value="STARTER">Starters</a-radio-button>
+                  </a-radio-group>
+                </div></a-col
+              ></a-row
+            >
           </div>
         </div>
 
