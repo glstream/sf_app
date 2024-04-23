@@ -42,12 +42,12 @@ onMounted(() => {
     },
     xAxis: {
       title: {
-        text: 'Summary Value'
+        text: 'Rankings Source Value'
       }
     },
     yAxis: {
       title: {
-        text: 'Projection Value'
+        text: 'Players Projections'
       }
     },
     interactions: [
