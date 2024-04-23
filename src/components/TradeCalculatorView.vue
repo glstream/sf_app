@@ -125,7 +125,7 @@
                         class="close-icon"
                         two-tone-color="darkgray"
                         :style="{ fontSize: '22px' }"
-                        @click.stop="removePlayer2(index)"
+                        @click.stop="removePlayer1(index)"
                       />
                     </a-row>
                   </a-card>
@@ -499,6 +499,12 @@ const filteredSources = computed(() => {
     )
   }
   return sources
+})
+watch(rankType, (newVal, oldVal) => {
+  console.log(`Rank type changed from ${oldVal} to ${newVal}`)
+  if (newVal !== oldVal) {
+    clearCalculator()
+  }
 })
 
 const tweetPlayers = () => {
