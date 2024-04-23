@@ -136,12 +136,13 @@
                   </a-avatar-group>
                 </a-col>
               </a-row>
+
               <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
                   <BarChart :chartData="bchartData" />
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                  <ScatterPlot :scatterPlotData="scatterPlotData" />
+                  <OverallScatterPlot :scatterPlotData="OverallScatterPlotData" />
                 </a-col>
               </a-row>
               <div class="table-section" style="flex: 2">
@@ -754,7 +755,6 @@
                   ref="select"
                   v-model:value="value1"
                   style="width: 175px"
-                  @focus="focus"
                   @change="handleProjChange"
                 >
                   <a-select-option value="espn">ESPN</a-select-option>
@@ -893,7 +893,6 @@
                         </div>
                       </template>
                     </a-table>
-                    {{ projDetailData }}
                   </div>
                 </div>
               </a-spin>
@@ -1222,10 +1221,15 @@
                   </a-row>
                 </div>
               </div>
-              <div class="chart-container">
-                <h3>{{ leagueInfo.userName }} &bull; Age and Value Chart</h3>
-                <Chart type="bubble" :data="chartData" :options="chartOptions" />
-              </div>
+              <a-row>
+                <a-col :span="24">
+                  <ScatterPlot :scatterPlotData="scatterPlotData" />
+                </a-col>
+                <!-- <a-col :span="12">
+                  <RadarChart :data="radarChartData" />
+                </a-col> -->
+              </a-row>
+
               <div class="progress-bars-section-mv">
                 <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" class="progress-bars-section-mv">
                   <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
@@ -1516,8 +1520,12 @@ import 'primeicons/primeicons.css'
 import ProgressBar from 'primevue/progressbar'
 import BarChart from '@/components/BarChart.vue'
 import ScatterPlot from '@/components/ScatterPlot.vue'
+import RadarChart from '@/components/RadarChart.vue'
+import OverallScatterPlot from '@/components/OverallScatterPlot.vue'
+
 const bchartData = ref([])
 const scatterPlotData = ref([])
+// const radarChartData = ref([])
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
@@ -1590,7 +1598,7 @@ const isProjectionLoading = ref(false)
 const isTradesLoading = ref(false)
 const clickedManager = ref('')
 
-const value1 = ref('Choose Projection')
+const value1 = ref('espn')
 const overallFilter = ref('all')
 
 const filteredData = computed(() => {
@@ -1678,6 +1686,70 @@ const updateScatterPlotData = (rawData) => {
     return data
   })
 }
+
+// const mergedData = computed(() => {
+//   return summaryData.value
+//     .map((summaryItem) => {
+//       const projection = projSummaryData.value.find(
+//         (projItem) => projItem.user_id === summaryItem.user_id
+//       )
+//       if (projection) {
+//         // Rename projection fields to include a prefix or suffix
+//         return {
+//           ...summaryItem,
+//           qb_projection: projection.qb_value,
+//           rb_projection: projection.rb_value,
+//           wr_projection: projection.wr_value,
+//           te_projection: projection.te_value,
+//           ...projection
+//         }
+//       }
+//       return summaryItem
+//     })
+//     .filter((item) => item && item.user_id === leagueInfo.userId) // Filter for the specific user
+// })
+
+// const radarChartData = computed(() => {
+//   if (mergedData.value.length > 0) {
+//     const user = mergedData.value[0] // Since it should only be one user's data after the filter
+//     return [
+//       { position: 'QB', metric: 'Value', value: user.qb_value },
+//       { position: 'RB', metric: 'Value', value: user.rb_value },
+//       { position: 'WR', metric: 'Value', value: user.wr_value },
+//       { position: 'TE', metric: 'Value', value: user.te_value },
+//       { position: 'QB', metric: 'Projection', value: user.qb_projection },
+//       { position: 'RB', metric: 'Projection', value: user.rb_projection },
+//       { position: 'WR', metric: 'Projection', value: user.wr_projection },
+//       { position: 'TE', metric: 'Projection', value: user.te_projection }
+//     ]
+//   }
+//   return [] // Return an empty array if no data matches
+// })
+
+const OverallScatterPlotData = computed(() => {
+  const suffix = overallFilter.value === 'all' ? 'total_value' : 'starters_value'
+
+  const mergedData = summaryData.value
+    .map((summaryItem) => {
+      const projection = projSummaryData.value.find(
+        (projItem) => projItem.user_id === summaryItem.user_id
+      )
+      return projection
+        ? {
+            display_name: summaryItem.display_name,
+            summaryValue: summaryItem[suffix],
+            projValue: projection[suffix]
+          }
+        : null
+    })
+    .filter((item) => item !== null)
+
+  return mergedData.map((item) => ({
+    Value: item.summaryValue,
+    Projection: item.projValue,
+    Manager: item.display_name
+  }))
+})
 
 function getRank(user) {
   return addOrdinalSuffix(overallFilter.value === 'all' ? user.total_rank : user.starters_rank)
@@ -2177,6 +2249,7 @@ const projColumns: Column[] = [
 ]
 
 onMounted(() => {
+  handleProjChange(value1.value)
   const leagueId = route.params.leagueId as string
   const leagueYear = route.params.leagueYear as string
   const platform = route.params.platform as string
@@ -2398,8 +2471,7 @@ async function fetchSummaryData(
 
     updateBchartData(rawData)
     updateScatterPlotData(rawData)
-
-    console.log('bchartData', bchartData)
+    // updateRadarChartData(rawData)
   } catch (error) {
     console.error('There was an error fetching the leagues summary data:', error)
     message.error('Failed to fetch league summary data.')
@@ -2588,7 +2660,7 @@ const chartData = computed(() => {
 })
 const chartOptions = computed(() => {
   return {
-    responsive: true,
+    responsive: false,
     maintainAspectRatio: false,
     plugins: {
       legend: {
