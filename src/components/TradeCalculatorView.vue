@@ -461,13 +461,15 @@ const dropDownfocus = () => {
   console.log('focus')
 }
 
+const calculateIndex = (value) => {
+  return rankType.value === 'redraft' ? parseInt(value) * 15 : parseInt(value) * 25
+}
+
 const dropDownHandleChange = (value: string) => {
   // Convert the selected value to an integer and multiply by 25 to get the index
-  const index = parseInt(value) * 25
+  const index = calculateIndex(value)
 
-  // Ensure the index is within the bounds of ranksData.value
   if (ranksData.value && index < ranksData.value.length) {
-    // Assuming the property for BPV is named appropriately in your data
     bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
     // console.log(`BPV recalculated to: ${bpv_value}`)
   } else {
@@ -500,12 +502,12 @@ const filteredSources = computed(() => {
   }
   return sources
 })
-watch(rankType, (newVal, oldVal) => {
-  console.log(`Rank type changed from ${oldVal} to ${newVal}`)
-  if (newVal !== oldVal) {
-    clearCalculator()
-  }
-})
+// watch(rankType, (newVal, oldVal) => {
+//   console.log(`Rank type changed from ${oldVal} to ${newVal}`)
+//   if (newVal !== oldVal) {
+//     clearCalculator()
+//   }
+// })
 
 const tweetPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
@@ -1089,13 +1091,14 @@ async function fetchRanks(platform: string, rankType: string) {
       data: player
     }))
 
-    const dropdownValue = parseInt(dropDownValue1.value)
-    const index = Math.min(dropdownValue * 25, ranksData.value.length - 1) // Ensures index is always within bounds
+    // Usage in your function or method
+    const index = calculateIndex(dropDownValue1.value)
+
     if (ranksData.value.length > 0) {
       bpv_value = ranksData.value[index].sf_value
     } else {
       console.warn('No data available to set bpv_value')
-      bpv_value = null // or a default value that makes sense in context
+      bpv_value = null // Or set a default value that makes sense in your context
     }
   } catch (error) {
     console.error('There was an error pulling values...', error)
@@ -1108,9 +1111,13 @@ onMounted(() => {
   fetchRanks(platform.value, rankType.value)
 })
 
-watch(rankType, (newRankType) => {
-  fetchRanks(platform.value, newRankType)
-})
+watch(
+  () => rankType.value,
+  (newVal) => {
+    clearCalculator()
+    fetchRanks(platform.value, newVal)
+  }
+)
 
 watch(ranksData, () => {
   selectedPlayers1.value = selectedPlayers1.value.map((selectedPlayer) => {
