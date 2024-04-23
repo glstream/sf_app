@@ -114,6 +114,7 @@
                             <a-menu-item key="3"> <FileSearchOutlined /> Summary</a-menu-item>
                           </a-menu>
                         </template>
+                        <template #icon><DownOutlined /></template>
                       </a-dropdown-button>
                     </a-tooltip>
                   </div>
@@ -335,7 +336,12 @@ import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 // 3rd Party imports
-import { HomeOutlined, FileSearchOutlined, BarChartOutlined } from '@ant-design/icons-vue'
+import {
+  HomeOutlined,
+  FileSearchOutlined,
+  BarChartOutlined,
+  DownOutlined
+} from '@ant-design/icons-vue'
 import type { SelectProps, MenuProps } from 'ant-design-vue'
 
 import 'primeicons/primeicons.css'
