@@ -22,10 +22,10 @@ let scatterPlot = null
 onMounted(() => {
   scatterPlot = new Scatter(container.value, {
     data: props.scatterPlotData,
-    xField: 'age',
-    yField: 'value',
-    colorField: 'position',
-    sizeField: 'display_name',
+    xField: 'Age',
+    yField: 'Value',
+    colorField: 'Position',
+    sizeField: 'Manager',
     shape: 'circle',
     size: 6,
     tooltip: {
