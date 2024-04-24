@@ -1830,6 +1830,25 @@ const projChartOptions = {
   }
 }
 
+function prepareChartData(data) {
+  const displayName = data.map((item) => item.display_name)
+  const qbSum = data.map((item) => item.qb_sum)
+  const rbSum = data.map((item) => item.rb_sum)
+  const wrSum = data.map((item) => item.wr_sum)
+  const teSum = data.map((item) => item.te_sum)
+
+  projChartData.value = {
+    labels: displayName,
+    responsive: true,
+    datasets: [
+      { label: 'QB', data: qbSum, backgroundColor: 'rgb(39, 125, 161)' },
+      { label: 'RB', data: rbSum, backgroundColor: 'rgb(144, 190, 109)' },
+      { label: 'WR', data: wrSum, backgroundColor: 'rgb(67, 170, 139)' },
+      { label: 'TE', data: teSum, backgroundColor: 'rgb(249, 132, 74)' }
+    ]
+  }
+}
+
 const handleProjChange = async (projectionSource: any) => {
   isProjectionLoading.value = true
   try {
@@ -2251,7 +2270,6 @@ const projColumns: Column[] = [
 ]
 
 onMounted(() => {
-  handleProjChange(value1.value)
   const leagueId = route.params.leagueId as string
   const leagueYear = route.params.leagueYear as string
   const platform = route.params.platform as string
@@ -2416,6 +2434,40 @@ const insertLeagueDetials = async (values: any) => {
       leagueInfo.leagueYear,
       leagueInfo.rankType
     )
+    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid)
+  }
+}
+async function fetchProjectionData(leagueId: string, projectionSource: string, guid: string) {
+  isProjectionLoading.value = true
+  try {
+    const [summaryResponse, detailResponse] = await Promise.all([
+      axios.get(`${apiUrl}/contender_league_summary`, {
+        params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
+      }),
+      axios.get(`${apiUrl}/contender_league_detail`, {
+        params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
+      })
+    ])
+
+    projDetailData.value = detailResponse.data
+
+    projSummaryData.value = summaryResponse.data.map((item) => {
+      return {
+        ...item,
+        total_rank_display: addOrdinalSuffix(item.total_rank),
+        starters_rank_display: addOrdinalSuffix(item.starters_rank),
+        qb_rank_display: addOrdinalSuffix(item.qb_rank),
+        rb_rank_display: addOrdinalSuffix(item.rb_rank),
+        wr_rank_display: addOrdinalSuffix(item.wr_rank),
+        te_rank_display: addOrdinalSuffix(item.te_rank)
+      }
+    })
+
+    prepareChartData(summaryResponse.data)
+  } catch (error) {
+    console.error('Error fetching projection data:', error)
+  } finally {
+    isProjectionLoading.value = false
   }
 }
 async function fetchSummaryData(
@@ -2484,7 +2536,7 @@ async function fetchSummaryData(
 
     if (!userSummary) {
       console.error('No summary data found for user:', leagueInfo.userId)
-      message.error('Load league')
+      message.error('League must be done drafting to view ranks.')
       summaryIsLoading.value = false // Ensure loading is turned off
       return // Exit the function or handle differently as required
     }
