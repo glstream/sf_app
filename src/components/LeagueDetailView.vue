@@ -140,13 +140,17 @@
               </a-row>
 
               <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                <a-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
+                  <h3 class="chart-title">Ranks</h3>
                   <BarChart :chartData="bchartData" />
                 </a-col>
-                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
+                <a-col :xs="0" :sm="0" :md="2" :lg="2" :xl="2"></a-col>
+                <a-col :xs="24" :sm="24" :md="10" :lg="10" :xl="10">
+                  <h3 class="chart-title">Tiers</h3>
                   <OverallScatterPlot :scatterPlotData="OverallScatterPlotData" />
                 </a-col>
               </a-row>
+              <h2 style="text-align: center">Ranks Heat Map</h2>
               <div class="table-section" style="flex: 2">
                 <a-table
                   :columns="columns"
@@ -764,138 +768,147 @@
                   <a-select-option value="cbs" disabled>CBS</a-select-option>
                 </a-select>
               </a-space>
+
               <h2 style="text-align: center">League Projections</h2>
+
               <a-spin :spinning="isProjectionLoading">
                 <div>
-                  <!-- Check if the data is loading and display a loading indicator or empty state -->
-                  <a-empty
-                    v-if="!projChartData.datasets || projChartData.datasets.length === 0"
-                    :image="simpleImage"
-                  />
+                  <a-row>
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+                      <h3 class="chart-title">Projections by team</h3>
+                      <ProjectionBarChart :chartData="projectionBarChartData" />
+                    </a-col>
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+                      <h3 class="chart-title">Rosters - Starters vs Bench %</h3>
+                      <ProjectionPercentColumn
+                        :projectionPercentColumnData="projectionPercentColumnData"
+                      />
+                    </a-col>
+                  </a-row>
 
-                  <div v-else>
-                    <div class="chart-container">
-                      <Chart type="bar" :data="projChartData" :options="projChartOptions" />
-                    </div>
-                    <a-table
-                      :data-source="projSummaryData"
-                      :columns="projColumns"
-                      :pagination="{ pageSize: 20 }"
-                      style="width: 100%; max-width: 1150px"
-                      row-key="user_id"
-                      :expand-column-width="100"
-                      :scroll="{ x: '850px' }"
-                      ><template #expandedRowRender="{ record }">
-                        <div>
-                          <a-divider orientation="center"></a-divider>
-                          <a-row justify="space-between" gutter="[8,8]">
-                            <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
-                              <div>
-                                <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
-                                <ul
-                                  style="padding: 0; list-style: none"
-                                  v-for="player in getPlayersProj(record.user_id)"
-                                >
-                                  <li
-                                    v-if="player.player_position === 'QB'"
-                                    :key="player.sleeper_id"
-                                    :style="getPositionTag(player.player_position, 0.35)"
-                                    style="color: black"
+                  <a-row
+                    ><a-col :span="24">
+                      <h2 style="text-align: center">Projections Heat Map</h2>
+                      <a-table
+                        :data-source="projSummaryData"
+                        :columns="projColumns"
+                        :pagination="{ pageSize: 20 }"
+                        style="width: 100%; max-width: 1150px"
+                        row-key="user_id"
+                        :expand-column-width="100"
+                        :scroll="{ x: '850px' }"
+                        ><template #expandedRowRender="{ record }">
+                          <div>
+                            <a-divider orientation="center"></a-divider>
+                            <a-row justify="space-between" gutter="[8,8]">
+                              <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+                                <div>
+                                  <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+                                  <ul
+                                    style="padding: 0; list-style: none"
+                                    v-for="player in getPlayersProj(record.user_id)"
                                   >
-                                    <span
-                                      >{{ player?.full_name }} &bull;
-                                      {{
-                                        player.player_value === -1
-                                          ? 'N/A'
-                                          : player.player_value?.toLocaleString()
-                                      }}
-                                    </span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </a-col>
+                                    <li
+                                      v-if="player.player_position === 'QB'"
+                                      :key="player.sleeper_id"
+                                      :style="getPositionTag(player.player_position, 0.35)"
+                                      style="color: black"
+                                    >
+                                      <span
+                                        >{{ player?.full_name }} &bull;
+                                        {{
+                                          player.player_value === -1
+                                            ? 'N/A'
+                                            : player.player_value?.toLocaleString()
+                                        }}
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </a-col>
 
-                            <a-col :span="6">
-                              <div>
-                                <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
-                                <ul
-                                  style="padding: 0; list-style: none"
-                                  v-for="player in getPlayersProj(record.user_id)"
-                                >
-                                  <li
-                                    v-if="player.player_position === 'RB'"
-                                    :key="player.sleeper_id"
-                                    :style="getPositionTag(player.player_position, 0.35)"
-                                    style="color: black"
+                              <a-col :span="6">
+                                <div>
+                                  <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+                                  <ul
+                                    style="padding: 0; list-style: none"
+                                    v-for="player in getPlayersProj(record.user_id)"
                                   >
-                                    <span
-                                      >{{ player?.full_name }} &bull;
-                                      {{
-                                        player.player_value === -1
-                                          ? 'N/A'
-                                          : player.player_value?.toLocaleString()
-                                      }}
-                                    </span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </a-col>
+                                    <li
+                                      v-if="player.player_position === 'RB'"
+                                      :key="player.sleeper_id"
+                                      :style="getPositionTag(player.player_position, 0.35)"
+                                      style="color: black"
+                                    >
+                                      <span
+                                        >{{ player?.full_name }} &bull;
+                                        {{
+                                          player.player_value === -1
+                                            ? 'N/A'
+                                            : player.player_value?.toLocaleString()
+                                        }}
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </a-col>
 
-                            <a-col :span="6">
-                              <div>
-                                <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
-                                <ul
-                                  style="padding: 0; list-style: none"
-                                  v-for="player in getPlayersProj(record.user_id)"
-                                >
-                                  <li
-                                    v-if="player.player_position === 'WR'"
-                                    :key="player.sleeper_id"
-                                    :style="getPositionTag(player.player_position, 0.35)"
-                                    style="color: black"
+                              <a-col :span="6">
+                                <div>
+                                  <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+                                  <ul
+                                    style="padding: 0; list-style: none"
+                                    v-for="player in getPlayersProj(record.user_id)"
                                   >
-                                    <span
-                                      >{{ player?.full_name }} &bull;
-                                      {{
-                                        player.player_value === -1
-                                          ? 'N/A'
-                                          : player.player_value?.toLocaleString()
-                                      }}
-                                    </span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </a-col>
-                            <a-col :span="6">
-                              <div>
-                                <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
-                                <ul
-                                  style="padding: 0; list-style: none"
-                                  v-for="player in getPlayersProj(record.user_id)"
-                                >
-                                  <li
-                                    v-if="player.player_position === 'TE'"
-                                    :key="player.sleeper_id"
-                                    :style="getPositionTag(player.player_position, 0.35)"
-                                    style="color: black"
+                                    <li
+                                      v-if="player.player_position === 'WR'"
+                                      :key="player.sleeper_id"
+                                      :style="getPositionTag(player.player_position, 0.35)"
+                                      style="color: black"
+                                    >
+                                      <span
+                                        >{{ player?.full_name }} &bull;
+                                        {{
+                                          player.player_value === -1
+                                            ? 'N/A'
+                                            : player.player_value?.toLocaleString()
+                                        }}
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </a-col>
+                              <a-col :span="6">
+                                <div>
+                                  <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+                                  <ul
+                                    style="padding: 0; list-style: none"
+                                    v-for="player in getPlayersProj(record.user_id)"
                                   >
-                                    <span
-                                      >{{ player?.full_name }} &bull;
-                                      {{
-                                        player.player_value === -1
-                                          ? 'N/A'
-                                          : player.player_value?.toLocaleString()
-                                      }}
-                                    </span>
-                                  </li>
-                                </ul>
-                              </div>
-                            </a-col>
-                          </a-row>
-                        </div>
-                      </template>
-                    </a-table>
-                  </div>
+                                    <li
+                                      v-if="player.player_position === 'TE'"
+                                      :key="player.sleeper_id"
+                                      :style="getPositionTag(player.player_position, 0.35)"
+                                      style="color: black"
+                                    >
+                                      <span
+                                        >{{ player?.full_name }} &bull;
+                                        {{
+                                          player.player_value === -1
+                                            ? 'N/A'
+                                            : player.player_value?.toLocaleString()
+                                        }}
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </a-col>
+                            </a-row>
+                          </div>
+                        </template>
+                      </a-table>
+                    </a-col>
+                  </a-row>
                 </div>
               </a-spin>
             </TabPanel>
@@ -1176,6 +1189,7 @@
 
             <TabPanel header="Manager View">
               <h2 class="tab-sub-header">Team Dashboard</h2>
+              <h3 class="chart-title">Roster</h3>
               <div v-for="manager in summaryData" :key="manager.user_id">
                 <div v-if="manager.user_id === leagueInfo.userId">
                   <a-row :gutter="{ xs: 0, sm: 16, md: 24, lg: 16, xl: 16 }" justify="space-around">
@@ -1225,13 +1239,14 @@
               </div>
               <a-row>
                 <a-col :span="24">
+                  <h3 class="chart-title">Position Groups Average Age by Value</h3>
                   <ScatterPlot :scatterPlotData="scatterPlotData" />
                 </a-col>
                 <!-- <a-col :span="12">
                   <RadarChart :data="radarChartData" />
                 </a-col> -->
               </a-row>
-
+              <h3 class="chart-title">By Position Overall and Starters only</h3>
               <div class="progress-bars-section-mv">
                 <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" class="progress-bars-section-mv">
                   <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
@@ -1502,7 +1517,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -1521,12 +1536,16 @@ import Chart from 'primevue/chart'
 import 'primeicons/primeicons.css'
 import ProgressBar from 'primevue/progressbar'
 import BarChart from '@/components/BarChart.vue'
+import ProjectionBarChart from '@/components/ProjectionBarChart.vue'
+import ProjectionPercentColumn from '@/components/ProjectionPercentColumn.vue'
 import ScatterPlot from '@/components/ScatterPlot.vue'
 import RadarChart from '@/components/RadarChart.vue'
 import OverallScatterPlot from '@/components/OverallScatterPlot.vue'
 
 const bchartData = ref([])
 const scatterPlotData = ref([])
+const projectionBarChartData = ref([])
+const projectionPercentColumnData = ref([])
 // const radarChartData = ref([])
 
 // Custom Utils
@@ -1604,14 +1623,10 @@ const value1 = ref('espn')
 const overallFilter = ref('all')
 
 const filteredData = computed(() => {
-  console.log('Filtering data with', overallFilter.value) // Debug filter value
-  console.log('Current detail data', detailData.value) // Debug data being filtered
-
   if (overallFilter.value === 'all') {
     return detailData.value
   } else {
     return detailData.value.filter((item) => {
-      console.log(item.fantasy_designation) // See each item's designation
       return item.fantasy_designation === overallFilter.value
     })
   }
@@ -1661,6 +1676,43 @@ const updateBchartData = (rawData) => {
         rank: item.picks_rank
       })
     }
+
+    return data
+  })
+}
+
+const updateProjectionData = (rawData) => {
+  projectionBarChartData.value = rawData.flatMap((item) => {
+    const data = [
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.qb_sum : item.qb_starter_sum,
+        position: 'QB',
+        rank: overallFilter.value === 'all' ? item.qb_rank : item.qb_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.rb_sum : item.rb_starter_sum,
+        position: 'RB',
+        rank: overallFilter.value === 'all' ? item.rb_rank : item.rb_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.wr_sum : item.wr_starter_sum,
+        position: 'WR',
+        rank: overallFilter.value === 'all' ? item.wr_rank : item.wr_starter_rank
+      },
+      {
+        display_name:
+          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
+        value: overallFilter.value === 'all' ? item.te_sum : item.te_starter_sum,
+        position: 'TE',
+        rank: overallFilter.value === 'all' ? item.te_rank : item.te_starter_rank
+      }
+    ]
 
     return data
   })
@@ -1774,6 +1826,9 @@ watch(overallFilter, () => {
     updateBchartData(summaryData.value)
     updateScatterPlotData(summaryData.value)
   }
+  if (summaryData.value.length) {
+    updateProjectionData(projSummaryData.value)
+  }
 })
 
 const sources = [
@@ -1813,39 +1868,6 @@ const handleMenuClick: MenuProps['onClick'] = (e) => {
     console.log('error loading leagues')
   } finally {
     console.log('league ranks pull complete')
-  }
-}
-
-const projChartData = ref({})
-
-const projChartOptions = {
-  options: { maintainAspectRatio: false, aspectRatio: 2 },
-  scales: {
-    x: {
-      stacked: true
-    },
-    y: {
-      stacked: true
-    }
-  }
-}
-
-function prepareChartData(data) {
-  const displayName = data.map((item) => item.display_name)
-  const qbSum = data.map((item) => item.qb_sum)
-  const rbSum = data.map((item) => item.rb_sum)
-  const wrSum = data.map((item) => item.wr_sum)
-  const teSum = data.map((item) => item.te_sum)
-
-  projChartData.value = {
-    labels: displayName,
-    responsive: true,
-    datasets: [
-      { label: 'QB', data: qbSum, backgroundColor: 'rgb(39, 125, 161)' },
-      { label: 'RB', data: rbSum, backgroundColor: 'rgb(144, 190, 109)' },
-      { label: 'WR', data: wrSum, backgroundColor: 'rgb(67, 170, 139)' },
-      { label: 'TE', data: teSum, backgroundColor: 'rgb(249, 132, 74)' }
-    ]
   }
 }
 
@@ -2280,7 +2302,17 @@ onMounted(() => {
   if (leagueId && platform && rankType && guid && userId) {
     insertLeagueDetials()
   }
+  window.addEventListener('resize', resizeChart)
 })
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+})
+
+const resizeChart = () => {
+  if (chartInstance) {
+    chartInstance.resize()
+  }
+}
 
 function getPositionColor(position: string): string {
   if (position === 'QB') {
@@ -2448,7 +2480,9 @@ async function fetchProjectionData(leagueId: string, projectionSource: string, g
         params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
       })
     ])
-
+    const rawData = summaryResponse.data
+    console.log('rawData', rawData)
+    updateProjectionData(rawData)
     projDetailData.value = detailResponse.data
 
     projSummaryData.value = summaryResponse.data.map((item) => {
@@ -2463,7 +2497,13 @@ async function fetchProjectionData(leagueId: string, projectionSource: string, g
       }
     })
 
-    prepareChartData(summaryResponse.data)
+    projectionPercentColumnData.value = summaryResponse.data.map((item) => {
+      return {
+        display_name: item.display_name,
+        starters_sum: item.starters_sum, // Ensure this data is provided by your API
+        bench_sum: item.bench_sum // Ensure this data is provided by your API
+      }
+    })
   } catch (error) {
     console.error('Error fetching projection data:', error)
   } finally {
@@ -3175,5 +3215,9 @@ h4 {
   height: 100%;
   border-radius: 5px;
   transition: width 0.3s ease-in-out;
+}
+.chart-title {
+  text-align: center;
+  margin-bottom: 20px; /* Add some space between the title and the chart */
 }
 </style>
