@@ -9,7 +9,7 @@ import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/aura-light-green/theme.css'
 import 'primeicons/primeicons.css'
-import { Chart, registerables } from 'chart.js'
+
 import VueGtag from 'vue-gtag'
 
 const gtag = import.meta.env.VITE_GTAG
@@ -28,6 +28,9 @@ app.use(Antd)
 app.use(PrimeVue)
 app.use(VueGtag, {
   config: { id: gtag }
+})
+app.use(PrimeVue, {
+  unstyled: true
 })
 
 app.mount('#app')

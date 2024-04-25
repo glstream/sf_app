@@ -2,7 +2,7 @@
   <a-layout class="layout">
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '12px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item
           ><a href="/"><home-outlined /></a
@@ -547,10 +547,9 @@ const getCurrentYear = async () => {
   }
 }
 
-/* Media query for screens wider than 768px */
 @media (min-width: 440px) {
   .responsive-padding {
-    padding: 0 200px; /* Larger padding for larger screens */
+    padding: 0 100px;
   }
 }
 .gutter-box {

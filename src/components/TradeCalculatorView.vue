@@ -3,12 +3,6 @@
     <AppHeader />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
-      <a-breadcrumb style="padding: 20px 0">
-        <a-breadcrumb-item
-          ><a href="/"><home-outlined /></a
-        ></a-breadcrumb-item>
-        <a-breadcrumb-item>Trade Calculator</a-breadcrumb-item>
-      </a-breadcrumb>
       <div class="trade-calculator" style="">
         <div>
           <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">

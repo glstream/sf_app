@@ -1,92 +1,67 @@
-<!-- src/components/AppHeader.vue -->
 <template>
-  <a-layout-header :style="{ position: 'fixed', zIndex: 100, width: '100%' }">
-    <img class="logo" :src="logoImg" alt="Logo" />
-    <a-menu theme="dark" mode="horizontal" :default-selected-keys="['1']">
-      <a-menu-item key="1"><router-link to="/">Home</router-link></a-menu-item>
-      <a-menu-item key="3"
-        ><router-link to="/tradecalculator" class="menu-item-link"
-          ><span class="pi pi-calculator"></span> Trade Calculator</router-link
-        ></a-menu-item
-      >
-      <a-menu-item key="2" @click="handleHeaderClick"
-        ><router-link :to="leaguesUrl" class="menu-item-link"
-          ><span class="pi pi-th-large"></span> Leagues</router-link
-        ></a-menu-item
-      >
-
-      <a-menu-item key="4">
-        <router-link to="/ranks" class="menu-item-link">
-          <span class="pi pi-sort-amount-down"></span>
-          <span>Ranks</span>
-        </router-link>
-      </a-menu-item>
-
-      <a-menu-item key="5"
-        ><router-link to="/about" class="menu-item-link"
-          ><span class="pi pi-question-circle"></span> About</router-link
-        ></a-menu-item
-      >
-    </a-menu>
-  </a-layout-header>
+  <a-row align="middle">
+    <a-col style="background-color: white; padding-bottom: 5px">
+      <img :src="logoImg" alt="Logo" style="height: 40px; display: block" />
+    </a-col>
+    <a-col flex="auto">
+      <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" />
+    </a-col>
+  </a-row>
 </template>
-
-<script setup>
-import { computed, ref } from 'vue'
+<script lang="ts" setup>
+import { computed, h, ref } from 'vue'
 import logoImg from '@/assets/logo5.png'
 
 import { useUserStore } from '@/stores/userStore'
-import { CalculatorOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
-import 'primeicons/primeicons.css'
+import { message, MenuProps } from 'ant-design-vue'
+import {
+  HomeOutlined,
+  CalculatorOutlined,
+  SettingOutlined,
+  AppstoreOutlined,
+  OrderedListOutlined,
+  QuestionCircleOutlined
+} from '@ant-design/icons-vue'
 
 const store = useUserStore()
 const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
-const showPrompt = ref(false)
 
-const handleHeaderClick = () => {
-  if (!store.userName) {
-    message.warning('Please fill out your username.') // Show a warning message if username is not set
+const current = ref<string[]>(['mail'])
+const items = ref<MenuProps['items']>([
+  {
+    key: 'home',
+    icon: () => h(HomeOutlined),
+    label: h('a', { href: '/' }, 'Home'),
+    title: 'Home'
+  },
+  {
+    key: 'tradeCalculator',
+    icon: () => h(CalculatorOutlined),
+    label: h('a', { href: '/tradecalculator' }, 'Trade Calculator'),
+    title: 'Trade Calculator'
+  },
+  {
+    key: 'leagues',
+    icon: () => h(AppstoreOutlined),
+    label: h('a', { href: leaguesUrl.value }, 'Leagues'),
+    title: 'Leagues'
+  },
+  {
+    key: 'ranks',
+    icon: () => h(OrderedListOutlined),
+    label: h('a', { href: '/ranks' }, 'Rankings'),
+    title: 'Rankings'
+  },
+  {
+    key: 'about',
+    icon: () => h(QuestionCircleOutlined),
+    label: h('a', { href: '/about' }, 'About'),
+    title: 'About'
   }
-}
+])
 </script>
-
 <style scoped>
 .logo {
-  width: 50px;
-  height: 50px;
-  margin: 5px 0px 0px 0;
-  float: left;
-}
-.site-layout .site-layout-background {
-  background: #fff;
-}
-
-[data-theme='dark'] .site-layout .site-layout-background {
-  background: #141414;
-}
-.menu-item-link {
-  display: flex;
-  align-items: center;
-  justify-content: left;
-  font-size: 16px; /* Default smaller font size for mobile devices */
-}
-
-/* iPhone 5/SE and similar small devices (portrait) */
-@media (min-width: 320px) and (max-width: 480px) {
-  .menu-item-link {
-    font-size: 20px; /* Adjust if different size is desired for small screens */
-  }
-}
-
-/* Larger screens */
-@media (min-width: 481px) {
-  .menu-item-link {
-    font-size: 14px; /* Larger font size for non-small screens */
-  }
-}
-
-.pi {
-  margin-right: 5px;
+  height: 50px; /* Adjust the size as per your design requirement */
 }
 </style>

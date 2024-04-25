@@ -1,12 +1,7 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-breadcrumb style="padding-top: 10px">
-      <a-breadcrumb-item
-        ><a href="/"><home-outlined /></a
-      ></a-breadcrumb-item>
-      <a-breadcrumb-item>Ranks</a-breadcrumb-item>
-    </a-breadcrumb>
+
     <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
       <a-row style="margin-bottom: 20px">
         <a-col :span="12">

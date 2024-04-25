@@ -1,13 +1,9 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
-      <a-breadcrumb style="margin: 16px 0">
-        <a-breadcrumb-item><a href="/">Home</a></a-breadcrumb-item>
-        <a-breadcrumb-item>About</a-breadcrumb-item>
-      </a-breadcrumb>
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '12px' }">
       <div>
-        <h2>Questions</h2>
+        <h2>FAQ</h2>
         <a-collapse v-model:activeKey="activeKeyRankings">
           <a-collapse-panel key="4" header="How are composite SuperFlex ranks made?">
             <p>{{ sfRankingsText }}</p>

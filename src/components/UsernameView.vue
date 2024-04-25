@@ -2,22 +2,21 @@
   <a-layout class="layout">
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '0px' }">
       <a-breadcrumb style="padding-top: 10px">
         <a-breadcrumb-item>
-          <a href="/username"><home-outlined /></a>
+          <a href="/username"></a>
         </a-breadcrumb-item>
       </a-breadcrumb>
-      <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
+      <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
           <a-collapse default-active-key="1">
             <a-collapse-panel header="Welcome to Fantasy Navigator!" key="1">
               <p>
                 Your compass for fantasy football success. Navigate your way to victory in both
                 Dynasty and Redraft formats with our suite of tools. Utilize our Trade Calculator,
-                Rankings, and League Analytics, all powered by popular fantasy markets as well as
-                our own data. Enter your Sleeper username below to take a 1,000 foot view of your
-                league.
+                Rankings, and League Analytics, all powered by popular fantasy markets as our own
+                ranks. Enter your Sleeper username below to take a 1,000 foot view of your league.
               </p>
             </a-collapse-panel>
           </a-collapse>

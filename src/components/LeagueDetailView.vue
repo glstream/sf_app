@@ -1,7 +1,7 @@
 <template>
   <a-layout class="layout">
     <AppHeader />
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '12px' }">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
           ><a href="/"><home-outlined /></a
@@ -2735,23 +2735,6 @@ const getLeagueSummary = async (values: any) => {
   }
 }
 
-const chartData = computed(() => {
-  const positions = ['QB', 'RB', 'WR', 'TE']
-  const colors = {
-    QB: 'rgb(39, 125, 161)',
-    RB: 'rgb(144, 190, 109)',
-    WR: 'rgb(67, 170, 139)',
-    TE: 'rgb(249, 132, 74)'
-  }
-
-  return {
-    datasets: positions.map((position) => ({
-      label: position,
-      data: leagueOwnerDataByPosition(position).value,
-      backgroundColor: colors[position]
-    }))
-  }
-})
 const chartOptions = computed(() => {
   return {
     responsive: false,
@@ -2898,6 +2881,9 @@ const progressBarWidth = computed(() => {
 </script>
 
 <style scoped>
+.layout {
+  min-height: 100vh;
+}
 table {
   border-collapse: collapse;
 }
@@ -3042,7 +3028,7 @@ table {
   padding: 0 10px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 440px) {
   .responsive-padding {
     padding: 0 100px;
   }
