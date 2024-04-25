@@ -27,7 +27,7 @@
         <!-- Form Card -->
         <a-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
           <!-- ... -->
-          <a-card hoverable class="form-card">
+          <a-card class="form-card" :bordered="false">
             <template #cover>
               <img
                 alt="example"

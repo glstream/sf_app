@@ -42,11 +42,6 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
-      path: '/analyitcs',
-      component: () => import('../components/AnalyticsView.vue'),
-      beforeEnter: logNavigation
-    },
-    {
       path: '/about',
       component: () => import('../components/AboutView.vue'),
       beforeEnter: logNavigation
