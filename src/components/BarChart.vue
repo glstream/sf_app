@@ -59,25 +59,25 @@ const sortedChartData = computed(() => {
     )
   })
 })
-const handleResize = () => {
-  stackedBarPlot.update({
-    legend: {
-      position: window.innerWidth < 600 ? 'top' : 'bottom'
-    },
-    label: {
-      style: {
-        fontSize: window.innerWidth < 600 ? '10px' : '12px'
-      }
-    }
-  })
-}
+// const handleResize = () => {
+//   stackedBarPlot.update({
+//     legend: {
+//       position: window.innerWidth < 600 ? 'top' : 'bottom'
+//     },
+//     label: {
+//       style: {
+//         fontSize: window.innerWidth < 600 ? '10px' : '12px'
+//       }
+//     }
+//   })
+// }
 
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
+  // window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  // window.removeEventListener('resize', handleResize)
 })
 
 onMounted(() => {
