@@ -97,7 +97,6 @@
                       backgroundColor: getCardPositionColor(player._position),
                       borderColor: getPositionColor(player._position)
                     }"
-                    style="border-radius: 3px"
                   >
                     <a-row justify="space-between">
                       <a-col :span="12" class="gutter-box-player">
@@ -179,7 +178,6 @@
                       backgroundColor: getCardPositionColor(player._position),
                       borderColor: getPositionColor(player._position)
                     }"
-                    style="border-radius: 3px"
                     ><a-row justify="space-between">
                       <a-col :span="12" class="gutter-box-player">
                         <span>{{ player.player_full_name }}</span>
@@ -1155,7 +1153,7 @@ function getPositionColor(position: string): string {
   } else if (position === 'TE') {
     return 'rgb(249, 132, 74)'
   } else if (position.toUpperCase() === 'PICK') {
-    return 'rgb(248, 150, 30)'
+    return 'rgb(189, 195, 199)'
   } else {
     return 'rgb(0, 0, 0, .00)'
   }
@@ -1163,17 +1161,17 @@ function getPositionColor(position: string): string {
 
 function getCardPositionColor(position: string): string {
   if (position === 'QB') {
-    return 'rgb(77, 144, 142, .15)'
+    return 'rgb(39, 125, 161, .08)'
   } else if (position === 'RB') {
-    return 'rgb(77, 144, 142, .15)'
+    return 'rgb(144, 190, 109, .08)'
   } else if (position === 'WR') {
-    return 'rgb(77, 144, 142, .15)'
+    return 'rgb(67, 170, 139, .08)'
   } else if (position === 'TE') {
-    return 'rgb(77, 144, 142, .15)'
+    return 'rgb(249, 132, 74,.08)'
   } else if (position.toUpperCase() === 'PICK') {
-    return 'rgb(77, 144, 142, .15)'
+    return 'rgb(189, 195, 199, 0.15)'
   } else {
-    return 'rgb(0, 0, 0, .15)'
+    return 'rgb(0, 0, 0, .08)'
   }
 }
 </script>
@@ -1181,7 +1179,7 @@ function getCardPositionColor(position: string): string {
 <style scoped>
 .trade-calculator {
   padding: 40px;
-  background: #f5f5f5;
+  background: white;
   border: 1px solid rgb(39, 125, 161);
   border-radius: 3px;
   min-width: 500px;

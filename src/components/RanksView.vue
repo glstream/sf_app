@@ -396,6 +396,8 @@ function handlePageChange(page) {
   display: flex;
   flex-direction: column;
   padding: 1em;
+  background-color: white;
+  margin-top: 10px;
 }
 
 .header-container {

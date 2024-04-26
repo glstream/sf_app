@@ -10,16 +10,15 @@
       </a-breadcrumb>
       <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
-          <a-collapse default-active-key="1">
-            <a-collapse-panel header="Welcome to Fantasy Navigator!" key="1">
-              <p>
-                Your compass for fantasy football success. Navigate your way to victory in both
-                Dynasty and Redraft formats with our suite of tools. Utilize our Trade Calculator,
-                Rankings, and League Analytics, all powered by popular fantasy markets as our own
-                ranks. Enter your Sleeper username below to take a 1,000 foot view of your league.
-              </p>
-            </a-collapse-panel>
-          </a-collapse>
+          <div style="border: 1px solid lightgray; padding: 1em; border-radius: 5px">
+            <h1>Fantasy Navigator</h1>
+            <span>
+              Navigate your way to victory in both Dynasty and Redraft formats with our suite of
+              tools. Utilize our Trade Calculator, Rankings, and League Analytics, all powered by
+              popular fantasy markets as our own ranks. Enter your Sleeper username below to take a
+              1,000 foot view of your league.
+            </span>
+          </div>
         </a-col>
       </a-row>
       <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
@@ -96,7 +95,7 @@
           </a-card>
         </a-col>
       </a-row>
-      <a-divider>Fantasy Navigator Metrics</a-divider>
+      <a-divider>Navigator Metrics</a-divider>
       <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
         <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
           <a-card>
