@@ -1,9 +1,9 @@
 <template>
-  <div ref="container" style="height: 400px"></div>
+  <div ref="container" :style="{ height: chartHeight }"></div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch, toRef } from 'vue'
+import { onMounted, ref, watch, toRef, computed, onUnmounted } from 'vue'
 import { Scatter } from '@antv/g2plot'
 
 const props = defineProps({
@@ -22,6 +22,11 @@ function calculateMedian(numbers) {
   }
   return sorted[middle]
 }
+const chartHeight = computed(() => {
+  return window.innerHeight > window.innerWidth ? '60vh' : '50vh'
+})
+const pointSize = computed(() => (window.innerWidth < 600 ? 4 : 7))
+const textSize = computed(() => (window.innerWidth < 600 ? 10 : 14))
 
 onMounted(() => {
   scatterPlot = new Scatter(container.value, {
@@ -30,7 +35,8 @@ onMounted(() => {
     yField: 'Projection',
     sizeField: 'Manager',
     shape: 'circle',
-    size: 7,
+    size: pointSize.value,
+    pixelRatio: window.devicePixelRatio,
     pointStyle: {
       stroke: '#777',
       lineWidth: 1,
@@ -60,6 +66,11 @@ onMounted(() => {
       }
     ],
     annotations: [
+      {
+        style: {
+          fontSize: textSize.value
+        }
+      },
       // Lines
       {
         type: 'line',
@@ -134,7 +145,21 @@ onMounted(() => {
   })
   scatterPlot.render()
 })
+const handleResize = () => {
+  scatterPlot.update({
+    // Reconfigure the chart as needed
+    size: pointSize.value,
+    pixelRatio: window.devicePixelRatio
+  })
+}
 
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 watch(
   () => props.scatterPlotData,
   (newData) => {

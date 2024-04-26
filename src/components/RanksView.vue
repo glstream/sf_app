@@ -2,7 +2,7 @@
   <a-layout class="layout">
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
       <a-row style="margin-bottom: 20px">
         <a-col :span="12">
           <div

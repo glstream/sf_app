@@ -1,9 +1,9 @@
 <template>
-  <div ref="chartContainer"></div>
+  <div ref="chartContainer" :style="{ height: chartHeight }"></div>
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect, computed } from 'vue'
+import { ref, onMounted, watchEffect, computed, onUnmounted } from 'vue'
 import { Bar } from '@antv/g2plot'
 
 // Custom Utils
@@ -11,6 +11,10 @@ import { addOrdinalSuffix } from '../utils/suffix'
 
 const props = defineProps({
   chartData: Array
+})
+
+const chartHeight = computed(() => {
+  return window.innerHeight > window.innerWidth ? '60vh' : '50vh'
 })
 
 const chartContainer = ref(null)
@@ -55,6 +59,26 @@ const sortedChartData = computed(() => {
     )
   })
 })
+const handleResize = () => {
+  stackedBarPlot.update({
+    legend: {
+      position: window.innerWidth < 600 ? 'top' : 'bottom'
+    },
+    label: {
+      style: {
+        fontSize: window.innerWidth < 600 ? '10px' : '12px'
+      }
+    }
+  })
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 onMounted(() => {
   const maxValue = Math.max(...props.chartData.map((item) => item.value))
@@ -65,12 +89,20 @@ onMounted(() => {
     xField: 'value',
     yField: 'display_name',
     seriesField: 'position',
-    color: ({ position }) => positionColors[position], // Apply custom colors based on position
+    color: ({ position }) => positionColors[position],
     legend: {
-      position: 'bottom', // top, bottom, left, right
-      itemSpacing: 1, // Reduces the space between legend items
-      itemWidth: 50, // Optionally, constrain the width of each legend item
-      flipPage: true // Allows pagination in the legend if there are many items
+      position: window.innerWidth < 600 ? 'top' : 'bottom',
+      itemSpacing: 8,
+      itemWidth: window.innerWidth < 600 ? 75 : 100,
+      flipPage: true
+    },
+    label: {
+      position: 'middle',
+      content: (data) => `${addOrdinalSuffix(data.rank)}`,
+      style: {
+        fontSize: window.innerWidth < 600 ? '10px' : '12px'
+      },
+      layout: [{ type: 'interval-adjust-position' }, { type: 'interval-hide-overlap' }]
     },
 
     // tooltip: {
@@ -90,11 +122,13 @@ onMounted(() => {
     //     return ''
     //   }
     // },
-    label: {
-      position: 'middle', // adjust based on preference
-      content: (data) => `${addOrdinalSuffix(data.rank)}`, // display rank in labels
-      layout: [{ type: 'interval-adjust-position' }, { type: 'interval-hide-overlap' }]
+    legend: {
+      position: window.innerWidth < 600 ? 'top' : 'bottom',
+      itemSpacing: 8,
+      itemWidth: window.innerWidth < 600 ? 75 : 100,
+      flipPage: true
     },
+
     xAxis: {
       nice: false // Disables rounding and padding beyond the max value
     }
@@ -111,6 +145,7 @@ watchEffect(() => {
 
 <style scoped>
 #chart-container {
-  height: 500px;
+  width: 100%; /* Ensures it fills the container */
+  max-height: 60vh; /* Limits height on larger devices */
 }
 </style>

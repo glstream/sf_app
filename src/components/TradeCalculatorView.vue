@@ -2,7 +2,7 @@
   <a-layout class="layout">
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '64px' }">
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
       <div class="trade-calculator" style="">
         <div>
           <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
