@@ -100,42 +100,51 @@
             <TabPanel header="Overall">
               <h2 class="tab-sub-header">Power Ranks</h2>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col :span="24">
-                  <a-avatar-group
-                    maxCount="10"
-                    maxPopoverPlacement="bottom"
-                    maxPopoverTrigger="hover"
-                    :max-count="12"
-                    class="avatar-group-container"
-                  >
-                    <div v-for="user in sortedSummaryData" :key="user.user_id">
-                      <div
-                        v-if="user.user_id === leagueInfo.userId"
-                        style="position: relative; display: inline-block"
-                      >
-                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            :size="40"
-                            style="border: 2px solid gold"
-                          />
-                        </a-tooltip>
-                        <span class="badge-label">
-                          {{ getRank(user) }}
-                        </span>
-                      </div>
+                <a-col :span="{ xs: 24, sm: 8, md: 8, lg: 8 }">
+                  <div class="avatar-container">
+                    <span class="avatar-title">League Managers</span>
+                    <a-avatar-group
+                      maxCount="10"
+                      maxPopoverPlacement="bottom"
+                      maxPopoverTrigger="hover"
+                      :max-count="12"
+                      class="avatar-group-container"
+                    >
+                      <div v-for="user in sortedSummaryData" :key="user.user_id">
+                        <div
+                          v-if="user.user_id === leagueInfo.userId"
+                          style="position: relative; display: inline-block"
+                        >
+                          <a-tooltip
+                            :title="`${getRank(user)} ${user.display_name}`"
+                            placement="top"
+                          >
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              maxPopoverTrigger="hover"
+                              :size="40"
+                              style="border: 2px solid gold"
+                            />
+                          </a-tooltip>
+                          <span class="badge-label">
+                            {{ getRank(user) }}
+                          </span>
+                        </div>
 
-                      <div v-else>
-                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                          />
-                        </a-tooltip>
+                        <div v-else>
+                          <a-tooltip
+                            :title="`${getRank(user)} ${user.display_name}`"
+                            placement="top"
+                          >
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              maxPopoverTrigger="hover"
+                            />
+                          </a-tooltip>
+                        </div>
                       </div>
-                    </div>
-                  </a-avatar-group>
+                    </a-avatar-group>
+                  </div>
                 </a-col>
               </a-row>
 
@@ -488,45 +497,48 @@
             <TabPanel header="Positions">
               <h2 class="tab-sub-header">Rankings by Position</h2>
               <div style="display: flex; justify-content: left">
-                <a-avatar-group
-                  maxCount="10"
-                  maxPopoverPlacement="bottom"
-                  maxPopoverTrigger="hover"
-                  class="avatar-group-container"
-                >
-                  <div v-for="user in sortedSummaryData" :key="user.user_id">
-                    <div
-                      v-if="user.user_id === leagueInfo.userId"
-                      style="position: relative; display: inline-block"
-                    >
-                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          :size="40"
-                          style="border: 2px solid gold"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                      <span class="badge-label">
-                        {{ getRank(user) }}
-                      </span>
-                    </div>
+                <div class="avatar-container">
+                  <span style="font-size: small" class="avatar-title">Managers (click) </span>
+                  <a-avatar-group
+                    maxCount="10"
+                    maxPopoverPlacement="bottom"
+                    maxPopoverTrigger="hover"
+                    class="avatar-group-container"
+                  >
+                    <div v-for="user in sortedSummaryData" :key="user.user_id">
+                      <div
+                        v-if="user.user_id === leagueInfo.userId"
+                        style="position: relative; display: inline-block"
+                      >
+                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                            :size="40"
+                            style="border: 2px solid gold"
+                            @click="handleUserClick(user)"
+                            class="avatar"
+                          />
+                        </a-tooltip>
+                        <span class="badge-label">
+                          {{ getRank(user) }}
+                        </span>
+                      </div>
 
-                    <div v-else>
-                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          @click="handleUserClick(user)"
-                          :style="avatarStyle(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
+                      <div v-else>
+                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                            @click="handleUserClick(user)"
+                            :style="avatarStyle(user)"
+                            class="avatar"
+                          />
+                        </a-tooltip>
+                      </div>
                     </div>
-                  </div> </a-avatar-group
-                ><span style="font-size: small"> (click to highlight)</span>
+                  </a-avatar-group>
+                </div>
               </div>
 
               <div v-if="selectedUser" class="mirrored-user">
@@ -916,45 +928,48 @@
             <TabPanel header="Players">
               <h2 class="tab-sub-header">All Players in League</h2>
               <div style="display: flex; justify-content: left">
-                <a-avatar-group
-                  maxCount="10"
-                  maxPopoverPlacement="bottom"
-                  maxPopoverTrigger="hover"
-                  class="avatar-group-container"
-                >
-                  <div v-for="user in sortedSummaryData" :key="user.user_id">
-                    <div
-                      v-if="user.user_id === leagueInfo.userId"
-                      style="position: relative; display: inline-block"
-                    >
-                      <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          :size="55"
-                          style="border: 2px solid gold"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                        />
-                      </a-tooltip>
-                      <span class="badge-label">
-                        {{ getRank(user) }}
-                      </span>
-                    </div>
+                <div class="avatar-container">
+                  <span style="font-size: small" class="avatar-title">Managers (click) </span>
+                  <a-avatar-group
+                    maxCount="10"
+                    maxPopoverPlacement="bottom"
+                    maxPopoverTrigger="hover"
+                    class="avatar-group-container"
+                  >
+                    <div v-for="user in sortedSummaryData" :key="user.user_id">
+                      <div
+                        v-if="user.user_id === leagueInfo.userId"
+                        style="position: relative; display: inline-block"
+                      >
+                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                            :size="45"
+                            style="border: 2px solid gold"
+                            @click="handleUserClick(user)"
+                            class="avatar"
+                          />
+                        </a-tooltip>
+                        <span class="badge-label">
+                          {{ getRank(user) }}
+                        </span>
+                      </div>
 
-                    <div v-else>
-                      <a-tooltip :title="`${getRank(user)}${user.display_name}`" placement="top">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                          maxPopoverTrigger="hover"
-                          @click="handleUserClick(user)"
-                          class="avatar"
-                          :style="avatarStyle(user)"
-                        />
-                      </a-tooltip>
+                      <div v-else>
+                        <a-tooltip :title="`${getRank(user)}${user.display_name}`" placement="top">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                            maxPopoverTrigger="hover"
+                            @click="handleUserClick(user)"
+                            class="avatar"
+                            :style="avatarStyle(user)"
+                          />
+                        </a-tooltip>
+                      </div>
                     </div>
-                  </div> </a-avatar-group
-                ><span style="font-size: small"> (click to highlight)</span>
+                  </a-avatar-group>
+                </div>
               </div>
               <div v-if="selectedUser" class="mirrored-user">
                 <div class="user-card">
@@ -2302,17 +2317,7 @@ onMounted(() => {
   if (leagueId && platform && rankType && guid && userId) {
     insertLeagueDetials()
   }
-  window.addEventListener('resize', resizeChart)
 })
-onUnmounted(() => {
-  window.removeEventListener('resize', resizeChart)
-})
-
-const resizeChart = () => {
-  if (chartInstance) {
-    chartInstance.resize()
-  }
-}
 
 function getPositionColor(position: string): string {
   if (position === 'QB') {
@@ -2481,7 +2486,6 @@ async function fetchProjectionData(leagueId: string, projectionSource: string, g
       })
     ])
     const rawData = summaryResponse.data
-    console.log('rawData', rawData)
     updateProjectionData(rawData)
     projDetailData.value = detailResponse.data
 
@@ -2570,7 +2574,6 @@ async function fetchSummaryData(
     console.error('There was an error fetching the leagues summary data:', error)
     message.error('Failed to fetch league summary data.')
   } finally {
-    console.log(summaryData)
     console.log('leagueInfo.userId', leagueInfo.userId)
     const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
 
@@ -3190,7 +3193,7 @@ h4 {
   margin-bottom: 25px;
 }
 .avatar-group-container {
-  margin-bottom: 20px;
+  margin: 10px;
 }
 .progress-container {
   height: 20px;
@@ -3205,5 +3208,22 @@ h4 {
 .chart-title {
   text-align: center;
   margin-bottom: 20px; /* Add some space between the title and the chart */
+}
+.avatar-container {
+  border: 1px solid #696969;
+  border-radius: 5px;
+  background-color: whte;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding: 5px;
+}
+.avatar-title {
+  position: absolute;
+  top: -10px; /* Adjust for overlap */
+  right: -30px; /* Position towards the right */
+  background-color: white;
+  padding: 0 1px;
+  transform: translateX(-50%);
 }
 </style>

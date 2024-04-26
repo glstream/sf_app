@@ -92,8 +92,7 @@ onMounted(() => {
     color: ({ position }) => positionColors[position],
     legend: {
       position: window.innerWidth < 600 ? 'top' : 'bottom',
-      itemSpacing: 8,
-      itemWidth: window.innerWidth < 600 ? 75 : 100,
+      itemSpacing: 12,
       flipPage: true
     },
     label: {

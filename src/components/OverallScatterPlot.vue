@@ -25,8 +25,8 @@ function calculateMedian(numbers) {
 const chartHeight = computed(() => {
   return window.innerHeight > window.innerWidth ? '60vh' : '50vh'
 })
-const pointSize = computed(() => (window.innerWidth < 600 ? 4 : 7))
-const textSize = computed(() => (window.innerWidth < 600 ? 10 : 14))
+const pointSize = computed(() => (window.innerWidth < 600 ? 8 : 5))
+const textSize = computed(() => (window.innerWidth < 600 ? 10 : 16))
 
 onMounted(() => {
   scatterPlot = new Scatter(container.value, {
@@ -38,7 +38,7 @@ onMounted(() => {
     size: pointSize.value,
     pixelRatio: window.devicePixelRatio,
     pointStyle: {
-      stroke: '#777',
+      stroke: '#277DA1',
       lineWidth: 1,
       fill: '#277DA1'
     },
@@ -48,12 +48,12 @@ onMounted(() => {
     },
     xAxis: {
       title: {
-        text: 'Rankings Source Value'
+        text: 'Team Value'
       }
     },
     yAxis: {
       title: {
-        text: 'Player Projections'
+        text: 'Team Projection'
       }
     },
     interactions: [
