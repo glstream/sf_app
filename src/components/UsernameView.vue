@@ -10,8 +10,10 @@
       </a-breadcrumb>
       <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
         <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
-          <div style="border: 1px solid lightgray; padding: 1em; border-radius: 5px">
-            <h1>Fantasy Navigator</h1>
+          <div
+            style="border: 1px solid #577590; padding: 1em; border-radius: 5px; text-align: center"
+          >
+            <h1 class="site-title">Fantasy Navigator</h1>
             <span>
               Navigate your way to victory in both Dynasty and Redraft formats with our suite of
               tools. Utilize our Trade Calculator, Rankings, and League Analytics, all powered by
@@ -22,9 +24,7 @@
         </a-col>
       </a-row>
       <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
-        <!-- Form Card -->
         <a-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
-          <!-- ... -->
           <a-card class="form-card" :bordered="false">
             <template #cover>
               <img
@@ -96,8 +96,12 @@
         </a-col>
       </a-row>
       <a-divider>Navigator Metrics</a-divider>
-      <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
-        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+      <a-row
+        :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }"
+        justify="space-around"
+        style="margin-bottom: 20px"
+      >
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 40px">
           <a-card>
             <template #cover>
               <img
@@ -236,7 +240,7 @@
   </a-layout>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 // Site tags
@@ -251,12 +255,15 @@ import { message } from 'ant-design-vue'
 // Custom Utils
 import { useGuid } from '../utils/guid'
 import { useUserStore } from '@/stores/userStore'
+import { useLeaguesStore } from '@/stores/leaguesStore'
+const { leagues, fetchLeagues } = useLeaguesStore()
 
 // Image imports
 import landingPage from '@/assets/home_page.webp'
 
 // routes and stores
 const store = useUserStore()
+const leagueStore = useLeaguesStore()
 const router = useRouter()
 
 // const instances
@@ -284,8 +291,12 @@ const handleOk = (e: MouseEvent) => {
 
 const userStore = useUserStore()
 
-function updateUserDetails(year, name, guid) {
-  userStore.setUserDetails(year, name, guid)
+async function updateUserDetails(year, name, guid) {
+  try {
+    await userStore.setUserDetails(year, name, guid)
+  } catch (error) {
+    console.error('Failed to update user details:', error)
+  }
 }
 
 const formState = reactive<FormState>({
@@ -315,6 +326,7 @@ const onFinish = async (values) => {
     console.log('Username submission successful')
 
     store.setUserDetails(formState.leagueYear, formState.userName, userGuid)
+    await fetchLeagues(formState.leagueYear, formState.userName, userGuid)
 
     // Redirect to the /leagues endpoint
     router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
@@ -409,5 +421,16 @@ const onFinishFailed = (errorInfo: any) => {
   .layout-content {
     padding: 0 100px; /* More padding for very large screens */
   }
+}
+.site-title {
+  position: absolute;
+  top: -18px;
+  left: 20%;
+  background-color: white;
+  padding: 0 1px;
+  transform: translateX(-50%);
+  border: 1px solid #577590;
+  border-radius: 5px;
+  padding: 0 5px;
 }
 </style>

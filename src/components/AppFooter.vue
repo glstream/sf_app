@@ -1,7 +1,7 @@
 <template>
   <a-layout-footer class="custom-footer">
     <br />
-    <a href="https://twitter.com/fantasynav1" target="_blank">Follow Us on X</a>
+    <a href="https://twitter.com/fantasynav1" target="_blank">Follow on X</a>
     |
     <a href="https://www.buymeacoffee.com/superflex" target="_blank">Donate</a>
     <br />
