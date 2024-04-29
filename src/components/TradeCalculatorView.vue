@@ -704,19 +704,14 @@ const addPlayerToTrade = (player) => {
 }
 
 const totalValueSideA = computed(() => {
-  console.log('selectedPlayers1.value', selectedPlayers1.value)
   const playerValues = selectedPlayers1.value.map((player) => {
     // Convert the values to integers using parseInt or the unary plus operator (+)
     const value = state.checked1 ? parseInt(player.sf_value, 10) : parseInt(player.one_qb_value, 10)
     return value
   })
 
-  console.log('playerValues', playerValues)
-
   // Sort the values after making sure they are integers
   const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
-
-  console.log('Sorted Player Values:', sortedPlayerValues)
 
   // Calculate the trade value with the new function
   return calculateTradeValue(sortedPlayerValues) // Assuming you might want to use the sorted values
@@ -736,9 +731,6 @@ const totalValueSideB = computed(() => {
 let bpv_value: number | null = null
 
 function calculateTradeValue(playerValues, BPV = bpv_value) {
-  console.log('Test Player Value:', playerValues)
-  console.log('BPV Value:', BPV)
-
   // Validate input
   if (
     !Array.isArray(playerValues) ||
@@ -764,16 +756,13 @@ function calculateTradeValue(playerValues, BPV = bpv_value) {
     }
 
     const powerCurveValue = Math.pow(value, k)
-    console.log('PowerCurveValue for value:', value, 'is:', powerCurveValue)
 
     const DRSValue = BPV + Math.pow((powerCurveValue - BPV) / Math.max(1, BPV), 2) * BPV
-    console.log('DRSValue for value:', value, 'is:', DRSValue)
 
     const adjustedValue = Math.max(0, DRSValue)
     return total + adjustedValue
   }, 0)
 
-  console.log('Calculated Trade Value:', tradeValue)
   return tradeValue
 }
 
@@ -856,8 +845,6 @@ const balancingPlayerValue = computed(() => {
   const valueA = totalValueSideA.value
   const valueB = totalValueSideB.value
   const BPV = bpv_value // The baseline player value for the DRS formula
-
-  console.log(valueA, valueB, BPV)
 
   // Notice we're no longer passing k, as it is now managed inside the calculateTradeValue function
   return findBalancingPlayerValue(valueA, valueB, BPV)
@@ -1071,7 +1058,6 @@ async function fetchRanks(platform: string, rankType: string) {
     })
     console.log('Pulling Player Values...')
     ranksData.value = response.data
-    console.log('ranksData', ranksData)
 
     options1.value = ranksData.value.map((player) => ({
       label: `${player.player_full_name} - ${player._position}`, // display name with value

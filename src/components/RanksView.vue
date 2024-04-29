@@ -250,7 +250,6 @@ const filteredData = computed(() => {
 })
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
-  console.log(e.key)
   const platform = e.key
   try {
     fetchRanks(platform)
@@ -309,7 +308,6 @@ async function fetchRanks(platform: string) {
     })
     console.log('Pulling Player Values...')
     ranksData.value = response.data
-    console.log(ranksData.value)
   } catch (error) {
     console.log('There was an error pulling values...')
   } finally {
