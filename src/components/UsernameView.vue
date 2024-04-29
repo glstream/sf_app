@@ -1,263 +1,245 @@
 <template>
-  <a-config-provider :theme="currentTheme">
-    <a-layout class="layout">
-      <theme-toggle-button />
-      <AppHeader />
+  <a-layout class="layout">
+    <theme-toggle-button />
+    <AppHeader />
 
-      <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '0px' }">
-        <a-breadcrumb style="padding-top: 10px">
-          <a-breadcrumb-item>
-            <a href="/username"></a>
-          </a-breadcrumb-item>
-        </a-breadcrumb>
-        <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
-          <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
-            <div
-              style="
-                border: 1px solid #577590;
-                padding: 1em;
-                border-radius: 5px;
-                text-align: center;
-              "
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '0px' }">
+      <a-breadcrumb style="padding-top: 10px">
+        <a-breadcrumb-item>
+          <a href="/username"></a>
+        </a-breadcrumb-item>
+      </a-breadcrumb>
+      <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
+        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
+          <div
+            style="border: 1px solid #577590; padding: 1em; border-radius: 5px; text-align: center"
+          >
+            <h1 class="site-title">Fantasy Navigator</h1>
+            <span>
+              Navigate your way to victory in both Dynasty and Redraft formats with our suite of
+              tools. Utilize our Trade Calculator, Rankings, and League Analytics, all powered by
+              popular fantasy markets as our own ranks. Enter your Sleeper username below to take a
+              1,000 foot view of your league.
+            </span>
+          </div>
+        </a-col>
+      </a-row>
+
+      <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
+        <a-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
+          <a-card class="form-card" :bordered="false">
+            <template #cover>
+              <img
+                alt="example"
+                :src="landingPage"
+                style="width: 100%; height: 300px; object-fit: cover; object-position: center"
+              />
+            </template>
+            <a-form
+              :model="formState"
+              name="basic"
+              autocomplete="off"
+              @finish="onFinish"
+              @finishFailed="onFinishFailed"
+              layout="vertical"
             >
-              <h1 class="site-title">Fantasy Navigator</h1>
-              <span>
-                Navigate your way to victory in both Dynasty and Redraft formats with our suite of
-                tools. Utilize our Trade Calculator, Rankings, and League Analytics, all powered by
-                popular fantasy markets as our own ranks. Enter your Sleeper username below to take
-                a 1,000 foot view of your league.
-              </span>
-            </div>
-          </a-col>
-        </a-row>
+              <a-form-item label="" name="userName" :rules="[{}]">
+                <div style="display: flex; align-items: center; gap: 1px">
+                  <a-input v-model:value="formState.userName" placeholder="Sleeper Username">
+                    <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
+                    <a-button type="primary" @click="showModal">Open Modal</a-button>
+                  </a-input>
+                  <a-button type="text" @click="showModal"><InfoCircleOutlined /></a-button>
+                  <a-modal v-model:open="open" @ok="handleOk">
+                    <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
+                  </a-modal>
+                </div>
+              </a-form-item>
 
-        <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
-          <a-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
-            <a-card class="form-card" :bordered="false">
-              <template #cover>
-                <img
-                  alt="example"
-                  :src="landingPage"
-                  style="width: 100%; height: 300px; object-fit: cover; object-position: center"
-                />
-              </template>
-              <a-form
-                :model="formState"
-                name="basic"
-                autocomplete="off"
-                @finish="onFinish"
-                @finishFailed="onFinishFailed"
-                layout="vertical"
-              >
-                <a-form-item label="" name="userName" :rules="[{}]">
-                  <div style="display: flex; align-items: center; gap: 1px">
-                    <a-input v-model:value="formState.userName" placeholder="Sleeper Username">
-                      <template #prefix
-                        ><UserOutlined style="color: rgba(0, 0, 0, 0.25)"
-                      /></template>
-                      <a-button type="primary" @click="showModal">Open Modal</a-button>
-                    </a-input>
-                    <a-button type="text" @click="showModal"><InfoCircleOutlined /></a-button>
-                    <a-modal v-model:open="open" @ok="handleOk">
-                      <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
-                    </a-modal>
-                  </div>
-                </a-form-item>
+              <a-form-item
+                label=""
+                name="leagueYear"
+                :rules="[{ required: true, message: 'Please select a league year' }]"
+                ><span>Year</span>
+                <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
+                  <a-select-option value="2024">2024</a-select-option>
+                  <a-select-option value="2023">2023</a-select-option>
+                  <a-select-option value="2022">2022</a-select-option>
+                  <a-select-option value="2021">2021</a-select-option>
+                  <!-- Add more years as needed -->
+                </a-select>
+              </a-form-item>
 
-                <a-form-item
-                  label=""
-                  name="leagueYear"
-                  :rules="[{ required: true, message: 'Please select a league year' }]"
-                  ><span>Year</span>
-                  <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
-                    <a-select-option value="2024">2024</a-select-option>
-                    <a-select-option value="2023">2023</a-select-option>
-                    <a-select-option value="2022">2022</a-select-option>
-                    <a-select-option value="2021">2021</a-select-option>
-                    <!-- Add more years as needed -->
-                  </a-select>
-                </a-form-item>
-
-                <a-form-item>
-                  <a-row :gutter="16">
-                    <a-col :span="12">
-                      <a-button
-                        type="default"
-                        html-type="button"
-                        :block="true"
-                        :loading="demoFormIsLoading"
-                        @click="navigateToDemoPage"
-                        >Try a Demo</a-button
-                      >
-                    </a-col>
-                    <a-col :span="12">
-                      <a-button
-                        type="primary"
-                        html-type="submit"
-                        :block="true"
-                        :loading="formIsLoading"
-                        >Submit</a-button
-                      >
-                    </a-col>
-                  </a-row>
-                </a-form-item>
-              </a-form>
-            </a-card>
-          </a-col>
-        </a-row>
-        <a-divider>Navigator Metrics</a-divider>
-        <a-row
-          :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }"
-          justify="space-around"
-          style="margin-bottom: 20px"
-        >
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 40px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/power_ranks.png"
-                  alt="League Composition Metrics"
-                  style="width: 100%"
-                />
+              <a-form-item>
+                <a-row :gutter="16">
+                  <a-col :span="12">
+                    <a-button
+                      type="default"
+                      html-type="button"
+                      :block="true"
+                      :loading="demoFormIsLoading"
+                      @click="navigateToDemoPage"
+                      >Try a Demo</a-button
+                    >
+                  </a-col>
+                  <a-col :span="12">
+                    <a-button
+                      type="primary"
+                      html-type="submit"
+                      :block="true"
+                      :loading="formIsLoading"
+                      >Submit</a-button
+                    >
+                  </a-col>
+                </a-row>
+              </a-form-item>
+            </a-form>
+          </a-card>
+        </a-col>
+      </a-row>
+      <a-divider>Navigator Metrics</a-divider>
+      <a-row
+        :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }"
+        justify="space-around"
+        style="margin-bottom: 20px"
+      >
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 40px">
+          <a-card>
+            <template #cover>
+              <img
+                src="@/assets/site/power_ranks.png"
+                alt="League Composition Metrics"
+                style="width: 100%"
+              />
+            </template>
+            <a-card-meta title="League Composition Metrics">
+              <template #description>
+                Dive into detailed analytics of your league's structure and dynamics, understanding
+                the distribution of player skills and team strengths.
               </template>
-              <a-card-meta title="League Composition Metrics">
-                <template #description>
-                  Dive into detailed analytics of your league's structure and dynamics,
-                  understanding the distribution of player skills and team strengths.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/league_details.png"
-                  alt="Players Stack Ranked"
-                  style="width: 100%"
-                />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img
+                src="@/assets/site/league_details.png"
+                alt="Players Stack Ranked"
+                style="width: 100%"
+              />
+            </template>
+            <a-card-meta title="Manager League Summary">
+              <template #description>
+                Compare your leagues roster across all rankings sources with custom rankimgs built
+                for your league settings.
               </template>
-              <a-card-meta title="Manager League Summary">
-                <template #description>
-                  Compare your leagues roster across all rankings sources with custom rankimgs built
-                  for your league settings.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/league_position.png"
-                  alt="Players Stack Ranked"
-                  style="width: 100%"
-                />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img
+                src="@/assets/site/league_position.png"
+                alt="Players Stack Ranked"
+                style="width: 100%"
+              />
+            </template>
+            <a-card-meta title="Players Stack Ranked">
+              <template #description>
+                Compare your roster against the league with stack rankings to identify your
+                strengths and uncover potential trade opportunities.
               </template>
-              <a-card-meta title="Players Stack Ranked">
-                <template #description>
-                  Compare your roster against the league with stack rankings to identify your
-                  strengths and uncover potential trade opportunities.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/trade_calc.png"
-                  alt="Trade Calculator"
-                  style="width: 100%"
-                />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/trade_calc.png" alt="Trade Calculator" style="width: 100%" />
+            </template>
+            <a-card-meta title="Trade Calculator">
+              <template #description>
+                Discover a more precise way to evaluate your trades with our advanced Trade
+                Calculator. Our Calculator considers a wide array of factors to ensure you receive
+                an accurate assessment. Plus, with our new sharing feature, you can easily post
+                trade details and gather opinions from others.
               </template>
-              <a-card-meta title="Trade Calculator">
-                <template #description>
-                  Discover a more precise way to evaluate your trades with our advanced Trade
-                  Calculator. Our Calculator considers a wide array of factors to ensure you receive
-                  an accurate assessment. Plus, with our new sharing feature, you can easily post
-                  trade details and gather opinions from others.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img src="@/assets/site/agevalue.png" alt="Age Vs Value" style="width: 100%" />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/agevalue.png" alt="Age Vs Value" style="width: 100%" />
+            </template>
+            <a-card-meta title="Age Vs Value Analysis">
+              <template #description>
+                Gain insights into how a player's age correlates with their market value, helping
+                you strategize long-term team development and make smarter trade decisions.
               </template>
-              <a-card-meta title="Age Vs Value Analysis">
-                <template #description>
-                  Gain insights into how a player's age correlates with their market value, helping
-                  you strategize long-term team development and make smarter trade decisions.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img src="@/assets/site/projections.png" alt="Projections" style="width: 100%" />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/projections.png" alt="Projections" style="width: 100%" />
+            </template>
+            <a-card-meta title="Projections">
+              <template #description>
+                Leverage projections from leading analysts to strategize your next moves and
+                optimize your lineup for upcoming matches.
               </template>
-              <a-card-meta title="Projections">
-                <template #description>
-                  Leverage projections from leading analysts to strategize your next moves and
-                  optimize your lineup for upcoming matches.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/leagueSummary.png"
-                  alt="Summary Views"
-                  style="width: 100%"
-                />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/leagueSummary.png" alt="Summary Views" style="width: 100%" />
+            </template>
+            <a-card-meta title="Single League Summary">
+              <template #description>
+                Get a comprehensive overview a league from multiple different ranking sources.
               </template>
-              <a-card-meta title="Single League Summary">
-                <template #description>
-                  Get a comprehensive overview a league from multiple different ranking sources.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img
-                  src="@/assets/site/roster_view_manager.png"
-                  alt="Projections"
-                  style="width: 100%"
-                />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img
+                src="@/assets/site/roster_view_manager.png"
+                alt="Projections"
+                style="width: 100%"
+              />
+            </template>
+            <a-card-meta title="Team Composition">
+              <template #description>
+                See the makeup of your team and compare it to the rest of the league.
               </template>
-              <a-card-meta title="Team Composition">
-                <template #description>
-                  See the makeup of your team and compare it to the rest of the league.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-          <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
-            <a-card>
-              <template #cover>
-                <img src="@/assets/site/leagueView.png" alt="Projections" style="width: 100%" />
+            </a-card-meta>
+          </a-card>
+        </a-col>
+        <a-col :xs="24" :sm="12" :md="6" :lg="8" :xl="8" style="padding-top: 20px">
+          <a-card>
+            <template #cover>
+              <img src="@/assets/site/leagueView.png" alt="Projections" style="width: 100%" />
+            </template>
+            <a-card-meta title="Rosters By Manager">
+              <template #description>
+                Explore detailed roster compositions across your league to pinpoint trade
+                opportunities and analyze manager strategies, helping you build a competitive edge.
               </template>
-              <a-card-meta title="Rosters By Manager">
-                <template #description>
-                  Explore detailed roster compositions across your league to pinpoint trade
-                  opportunities and analyze manager strategies, helping you build a competitive
-                  edge.
-                </template>
-              </a-card-meta>
-            </a-card>
-          </a-col>
-        </a-row>
-      </a-layout-content>
-      <AppFooter />
-    </a-layout>
-  </a-config-provider>
+            </a-card-meta>
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-layout-content>
+    <AppFooter />
+  </a-layout>
 </template>
 <script lang="ts" setup>
 import { reactive, ref, onMounted, onUnmounted, computed } from 'vue'
@@ -311,9 +293,7 @@ interface FormState {
   leagueYear: string
 }
 
-onMounted(() => {
-  themeStore.initializeTheme()
-})
+onMounted(() => {})
 
 const showModal = () => {
   open.value = true

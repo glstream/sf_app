@@ -1,377 +1,375 @@
 <template>
-  <a-config-provider :theme="currentTheme">
-    <a-layout class="layout">
-      <theme-toggle-button />
-      <AppHeader />
+  <a-layout class="layout">
+    <theme-toggle-button />
+    <AppHeader />
 
-      <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-        <div class="trade-calculator" style="">
-          <div>
-            <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
-              <a-col class="gutter-box-options-left" :xs="12" :sm="12" :md="12" :lg="12"
-                ><a-radio-group v-model:value="rankType" button-style="solid" size="small">
-                  <a-radio-button value="dynasty">Dynasty</a-radio-button>
-                  <a-radio-button value="redraft">Redraft</a-radio-button>
-                </a-radio-group></a-col
-              >
-              <a-col class="gutter-box-refresh" :xs="12" :sm="12" :md="12" :lg="12"
-                ><a-dropdown-button>
-                  Share
-                  <template #overlay>
-                    <a-menu @click="handleShareClick">
-                      <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                        <img class="social-logos" :src="source.logo" />
-                      </a-menu-item>
-                    </a-menu>
-                  </template>
-                  <template #icon><ShareAltOutlined /></template>
-                </a-dropdown-button>
-                <a-button type="text" @click="showModal"><QuestionCircleOutlined /> </a-button>
-                <a-modal v-model:open="open" @ok="handleOk">
-                  <p>
-                    Fantasy Navigator Rankings are derived from an extensive array of sources,
-                    including millions of crowd-sourced data points, expert consensus rankings, and
-                    real trade analyses. This comprehensive approach ensures that our rankings are
-                    not only well-informed but also reflect the most current trends and insights in
-                    fantasy sports.
-                  </p>
-                </a-modal></a-col
-              >
-            </a-row>
-            <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
-              <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-left">
-                <a-flex :gap="10" :wrap="true" style="align-items: center">
-                  <a-switch
-                    size="large"
-                    v-model:checked="state.checked1"
-                    checked-children="Superflex"
-                    un-checked-children="OneQB"
-                  />
-                  <div>
-                    <a-select
-                      ref="select"
-                      v-model:value="dropDownValue1"
-                      :options="dropDownOptions1"
-                      @focus="dropDownfocus"
-                      @change="dropDownHandleChange"
-                    ></a-select>
+    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
+      <div class="trade-calculator" style="">
+        <div>
+          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
+            <a-col class="gutter-box-options-left" :xs="12" :sm="12" :md="12" :lg="12"
+              ><a-radio-group v-model:value="rankType" button-style="solid" size="small">
+                <a-radio-button value="dynasty">Dynasty</a-radio-button>
+                <a-radio-button value="redraft">Redraft</a-radio-button>
+              </a-radio-group></a-col
+            >
+            <a-col class="gutter-box-refresh" :xs="12" :sm="12" :md="12" :lg="12"
+              ><a-dropdown-button>
+                Share
+                <template #overlay>
+                  <a-menu @click="handleShareClick">
+                    <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                      <img class="social-logos" :src="source.logo" />
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+                <template #icon><ShareAltOutlined /></template>
+              </a-dropdown-button>
+              <a-button type="text" @click="showModal"><QuestionCircleOutlined /> </a-button>
+              <a-modal v-model:open="open" @ok="handleOk">
+                <p>
+                  Fantasy Navigator Rankings are derived from an extensive array of sources,
+                  including millions of crowd-sourced data points, expert consensus rankings, and
+                  real trade analyses. This comprehensive approach ensures that our rankings are not
+                  only well-informed but also reflect the most current trends and insights in
+                  fantasy sports.
+                </p>
+              </a-modal></a-col
+            >
+          </a-row>
+          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
+            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-left">
+              <a-flex :gap="10" :wrap="true" style="align-items: center">
+                <a-switch
+                  size="large"
+                  v-model:checked="state.checked1"
+                  checked-children="Superflex"
+                  un-checked-children="OneQB"
+                />
+                <div>
+                  <a-select
+                    ref="select"
+                    v-model:value="dropDownValue1"
+                    :options="dropDownOptions1"
+                    @focus="dropDownfocus"
+                    @change="dropDownHandleChange"
+                  ></a-select>
 
-                    <span style="font-size: 16px; margin-left: 5px">Team</span>
-                  </div>
-                  <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
-                    <span style="font-size: 16px">TE Premium</span>
-                  </a-checkbox>
-                </a-flex>
-              </a-col>
-              <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-right">
-                <a-flex :gap="0"> </a-flex>
-              </a-col>
-            </a-row>
-          </div>
-          <a-divider></a-divider>
-          <a-row :gutter="100" class="teams">
-            <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-              <div>
-                <div class="search-bar-container">
-                  <a-auto-complete
-                    v-model:value="value1"
-                    :options="options1"
-                    :allow-clear="true"
-                    style="width: 100%"
-                    placeholder="Team A..."
-                    @select="selectPlayer1"
-                    @search="searchPlayer1"
-                  />
+                  <span style="font-size: 16px; margin-left: 5px">Team</span>
                 </div>
-                <div
-                  v-for="(player, index) in selectedPlayers1"
-                  :key="player.player_full_name"
-                  class="player-card"
-                >
-                  <a-badge-ribbon
-                    :text="player._position"
-                    :color="getPositionColor(player._position)"
-                  >
-                    <a-card
-                      size="small"
-                      :bordered="true"
-                      :style="{
-                        backgroundColor: getCardPositionColor(player._position),
-                        borderColor: getPositionColor(player._position)
-                      }"
-                    >
-                      <a-row justify="space-between">
-                        <a-col :span="12" class="gutter-box-player">
-                          <span>{{ player.player_full_name }}</span>
-                        </a-col>
-                        <a-col :span="6" class="gutter-box">
-                          <span class="age-value" v-if="player.age !== null"
-                            >Age {{ player.age }}</span
-                          >
-                        </a-col>
-
-                        <a-col :span="4" class="gutter-box-value">
-                          <span class="player-value">{{
-                            state.checked1 ? player.sf_value : player.one_qb_value
-                          }}</span>
-                        </a-col>
-
-                        <MinusCircleTwoTone
-                          class="close-icon"
-                          two-tone-color="darkgray"
-                          :style="{ fontSize: '22px' }"
-                          @click.stop="removePlayer1(index)"
-                        />
-                      </a-row>
-                    </a-card>
-                  </a-badge-ribbon>
-                </div>
-                <div v-if="addAdjustmentA">
-                  <a-card size="small" :bordered="true" class="va-card">
-                    <div class="card-content">
-                      <span> Value Adjustment </span>
-                      <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
-                    </div>
-                  </a-card>
-
-                  <div class="total-assets-container">
-                    <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
-                    <div class="total-value">
-                      Total Value:
-                      {{ Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString() }}
-                    </div>
-                  </div>
-                </div>
-                <div v-else>
-                  <div class="total-assets-container">
-                    <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
-                    <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
-                  </div>
-                </div>
-              </div>
+                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
+                  <span style="font-size: 16px">TE Premium</span>
+                </a-checkbox>
+              </a-flex>
             </a-col>
-            <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
-            <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-              <div>
-                <div class="search-bar-container">
-                  <a-auto-complete
-                    v-model:value="value2"
-                    :options="options2"
-                    :allow-clear="true"
-                    style="width: 100%"
-                    placeholder="Team B..."
-                    @select="selectPlayer2"
-                    @search="searchPlayer2"
-                  />
-                </div>
-                <div
-                  v-for="(player, index) in selectedPlayers2"
-                  :key="player.player_full_name"
-                  class="player-card"
-                >
-                  <a-badge-ribbon
-                    :text="player._position"
-                    :color="getPositionColor(player._position)"
-                  >
-                    <a-card
-                      size="small"
-                      :bordered="true"
-                      :style="{
-                        backgroundColor: getCardPositionColor(player._position),
-                        borderColor: getPositionColor(player._position)
-                      }"
-                      ><a-row justify="space-between">
-                        <a-col :span="12" class="gutter-box-player">
-                          <span>{{ player.player_full_name }}</span>
-                        </a-col>
-                        <a-col :span="6" class="gutter-box">
-                          <span class="age-value" v-if="player.age !== null"
-                            >Age {{ player.age }}</span
-                          >
-                        </a-col>
-
-                        <a-col :span="4" class="gutter-box-value">
-                          <span class="player-value">{{
-                            state.checked1 ? player.sf_value : player.one_qb_value
-                          }}</span>
-                        </a-col>
-
-                        <MinusCircleTwoTone
-                          class="close-icon"
-                          two-tone-color="darkgray"
-                          :style="{ fontSize: '22px' }"
-                          @click.stop="removePlayer2(index)"
-                        />
-                      </a-row>
-                    </a-card>
-                  </a-badge-ribbon>
-                </div>
-                <div v-if="showCardB">
-                  <a-card size="small" :bordered="true" class="va-card">
-                    <div class="card-content">
-                      <span> Value Adjustment </span>
-                      <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
-                    </div>
-                  </a-card>
-
-                  <div class="total-assets-container">
-                    <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
-                    <div class="total-value">
-                      Total Value:
-                      {{ Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString() }}
-                    </div>
-                  </div>
-                </div>
-                <div v-else>
-                  <div class="total-assets-container">
-                    <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
-                    <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
-                  </div>
-                </div>
-              </div>
+            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-right">
+              <a-flex :gap="0"> </a-flex>
             </a-col>
           </a-row>
-          <div class="trade-comparison" style="padding-top: 10px">
-            <a-row type="flex" justify="center" style="padding-bottom: 10px">
-              <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
-                <div v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
-                  <a-card
-                    v-if="aFavoredTrade"
-                    style="
-                      background: rgb(249, 65, 68, 0.1);
-                      display: flex;
-                      flex-direction: column;
-                      justify-content: center;
-                      align-items: center;
-                      text-align: center;
-                      font-size: 18px;
-                    "
-                    size="small"
-                  >
-                    <div>
-                      <ArrowLeftOutlined style="padding-right: 20px" class="arrow-icon" />
-                      <span>Favors Team A</span>
-                    </div>
-                    <div>
-                      Add
-                      <span style="font-weight: bold">{{
-                        Math.round(balancingPlayerValue).toLocaleString()
-                      }}</span>
-                      to balance trade
-                      <ArrowRightOutlined style="padding-left: 15px" class="arrow-icon" />
-                    </div>
-                  </a-card>
-                  <a-card
-                    v-if="bFavoredTrade"
-                    style="
-                      background: rgb(249, 65, 68, 0.1);
-                      display: flex;
-                      flex-direction: column;
-                      justify-content: center;
-                      align-items: center;
-                      text-align: center;
-                      font-size: 18px;
-                    "
-                    size="small"
-                  >
-                    <div>
-                      <span>Favors Team B</span>
-                      <ArrowRightOutlined style="padding-left: 20px" class="arrow-icon" />
-                    </div>
-
-                    <div>
-                      <ArrowLeftOutlined style="padding-right: 15px" class="arrow-icon" />
-                      Add
-                      <span style="font-weight: bold">{{
-                        Math.round(balancingPlayerValue).toLocaleString()
-                      }}</span>
-                      to balance trade
-                    </div>
-                  </a-card>
-                  <a-card
-                    v-if="isFairTrade"
-                    style="
-                      background: rgb(144, 190, 109, 0.3);
-                      display: flex;
-                      flex-direction: column;
-                      justify-content: center;
-                      align-items: center;
-                      text-align: center;
-                      font-size: 20px;
-                    "
-                    ><DoubleLeftOutlined style="padding-right: 25px" />Balanced
-                    <DoubleRightOutlined style="padding-left: 25px"
-                  /></a-card>
-                </div>
-              </a-col>
-            </a-row>
-            <a-collapse :bordered="false">
-              <a-collapse-panel key="1" header="Options">
-                <a-row type="flex" justify="left">
-                  <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
-                    <div class="slider-label">Acceptable Variance</div>
-                    <a-slider max="25" v-model:value="percentThreshold" />
-                    <span> {{ percentThreshold }}%</span>
-                  </a-col>
-                </a-row>
-              </a-collapse-panel>
-            </a-collapse>
-            <div
-              v-if="
-                tradeAnalysis.percentageDifference > percentThreshold &&
-                closestBalancingPlayers.length > 0
-              "
-              class="nearest-players"
-            >
-              <div>
-                <h3>Players to Help Balance</h3>
-                <div
-                  v-for="player in closestBalancingPlayers"
-                  :key="player.player_full_name"
-                  class="player-card-nearest"
+        </div>
+        <a-divider></a-divider>
+        <a-row :gutter="100" class="teams">
+          <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+            <div>
+              <div class="search-bar-container">
+                <a-auto-complete
+                  v-model:value="value1"
+                  :options="options1"
+                  :allow-clear="true"
+                  style="width: 100%"
+                  placeholder="Team A..."
+                  @select="selectPlayer1"
+                  @search="searchPlayer1"
+                />
+              </div>
+              <div
+                v-for="(player, index) in selectedPlayers1"
+                :key="player.player_full_name"
+                class="player-card"
+              >
+                <a-badge-ribbon
+                  :text="player._position"
+                  :color="getPositionColor(player._position)"
                 >
-                  <a-badge-ribbon
-                    :text="player._position"
-                    :color="getPositionColor(player._position)"
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
                   >
-                    <a-card
-                      size="small"
-                      :bordered="true"
-                      :style="{
-                        backgroundColor: getCardPositionColor(player._position),
-                        borderColor: getPositionColor(player._position)
-                      }"
-                      style="border-radius: 3px"
-                    >
-                      <div class="card-content">
+                    <a-row justify="space-between">
+                      <a-col :span="12" class="gutter-box-player">
                         <span>{{ player.player_full_name }}</span>
+                      </a-col>
+                      <a-col :span="6" class="gutter-box">
+                        <span class="age-value" v-if="player.age !== null"
+                          >Age {{ player.age }}</span
+                        >
+                      </a-col>
+
+                      <a-col :span="4" class="gutter-box-value">
                         <span class="player-value">{{
                           state.checked1 ? player.sf_value : player.one_qb_value
                         }}</span>
-                        <PlusCircleTwoTone
-                          class="close-icon"
-                          two-tone-color="#90BE6D"
-                          :style="{ fontSize: '22px' }"
-                          @click.stop="addPlayerToTrade(player)"
-                        />
-                      </div>
-                    </a-card>
-                  </a-badge-ribbon>
+                      </a-col>
+
+                      <MinusCircleTwoTone
+                        class="close-icon"
+                        two-tone-color="darkgray"
+                        :style="{ fontSize: '22px' }"
+                        @click.stop="removePlayer1(index)"
+                      />
+                    </a-row>
+                  </a-card>
+                </a-badge-ribbon>
+              </div>
+              <div v-if="addAdjustmentA">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span> Value Adjustment </span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
+                  </div>
+                </a-card>
+
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
+                  <div class="total-value">
+                    Total Value:
+                    {{ Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString() }}
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
+                  <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
                 </div>
               </div>
             </div>
-          </div>
+          </a-col>
+          <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
+          <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+            <div>
+              <div class="search-bar-container">
+                <a-auto-complete
+                  v-model:value="value2"
+                  :options="options2"
+                  :allow-clear="true"
+                  style="width: 100%"
+                  placeholder="Team B..."
+                  @select="selectPlayer2"
+                  @search="searchPlayer2"
+                />
+              </div>
+              <div
+                v-for="(player, index) in selectedPlayers2"
+                :key="player.player_full_name"
+                class="player-card"
+              >
+                <a-badge-ribbon
+                  :text="player._position"
+                  :color="getPositionColor(player._position)"
+                >
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                    ><a-row justify="space-between">
+                      <a-col :span="12" class="gutter-box-player">
+                        <span>{{ player.player_full_name }}</span>
+                      </a-col>
+                      <a-col :span="6" class="gutter-box">
+                        <span class="age-value" v-if="player.age !== null"
+                          >Age {{ player.age }}</span
+                        >
+                      </a-col>
 
-          <div class="actions">
-            <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
-              <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
-            </a-space>
+                      <a-col :span="4" class="gutter-box-value">
+                        <span class="player-value">{{
+                          state.checked1 ? player.sf_value : player.one_qb_value
+                        }}</span>
+                      </a-col>
+
+                      <MinusCircleTwoTone
+                        class="close-icon"
+                        two-tone-color="darkgray"
+                        :style="{ fontSize: '22px' }"
+                        @click.stop="removePlayer2(index)"
+                      />
+                    </a-row>
+                  </a-card>
+                </a-badge-ribbon>
+              </div>
+              <div v-if="showCardB">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span> Value Adjustment </span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
+                  </div>
+                </a-card>
+
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
+                  <div class="total-value">
+                    Total Value:
+                    {{ Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString() }}
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="total-assets-container">
+                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
+                  <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
+                </div>
+              </div>
+            </div>
+          </a-col>
+        </a-row>
+        <div class="trade-comparison" style="padding-top: 10px">
+          <a-row type="flex" justify="center" style="padding-bottom: 10px">
+            <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
+              <div v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
+                <a-card
+                  v-if="aFavoredTrade"
+                  style="
+                    background: rgb(249, 65, 68, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    font-size: 18px;
+                  "
+                  size="small"
+                >
+                  <div>
+                    <ArrowLeftOutlined style="padding-right: 20px" class="arrow-icon" />
+                    <span>Favors Team A</span>
+                  </div>
+                  <div>
+                    Add
+                    <span style="font-weight: bold">{{
+                      Math.round(balancingPlayerValue).toLocaleString()
+                    }}</span>
+                    to balance trade
+                    <ArrowRightOutlined style="padding-left: 15px" class="arrow-icon" />
+                  </div>
+                </a-card>
+                <a-card
+                  v-if="bFavoredTrade"
+                  style="
+                    background: rgb(249, 65, 68, 0.1);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    font-size: 18px;
+                  "
+                  size="small"
+                >
+                  <div>
+                    <span>Favors Team B</span>
+                    <ArrowRightOutlined style="padding-left: 20px" class="arrow-icon" />
+                  </div>
+
+                  <div>
+                    <ArrowLeftOutlined style="padding-right: 15px" class="arrow-icon" />
+                    Add
+                    <span style="font-weight: bold">{{
+                      Math.round(balancingPlayerValue).toLocaleString()
+                    }}</span>
+                    to balance trade
+                  </div>
+                </a-card>
+                <a-card
+                  v-if="isFairTrade"
+                  style="
+                    background: rgb(144, 190, 109, 0.3);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    font-size: 20px;
+                  "
+                  ><DoubleLeftOutlined style="padding-right: 25px" />Balanced
+                  <DoubleRightOutlined style="padding-left: 25px"
+                /></a-card>
+              </div>
+            </a-col>
+          </a-row>
+          <a-collapse :bordered="false">
+            <a-collapse-panel key="1" header="Options">
+              <a-row type="flex" justify="left">
+                <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
+                  <div class="slider-label">Acceptable Variance</div>
+                  <a-slider max="25" v-model:value="percentThreshold" />
+                  <span> {{ percentThreshold }}%</span>
+                </a-col>
+              </a-row>
+            </a-collapse-panel>
+          </a-collapse>
+          <div
+            v-if="
+              tradeAnalysis.percentageDifference > percentThreshold &&
+              closestBalancingPlayers.length > 0
+            "
+            class="nearest-players"
+          >
+            <div>
+              <h3>Players to Help Balance</h3>
+              <div
+                v-for="player in closestBalancingPlayers"
+                :key="player.player_full_name"
+                class="player-card-nearest"
+              >
+                <a-badge-ribbon
+                  :text="player._position"
+                  :color="getPositionColor(player._position)"
+                >
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                    style="border-radius: 3px"
+                  >
+                    <div class="card-content">
+                      <span>{{ player.player_full_name }}</span>
+                      <span class="player-value">{{
+                        state.checked1 ? player.sf_value : player.one_qb_value
+                      }}</span>
+                      <PlusCircleTwoTone
+                        class="close-icon"
+                        two-tone-color="#90BE6D"
+                        :style="{ fontSize: '22px' }"
+                        @click.stop="addPlayerToTrade(player)"
+                      />
+                    </div>
+                  </a-card>
+                </a-badge-ribbon>
+              </div>
+            </div>
           </div>
         </div>
-        <AppFooter />
-      </a-layout-content>
-    </a-layout>
-  </a-config-provider>
+
+        <div class="actions">
+          <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
+            <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
+          </a-space>
+        </div>
+      </div>
+      <AppFooter />
+    </a-layout-content>
+  </a-layout>
 </template>
 
 <script lang="ts" setup>
@@ -1102,21 +1100,7 @@ async function fetchRanks(platform: string, rankType: string) {
     isLoading.value = false
   }
 }
-import { useThemeStore } from '@/stores/theme'
-
-const themeStore = useThemeStore()
-import { theme } from 'ant-design-vue'
-const { useToken } = theme
-const isDarkMode = ref(false)
-
-const currentTheme = computed(() => {
-  return themeStore.isDarkMode
-    ? { algorithm: theme.darkAlgorithm }
-    : { algorithm: theme.defaultAlgorithm }
-})
 onMounted(() => {
-  themeStore.initializeTheme()
-
   fetchRanks(platform.value, rankType.value)
 })
 

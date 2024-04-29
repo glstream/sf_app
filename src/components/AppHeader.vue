@@ -73,7 +73,7 @@ const items = ref<MenuProps['items']>([
   {
     key: 'Leagues',
     icon: () => h(AppstoreOutlined),
-    label: 'Leagues',
+    label: h('a', { href: leaguesUrl.value }, 'Leagues'),
     title: 'Leagues',
     children: leagueGroups.value
   },

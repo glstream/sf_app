@@ -455,7 +455,6 @@ import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import HoverButton from '@/components/HoverButton.vue'
 
 // 3rd Party imports
 import axios from 'axios'

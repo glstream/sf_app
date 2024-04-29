@@ -71,9 +71,11 @@ const sortedChartData = computed(() => {
 //     }
 //   })
 // }
-
+const handleTouchStart = (event) => {
+  // Handle the start of a touch event
+}
 onMounted(() => {
-  // window.addEventListener('resize', handleResize)
+  window.addEventListener('touchstart', handleTouchStart, { passive: true })
 })
 
 onUnmounted(() => {

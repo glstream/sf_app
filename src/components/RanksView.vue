@@ -6,6 +6,26 @@
       <AppHeader />
 
       <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
+        <a-row>
+          <a-col :span="24">
+            <div style="float: right">
+              <a-dropdown-button :loading="isLoading">
+                <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
+                {{ selectedSource.name }}
+                <template #overlay>
+                  <a-menu @click="handleMenuClick">
+                    <a-menu-item v-for="source in filteredSources" :key="source.key">
+                      <UserOutlined />
+                      <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
+                        source.name
+                      }}
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown-button>
+            </div></a-col
+          >
+        </a-row>
         <a-row style="margin-bottom: 20px">
           <a-col :span="12">
             <div
@@ -38,24 +58,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </a-col>
-          <a-col :span="12">
-            <div style="float: right">
-              <a-dropdown-button :loading="isLoading">
-                <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-                {{ selectedSource.name }}
-                <template #overlay>
-                  <a-menu @click="handleMenuClick">
-                    <a-menu-item v-for="source in filteredSources" :key="source.key">
-                      <UserOutlined />
-                      <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                        source.name
-                      }}
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown-button>
             </div>
           </a-col>
         </a-row>
