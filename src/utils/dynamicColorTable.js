@@ -29,7 +29,6 @@ export function getCellStyle(rank) {
 
   return {
     backgroundColor: `rgba(${red}, ${green}, ${blue}, 0.55)`,
-    color: `rgba(${textAndBorderColor.r}, ${textAndBorderColor.g}, ${textAndBorderColor.b})`,
     border: `1px solid rgba(${textAndBorderColor.r}, ${textAndBorderColor.g}, ${textAndBorderColor.b})`
   }
 }

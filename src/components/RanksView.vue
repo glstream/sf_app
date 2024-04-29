@@ -1,141 +1,150 @@
 <template>
-  <a-layout class="layout">
-    <AppHeader />
+  <a-config-provider :theme="currentTheme">
+    <a-layout class="layout">
+      <theme-toggle-button />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-      <a-row style="margin-bottom: 20px">
-        <a-col :span="12">
-          <div
-            style="
-              padding-bottom: 5px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <div class="switch-container">
-              <div title="Settings">
-                <div class="setting-item">
-                  <a-switch
-                    id="switch1"
-                    size="large"
-                    v-model:checked="state.checked1"
-                    checked-children="Superflex"
-                    un-checked-children="OneQB"
-                  />
-                </div>
-                <div class="setting-item">
-                  <a-switch
-                    id="switch2"
-                    size="large"
-                    v-model:checked="state.checked2"
-                    checked-children="Dynasty"
-                    un-checked-children="Redraft"
-                  />
+      <AppHeader />
+
+      <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
+        <a-row style="margin-bottom: 20px">
+          <a-col :span="12">
+            <div
+              style="
+                padding-bottom: 5px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div class="switch-container">
+                <div title="Settings">
+                  <div class="setting-item">
+                    <a-switch
+                      id="switch1"
+                      size="large"
+                      v-model:checked="state.checked1"
+                      checked-children="Superflex"
+                      un-checked-children="OneQB"
+                    />
+                  </div>
+                  <div class="setting-item">
+                    <a-switch
+                      id="switch2"
+                      size="large"
+                      v-model:checked="state.checked2"
+                      checked-children="Dynasty"
+                      un-checked-children="Redraft"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </a-col>
-        <a-col :span="12">
-          <div style="float: right">
-            <a-dropdown-button :loading="isLoading">
-              <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-              {{ selectedSource.name }}
-              <template #overlay>
-                <a-menu @click="handleMenuClick">
-                  <a-menu-item v-for="source in filteredSources" :key="source.key">
-                    <UserOutlined />
-                    <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                      source.name
-                    }}
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown-button>
-          </div>
-        </a-col>
-      </a-row>
-      <a-row>
-        <a-col :span="20">
-          <a-checkbox
-            v-model:checked="checkState.checkAll"
-            :indeterminate="checkState.indeterminate"
-            @change="onCheckAllChange"
-          >
-            Check all
-          </a-checkbox>
-          <a-checkbox-group v-model:value="checkState.checkedList" :options="plainOptions" />
-        </a-col>
-        <a-col :span="4">
-          <a-button type="default" @click="downloadData" style="float: right">
-            <DownloadOutlined />
-          </a-button>
-        </a-col>
-      </a-row>
-      <a-spin :spinning="isLoading">
-        <div class="card-list">
-          <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="16">
-              <div class="gutter-box-playername">RANK</div>
-            </a-col>
-            <a-col class="gutter-row" :span="2">
-              <div class="gutter-box"></div>
-            </a-col>
-            <a-col class="gutter-row" :span="2">
-              <div class="gutter-box">AGE</div>
-            </a-col>
-            <a-col class="gutter-row" :span="4">
-              <div class="gutter-box">VALUE</div>
-            </a-col>
-          </a-row>
-
-          <div v-for="(asset, index) in paginatedData" :key="asset._rownum">
-            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="ranks-row">
+          </a-col>
+          <a-col :span="12">
+            <div style="float: right">
+              <a-dropdown-button :loading="isLoading">
+                <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
+                {{ selectedSource.name }}
+                <template #overlay>
+                  <a-menu @click="handleMenuClick">
+                    <a-menu-item v-for="source in filteredSources" :key="source.key">
+                      <UserOutlined />
+                      <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
+                        source.name
+                      }}
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+              </a-dropdown-button>
+            </div>
+          </a-col>
+        </a-row>
+        <a-row>
+          <a-col :span="20">
+            <a-checkbox
+              v-model:checked="checkState.checkAll"
+              :indeterminate="checkState.indeterminate"
+              @change="onCheckAllChange"
+            >
+              Check all
+            </a-checkbox>
+            <a-checkbox-group v-model:value="checkState.checkedList" :options="plainOptions" />
+          </a-col>
+          <a-col :span="4">
+            <a-button type="default" @click="downloadData" style="float: right">
+              <DownloadOutlined />
+            </a-button>
+          </a-col>
+        </a-row>
+        <a-spin :spinning="isLoading">
+          <div class="card-list">
+            <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }">
               <a-col class="gutter-row" :span="16">
-                <div class="gutter-box-playername">
-                  <a-avatar shape="square" class="avatar">{{
-                    (currentPage - 1) * perPage + index + 1
-                  }}</a-avatar>
-
-                  <div class="player-name">{{ asset.player_full_name }}</div>
-                  <a-tag class="position-tag" :style="getPositionTag(asset._position)"
-                    >{{ asset._position }} {{ asset.pos_ranked }}</a-tag
-                  >
-                </div>
+                <div class="gutter-box-playername">RANK</div>
               </a-col>
               <a-col class="gutter-row" :span="2">
-                <div v-if="asset.team" class="gutter-box">{{ asset.team }}</div>
-                <div v-else class="gutter-box">--</div>
+                <div class="gutter-box"></div>
               </a-col>
               <a-col class="gutter-row" :span="2">
-                <div v-if="asset.age" class="gutter-box">{{ asset.age }}</div>
-                <div v-else class="gutter-box">--</div>
+                <div class="gutter-box">AGE</div>
               </a-col>
               <a-col class="gutter-row" :span="4">
-                <div class="gutter-box-value">{{ asset.player_value.toLocaleString() }}</div>
+                <div class="gutter-box">VALUE</div>
               </a-col>
             </a-row>
+
+            <div v-for="(asset, index) in paginatedData" :key="asset._rownum">
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="ranks-row">
+                <a-col class="gutter-row" :span="16">
+                  <div class="gutter-box-playername">
+                    <a-avatar shape="square" class="avatar">{{
+                      (currentPage - 1) * perPage + index + 1
+                    }}</a-avatar>
+
+                    <div class="player-name">{{ asset.player_full_name }}</div>
+                    <a-tag class="position-tag" :style="getPositionTag(asset._position)"
+                      >{{ asset._position }} {{ asset.pos_ranked }}</a-tag
+                    >
+                  </div>
+                </a-col>
+                <a-col class="gutter-row" :span="2">
+                  <div v-if="asset.team" class="gutter-box">{{ asset.team }}</div>
+                  <div v-else class="gutter-box">--</div>
+                </a-col>
+                <a-col class="gutter-row" :span="2">
+                  <div v-if="asset.age" class="gutter-box">{{ asset.age }}</div>
+                  <div v-else class="gutter-box">--</div>
+                </a-col>
+                <a-col class="gutter-row" :span="4">
+                  <div class="gutter-box-value">{{ asset.player_value.toLocaleString() }}</div>
+                </a-col>
+              </a-row>
+            </div>
           </div>
-        </div>
-        <a-pagination
-          :current="currentPage"
-          :total="filteredData.length"
-          :pageSize="perPage"
-          @change="handlePageChange"
-        ></a-pagination>
-      </a-spin>
-    </a-layout-content>
-    <AppFooter />
-  </a-layout>
+          <a-pagination
+            :current="currentPage"
+            :total="filteredData.length"
+            :pageSize="perPage"
+            @change="handlePageChange"
+          ></a-pagination>
+        </a-spin>
+      </a-layout-content>
+      <AppFooter />
+    </a-layout>
+  </a-config-provider>
 </template>
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
+
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 // 3rd Party imports
 import axios from 'axios'
@@ -162,6 +171,16 @@ const checkState = reactive({
   indeterminate: true,
   checkAll: false,
   checkedList: ['QB', 'RB', 'WR', 'TE', 'PICK']
+})
+
+import { theme } from 'ant-design-vue'
+const { useToken } = theme
+const isDarkMode = ref(false)
+
+const currentTheme = computed(() => {
+  return themeStore.isDarkMode
+    ? { algorithm: theme.darkAlgorithm }
+    : { algorithm: theme.defaultAlgorithm }
 })
 
 const onCheckAllChange = (e: any) => {
@@ -202,6 +221,7 @@ const state = reactive({
 })
 
 onMounted(() => {
+  themeStore.initializeTheme()
   fetchRanks(platform.value)
 })
 
@@ -396,7 +416,6 @@ function handlePageChange(page) {
   display: flex;
   flex-direction: column;
   padding: 1em;
-  background-color: white;
   margin-top: 10px;
 }
 

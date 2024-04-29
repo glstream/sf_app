@@ -1,49 +1,69 @@
 <template>
-  <a-layout class="layout">
-    <AppHeader />
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '12px' }">
-      <div>
-        <h2>FAQ</h2>
-        <a-collapse v-model:activeKey="activeKeyRankings">
-          <a-collapse-panel key="4" header="How are composite SuperFlex ranks made?">
-            <p>{{ sfRankingsText }}</p>
-          </a-collapse-panel>
-          <a-collapse-panel key="5" header="What are Power Rankings?">
-            <p>
-              Dynasty Rankings are sourced from Keep Trade Cut, Fantasy Pros, Fantasy Calc and
-              Dynasty Process. These rankings are the best way to determine the power of your team
-              from a dynasty league perspective. They combine player values from those sites with
-              your fantasy football league. The teams are then ranked based on thier total aggregate
-              values. The heatmap table shown has rankings for each of the aggregate position groups
-              QB, RB, WR, and TE as well as aggregates for your starters, bench, and draft picks.
-              You can hover over the table to see the actual values.
-            </p>
-          </a-collapse-panel>
-          <a-collapse-panel key="6" header="How does the trade calculator work?">
-            <p>
-              The SuperFlex Trade Value Calculator utilizes a sophisticated algorithm designed to
-              assess player values in the complex ecosystem of fantasy football. It's built on the
-              foundation of understanding that not all players are created equal. Our model goes
-              beyond simple metrics, taking into account the inherent scarcity of top-tier talent
-              and the real-world constraints of roster spots. It dynamically adjusts player values,
-              ensuring that the rare gems are valued according to their true scarcity and impact,
-              while also considering the diminishing returns of stacking multiple lower-tier players
-              against elite options. This approach allows for more nuanced and strategic
-              decision-making to give you an edge in your fantasy football league.
-            </p>
-          </a-collapse-panel>
-        </a-collapse>
-      </div>
-    </a-layout-content>
-    <AppFooter />
-  </a-layout>
+  <a-config-provider :theme="currentTheme">
+    <a-layout class="layout">
+      <theme-toggle-button />
+      <AppHeader />
+      <a-layout-content
+        class="responsive-padding"
+        :style="{ padding: '0 50px', marginTop: '12px' }"
+      >
+        <div>
+          <h2>FAQ</h2>
+          <a-collapse v-model:activeKey="activeKeyRankings">
+            <a-collapse-panel key="4" header="How are composite SuperFlex ranks made?">
+              <p>{{ sfRankingsText }}</p>
+            </a-collapse-panel>
+            <a-collapse-panel key="5" header="What are Power Rankings?">
+              <p>
+                Dynasty Rankings are sourced from Keep Trade Cut, Fantasy Pros, Fantasy Calc and
+                Dynasty Process. These rankings are the best way to determine the power of your team
+                from a dynasty league perspective. They combine player values from those sites with
+                your fantasy football league. The teams are then ranked based on thier total
+                aggregate values. The heatmap table shown has rankings for each of the aggregate
+                position groups QB, RB, WR, and TE as well as aggregates for your starters, bench,
+                and draft picks. You can hover over the table to see the actual values.
+              </p>
+            </a-collapse-panel>
+            <a-collapse-panel key="6" header="How does the trade calculator work?">
+              <p>
+                The SuperFlex Trade Value Calculator utilizes a sophisticated algorithm designed to
+                assess player values in the complex ecosystem of fantasy football. It's built on the
+                foundation of understanding that not all players are created equal. Our model goes
+                beyond simple metrics, taking into account the inherent scarcity of top-tier talent
+                and the real-world constraints of roster spots. It dynamically adjusts player
+                values, ensuring that the rare gems are valued according to their true scarcity and
+                impact, while also considering the diminishing returns of stacking multiple
+                lower-tier players against elite options. This approach allows for more nuanced and
+                strategic decision-making to give you an edge in your fantasy football league.
+              </p>
+            </a-collapse-panel>
+          </a-collapse>
+        </div>
+      </a-layout-content>
+      <AppFooter />
+    </a-layout>
+  </a-config-provider>
 </template>
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useThemeStore } from '@/stores/theme'
+
+const themeStore = useThemeStore()
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+
+import { theme } from 'ant-design-vue'
+const { useToken } = theme
+const isDarkMode = ref(false)
+
+const currentTheme = computed(() => {
+  return themeStore.isDarkMode
+    ? { algorithm: theme.darkAlgorithm }
+    : { algorithm: theme.defaultAlgorithm }
+})
 
 const activeKeyCalculator = ref(['1'])
 const activeKeyRankings = ref(['4'])

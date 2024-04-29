@@ -8,7 +8,6 @@ import Antd from 'ant-design-vue'
 import PrimeVue from 'primevue/config'
 
 import 'primevue/resources/themes/aura-light-green/theme.css'
-import 'primeicons/primeicons.css'
 
 import VueGtag from 'vue-gtag'
 
@@ -29,8 +28,8 @@ app.use(PrimeVue)
 app.use(VueGtag, {
   config: { id: gtag }
 })
-app.use(PrimeVue, {
-  unstyled: true
-})
+// app.use(PrimeVue, {
+//   unstyled: true
+// })
 
 app.mount('#app')

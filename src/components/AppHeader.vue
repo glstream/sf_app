@@ -1,8 +1,5 @@
 <template>
   <a-row align="middle">
-    <a-col style="background-color: white; padding-bottom: 5px">
-      <img :src="logoImg" alt="Logo" style="height: 40px; display: block" />
-    </a-col>
     <a-col flex="auto">
       <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" />
     </a-col>
@@ -95,7 +92,8 @@ const items = ref<MenuProps['items']>([
 ])
 </script>
 <style scoped>
-.logo {
-  height: 50px; /* Adjust the size as per your design requirement */
+.transparent-bg {
+  background-color: transparent !important;
+  height: 50px;
 }
 </style>
