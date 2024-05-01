@@ -58,8 +58,8 @@
                   <span style="padding-right: 5px">Proj.</span>
                   <a-select ref="select" v-model:value="value1" @change="handleProjChange">
                     <a-select-option value="espn">ESPN</a-select-option>
+                    <a-select-option value="cbs">CBS</a-select-option>
                     <a-select-option value="nfl" disabled>NFL</a-select-option>
-                    <a-select-option value="cbs" disabled>CBS</a-select-option>
                   </a-select>
                 </div>
               </a-col>
@@ -784,8 +784,8 @@
                   @change="handleProjChange"
                 >
                   <a-select-option value="espn">ESPN</a-select-option>
+                  <a-select-option value="cbs">CBS</a-select-option>
                   <a-select-option value="nfl" disabled>NFL</a-select-option>
-                  <a-select-option value="cbs" disabled>CBS</a-select-option>
                 </a-select>
               </a-space>
 
@@ -1933,38 +1933,29 @@ const handleProjChange = async (projectionSource: any) => {
       }
     })
 
-    const responseData = summaryResponse.data
-    const displayName = responseData.map((item: any) => item.display_name)
-    const qbSum = responseData.map((item: any) => item.qb_sum)
-    const rbSum = responseData.map((item: any) => item.rb_sum)
-    const wrSum = responseData.map((item: any) => item.wr_sum)
-    const teSum = responseData.map((item: any) => item.te_sum)
-    projChartData.value = {
-      labels: displayName,
-      responsive: true,
-      datasets: [
-        {
-          label: 'QB',
-          data: qbSum,
-          backgroundColor: 'rgb(39, 125, 161)' // example color
-        },
-        {
-          label: 'RB',
-          data: rbSum,
-          backgroundColor: 'rgb(144, 190, 109)' // example color
-        },
-        {
-          label: 'WR',
-          data: wrSum,
-          backgroundColor: 'rgb(67, 170, 139)' // example color
-        },
-        {
-          label: 'TE',
-          data: teSum,
-          backgroundColor: 'rgb(249, 132, 74)' // example color
-        }
-      ]
-    }
+    const rawData = summaryResponse.data
+    updateProjectionData(rawData)
+    projDetailData.value = detailResponse.data
+
+    projSummaryData.value = summaryResponse.data.map((item) => {
+      return {
+        ...item,
+        total_rank_display: addOrdinalSuffix(item.total_rank),
+        starters_rank_display: addOrdinalSuffix(item.starters_rank),
+        qb_rank_display: addOrdinalSuffix(item.qb_rank),
+        rb_rank_display: addOrdinalSuffix(item.rb_rank),
+        wr_rank_display: addOrdinalSuffix(item.wr_rank),
+        te_rank_display: addOrdinalSuffix(item.te_rank)
+      }
+    })
+
+    projectionPercentColumnData.value = summaryResponse.data.map((item) => {
+      return {
+        display_name: item.display_name,
+        starters_sum: item.starters_sum, // Ensure this data is provided by your API
+        bench_sum: item.bench_sum // Ensure this data is provided by your API
+      }
+    })
   } catch (error) {
     console.error('Error calling internal API:', error)
   } finally {
@@ -2628,7 +2619,7 @@ async function fetchSummaryData(
 
     if (!userSummary) {
       console.error('No summary data found for user:', leagueInfo.userId)
-      message.error('League must be done drafting to view ranks.')
+      // message.error('League must be done drafting to view ranks.')
       summaryIsLoading.value = false // Ensure loading is turned off
       return // Exit the function or handle differently as required
     }
