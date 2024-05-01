@@ -2563,79 +2563,98 @@ async function fetchSummaryData(
   rosterType: string
 ) {
   summaryIsLoading.value = true
-  try {
-    const response = await axios.get(`${apiUrl}/league_summary`, {
-      params: {
-        league_id: leagueId,
-        platform: platform,
-        rank_type: rankType,
-        guid: guid,
-        roster_type: rosterType,
-        league_type: leagueType
+  let retryCount = 0
+
+  while (retryCount < 3) {
+    try {
+      const response = await axios.get(`${apiUrl}/league_summary`, {
+        params: {
+          league_id: leagueId,
+          platform: platform,
+          rank_type: rankType,
+          guid: guid,
+          roster_type: rosterType,
+          league_type: leagueType
+        }
+      })
+
+      const rawData = response.data
+
+      summaryData.value = response.data.map((item) => {
+        return {
+          ...item,
+          total_rank_display: addOrdinalSuffix(item.total_rank),
+          starters_rank_display: addOrdinalSuffix(item.starters_rank),
+          qb_rank_display: addOrdinalSuffix(item.qb_rank),
+          rb_rank_display: addOrdinalSuffix(item.rb_rank),
+          wr_rank_display: addOrdinalSuffix(item.wr_rank),
+          te_rank_display: addOrdinalSuffix(item.te_rank),
+          qb_starter_rank_display: addOrdinalSuffix(item.qb_starter_rank),
+          rb_starter_rank_display: addOrdinalSuffix(item.rb_starter_rank),
+          wr_starter_rank_display: addOrdinalSuffix(item.wr_starter_rank),
+          te_starter_rank_display: addOrdinalSuffix(item.te_starter_rank),
+          picks_rank_display: addOrdinalSuffix(item.picks_rank),
+          bench_rank_display: addOrdinalSuffix(item.bench_rank),
+          total_percent: (item.total_value / item.total_value) * 100,
+          qb_percent: (item.qb_sum / item.total_value) * 100,
+          qb_starter_percent: (item.qb_starter_sum / item.starters_sum) * 100,
+          rb_percent: (item.rb_sum / item.total_value) * 100,
+          rb_starter_percent: (item.rb_starter_sum / item.starters_sum) * 100,
+          wr_percent: (item.wr_sum / item.total_value) * 100,
+          wr_starter_percent: (item.wr_starter_sum / item.starters_sum) * 100,
+          te_percent: (item.te_sum / item.total_value) * 100,
+          te_starter_percent: (item.te_starter_sum / item.starters_sum) * 100,
+          picks_percent: (item.picks_sum / item.total_value) * 100
+        }
+      })
+
+      // Calculate the total sum of all total_values
+      const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
+
+      updateBchartData(rawData)
+      updateScatterPlotData(rawData)
+      // updateRadarChartData(rawData);
+
+      // Break out of the retry loop if successful
+      break
+    } catch (error) {
+      console.error('Error fetching league summary data:', error.message)
+
+      if (retryCount === 2) {
+        message.error('Failed to fetch league summary data. Please try again later.')
+        break
       }
-    })
 
-    const rawData = response.data
+      retryCount++
+      console.log(`Retrying... Attempt ${retryCount + 1}`)
+    } finally {
+      const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
 
-    // summaryData.value = response.data // Update this line based on the structure of your actual data
-    summaryData.value = response.data.map((item) => {
-      return {
-        ...item,
-        total_rank_display: addOrdinalSuffix(item.total_rank),
-        starters_rank_display: addOrdinalSuffix(item.starters_rank),
-        qb_rank_display: addOrdinalSuffix(item.qb_rank),
-        rb_rank_display: addOrdinalSuffix(item.rb_rank),
-        wr_rank_display: addOrdinalSuffix(item.wr_rank),
-        te_rank_display: addOrdinalSuffix(item.te_rank),
-        qb_starter_rank_display: addOrdinalSuffix(item.qb_starter_rank),
-        rb_starter_rank_display: addOrdinalSuffix(item.rb_starter_rank),
-        wr_starter_rank_display: addOrdinalSuffix(item.wr_starter_rank),
-        te_starter_rank_display: addOrdinalSuffix(item.te_starter_rank),
-        picks_rank_display: addOrdinalSuffix(item.picks_rank),
-        bench_rank_display: addOrdinalSuffix(item.bench_rank),
-        total_percent: (item.total_value / item.total_value) * 100,
-        qb_percent: (item.qb_sum / item.total_value) * 100,
-        qb_starter_percent: (item.qb_starter_sum / item.starters_sum) * 100,
-        rb_percent: (item.rb_sum / item.total_value) * 100,
-        rb_starter_percent: (item.rb_starter_sum / item.starters_sum) * 100,
-        wr_percent: (item.wr_sum / item.total_value) * 100,
-        wr_starter_percent: (item.wr_starter_sum / item.starters_sum) * 100,
-        te_percent: (item.te_sum / item.total_value) * 100,
-        te_starter_percent: (item.te_starter_sum / item.starters_sum) * 100,
-        picks_percent: (item.picks_sum / item.total_value) * 100
+      if (!userSummary) {
+        console.error('No summary data found for user:', leagueInfo.userId)
+        // message.error('League must be done drafting to view ranks.');
+        summaryIsLoading.value = false // Ensure loading is turned off
+        return // Exit the function or handle differently as required
       }
-    })
-    // Calculate the total sum of all total_values
-    const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
 
-    updateBchartData(rawData)
-    updateScatterPlotData(rawData)
-    // updateRadarChartData(rawData)
-  } catch (error) {
-    console.error('There was an error fetching the leagues summary data:', error)
-    message.error('Failed to fetch league summary data.')
-  } finally {
-    const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
+      summaryIsLoading.value = false
 
-    if (!userSummary) {
-      console.error('No summary data found for user:', leagueInfo.userId)
-      // message.error('League must be done drafting to view ranks.')
-      summaryIsLoading.value = false // Ensure loading is turned off
-      return // Exit the function or handle differently as required
+      try {
+        const response = await axios.post(`${apiUrl}/ranks_summary`, {
+          user_id: leagueInfo.userId,
+          display_name: leagueInfo.userName,
+          league_id: leagueInfo.leagueId,
+          rank_source: platform,
+          power_rank: userSummary.total_rank,
+          starters_rank: userSummary.starters_rank,
+          bench_rank: userSummary.bench_rank,
+          picks_rank: userSummary.picks_rank
+        })
+      } catch (error) {
+        console.error('Error updating ranks summary:', error.message)
+        // Handle the error as needed
+      }
     }
-
-    summaryIsLoading.value = false
-
-    const response = await axios.post(`${apiUrl}/ranks_summary`, {
-      user_id: leagueInfo.userId,
-      display_name: leagueInfo.userName,
-      league_id: leagueInfo.leagueId,
-      rank_source: platform,
-      power_rank: userSummary.total_rank,
-      starters_rank: userSummary.starters_rank,
-      bench_rank: userSummary.bench_rank,
-      picks_rank: userSummary.picks_rank
-    })
   }
 }
 
@@ -2845,23 +2864,37 @@ async function fetchDetailData(
   rosterType: string
 ) {
   detailIsLoading.value = true
-  try {
-    const response = await axios.get(`${apiUrl}/league_detail`, {
-      params: {
-        league_id: leagueId,
-        platform: platform,
-        rank_type: rankType,
-        guid: guid,
-        roster_type: rosterType
-      }
-    })
+  let retryCount = 0
 
-    detailData.value = response.data
-  } catch (error) {
-    console.error('There was an error fetching the leagues detail data:', error)
-    message.error('Failed to fetch league detail data.')
-  } finally {
-    detailIsLoading.value = false
+  while (retryCount < 3) {
+    try {
+      const response = await axios.get(`${apiUrl}/league_detail`, {
+        params: {
+          league_id: leagueId,
+          platform: platform,
+          rank_type: rankType,
+          guid: guid,
+          roster_type: rosterType
+        }
+      })
+
+      detailData.value = response.data
+
+      // Break out of the retry loop if successful
+      break
+    } catch (error) {
+      console.error('Error fetching league detail data:', error.message)
+
+      if (retryCount === 2) {
+        message.error('Failed to fetch league detail data. Please try again later.')
+        break
+      }
+
+      retryCount++
+      console.log(`Retrying... Attempt ${retryCount + 1}`)
+    } finally {
+      detailIsLoading.value = false
+    }
   }
 }
 
