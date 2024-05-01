@@ -322,39 +322,51 @@ const formState = reactive<FormState>({
 
 const onFinish = async (values) => {
   formIsLoading.value = true
-  try {
-    const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
-    const data = await response.json()
-    if (data === null || Object.keys(data).length === 0) {
-      throw new Error('Invalid username!')
+  let retryCount = 0
+
+  while (retryCount < 3) {
+    try {
+      const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
+      const data = await response.json()
+
+      if (data === null || Object.keys(data).length === 0) {
+        throw new Error('Invalid username!')
+      }
+
+      const { getOrCreateGUID } = useGuid()
+      const userGuid = getOrCreateGUID()
+
+      // Make a POST request to your backend server
+      await axios.post(`${apiUrl}/user_details`, {
+        league_year: formState.leagueYear,
+        user_name: formState.userName,
+        guid: userGuid
+      })
+
+      console.log('Username submission successful')
+
+      store.setUserDetails(formState.leagueYear, formState.userName, userGuid)
+      await fetchLeagues(formState.leagueYear, formState.userName, userGuid)
+
+      // Redirect to the /leagues endpoint
+      router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
+
+      // Break out of the retry loop if successful
+      break
+    } catch (error) {
+      console.error('Error:', error.message)
+
+      if (retryCount === 2) {
+        message.error('Failed to submit username. Please try again later.')
+        break
+      }
+
+      retryCount++
+      console.log(`Retrying... Attempt ${retryCount + 1}`)
     }
-
-    const { getOrCreateGUID } = useGuid()
-    const userGuid = getOrCreateGUID()
-
-    // Make a POST request to your backend server
-    await axios.post(`${apiUrl}/user_details`, {
-      league_year: formState.leagueYear,
-      user_name: formState.userName,
-      guid: userGuid
-    })
-
-    console.log('Username submission successful')
-
-    store.setUserDetails(formState.leagueYear, formState.userName, userGuid)
-    await fetchLeagues(formState.leagueYear, formState.userName, userGuid)
-
-    // Redirect to the /leagues endpoint
-    router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
-  } catch (error) {
-    message.error('Username not found. Please try again.')
-
-    console.error('Error:', error.message)
-    onFinishFailed(error)
-    formIsLoading.value = false
-  } finally {
-    formIsLoading.value = false
   }
+
+  formIsLoading.value = false
 }
 
 const onFinishFailed = (errorInfo: any) => {
