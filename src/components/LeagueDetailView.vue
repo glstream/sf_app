@@ -190,9 +190,7 @@
                               Quarterbacks
                               {{
                                 addOrdinalSuffix(
-                                  overallFilter.value === 'all'
-                                    ? record.qb_rank
-                                    : record.qb_starter_rank
+                                  overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
                                 )
                               }}
                             </h3>
@@ -224,9 +222,7 @@
                               Runningbacks
                               {{
                                 addOrdinalSuffix(
-                                  overallFilter.value === 'all'
-                                    ? record.rb_rank
-                                    : record.rb_starter_rank
+                                  overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
                                 )
                               }}
                             </h3>
@@ -258,9 +254,7 @@
                               Wide Receivers
                               {{
                                 addOrdinalSuffix(
-                                  overallFilter.value === 'all'
-                                    ? record.wr_rank
-                                    : record.wr_starter_rank
+                                  overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
                                 )
                               }}
                             </h3>
@@ -292,9 +286,7 @@
                               Tight Ends
                               {{
                                 addOrdinalSuffix(
-                                  overallFilter.value === 'all'
-                                    ? record.te_rank
-                                    : record.te_starter_rank
+                                  overallFilter === 'all' ? record.te_rank : record.te_starter_rank
                                 )
                               }}
                             </h3>
