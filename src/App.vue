@@ -4,7 +4,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
@@ -27,6 +27,10 @@ const currentTheme = computed(() => {
           fontFamily: 'Titillium Web'
         }
       }
+})
+
+onMounted(() => {
+  themeStore.initializeTheme()
 })
 </script>
 
