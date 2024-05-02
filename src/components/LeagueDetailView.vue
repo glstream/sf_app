@@ -179,7 +179,7 @@
                   <template #expandedRowRender="{ record }">
                     Team Composition:
                     <div class="card" bordered>
-                      <MeterGroup :value="formatGaugeData(record)" />
+                      <MeterGroup :value="formatGaugeData(record, overallFilter)" />
                     </div>
                     <div>
                       <a-divider orientation="center"></a-divider>
@@ -1965,30 +1965,44 @@ const positionTitles = {
   PICKS: 'Picks'
 }
 
-function formatGaugeData(record, overallFilterValue) {
-  // Check if the current view is 'all' or 'starter'
-  const isAll = overallFilter.value === 'all'
+function formatGaugeData(record) {
+  // Assuming overallFilter is a reactive ref and accessible here
+  const overallFilterValue = overallFilter.value
+  const isAll = overallFilterValue === 'all'
+  console.log('overallFilterValue', overallFilterValue)
+
+  // Make sure to define or fetch the total value if it's not provided in the record
+  const totalValue = record.total_value // Assuming total_value is defined on the record for 'all'
+  const starterValue = record.starters_sum // Assuming starters_value is defined on the record for 'starters'
 
   return [
     {
-      label: `QB: ${isAll ? record.qb_sum.toLocaleString() : record.qb_starter_sum.toLocaleString()}`,
+      label: `QB: ${isAll ? record.qb_sum.toLocaleString() : record.qb_starters_sum.toLocaleString()}`,
       color: 'rgb(39, 125, 161)',
-      value: isAll ? record.qb_percent : record.qb_starter_percent
+      value: isAll
+        ? (record.qb_sum / totalValue) * 100
+        : (record.qb_starter_sum / record.starters_sum) * 100
     },
     {
-      label: `RB: ${isAll ? record.rb_sum.toLocaleString() : record.rb_starter_sum.toLocaleString()}`,
+      label: `RB: ${isAll ? record.rb_sum.toLocaleString() : record.rb_starters_sum.toLocaleString()}`,
       color: 'rgb(144, 190, 109)',
-      value: isAll ? record.rb_percent : record.rb_starter_percent
+      value: isAll
+        ? (record.rb_sum / totalValue) * 100
+        : (record.rb_starter_sum / record.starters_sum) * 100
     },
     {
-      label: `WR: ${isAll ? record.wr_sum.toLocaleString() : record.wr_starter_sum.toLocaleString()}`,
+      label: `WR: ${isAll ? record.wr_sum.toLocaleString() : record.wr_startes_sum.toLocaleString()}`,
       color: 'rgb(67, 170, 139)',
-      value: isAll ? record.wr_percent : record.wr_starter_percent
+      value: isAll
+        ? (record.wr_sum / totalValue) * 100
+        : (record.wr_starter_sum / record.starters_sum) * 100
     },
     {
-      label: `TE: ${isAll ? record.te_sum.toLocaleString() : record.te_starter_sum.toLocaleString()}`,
+      label: `TE: ${isAll ? record.te_sum.toLocaleString() : record.te_starters_sum.toLocaleString()}`,
       color: 'rgb(249, 132, 74)',
-      value: isAll ? record.te_percent : record.te_starter_percent
+      value: isAll
+        ? (record.te_sum / totalValue) * 100
+        : (record.te_starter_sum / record.starters_sum) * 100
     },
     // Include the Picks data only when viewing 'all'
     ...(isAll
@@ -1996,7 +2010,7 @@ function formatGaugeData(record, overallFilterValue) {
           {
             label: `Picks: ${record.picks_sum.toLocaleString()}`,
             color: 'rgba(189, 195, 199, 0.6)',
-            value: record.picks_percent
+            value: (record.picks_value / totalValue) * 100
           }
         ]
       : [])
