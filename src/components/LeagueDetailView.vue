@@ -2679,7 +2679,7 @@ async function fetchBaData(
     bestAvailableData.value = response.data
   } catch (error) {
     console.error('There was an error fetching the best available data:', error)
-    message.error('Failed to fetch best available data.')
+    // message.error('Failed to fetch best available data.')
   } finally {
     console.log('Best available data fetched')
   }
