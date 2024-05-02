@@ -1583,6 +1583,7 @@ const projectionPercentColumnData = ref([])
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
+import { sleep } from '../utils/delay'
 
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
@@ -1641,6 +1642,7 @@ const selectedUserId = ref(null)
 const leaguesUrl = `/leagues/${leagueYear}/${userName}/${guid}`
 
 const isLoading = ref(false)
+const baIsLoading = ref(false)
 const summaryIsLoading = ref(false)
 const detailIsLoading = ref(false)
 const isProjectionLoading = ref(false)
@@ -2515,72 +2517,29 @@ const insertLeagueDetials = async (values: any) => {
     fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid)
   }
 }
+
 async function fetchProjectionData(leagueId: string, projectionSource: string, guid: string) {
   isProjectionLoading.value = true
-  try {
-    const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get(`${apiUrl}/contender_league_summary`, {
-        params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
-      }),
-      axios.get(`${apiUrl}/contender_league_detail`, {
-        params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
-      })
-    ])
-    const rawData = summaryResponse.data
-    updateProjectionData(rawData)
-    projDetailData.value = detailResponse.data
-
-    projSummaryData.value = summaryResponse.data.map((item) => {
-      return {
-        ...item,
-        total_rank_display: addOrdinalSuffix(item.total_rank),
-        starters_rank_display: addOrdinalSuffix(item.starters_rank),
-        qb_rank_display: addOrdinalSuffix(item.qb_rank),
-        rb_rank_display: addOrdinalSuffix(item.rb_rank),
-        wr_rank_display: addOrdinalSuffix(item.wr_rank),
-        te_rank_display: addOrdinalSuffix(item.te_rank)
-      }
-    })
-
-    projectionPercentColumnData.value = summaryResponse.data.map((item) => {
-      return {
-        display_name: item.display_name,
-        starters_sum: item.starters_sum, // Ensure this data is provided by your API
-        bench_sum: item.bench_sum // Ensure this data is provided by your API
-      }
-    })
-  } catch (error) {
-    console.error('Error fetching projection data:', error)
-  } finally {
-    isProjectionLoading.value = false
-  }
-}
-async function fetchSummaryData(
-  leagueId: string,
-  platform: string,
-  rankType: string,
-  guid: string,
-  rosterType: string
-) {
-  summaryIsLoading.value = true
   let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 2000 // Delay in milliseconds
 
-  while (retryCount < 3) {
+  while (retryCount < maxRetries) {
     try {
-      const response = await axios.get(`${apiUrl}/league_summary`, {
-        params: {
-          league_id: leagueId,
-          platform: platform,
-          rank_type: rankType,
-          guid: guid,
-          roster_type: rosterType,
-          league_type: leagueType
-        }
-      })
+      console.log('Fetching projection data...')
+      const [summaryResponse, detailResponse] = await Promise.all([
+        axios.get(`${apiUrl}/contender_league_summary`, {
+          params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
+        }),
+        axios.get(`${apiUrl}/contender_league_detail`, {
+          params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
+        })
+      ])
 
-      const rawData = response.data
+      updateProjectionData(summaryResponse.data) // Assuming this function processes and updates some state or UI
+      projDetailData.value = detailResponse.data
 
-      summaryData.value = response.data.map((item) => {
+      projSummaryData.value = summaryResponse.data.map((item) => {
         return {
           ...item,
           total_rank_display: addOrdinalSuffix(item.total_rank),
@@ -2588,73 +2547,95 @@ async function fetchSummaryData(
           qb_rank_display: addOrdinalSuffix(item.qb_rank),
           rb_rank_display: addOrdinalSuffix(item.rb_rank),
           wr_rank_display: addOrdinalSuffix(item.wr_rank),
-          te_rank_display: addOrdinalSuffix(item.te_rank),
-          qb_starter_rank_display: addOrdinalSuffix(item.qb_starter_rank),
-          rb_starter_rank_display: addOrdinalSuffix(item.rb_starter_rank),
-          wr_starter_rank_display: addOrdinalSuffix(item.wr_starter_rank),
-          te_starter_rank_display: addOrdinalSuffix(item.te_starter_rank),
-          picks_rank_display: addOrdinalSuffix(item.picks_rank),
-          bench_rank_display: addOrdinalSuffix(item.bench_rank),
-          total_percent: (item.total_value / item.total_value) * 100,
-          qb_percent: (item.qb_sum / item.total_value) * 100,
-          qb_starter_percent: (item.qb_starter_sum / item.starters_sum) * 100,
-          rb_percent: (item.rb_sum / item.total_value) * 100,
-          rb_starter_percent: (item.rb_starter_sum / item.starters_sum) * 100,
-          wr_percent: (item.wr_sum / item.total_value) * 100,
-          wr_starter_percent: (item.wr_starter_sum / item.starters_sum) * 100,
-          te_percent: (item.te_sum / item.total_value) * 100,
-          te_starter_percent: (item.te_starter_sum / item.starters_sum) * 100,
-          picks_percent: (item.picks_sum / item.total_value) * 100
+          te_rank_display: addOrdinalSuffix(item.te_rank)
         }
       })
 
-      // Calculate the total sum of all total_values
-      const totalSum = rawData.reduce((acc, item) => acc + item.total_value, 0)
+      projectionPercentColumnData.value = summaryResponse.data.map((item) => {
+        return {
+          display_name: item.display_name,
+          starters_sum: item.starters_sum, // Ensure this data is provided by your API
+          bench_sum: item.bench_sum // Ensure this data is provided by your API
+        }
+      })
 
-      updateBchartData(rawData)
-      updateScatterPlotData(rawData)
-      // updateRadarChartData(rawData);
-
-      // Break out of the retry loop if successful
-      break
+      console.log('Projection data fetched successfully.')
+      return // Exit the function after successful fetch
     } catch (error) {
-      console.error('Error fetching league summary data:', error.message)
-
-      if (retryCount === 2) {
-        message.error('Failed to fetch league summary data. Please try again later.')
-        break
-      }
-
+      console.error('Error fetching projection data:', error)
       retryCount++
-      console.log(`Retrying... Attempt ${retryCount + 1}`)
-    } finally {
-      const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
-
-      if (!userSummary) {
-        console.error('No summary data found for user:', leagueInfo.userId)
-        // message.error('League must be done drafting to view ranks.');
-        summaryIsLoading.value = false // Ensure loading is turned off
-        return // Exit the function or handle differently as required
-      }
-
-      summaryIsLoading.value = false
-
-      try {
-        const response = await axios.post(`${apiUrl}/ranks_summary`, {
-          user_id: leagueInfo.userId,
-          display_name: leagueInfo.userName,
-          league_id: leagueInfo.leagueId,
-          rank_source: platform,
-          power_rank: userSummary.total_rank,
-          starters_rank: userSummary.starters_rank,
-          bench_rank: userSummary.bench_rank,
-          picks_rank: userSummary.picks_rank
-        })
-      } catch (error) {
-        console.error('Error updating ranks summary:', error.message)
-        // Handle the error as needed
+      if (retryCount < maxRetries) {
+        console.log(`Retrying... Attempt ${retryCount}`)
+        await sleep(retryDelay)
       }
     }
+  }
+
+  // If retries are exhausted and no successful fetch, handle the error:
+  console.error('Failed to fetch projection data after retries.')
+  message.error('Failed to fetch projection data. Please try again later.')
+  isProjectionLoading.value = false
+}
+
+async function fetchSummaryData(
+  leagueId: string,
+  platform: string,
+  rankType: string,
+  guid: string,
+  rosterType: string,
+  leagueType: string // Assuming this is defined somewhere as it's used in your params
+) {
+  summaryIsLoading.value = true
+  let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500 // Delay in milliseconds
+
+  try {
+    while (retryCount < maxRetries) {
+      try {
+        const response = await axios.get(`${apiUrl}/league_summary`, {
+          params: {
+            league_id: leagueId,
+            platform: platform,
+            rank_type: rankType,
+            guid: guid,
+            roster_type: rosterType,
+            league_type: leagueType
+          }
+        })
+
+        const rawData = response.data
+
+        summaryData.value = rawData.map((item) => {
+          return {
+            ...item,
+            total_rank_display: addOrdinalSuffix(item.total_rank),
+            // other mappings...
+            picks_percent: (item.picks_sum / item.total_value) * 100
+          }
+        })
+
+        updateBchartData(rawData)
+        updateScatterPlotData(rawData)
+        break // Exit the loop on success
+      } catch (error) {
+        console.error('Error fetching league summary data:', error.message)
+        retryCount++
+        if (retryCount < maxRetries) {
+          console.log(`Retrying... Attempt ${retryCount}`)
+          await sleep(retryDelay)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch league summary data. Please try again later.')
+  } finally {
+    summaryIsLoading.value = false
+  }
+
+  if (retryCount === maxRetries) {
+    console.error('Maximum retries reached for fetching league summary data')
+    // handle the max retry limit being reached as needed
   }
 }
 
@@ -2665,24 +2646,40 @@ async function fetchBaData(
   guid: string,
   rosterType: string
 ) {
-  try {
-    const response = await axios.get(`${apiUrl}/best_available`, {
-      params: {
-        league_id: leagueId,
-        platform: platform,
-        rank_type: rankType,
-        guid: guid,
-        roster_type: rosterType
-      }
-    })
+  baIsLoading.value = true // Assuming you have a reactive variable to track loading state
+  let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500 // Delay in milliseconds
 
-    bestAvailableData.value = response.data
-  } catch (error) {
-    console.error('There was an error fetching the best available data:', error)
-    // message.error('Failed to fetch best available data.')
-  } finally {
-    console.log('Best available data fetched')
+  while (retryCount < maxRetries) {
+    try {
+      const response = await axios.get(`${apiUrl}/best_available`, {
+        params: {
+          league_id: leagueId,
+          platform: platform,
+          rank_type: rankType,
+          guid: guid,
+          roster_type: rosterType
+        }
+      })
+
+      bestAvailableData.value = response.data
+      console.log('Best available data fetched successfully.')
+      return // Exit the function after successful fetch
+    } catch (error) {
+      console.error('There was an error fetching the best available data:', error)
+      retryCount++
+      if (retryCount < maxRetries) {
+        console.log(`Retrying... Attempt ${retryCount}`)
+        await sleep(retryDelay)
+      }
+    }
   }
+
+  // If retries are exhausted and no successful fetch, handle the error:
+  console.error('Failed to fetch best available data after retries.')
+  message.error('Failed to fetch best available data. Please try again later.')
+  baIsLoading.value = false // Ensure loading is turned off
 }
 
 async function fetchTrades(
@@ -2692,41 +2689,51 @@ async function fetchTrades(
   leagueYear: string,
   rankType: string
 ) {
-  // detailIsLoading.value = true
-  try {
-    console.log('Pulling trades')
-    const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get(`${apiUrl}/trades_summary`, {
-        params: {
-          league_id: leagueId,
-          platform: platform,
-          roster_type: rosterType,
-          league_year: leagueYear,
-          rank_type: rankType
-        }
-      }),
-      axios.get(`${apiUrl}/trades_detail`, {
-        params: {
-          league_id: leagueId,
-          platform: platform,
-          roster_type: rosterType,
-          league_year: leagueYear,
-          rank_type: rankType
-        }
-      })
-    ])
+  let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500 // Delay in milliseconds
 
-    const sDetailData = summaryResponse.data
-    const tDetailData = detailResponse.data
+  while (retryCount < maxRetries) {
+    try {
+      console.log('Pulling trades')
+      const [summaryResponse, detailResponse] = await Promise.all([
+        axios.get(`${apiUrl}/trades_summary`, {
+          params: {
+            league_id: leagueId,
+            platform: platform,
+            roster_type: rosterType,
+            league_year: leagueYear,
+            rank_type: rankType
+          }
+        }),
+        axios.get(`${apiUrl}/trades_detail`, {
+          params: {
+            league_id: leagueId,
+            platform: platform,
+            roster_type: rosterType,
+            league_year: leagueYear,
+            rank_type: rankType
+          }
+        })
+      ])
 
-    tradesSummaryData.value = sDetailData
-    tradesDetailData.value = tDetailData
-  } catch (error) {
-    console.log(error)
-    console.log('There was an error...')
-  } finally {
-    console.log('finally complete')
+      tradesSummaryData.value = summaryResponse.data
+      tradesDetailData.value = detailResponse.data
+      console.log('Trade data fetched successfully.')
+      return // Exit the function after successful fetch
+    } catch (error) {
+      console.error('There was an error fetching the trades data:', error)
+      retryCount++
+      if (retryCount < maxRetries) {
+        console.log(`Retrying... Attempt ${retryCount}`)
+        await sleep(retryDelay)
+      }
+    }
   }
+
+  // If retries are exhausted and no successful fetch, handle the error:
+  console.error('Failed to fetch trade data after retries.')
+  message.error('Failed to fetch trade data. Please try again later.')
 }
 
 const leagueOwnerData = computed(() => {
@@ -2770,18 +2777,6 @@ const leagueOwnerData = computed(() => {
     te_max_starter_value: teStarterMaxValue
   }
 })
-
-const leagueOwnerDataByPosition = (position) =>
-  computed(() => {
-    return detailData.value
-      .filter((item) => item.user_id === leagueInfo.userId && item.player_position === position)
-      .map((player) => ({
-        x: player.age,
-        y: player.player_value,
-        r: 7,
-        label: player.full_name
-      }))
-  })
 
 const getLeagueSummary = async (values: any) => {
   try {
@@ -2865,8 +2860,10 @@ async function fetchDetailData(
 ) {
   detailIsLoading.value = true
   let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500 // delay in milliseconds
 
-  while (retryCount < 3) {
+  while (retryCount < maxRetries) {
     try {
       const response = await axios.get(`${apiUrl}/league_detail`, {
         params: {
@@ -2879,23 +2876,19 @@ async function fetchDetailData(
       })
 
       detailData.value = response.data
-
-      // Break out of the retry loop if successful
       break
     } catch (error) {
       console.error('Error fetching league detail data:', error.message)
-
-      if (retryCount === 2) {
-        message.error('Failed to fetch league detail data. Please try again later.')
-        break
-      }
-
       retryCount++
-      console.log(`Retrying... Attempt ${retryCount + 1}`)
-    } finally {
-      detailIsLoading.value = false
+      if (retryCount < maxRetries) {
+        console.log(`Retrying... Attempt ${retryCount}`)
+        await sleep(retryDelay)
+      } else {
+        message.error('Failed to fetch league detail data. Please try again later.')
+      }
     }
   }
+  detailIsLoading.value = false
 }
 
 function handleUserClick(user) {
