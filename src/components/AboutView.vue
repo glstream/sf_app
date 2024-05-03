@@ -1,5 +1,4 @@
 <template>
-  s
   <a-layout class="layout">
     <theme-toggle-button />
     <AppHeader />

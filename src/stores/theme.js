@@ -8,10 +8,7 @@ export const useThemeStore = defineStore('theme', {
     toggleTheme() {
       this.isDarkMode = !this.isDarkMode
     },
-    initializeTheme() {
-      const storedTheme = localStorage.getItem('darkMode')
-      this.isDarkMode = storedTheme === 'true'
-    }
+    initializeTheme() {}
   },
   persist: {
     enabled: true,

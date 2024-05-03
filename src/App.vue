@@ -29,9 +29,7 @@ const currentTheme = computed(() => {
       }
 })
 
-onMounted(() => {
-  themeStore.initializeTheme()
-})
+onMounted(() => {})
 </script>
 
 <style></style>
