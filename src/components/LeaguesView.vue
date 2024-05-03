@@ -102,8 +102,12 @@
                       <a-dropdown-button size="default" type="primary">
                         Power Ranks
                         <template #overlay>
-                          <a-menu @click="(e) => getLeagueDetail(e, league)">
-                            <a-menu-item v-for="source in sources" :key="source.key">
+                          <a-menu>
+                            <a-menu-item
+                              v-for="source in sources"
+                              :key="source.key"
+                              @click="(e) => getLeagueDetail(e, league)"
+                            >
                               <UserOutlined />
                               <img
                                 style="padding-right: 5px"
@@ -112,7 +116,10 @@
                               />{{ source.name }}
                             </a-menu-item>
                             <a-menu-divider />
-                            <a-menu-item key="3"> <FileSearchOutlined /> Summary</a-menu-item>
+                            <!-- Updated click handler for the Summary menu item -->
+                            <a-menu-item key="3" @click="getLeagueSummary(league)">
+                              <FileSearchOutlined /> Summary
+                            </a-menu-item>
                           </a-menu>
                         </template>
                         <template #icon><DownOutlined /></template>

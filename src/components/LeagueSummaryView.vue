@@ -392,7 +392,7 @@
                           </div>
                         </div> </a-spin
                     ></a-tab-pane>
-                    <a-tab-pane key="8" tab="CBS" force-render disabled>
+                    <a-tab-pane key="8" tab="CBS" force-render>
                       <a-spin :spinning="contenderIsLoading">
                         <div class="scrollable-content">
                           <div class="tags-container" v-if="contenderPositionalRanks.length > 0">
