@@ -98,11 +98,10 @@
                   <div class="gutter-box-refresh">
                     <a-tooltip>
                       <template #title>League Details</template>
-
                       <a-dropdown-button size="default" type="primary">
                         Power Ranks
                         <template #overlay>
-                          <a-menu @click="(e) => getLeagueDetail(e, league)">
+                          <a-menu @click="(e) => handleMenuClick(e, league)">
                             <a-menu-item v-for="source in sources" :key="source.key">
                               <UserOutlined />
                               <img
@@ -112,7 +111,7 @@
                               />{{ source.name }}
                             </a-menu-item>
                             <a-menu-divider />
-                            <a-menu-item key="3"> <FileSearchOutlined /> Summary</a-menu-item>
+                            <a-menu-item key="summary"> <FileSearchOutlined /> Summary</a-menu-item>
                           </a-menu>
                         </template>
                         <template #icon><DownOutlined /></template>
@@ -462,6 +461,17 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
     isLoading.value = false
   }
 }
+
+const handleMenuClick = (e, league) => {
+  console.log('e', e)
+  console.log('league', league)
+  if (e.key === 'summary') {
+    getLeagueSummary(league)
+  } else {
+    getLeagueDetail(e, league)
+  }
+}
+
 const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
     const leagueId = league.league_id
