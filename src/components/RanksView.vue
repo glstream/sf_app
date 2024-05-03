@@ -317,7 +317,7 @@ async function fetchRanks(platform: string) {
 
 function downloadData() {
   // Ensuring data to download is actually the paginated data
-  const dataToDownload = paginatedData.value // Now correctly points to paginated data
+  const dataToDownload = filteredData.value // Now correctly points to paginated data
 
   let csvContent = 'data:text/csv;charset=utf-8,'
 
