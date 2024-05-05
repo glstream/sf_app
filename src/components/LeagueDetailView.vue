@@ -173,8 +173,8 @@
                   :pagination="{ pageSize: 20 }"
                   row-key="user_id"
                   :expand-column-width="100"
-                  style="width: 100%; max-width: 900px"
-                  :scroll="{ x: '900px' }"
+                  style="width: 100%; max-width: 1150px"
+                  :scroll="{ x: '1150px' }"
                 >
                   <template #expandedRowRender="{ record }">
                     Team Composition:
@@ -203,8 +203,8 @@
                                 :key="player.sleeper_id"
                                 :style="getPositionTagList(player.player_position, 0.35)"
                               >
-                                <span
-                                  >{{ player?.full_name }} &bull;
+                                <span>{{ player?.full_name }} {{ player?.team }} </span
+                                ><span style="float: right">
                                   {{
                                     player.player_value === -1
                                       ? 'N/A'
@@ -235,9 +235,9 @@
                                 :key="player.sleeper_id"
                                 :style="getPositionTagList(player.player_position, 0.35)"
                               >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
+                                <span>{{ player?.full_name }} {{ player?.team }}</span>
+                                <span style="float: right"
+                                  >{{
                                     player.player_value === -1
                                       ? 'N/A'
                                       : player.player_value?.toLocaleString()
@@ -268,9 +268,9 @@
                                 :style="getPositionTagList(player.player_position, 0.35)"
                                 style=""
                               >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
+                                <span>{{ player?.full_name }} {{ player?.team }}</span>
+                                <span style="float: right"
+                                  >{{
                                     player.player_value === -1
                                       ? 'N/A'
                                       : player.player_value?.toLocaleString()
@@ -300,9 +300,9 @@
                                 :style="getPositionTagList(player.player_position, 0.35)"
                                 style=""
                               >
-                                <span
-                                  >{{ player?.full_name }} &bull;
-                                  {{
+                                <span>{{ player?.full_name }} {{ player?.team }} </span>
+                                <span style="float: right"
+                                  >{{
                                     player.player_value === -1
                                       ? 'N/A'
                                       : player.player_value?.toLocaleString()
@@ -325,8 +325,8 @@
                                 :style="getPositionTagList(player.player_position, 0.35)"
                                 style=""
                               >
-                                <span
-                                  >{{ player?.full_name }} &bull;
+                                <span>{{ player?.full_name }}</span
+                                ><span style="float: right">
                                   {{
                                     player.player_value === -1
                                       ? 'N/A'
@@ -754,8 +754,10 @@
                               clickedManager !== '' && clickedManager !== player.display_name
                           }"
                         >
-                          {{ index + 1 }}. {{ player?.full_name }} &bull;
-                          {{
+                          {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
+                        </span>
+                        <span style="float: right"
+                          >{{
                             player.player_value === -1
                               ? 'N/A'
                               : player.player_value?.toLocaleString()
@@ -818,7 +820,7 @@
                           <div>
                             <a-divider orientation="center"></a-divider>
                             <a-row justify="space-between" gutter="[8,8]">
-                              <a-col :xs="4" :sm="4" :md="4" :lg="4" :xl="4">
+                              <a-col :xs="5" :sm="5" :md="5" :lg="5" :xl="5">
                                 <div>
                                   <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
                                   <ul
@@ -831,9 +833,9 @@
                                       :style="getPositionTagList(player.player_position, 0.35)"
                                       style=""
                                     >
-                                      <span
-                                        >{{ player?.full_name }} {{ player?.team }} &bull;
-                                        {{
+                                      <span>{{ player?.full_name }} {{ player?.team }}</span>
+                                      <span style="float: right"
+                                        >{{
                                           player.player_value === -1
                                             ? 'N/A'
                                             : player.player_value?.toLocaleString()
@@ -844,7 +846,7 @@
                                 </div>
                               </a-col>
 
-                              <a-col :span="6">
+                              <a-col :span="5">
                                 <div>
                                   <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
                                   <ul
@@ -857,9 +859,9 @@
                                       :style="getPositionTagList(player.player_position, 0.35)"
                                       style=""
                                     >
-                                      <span
-                                        >{{ player?.full_name }} {{ player?.team }} &bull;
-                                        {{
+                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
+                                      <span style="float: right"
+                                        >{{
                                           player.player_value === -1
                                             ? 'N/A'
                                             : player.player_value?.toLocaleString()
@@ -870,7 +872,7 @@
                                 </div>
                               </a-col>
 
-                              <a-col :span="6">
+                              <a-col :span="5">
                                 <div>
                                   <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
                                   <ul
@@ -883,9 +885,9 @@
                                       :style="getPositionTagList(player.player_position, 0.35)"
                                       style=""
                                     >
-                                      <span
-                                        >{{ player?.full_name }} {{ player?.team }} &bull;
-                                        {{
+                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
+                                      <span style="float: right"
+                                        >{{
                                           player.player_value === -1
                                             ? 'N/A'
                                             : player.player_value?.toLocaleString()
@@ -895,7 +897,7 @@
                                   </ul>
                                 </div>
                               </a-col>
-                              <a-col :span="6">
+                              <a-col :span="5">
                                 <div>
                                   <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
                                   <ul
@@ -908,9 +910,9 @@
                                       :style="getPositionTagList(player.player_position, 0.35)"
                                       style=""
                                     >
-                                      <span
-                                        >{{ player?.full_name }} {{ player?.team }} &bull;
-                                        {{
+                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
+                                      <span style="float: right"
+                                        >{{
                                           player.player_value === -1
                                             ? 'N/A'
                                             : player.player_value?.toLocaleString()
