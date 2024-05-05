@@ -844,7 +844,7 @@
                                       v-if="player.player_position === 'QB'"
                                       :key="player.sleeper_id"
                                       :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px""
+                                      style="margin-bottom: 2px; border-radius: 2px"
                                     >
                                       <span>{{ player?.full_name }} {{ player?.team }}</span>
                                       <span style="float: right"
@@ -870,7 +870,7 @@
                                       v-if="player.player_position === 'RB'"
                                       :key="player.sleeper_id"
                                       :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px""
+                                      style="margin-bottom: 2px; border-radius: 2px"
                                     >
                                       <span>{{ player?.full_name }} {{ player?.team }} </span>
                                       <span style="float: right"
@@ -896,7 +896,7 @@
                                       v-if="player.player_position === 'WR'"
                                       :key="player.sleeper_id"
                                       :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px""
+                                      style="margin-bottom: 2px; border-radius: 2px"
                                     >
                                       <span>{{ player?.full_name }} {{ player?.team }} </span>
                                       <span style="float: right"
@@ -921,7 +921,7 @@
                                       v-if="player.player_position === 'TE'"
                                       :key="player.sleeper_id"
                                       :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px""
+                                      style="margin-bottom: 2px; border-radius: 2px"
                                     >
                                       <span>{{ player?.full_name }} {{ player?.team }} </span>
                                       <span style="float: right"
