@@ -832,110 +832,112 @@
                         ><template #expandedRowRender="{ record }">
                           <div>
                             <a-divider orientation="center"></a-divider>
-                            <a-row justify="space-between" gutter="[8,8]">
-                              <a-col :xs="5" :sm="5" :md="5" :lg="5" :xl="5">
-                                <div>
-                                  <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'QB'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px"
-                                    >
-                                      <span>{{ player?.full_name }} {{ player?.team }}</span>
-                                      <span style="float: right"
-                                        >{{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
-                                        }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
+<a-row justify="space-between" gutter="[8,8]">
+  <!-- Quarterbacks -->
+  <a-col :xs="5" :sm="5" :md="5" :lg="5" :xl="5">
+    <div>
+      <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
+      <ul style="padding: 0; list-style: none" v-for="player in getPlayersProj(record.user_id)">
+        <li
+          v-if="player.player_position === 'QB'"
+          :key="player.sleeper_id"
+          :style="getPositionTagList(player.player_position, 0.35)"
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-radius: 2px; padding: 0 10px;"
+        >
+          <span style="flex: 1; white-space: normal; overflow-wrap: break-word;">
+            {{ player?.full_name }} {{ player?.team }}
+          </span>
+          <span>
+            {{
+              player.player_value === -1
+                ? 'N/A'
+                : player.player_value?.toLocaleString()
+            }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </a-col>
 
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'RB'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px"
-                                    >
-                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
-                                      <span style="float: right"
-                                        >{{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
-                                        }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
+  <!-- Runningbacks -->
+  <a-col :span="5">
+    <div>
+      <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
+      <ul style="padding: 0; list-style: none" v-for="player in getPlayersProj(record.user_id)">
+        <li
+          v-if="player.player_position === 'RB'"
+          :key="player.sleeper_id"
+          :style="getPositionTagList(player.player_position, 0.35)"
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-radius: 2px; padding: 0 10px;"
+        >
+          <span style="flex: 1; white-space: normal; overflow-wrap: break-word;">
+            {{ player?.full_name }} {{ player?.team }}
+          </span>
+          <span>
+            {{
+              player.player_value === -1
+                ? 'N/A'
+                : player.player_value?.toLocaleString()
+            }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </a-col>
 
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'WR'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px"
-                                    >
-                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
-                                      <span style="float: right"
-                                        >{{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
-                                        }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'TE'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="margin-bottom: 2px; border-radius: 2px"
-                                    >
-                                      <span>{{ player?.full_name }} {{ player?.team }} </span>
-                                      <span style="float: right"
-                                        >{{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
-                                        }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
-                            </a-row>
+  <!-- Wide Receivers -->
+  <a-col :span="5">
+    <div>
+      <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
+      <ul style="padding: 0; list-style: none" v-for="player in getPlayersProj(record.user_id)">
+        <li
+          v-if="player.player_position === 'WR'"
+          :key="player.sleeper_id"
+          :style="getPositionTagList(player.player_position, 0.35)"
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-radius: 2px; padding: 0 10px;"
+        >
+          <span style="flex: 1; white-space: normal; overflow-wrap: break-word;">
+            {{ player?.full_name }} {{ player?.team }}
+          </span>
+          <span>
+            {{
+              player.player_value === -1
+                ? 'N/A'
+                : player.player_value?.toLocaleString()
+            }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </a-col>
+
+  <!-- Tight Ends -->
+  <a-col :span="5">
+    <div>
+      <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
+      <ul style="padding: 0; list-style: none" v-for="player in getPlayersProj(record.user_id)">
+        <li
+          v-if="player.player_position === 'TE'"
+          :key="player.sleeper_id"
+          :style="getPositionTagList(player.player_position, 0.35)"
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-radius: 2px; padding: 0 10px;"
+        >
+          <span style="flex: 1; white-space: normal; overflow-wrap: break-word;">
+            {{ player?.full_name }} {{ player?.team }}
+          </span>
+          <span>
+            {{
+              player.player_value === -1
+                ? 'N/A'
+                : player.player_value?.toLocaleString()
+            }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </a-col>
+</a-row>
+
                           </div>
                         </template>
                       </a-table>
