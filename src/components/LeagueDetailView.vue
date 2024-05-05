@@ -2527,7 +2527,6 @@ const insertLeagueDetials = async (values: any) => {
 }
 
 async function fetchProjectionData(leagueId: string, projectionSource: string, guid: string) {
-  isProjectionLoading.value = true
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 2000 // Delay in milliseconds
