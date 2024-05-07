@@ -281,7 +281,8 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
+                                  {{ player?.full_name }} {{ player?.team }}
+                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
                                 </span>
                                 <span>
                                   {{
@@ -316,7 +317,8 @@
                                 "
                               >
                                 <span style="flex-grow: 1; white-space: normal; margin-right: 10px">
-                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
+                                  {{ player?.full_name }} {{ player?.team }}
+                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
                                 </span>
                                 <span>
                                   {{
@@ -352,7 +354,8 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
+                                  {{ player?.full_name }} {{ player?.team }}
+                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
                                 </span>
                                 <span>
                                   {{
@@ -387,7 +390,8 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
+                                  {{ player?.full_name }} {{ player?.team }}
+                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
                                 </span>
                                 <span>
                                   {{
@@ -817,7 +821,7 @@
                           }"
                         >
                           {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
-                          {{ player?.age }}yrs
+                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
                         </span>
                         <span style="float: right"
                           >{{
