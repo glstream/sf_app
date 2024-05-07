@@ -177,10 +177,6 @@
                   :scroll="{ x: '1150px' }"
                 >
                   <template #expandedRowRender="{ record }">
-                    Team Composition:
-                    <div class="card" bordered>
-                      <MeterGroup :value="formatGaugeData(record, overallFilter)" />
-                    </div>
                     <div>
                       <a-divider orientation="center"></a-divider>
                       <a-row justify="space-around" :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
@@ -2097,28 +2093,28 @@ function formatGaugeData(record) {
       color: 'rgb(39, 125, 161)',
       value: isAll
         ? (record.qb_sum / totalValue) * 100
-        : (record.qb_starter_sum / record.starters_sum) * 100
+        : (record.qb_starter_sum / starterValue) * 100
     },
     {
       label: `RB: ${isAll ? record.rb_sum.toLocaleString() : record.rb_starters_sum.toLocaleString()}`,
       color: 'rgb(144, 190, 109)',
       value: isAll
         ? (record.rb_sum / totalValue) * 100
-        : (record.rb_starter_sum / record.starters_sum) * 100
+        : (record.rb_starter_sum / starterValue) * 100
     },
     {
       label: `WR: ${isAll ? record.wr_sum.toLocaleString() : record.wr_startes_sum.toLocaleString()}`,
       color: 'rgb(67, 170, 139)',
       value: isAll
         ? (record.wr_sum / totalValue) * 100
-        : (record.wr_starter_sum / record.starters_sum) * 100
+        : (record.wr_starter_sum / starterValue) * 100
     },
     {
       label: `TE: ${isAll ? record.te_sum.toLocaleString() : record.te_starters_sum.toLocaleString()}`,
       color: 'rgb(249, 132, 74)',
       value: isAll
         ? (record.te_sum / totalValue) * 100
-        : (record.te_starter_sum / record.starters_sum) * 100
+        : (record.te_starter_sum / starterValue) * 100
     },
     // Include the Picks data only when viewing 'all'
     ...(isAll
