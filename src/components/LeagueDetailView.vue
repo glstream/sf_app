@@ -195,8 +195,9 @@
                                 ? record.qb_average_age
                                 : record.qb_starter_average_age
                             }}
-                          </a-tag></a-col
-                        >
+                          </a-tag>
+                        </a-col>
+
                         <a-col :span="5" style="padding-bottom: 7px">
                           <span>RBs </span>
                           <a-tag>
@@ -293,6 +294,16 @@
                                 </span>
                               </li>
                             </ul>
+                            <div style="float: right; padding-top: 5px">
+                              <span>Total </span>
+                              <a-tag>
+                                {{
+                                  overallFilter === 'all'
+                                    ? record.qb_sum.toLocaleString()
+                                    : record.qb_starter_sum.toLocaleString()
+                                }}
+                              </a-tag>
+                            </div>
                           </div>
                         </a-col>
 
@@ -329,6 +340,16 @@
                                 </span>
                               </li>
                             </ul>
+                            <div style="float: right; padding-top: 5px">
+                              <span>Total </span>
+                              <a-tag>
+                                {{
+                                  overallFilter === 'all'
+                                    ? record.rb_sum.toLocaleString()
+                                    : record.rb_starter_sum.toLocaleString()
+                                }}
+                              </a-tag>
+                            </div>
                           </div>
                         </a-col>
 
@@ -366,6 +387,16 @@
                                 </span>
                               </li>
                             </ul>
+                            <div style="float: right; padding-top: 5px">
+                              <span>Total </span>
+                              <a-tag>
+                                {{
+                                  overallFilter === 'all'
+                                    ? record.wr_sum.toLocaleString()
+                                    : record.wr_starter_sum.toLocaleString()
+                                }}
+                              </a-tag>
+                            </div>
                           </div>
                         </a-col>
                         <a-col :span="5">
@@ -402,6 +433,16 @@
                                 </span>
                               </li>
                             </ul>
+                            <div style="float: right; padding-top: 5px">
+                              <span>Total </span>
+                              <a-tag>
+                                {{
+                                  overallFilter === 'all'
+                                    ? record.te_sum.toLocaleString()
+                                    : record.te_starter_sum.toLocaleString()
+                                }}
+                              </a-tag>
+                            </div>
                           </div>
                         </a-col>
                         <a-col :span="4" v-if="overallFilter === 'all'">
@@ -426,6 +467,12 @@
                                 </span>
                               </li>
                             </ul>
+                            <div style="float: right; padding-top: 5px">
+                              <span>Total </span>
+                              <a-tag>
+                                {{ record.picks_sum.toLocaleString() }}
+                              </a-tag>
+                            </div>
                           </div>
                         </a-col>
                       </a-row>
@@ -875,189 +922,313 @@
                   <a-row
                     ><a-col :span="24">
                       <h2 style="text-align: center">Projections Heat Map</h2>
-                      <a-table
-                        :data-source="projSummaryData"
-                        :columns="projColumns"
-                        :pagination="{ pageSize: 20 }"
-                        style="width: 100%; max-width: 1150px"
-                        row-key="user_id"
-                        :expand-column-width="100"
-                        :scroll="{ x: '850px' }"
-                        ><template #expandedRowRender="{ record }">
-                          <div>
-                            <a-divider orientation="center"></a-divider>
-                            <a-row justify="space-between" gutter="[8,8]">
-                              <!-- Quarterbacks -->
-                              <a-col :xs="5" :sm="5" :md="5" :lg="5" :xl="5">
-                                <div>
-                                  <h3>Quarterbacks {{ addOrdinalSuffix(record.qb_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
+                      <div class="table-section" style="flex: 2">
+                        <a-table
+                          :data-source="projSummaryData"
+                          :columns="projColumns"
+                          :pagination="{ pageSize: 20 }"
+                          style="width: 100%; max-width: 1150px"
+                          row-key="user_id"
+                          :expand-column-width="100"
+                          :scroll="{ x: '850px' }"
+                          ><template #expandedRowRender="{ record }">
+                            <div>
+                              <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 4 }">
+                                <a-col :span="6" style="padding-bottom: 7px">
+                                  <span>QBs </span>
+                                  <a-tag>
+                                    {{
+                                      addOrdinalSuffix(
+                                        overallFilter === 'all'
+                                          ? record.qb_rank
+                                          : record.qb_starter_rank
+                                      )
+                                    }}</a-tag
                                   >
-                                    <li
-                                      v-if="player.player_position === 'QB'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        margin-bottom: 2px;
-                                        border-radius: 2px;
-                                        padding: 0 10px;
-                                      "
-                                    >
-                                      <span
-                                        style="
-                                          flex: 1;
-                                          white-space: normal;
-                                          overflow-wrap: break-word;
-                                        "
-                                      >
-                                        {{ player?.full_name }} {{ player?.team }}
-                                      </span>
-                                      <span>
-                                        {{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
-                                        }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
+                                  <span>Avg Age </span>
+                                  <a-tag>
+                                    {{
+                                      overallFilter === 'all'
+                                        ? record.qb_average_age
+                                        : record.qb_starter_average_age
+                                    }}
+                                  </a-tag>
+                                </a-col>
 
-                              <!-- Runningbacks -->
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Runningbacks {{ addOrdinalSuffix(record.rb_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
+                                <a-col :span="6" style="padding-bottom: 7px">
+                                  <span>RBs </span>
+                                  <a-tag>
+                                    {{
+                                      addOrdinalSuffix(
+                                        overallFilter === 'all'
+                                          ? record.rb_rank
+                                          : record.rb_starter_rank
+                                      )
+                                    }}</a-tag
                                   >
-                                    <li
-                                      v-if="player.player_position === 'RB'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        margin-bottom: 2px;
-                                        border-radius: 2px;
-                                        padding: 0 10px;
-                                      "
+                                  <span>Avg Age </span>
+                                  <a-tag>
+                                    {{
+                                      overallFilter === 'all'
+                                        ? record.rb_average_age
+                                        : record.rb_starter_average_age
+                                    }}
+                                  </a-tag></a-col
+                                >
+                                <a-col :span="6" style="padding-bottom: 7px">
+                                  <span>WRs </span>
+                                  <a-tag>
+                                    {{
+                                      addOrdinalSuffix(
+                                        overallFilter === 'all'
+                                          ? record.wr_rank
+                                          : record.wr_starter_rank
+                                      )
+                                    }}</a-tag
+                                  >
+                                  <span>Avg Age </span>
+                                  <a-tag>
+                                    {{
+                                      overallFilter === 'all'
+                                        ? record.wr_average_age
+                                        : record.wr_starter_average_age
+                                    }}
+                                  </a-tag></a-col
+                                >
+                                <a-col :span="6" style="padding-bottom: 7px">
+                                  <span>TEs </span>
+                                  <a-tag>
+                                    {{
+                                      addOrdinalSuffix(
+                                        overallFilter === 'all'
+                                          ? record.te_rank
+                                          : record.te_starter_rank
+                                      )
+                                    }}</a-tag
+                                  >
+                                  <span>Avg Age </span>
+                                  <a-tag>
+                                    {{
+                                      overallFilter === 'all'
+                                        ? record.te_average_age
+                                        : record.te_starter_average_age
+                                    }}
+                                  </a-tag></a-col
+                                >
+                              </a-row>
+                              <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 4 }">
+                                <!-- Quarterbacks -->
+                                <a-col :span="6">
+                                  <div>
+                                    <ul
+                                      style="padding: 0; list-style: none"
+                                      v-for="player in getPlayersProj(record.user_id)"
                                     >
-                                      <span
+                                      <li
+                                        v-if="player.player_position === 'QB'"
+                                        :key="player.sleeper_id"
+                                        :style="getPositionTagList(player.player_position, 0.35)"
                                         style="
-                                          flex: 1;
-                                          white-space: normal;
-                                          overflow-wrap: break-word;
+                                          display: flex;
+                                          justify-content: space-between;
+                                          align-items: center;
+                                          margin-bottom: 2px;
+                                          border-radius: 2px;
+                                          padding: 0 10px;
                                         "
                                       >
-                                        {{ player?.full_name }} {{ player?.team }}
-                                      </span>
-                                      <span>
+                                        <span
+                                          style="
+                                            flex: 1;
+                                            white-space: normal;
+                                            overflow-wrap: break-word;
+                                          "
+                                        >
+                                          {{ player?.full_name }} {{ player?.team }}
+                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                        </span>
+                                        <span>
+                                          {{
+                                            player.player_value === -1
+                                              ? 'N/A'
+                                              : player.player_value?.toLocaleString()
+                                          }}
+                                        </span>
+                                      </li>
+                                    </ul>
+                                    <div style="float: right; padding-top: 5px">
+                                      <span>Total </span>
+                                      <a-tag>
                                         {{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
+                                          overallFilter === 'all'
+                                            ? record.qb_sum.toLocaleString()
+                                            : record.qb_starter_sum.toLocaleString()
                                         }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
+                                      </a-tag>
+                                    </div>
+                                  </div>
+                                </a-col>
 
-                              <!-- Wide Receivers -->
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Wide Receivers {{ addOrdinalSuffix(record.wr_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'WR'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        margin-bottom: 2px;
-                                        border-radius: 2px;
-                                        padding: 0 10px;
-                                      "
+                                <!-- Runningbacks -->
+                                <a-col :span="6">
+                                  <div>
+                                    <ul
+                                      style="padding: 0; list-style: none"
+                                      v-for="player in getPlayersProj(record.user_id)"
                                     >
-                                      <span
+                                      <li
+                                        v-if="player.player_position === 'RB'"
+                                        :key="player.sleeper_id"
+                                        :style="getPositionTagList(player.player_position, 0.35)"
                                         style="
-                                          flex: 1;
-                                          white-space: normal;
-                                          overflow-wrap: break-word;
+                                          display: flex;
+                                          justify-content: space-between;
+                                          align-items: center;
+                                          margin-bottom: 2px;
+                                          border-radius: 2px;
+                                          padding: 0 10px;
                                         "
                                       >
-                                        {{ player?.full_name }} {{ player?.team }}
-                                      </span>
-                                      <span>
+                                        <span
+                                          style="
+                                            flex: 1;
+                                            white-space: normal;
+                                            overflow-wrap: break-word;
+                                          "
+                                        >
+                                          {{ player?.full_name }} {{ player?.team }}
+                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                        </span>
+                                        <span>
+                                          {{
+                                            player.player_value === -1
+                                              ? 'N/A'
+                                              : player.player_value?.toLocaleString()
+                                          }}
+                                        </span>
+                                      </li>
+                                    </ul>
+                                    <div style="float: right; padding-top: 5px">
+                                      <span>Total </span>
+                                      <a-tag>
                                         {{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
+                                          overallFilter === 'all'
+                                            ? record.rb_sum.toLocaleString()
+                                            : record.rb_starter_sum.toLocaleString()
                                         }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
+                                      </a-tag>
+                                    </div>
+                                  </div>
+                                </a-col>
 
-                              <!-- Tight Ends -->
-                              <a-col :span="5">
-                                <div>
-                                  <h3>Tight Ends {{ addOrdinalSuffix(record.te_rank) }}</h3>
-                                  <ul
-                                    style="padding: 0; list-style: none"
-                                    v-for="player in getPlayersProj(record.user_id)"
-                                  >
-                                    <li
-                                      v-if="player.player_position === 'TE'"
-                                      :key="player.sleeper_id"
-                                      :style="getPositionTagList(player.player_position, 0.35)"
-                                      style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: center;
-                                        margin-bottom: 2px;
-                                        border-radius: 2px;
-                                        padding: 0 10px;
-                                      "
+                                <!-- Wide Receivers -->
+                                <a-col :span="6">
+                                  <div>
+                                    <ul
+                                      style="padding: 0; list-style: none"
+                                      v-for="player in getPlayersProj(record.user_id)"
                                     >
-                                      <span
+                                      <li
+                                        v-if="player.player_position === 'WR'"
+                                        :key="player.sleeper_id"
+                                        :style="getPositionTagList(player.player_position, 0.35)"
                                         style="
-                                          flex: 1;
-                                          white-space: normal;
-                                          overflow-wrap: break-word;
+                                          display: flex;
+                                          justify-content: space-between;
+                                          align-items: center;
+                                          margin-bottom: 2px;
+                                          border-radius: 2px;
+                                          padding: 0 10px;
                                         "
                                       >
-                                        {{ player?.full_name }} {{ player?.team }}
-                                      </span>
-                                      <span>
+                                        <span
+                                          style="
+                                            flex: 1;
+                                            white-space: normal;
+                                            overflow-wrap: break-word;
+                                          "
+                                        >
+                                          {{ player?.full_name }} {{ player?.team }}
+                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                        </span>
+                                        <span>
+                                          {{
+                                            player.player_value === -1
+                                              ? 'N/A'
+                                              : player.player_value?.toLocaleString()
+                                          }}
+                                        </span>
+                                      </li>
+                                    </ul>
+                                    <div style="float: right; padding-top: 5px">
+                                      <span>Total </span>
+                                      <a-tag>
                                         {{
-                                          player.player_value === -1
-                                            ? 'N/A'
-                                            : player.player_value?.toLocaleString()
+                                          overallFilter === 'all'
+                                            ? record.wr_sum.toLocaleString()
+                                            : record.wr_starter_sum.toLocaleString()
                                         }}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </a-col>
-                            </a-row>
-                          </div>
-                        </template>
-                      </a-table>
+                                      </a-tag>
+                                    </div>
+                                  </div>
+                                </a-col>
+
+                                <!-- Tight Ends -->
+                                <a-col :span="6">
+                                  <div>
+                                    <ul
+                                      style="padding: 0; list-style: none"
+                                      v-for="player in getPlayersProj(record.user_id)"
+                                    >
+                                      <li
+                                        v-if="player.player_position === 'TE'"
+                                        :key="player.sleeper_id"
+                                        :style="getPositionTagList(player.player_position, 0.35)"
+                                        style="
+                                          display: flex;
+                                          justify-content: space-between;
+                                          align-items: center;
+                                          margin-bottom: 2px;
+                                          border-radius: 2px;
+                                          padding: 0 10px;
+                                        "
+                                      >
+                                        <span
+                                          style="
+                                            flex: 1;
+                                            white-space: normal;
+                                            overflow-wrap: break-word;
+                                          "
+                                        >
+                                          {{ player?.full_name }} {{ player?.team }}
+                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                        </span>
+                                        <span>
+                                          {{
+                                            player.player_value === -1
+                                              ? 'N/A'
+                                              : player.player_value?.toLocaleString()
+                                          }}
+                                        </span>
+                                      </li>
+                                    </ul>
+                                    <div style="float: right; padding-top: 5px">
+                                      <span>Total </span>
+                                      <a-tag>
+                                        {{
+                                          overallFilter === 'all'
+                                            ? record.te_sum.toLocaleString()
+                                            : record.te_starter_sum.toLocaleString()
+                                        }}
+                                      </a-tag>
+                                    </div>
+                                  </div>
+                                </a-col>
+                              </a-row>
+                            </div>
+                          </template>
+                        </a-table>
+                      </div>
                     </a-col>
                   </a-row>
                 </div>
@@ -1788,6 +1959,16 @@ const filteredData = computed(() => {
   }
 })
 
+const filteredProjData = computed(() => {
+  if (overallFilter.value === 'all') {
+    return projDetailData.value
+  } else {
+    return projDetailData.value.filter((item) => {
+      return item.fantasy_designation === overallFilter.value
+    })
+  }
+})
+
 const updateBchartData = (rawData) => {
   bchartData.value = rawData.flatMap((item) => {
     // Start with an array containing all positions except 'Picks'
@@ -2362,95 +2543,158 @@ const columns = computed(() => {
   return baseColumns
 })
 
-const projColumns: Column[] = [
-  {
-    title: '',
-    dataIndex: 'display_name',
-    key: 'display_name',
-    align: 'left',
-    width: 1
-  },
+const projColumns = computed(() => {
+  // Define base columns common to all views
+  let baseProjColumns = [
+    {
+      title: '',
+      dataIndex: 'display_name',
+      key: 'display_name',
+      align: 'left',
+      width: 1
+    },
+    {
+      title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
+      dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
+      key: 'overall_rank',
+      align: 'center',
+      customRender: ({ record }) =>
+        `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
+      sorter: (a, b) =>
+        overallFilter.value === 'all'
+          ? a.total_rank - b.total_rank
+          : a.starters_rank - b.starters_rank,
+      customCell: (record) => ({
+        style: getCellStyle(
+          overallFilter.value === 'all' ? record.total_rank : record.starters_rank
+        )
+      })
+    },
+    // Map over positions, skipping Picks and Bench when not 'all'
+    ...['QB', 'RB', 'WR', 'TE'].map((position) => ({
+      title: position,
+      dataIndex:
+        overallFilter.value === 'all'
+          ? `${position.toLowerCase()}_rank`
+          : `${position.toLowerCase()}_starter_rank`,
+      key: `${position.toLowerCase()}_rank`,
+      align: 'center',
+      customRender: ({ record }) =>
+        `${addOrdinalSuffix(record[overallFilter.value === 'all' ? `${position.toLowerCase()}_rank` : `${position.toLowerCase()}_starter_rank`])}`,
+      sorter: (a, b) =>
+        a[
+          overallFilter.value === 'all'
+            ? `${position.toLowerCase()}_rank`
+            : `${position.toLowerCase()}_starter_rank`
+        ] -
+        b[
+          overallFilter.value === 'all'
+            ? `${position.toLowerCase()}_rank`
+            : `${position.toLowerCase()}_starter_rank`
+        ],
+      customCell: (record) => ({
+        style: getCellStyle(
+          record[
+            overallFilter.value === 'all'
+              ? `${position.toLowerCase()}_rank`
+              : `${position.toLowerCase()}_starter_rank`
+          ]
+        )
+      })
+    }))
+  ]
+  return baseProjColumns
+})
 
-  {
-    title: 'Overall',
-    dataIndex: 'total_rank_display',
-    key: 'total_rank_display',
-    align: 'center',
-    slots: { customRender: 'totalValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.total_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.total_rank - b.total_rank
-    }
-  },
-  {
-    title: 'Starters',
-    dataIndex: 'starters_rank_display',
-    key: 'starter_rank_display',
-    align: 'center',
-    slots: { customRender: 'totalValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.starters_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.starters_rank - b.starters_rank
-    }
-  },
-  {
-    title: 'QB',
-    dataIndex: 'qb_rank_display',
-    key: 'qb_rank',
-    align: 'center',
-    slots: { customRender: 'qbValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.qb_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.qb_rank - b.qb_rank
-    }
-  },
-  {
-    title: 'RB',
-    dataIndex: 'rb_rank_display',
-    key: 'rb_rank',
-    align: 'center',
-    slots: { customRender: 'rbValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.rb_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.rb_rank - b.rb_rank
-    }
-  },
-  {
-    title: 'WR',
-    dataIndex: 'wr_rank_display',
-    key: 'wr_rank',
-    align: 'center',
-    slots: { customRender: 'wrValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.wr_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.wr_rank - b.wr_rank
-    }
-  },
-  {
-    title: 'TE',
-    dataIndex: 'te_rank_display',
-    key: 'te_rank',
-    align: 'center',
-    slots: { customRender: 'teValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.te_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.te_rank - b.te_rank
-    }
-  }
-  // Add more columns as needed
-]
+// const projColumns: Column[] = [
+//   {
+//     title: '',
+//     dataIndex: 'display_name',
+//     key: 'display_name',
+//     align: 'left',
+//     width: 1
+//   },
+
+//   {
+//     title: 'Overall',
+//     dataIndex: 'total_rank_display',
+//     key: 'total_rank_display',
+//     align: 'center',
+//     slots: { customRender: 'totalValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.total_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.total_rank - b.total_rank
+//     }
+//   },
+//   {
+//     title: 'Starters',
+//     dataIndex: 'starters_rank_display',
+//     key: 'starter_rank_display',
+//     align: 'center',
+//     slots: { customRender: 'totalValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.starters_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.starters_rank - b.starters_rank
+//     }
+//   },
+//   {
+//     title: 'QB',
+//     dataIndex: 'qb_rank_display',
+//     key: 'qb_rank',
+//     align: 'center',
+//     slots: { customRender: 'qbValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.qb_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.qb_rank - b.qb_rank
+//     }
+//   },
+//   {
+//     title: 'RB',
+//     dataIndex: 'rb_rank_display',
+//     key: 'rb_rank',
+//     align: 'center',
+//     slots: { customRender: 'rbValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.rb_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.rb_rank - b.rb_rank
+//     }
+//   },
+//   {
+//     title: 'WR',
+//     dataIndex: 'wr_rank_display',
+//     key: 'wr_rank',
+//     align: 'center',
+//     slots: { customRender: 'wrValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.wr_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.wr_rank - b.wr_rank
+//     }
+//   },
+//   {
+//     title: 'TE',
+//     dataIndex: 'te_rank_display',
+//     key: 'te_rank',
+//     align: 'center',
+//     slots: { customRender: 'teValueTooltip' },
+//     customCell: (record: any) => ({
+//       style: getCellStyle(record.te_rank)
+//     }),
+//     sorter: {
+//       compare: (a, b) => a.te_rank - b.te_rank
+//     }
+//   }
+//   // Add more columns as needed
+// ]
 
 onMounted(() => {
   const leagueId = route.params.leagueId as string
@@ -2587,22 +2831,13 @@ const playerChunks = computed(() => {
   }, [])
 })
 
-const starterSummaryData = computed(() => {
-  return [...summaryData.value].sort((a, b) => a.starters_rank - b.starters_rank)
-})
-
 const getPlayers = (userId) => {
   const interimData = filteredData.value.filter((item) => item.user_id === userId)
   return interimData
 }
 
-const getAllPlayers = (userId) => {
-  const interimData = detailData.value.filter((item) => item.user_id === userId)
-  return interimData
-}
-
 const getPlayersProj = (userId) => {
-  const interimProjData = projDetailData.value.filter((item) => item.user_id === userId)
+  const interimProjData = filteredProjData.value.filter((item) => item.user_id === userId)
   return interimProjData
 }
 
@@ -2976,10 +3211,6 @@ const chartOptions = computed(() => {
   }
 })
 
-const starterData = computed(() => {
-  return detailData.value.filter((item) => item.fantasy_designation === 'STARTER')
-})
-
 const groupedPlayers = computed(() => {
   return bestAvailableData.value.reduce((acc, player) => {
     if (!acc[player.player_position]) {
@@ -3069,6 +3300,7 @@ const playersByPosition = computed(() => {
 
   return groups
 })
+
 const visualStartPercentage = 20
 const max = 100
 const min = max - visualStartPercentage // Actual value that corresponds to 20% visually
