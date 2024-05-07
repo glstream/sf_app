@@ -98,7 +98,7 @@
 
         <a-spin tip="Loading..." :spinning="summaryIsLoading">
           <a-tabs v-model:activeKey="activeKey">
-            <a-tab-pane key="1" tab="Overall">
+            <a-tab-pane key="1" tab="OVERALL">
               <h2 class="tab-sub-header">Power Ranks</h2>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col :span="{ xs: 24, sm: 8, md: 8, lg: 8 }">
@@ -178,18 +178,89 @@
                 >
                   <template #expandedRowRender="{ record }">
                     <div>
-                      <a-divider orientation="center"></a-divider>
-                      <a-row justify="space-around" :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
-                        <a-col :span="4">
+                      <a-row :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
+                        <a-col :span="5" style="padding-bottom: 7px">
+                          <span>QBs </span>
+                          <a-tag>
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
+                              )
+                            }}</a-tag
+                          >
+                          <span>Avg Age </span>
+                          <a-tag>
+                            {{
+                              overallFilter === 'all'
+                                ? record.qb_average_age
+                                : record.qb_starter_average_age
+                            }}
+                          </a-tag></a-col
+                        >
+                        <a-col :span="5" style="padding-bottom: 7px">
+                          <span>RBs </span>
+                          <a-tag>
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
+                              )
+                            }}</a-tag
+                          >
+                          <span>Avg Age </span>
+                          <a-tag>
+                            {{
+                              overallFilter === 'all'
+                                ? record.rb_average_age
+                                : record.rb_starter_average_age
+                            }}
+                          </a-tag></a-col
+                        >
+                        <a-col :span="5" style="padding-bottom: 7px">
+                          <span>WRs </span>
+                          <a-tag>
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
+                              )
+                            }}</a-tag
+                          >
+                          <span>Avg Age </span>
+                          <a-tag>
+                            {{
+                              overallFilter === 'all'
+                                ? record.wr_average_age
+                                : record.wr_starter_average_age
+                            }}
+                          </a-tag></a-col
+                        >
+                        <a-col :span="5" style="padding-bottom: 7px">
+                          <span>TEs </span>
+                          <a-tag>
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? record.te_rank : record.te_starter_rank
+                              )
+                            }}</a-tag
+                          >
+                          <span>Avg Age </span>
+                          <a-tag>
+                            {{
+                              overallFilter === 'all'
+                                ? record.te_average_age
+                                : record.te_starter_average_age
+                            }}
+                          </a-tag></a-col
+                        >
+                        <a-col :span="4" v-if="overallFilter === 'all'">
+                          <span>Picks </span>
+                          <a-tag> {{ addOrdinalSuffix(record.picks_rank) }}</a-tag>
+                          <span>Avg Age </span>
+                          <a-tag> -- </a-tag></a-col
+                        >
+                      </a-row>
+                      <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 8 }">
+                        <a-col :span="5">
                           <div>
-                            <h3>
-                              Quarterbacks
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
-                                )
-                              }}
-                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -210,7 +281,7 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }}
+                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
                                 </span>
                                 <span>
                                   {{
@@ -224,16 +295,8 @@
                           </div>
                         </a-col>
 
-                        <a-col :span="4">
+                        <a-col :span="5">
                           <div>
-                            <h3>
-                              Runningbacks
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
-                                )
-                              }}
-                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -253,7 +316,7 @@
                                 "
                               >
                                 <span style="flex-grow: 1; white-space: normal; margin-right: 10px">
-                                  {{ player?.full_name }} {{ player?.team }}
+                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
                                 </span>
                                 <span>
                                   {{
@@ -267,16 +330,8 @@
                           </div>
                         </a-col>
 
-                        <a-col :span="4">
+                        <a-col :span="5">
                           <div>
-                            <h3>
-                              Wide Receivers
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
-                                )
-                              }}
-                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -297,7 +352,7 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }}
+                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
                                 </span>
                                 <span>
                                   {{
@@ -310,16 +365,8 @@
                             </ul>
                           </div>
                         </a-col>
-                        <a-col :span="4">
+                        <a-col :span="5">
                           <div>
-                            <h3>
-                              Tight Ends
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.te_rank : record.te_starter_rank
-                                )
-                              }}
-                            </h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -340,7 +387,7 @@
                                 <span
                                   style="flex: 1; white-space: normal; overflow-wrap: break-word"
                                 >
-                                  {{ player?.full_name }} {{ player?.team }}
+                                  {{ player?.full_name }} {{ player?.team }} {{ player?.age }}yrs
                                 </span>
                                 <span>
                                   {{
@@ -355,7 +402,6 @@
                         </a-col>
                         <a-col :span="4" v-if="overallFilter === 'all'">
                           <div>
-                            <h3>Picks {{ addOrdinalSuffix(record.picks_rank) }}</h3>
                             <ul
                               style="padding: 0; list-style: none"
                               v-for="player in getPlayers(record.user_id)"
@@ -368,35 +414,6 @@
                               >
                                 <span>{{ player?.full_name }}</span
                                 ><span style="float: right">
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </a-col>
-                        <a-col :span="4" v-if="overallFilter !== 'all'">
-                          <div>
-                            <h3>Bench {{ addOrdinalSuffix(record.bench_rank) }}</h3>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getAllPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.fantasy_designation === 'BENCH'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.2)"
-                                style="
-                                  border: 1px solid rgba(0, 0, 0, 0.2);
-                                  margin-bottom: 2px;
-                                  border-radius: 2px;
-                                "
-                              >
-                                <span
-                                  >{{ player?.full_name }} &bull;
                                   {{
                                     player.player_value === -1
                                       ? 'N/A'
@@ -472,7 +489,7 @@
                 </a-table>
               </div>
             </a-tab-pane>
-            <a-tab-pane key="2" tab="Rosters">
+            <a-tab-pane key="2" tab="ROSTERS">
               <h2 style="text-align: left">Players by Manager</h2>
               <a-row justify="space-around" :gutter="8">
                 <a-col
@@ -539,7 +556,7 @@
                 </a-col>
               </a-row>
             </a-tab-pane>
-            <a-tab-pane key="3" tab="Positions">
+            <a-tab-pane key="3" tab="POSITIONS">
               <h2 class="tab-sub-header">Rankings by Position</h2>
               <div style="display: flex; justify-content: left">
                 <div class="avatar-container">
@@ -800,6 +817,7 @@
                           }"
                         >
                           {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
+                          {{ player?.age }}yrs
                         </span>
                         <span style="float: right"
                           >{{
@@ -814,7 +832,7 @@
                 </a-col>
               </a-row>
             </a-tab-pane>
-            <a-tab-pane key="4" tab="Projections">
+            <a-tab-pane key="4" tab="PROJECTIONS">
               <a-space>
                 <a-select
                   ref="select"
@@ -1042,7 +1060,7 @@
               </a-spin>
             </a-tab-pane>
 
-            <a-tab-pane key="5" tab="Players">
+            <a-tab-pane key="5" tab="PLAYERS">
               <h2 class="tab-sub-header">All Players in League</h2>
               <div style="display: flex; justify-content: left">
                 <div class="avatar-container">
@@ -1319,7 +1337,7 @@
               </a-row>
             </a-tab-pane>
 
-            <a-tab-pane key="6" tab="Manager View">
+            <a-tab-pane key="6" tab="MANAGER VIEW">
               <h2 class="tab-sub-header">Team Dashboard</h2>
               <h3 class="chart-title">Roster</h3>
               <div v-for="manager in summaryData" :key="manager.user_id">
@@ -1523,7 +1541,7 @@
                 </a-row>
               </div>
             </a-tab-pane>
-            <a-tab-pane key="7" tab="Waivers">
+            <a-tab-pane key="7" tab="WAIVERS">
               <div>
                 <h2>Best Available</h2>
                 <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
@@ -1562,7 +1580,7 @@
                 </a-row>
               </div>
             </a-tab-pane>
-            <a-tab-pane key="8" tab="Trades (Beta)">
+            <a-tab-pane key="8" tab="TRADES (Beta)">
               <h2 style="text-align: left">Trades Table</h2>
 
               <a-spin :spinning="isTradesLoading">
