@@ -868,7 +868,11 @@
                           }"
                         >
                           {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
-                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                          <span
+                            v-if="player.player_position.toLowerCase() !== 'picks'"
+                            style="font-size: 11px"
+                            >{{ player?.age }}yrs</span
+                          >
                         </span>
                         <span style="float: right"
                           >{{
