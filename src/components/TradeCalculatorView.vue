@@ -510,7 +510,7 @@ const tweetPlayers = () => {
     (option) => option.value === dropDownValue1.value
   )?.label
   const tepText = tepCheck.value ? 'TEP' : ''
-  const tweetText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @superflex_app\n www.superflex.app`
+  const tweetText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @fantasynav1\n www.fantasynavigator.com`
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
   window.open(tweetUrl, '_blank')
 }
@@ -526,7 +526,7 @@ const redditPlayers = () => {
   const subReddit = rankType.value === 'dynasty' ? dynastySubReddit : redraftSubReddit
   const tepText = tepCheck.value ? 'TEP' : ''
   const redditTitle = 'Which Side Wins?'
-  const redditText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2}`
+  const redditText = `${currentDropDownLabel} Team ${tepText}\n${rankType.value.charAt(0).toUpperCase() + rankType.value.slice(1)} ${state.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @fantasynav1\n www.fantasynavigator.com`
   const redditUrl = `https://www.reddit.com/r/${subReddit}/submit?title=${encodeURIComponent(redditTitle)}&text=${encodeURIComponent(redditText)}`
   window.open(redditUrl, '_blank')
 }
