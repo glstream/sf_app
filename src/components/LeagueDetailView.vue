@@ -2122,7 +2122,7 @@ const updateScatterPlotData = (rawData) => {
 // })
 
 const OverallScatterPlotData = computed(() => {
-  const suffix = overallFilter.value === 'all' ? 'total_value' : 'starters_value'
+  const suffix = overallFilter.value === 'all' ? 'total_value' : 'starters_sum'
 
   const mergedData = summaryData.value
     .map((summaryItem) => {
