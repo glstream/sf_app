@@ -3008,7 +3008,32 @@ async function fetchSummaryData(
   } catch (error) {
     console.error('Failed to fetch league summary data. Please try again later.')
   } finally {
+    const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
+
+    if (!userSummary) {
+      console.error('No summary data found for user:', leagueInfo.userId)
+      // message.error('League must be done drafting to view ranks.');
+      summaryIsLoading.value = false // Ensure loading is turned off
+      return // Exit the function or handle differently as required
+    }
+
     summaryIsLoading.value = false
+
+    try {
+      const response = await axios.post(`${apiUrl}/ranks_summary`, {
+        user_id: leagueInfo.userId,
+        display_name: leagueInfo.userName,
+        league_id: leagueInfo.leagueId,
+        rank_source: platform,
+        power_rank: userSummary.total_rank,
+        starters_rank: userSummary.starters_rank,
+        bench_rank: userSummary.bench_rank,
+        picks_rank: userSummary.picks_rank
+      })
+    } catch (error) {
+      console.error('Error updating ranks summary:', error.message)
+      // Handle the error as needed
+    }
   }
 
   if (retryCount === maxRetries) {
