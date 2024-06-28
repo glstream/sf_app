@@ -16,10 +16,10 @@
           >
             <h1 class="site-title">Fantasy Navigator</h1>
             <span>
-              Navigate your way to victory in both Dynasty and Redraft formats with our suite of
-              tools. Utilize our Trade Calculator, Rankings, and League Analytics, all powered by
-              popular fantasy markets as our own ranks. Enter your Sleeper username below to take a
-              1,000 foot view of your league.
+              Navigate your way to victory in both Dynasty and Redraft with our suite of tools.
+              Utilize our Trade Calculator, Rankings, and League Analytics, all powered by popular
+              fantasy markets as our own ranks. Enter your Sleeper username below to take a 1,000
+              foot view of your league.
             </span>
           </div>
         </a-col>
