@@ -581,9 +581,9 @@ const getLeagueDetail = async (values: any) => {
   try {
     console.log('attempt get league')
 
-    router.push(
-      `/league/${leagueId}/sf/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${leagueStarters}/${leagueSize}`
-    )
+    const url = `/league/${encodeURIComponent(leagueId)}/sf/${encodeURIComponent(rankType)}/${encodeURIComponent(guid)}/${encodeURIComponent(leagueYear)}/${encodeURIComponent(userName)}/${encodeURIComponent(leagueName)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(userId)}/${encodeURIComponent(avatar)}/${encodeURIComponent(leagueStarters)}/${encodeURIComponent(leagueSize)}`
+
+    router.push(url)
   } catch (error) {
     console.error('Failed to load league details:', error)
   } finally {
