@@ -477,8 +477,8 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     const leagueId = league.league_id
     const guid = league.session_id
     const leagueYear = league.league_year
-    const userName = league.user_name
-    const leagueName = league.league_name
+    const userName = encodeURIComponent(league.user_name)
+    const leagueName = encodeURIComponent(league.league_name)
     const userId = league.user_id
     const avatar = league.avatar
     const rankType = league.league_type
@@ -505,8 +505,8 @@ const getLeagueSummary = async (record) => {
   const leagueId = record.league_id
   const guid = record.session_id
   const leagueYear = record.league_year
-  const userName = record.user_name
-  const leagueName = record.league_name
+  const userName = encodeURIComponent(record.user_name)
+  const leagueName = encodeURIComponent(record.league_name)
   const rosterType = record.roster_type
   const userId = record.user_id
   const avatar = record.avatar
