@@ -3185,7 +3185,7 @@ const getLeagueSummary = async (values: any) => {
   try {
     console.log('attempt get league summary')
 
-    const url = `/leaguesummary/${userName}/${userId}/${leagueId}/${leagueName}/${leagueYear}/${leagueStarters}/${leagueSize}/${rosterType}/${guid}/${rosterType}/${avatar}/${rankType}`
+    const url = `/leaguesummary/${encodeURIComponent(userName)}/${encodeURIComponent(userId)}/${encodeURIComponent(leagueId)}/${encodeURIComponent(leagueName)}/${encodeURIComponent(leagueYear)}/${encodeURIComponent(leagueStarters)}/${encodeURIComponent(leagueSize)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(guid)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(avatar)}/${encodeURIComponent(rankType)}`
 
     router.push(url)
   } catch (error) {
