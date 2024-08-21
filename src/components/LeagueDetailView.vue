@@ -59,7 +59,7 @@
                   <a-select ref="select" v-model:value="value1" @change="handleProjChange">
                     <a-select-option value="espn">ESPN</a-select-option>
                     <a-select-option value="cbs">CBS</a-select-option>
-                    <a-select-option value="nfl" disabled>NFL</a-select-option>
+                    <a-select-option value="nfl">NFL</a-select-option>
                   </a-select>
                 </div>
               </a-col>
@@ -897,7 +897,7 @@
                 >
                   <a-select-option value="espn">ESPN</a-select-option>
                   <a-select-option value="cbs">CBS</a-select-option>
-                  <a-select-option value="nfl" disabled>NFL</a-select-option>
+                  <a-select-option value="nfl">NFL</a-select-option>
                 </a-select>
               </a-space>
 
