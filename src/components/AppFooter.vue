@@ -13,7 +13,7 @@
     <a href="https://www.nfl.com/" target="_blank">NFL Projections</a>, and
     <a href="https://dynastyprocess.com/" target="_blank">Dynasty Process</a>. All trademarks and
     copyrights are the property of their respective owners. <br />
-    FantasyNavigator 2024
+    FantasyNavigator 2025
   </a-layout-footer>
 </template>
 
