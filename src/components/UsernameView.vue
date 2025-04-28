@@ -300,7 +300,7 @@ const showModal = () => {
   open.value = true
 }
 const navigateToDemoPage = () => {
-  router.push('/leagues/2024/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
+  router.push('/leagues/2025/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
 }
 const handleOk = (e: MouseEvent) => {
   open.value = false
@@ -318,7 +318,7 @@ async function updateUserDetails(year, name, guid) {
 
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
-  leagueYear: userStore.leagueYear || '2024'
+  leagueYear: userStore.leagueYear || '2025'
 })
 
 const onFinish = async (values) => {
