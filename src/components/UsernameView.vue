@@ -62,7 +62,6 @@
                 :rules="[{ required: true, message: 'Please select a league year' }]"
                 ><span>Year</span>
                 <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
-                  <a-select-option value="2025">2025</a-select-option>
                   <a-select-option value="2024">2024</a-select-option>
                   <a-select-option value="2023">2023</a-select-option>
                   <a-select-option value="2022">2022</a-select-option>
@@ -300,7 +299,7 @@ const showModal = () => {
   open.value = true
 }
 const navigateToDemoPage = () => {
-  router.push('/leagues/2025/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
+  router.push('/leagues/4/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
 }
 const handleOk = (e: MouseEvent) => {
   open.value = false
@@ -318,7 +317,7 @@ async function updateUserDetails(year, name, guid) {
 
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
-  leagueYear: userStore.leagueYear || '2025'
+  leagueYear: userStore.leagueYear || '2024'
 })
 
 const onFinish = async (values) => {
