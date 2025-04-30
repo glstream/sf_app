@@ -500,6 +500,113 @@ const onFinishFailed = (errorInfo: any) => {
   .hero-section {
     padding: 32px 0 24px 0;
   }
+  .landing-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between; /* Better distribute items */
+  }
+
+  /* Create a proper row for username and year fields */
+  .landing-form .form-item-large:nth-child(1),
+  .landing-form .form-item-large:nth-child(2) {
+    display: inline-flex;
+    margin-bottom: 0;
+  }
+
+  /* Username field should take up most space, now with info icon */
+  .landing-form .form-item-large:nth-child(1) {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-left: 8px;
+    display: flex; /* Make it a flex container for aligning with info button */
+    align-items: center;
+    position: relative; /* Set as position reference for info button */
+  }
+
+  /* Position info button next to username */
+  .landing-form .form-item:nth-child(5) {
+    position: absolute;
+    right: -40px; /* Position it to the right of username field */
+    top: 0;
+    margin-top: 0;
+    height: 40px; /* Match height of input */
+  }
+
+  .landing-form .form-item:nth-child(5) button {
+    height: 40px;
+    width: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Make username input a bit narrower to accommodate info button */
+  .landing-form .form-item-large:nth-child(1) .ant-input {
+    width: calc(100% - 40px);
+  }
+
+  /* Make year dropdown narrower */
+  .landing-form .form-item-large:nth-child(2) {
+    flex: 0 0 auto; /* Don't grow or shrink */
+    width: 80px;
+    min-width: 80px; /* Smaller minimum width */
+    max-width: 80px; /* Add maximum width constraint */
+    padding-right: 8px;
+  }
+
+  /* Force the year dropdown to be narrower */
+  .landing-form .form-item-large:nth-child(2) .ant-select {
+    width: 80px !important;
+  }
+
+  /* Create a second row for the buttons - modified to be side by side */
+  .landing-form .form-item-large:nth-child(3),
+  .landing-form .form-item-large:nth-child(4) {
+    flex: 0 0 auto; /* Don't grow, don't shrink, use natural size */
+    margin-top: 16px;
+    width: auto;
+    display: inline-flex;
+  }
+
+  /* First button (Load My Leagues) */
+  .landing-form .form-item-large:nth-child(3) {
+    margin-right: 10px; /* Add spacing between buttons */
+  }
+
+  /* Add a flex container to hold buttons on one line */
+  .landing-form::after {
+    content: '';
+    display: flex;
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: center; /* Center buttons horizontally */
+    gap: 10px;
+  }
+
+  /* Info button adjusted to align with buttons */
+  .landing-form .form-item:nth-child(5) {
+    margin-top: 16px;
+    align-self: center;
+  }
+
+  /* Ensure buttons are sized properly for mobile */
+  .landing-form .cta-btn,
+  .landing-form button {
+    width: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  /* Add padding to the form container */
+  .hero-form {
+    padding: 20px 16px; /* More horizontal padding */
+    width: 100%;
+    max-width: 100%;
+  }
 }
 @media (min-width: 600px) {
   .layout-content {
