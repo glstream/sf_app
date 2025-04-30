@@ -1,67 +1,48 @@
 <template>
   <a-layout class="layout">
     <theme-toggle-button />
-
     <AppHeader />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-      <a-row>
-        <a-col :span="24">
-          <div style="float: right">
-            <a-dropdown-button :loading="isLoading">
-              <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-              {{ selectedSource.name }}
-              <template #overlay>
-                <a-menu @click="handleMenuClick">
-                  <a-menu-item v-for="source in filteredSources" :key="source.key">
-                    <UserOutlined />
-                    <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                      source.name
-                    }}
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown-button>
-          </div></a-col
-        >
-      </a-row>
-      <a-row style="margin-bottom: 20px">
-        <a-col :span="12">
-          <div
-            style="
-              padding-bottom: 5px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <div class="switch-container">
-              <div title="Settings">
-                <div class="setting-item">
-                  <a-switch
-                    id="switch1"
-                    size="large"
-                    v-model:checked="state.checked1"
-                    checked-children="Superflex"
-                    un-checked-children="OneQB"
-                  />
-                </div>
-                <div class="setting-item">
-                  <a-switch
-                    id="switch2"
-                    size="large"
-                    v-model:checked="state.checked2"
-                    checked-children="Dynasty"
-                    un-checked-children="Redraft"
-                  />
-                </div>
-              </div>
-            </div>
+      <!-- Controls section -->
+      <div class="ranks-controls">
+        <div class="ranks-source-selector">
+          <a-dropdown-button :loading="isLoading">
+            <img class="rank-logos" :src="selectedSource.logo" alt="Source logo" />
+            {{ selectedSource.name }}
+            <template #overlay>
+              <a-menu @click="handleMenuClick">
+                <a-menu-item v-for="source in filteredSources" :key="source.key">
+                  <img class="rank-logos" :src="source.logo" />
+                  {{ source.name }}
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown-button>
+        </div>
+
+        <div class="ranks-toggle-section">
+          <div class="setting-item">
+            <a-switch
+              id="switch1"
+              size="large"
+              v-model:checked="state.checked1"
+              checked-children="Superflex"
+              un-checked-children="OneQB"
+            />
           </div>
-        </a-col>
-      </a-row>
-      <a-row>
-        <a-col :span="20">
+          <div class="setting-item">
+            <a-switch
+              id="switch2"
+              size="large"
+              v-model:checked="state.checked2"
+              checked-children="Dynasty"
+              un-checked-children="Redraft"
+            />
+          </div>
+        </div>
+
+        <div class="ranks-filter-section">
           <a-checkbox
             v-model:checked="checkState.checkAll"
             :indeterminate="checkState.indeterminate"
@@ -70,64 +51,59 @@
             ALL
           </a-checkbox>
           <a-checkbox-group v-model:value="checkState.checkedList" :options="plainOptions" />
-        </a-col>
-        <a-col :span="4">
-          <a-button type="default" @click="downloadData" style="float: right">
-            <DownloadOutlined />
+
+          <a-button type="default" @click="downloadData" class="download-btn">
+            <DownloadOutlined /> Export
           </a-button>
-        </a-col>
-      </a-row>
+        </div>
+      </div>
+
+      <!-- Rankings table -->
       <a-spin :spinning="isLoading">
-        <div class="card-list">
-          <a-row :gutter="{ xs: 2, sm: 16, md: 24, lg: 32 }">
-            <a-col class="gutter-row" :span="16">
-              <div class="gutter-box-playername">RANK</div>
-            </a-col>
-            <a-col class="gutter-row" :span="2">
-              <div class="gutter-box"></div>
-            </a-col>
-            <a-col class="gutter-row" :span="2">
-              <div class="gutter-box">AGE</div>
-            </a-col>
-            <a-col class="gutter-row" :span="4">
-              <div class="gutter-box">VALUE</div>
-            </a-col>
-          </a-row>
+        <div class="rankings-table">
+          <div class="rankings-header">
+            <div class="cell cell-rank"></div>
+            <div class="cell cell-tier">Tier</div>
+            <div class="cell cell-player">Player</div>
+            <div class="cell cell-team">Team</div>
+            <div class="cell cell-age">Age</div>
+            <div class="cell cell-value">Value</div>
+          </div>
 
-          <div v-for="(asset, index) in paginatedData" :key="asset._rownum">
-            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="ranks-row">
-              <a-col class="gutter-row" :span="16">
-                <div class="gutter-box-playername">
-                  <a-avatar shape="square" class="avatar">{{
-                    (currentPage - 1) * perPage + index + 1
-                  }}</a-avatar>
-
-                  <div class="player-name">{{ asset.player_full_name }}</div>
-                  <a-tag class="position-tag" :style="getPositionTag(asset._position)"
-                    >{{ asset._position }} {{ asset.pos_ranked }}</a-tag
-                  >
+          <div
+            v-for="(asset, index) in paginatedData"
+            :key="asset._rownum"
+            class="rankings-row"
+            :class="getTierClass(asset.player_value)"
+          >
+            <div class="cell cell-rank">{{ (currentPage - 1) * perPage + index + 1 }}</div>
+            <div class="cell cell-tier">
+              <div class="tier-indicator" :class="getTierClass(asset.player_value)">
+                {{ getTierLabel(asset.player_value) }}
+              </div>
+            </div>
+            <div class="cell cell-player">
+              <div class="player-container">
+                <div class="position-tag" :style="getPositionTag(asset._position)">
+                  {{ asset._position }}<span class="pos-rank">{{ asset.pos_ranked }}</span>
                 </div>
-              </a-col>
-              <a-col class="gutter-row" :span="2">
-                <div v-if="asset.team" class="gutter-box">{{ asset.team }}</div>
-                <div v-else class="gutter-box">--</div>
-              </a-col>
-              <a-col class="gutter-row" :span="2">
-                <div v-if="asset.age" class="gutter-box">{{ asset.age }}</div>
-                <div v-else class="gutter-box">--</div>
-              </a-col>
-              <a-col class="gutter-row" :span="4">
-                <div class="gutter-box-value">{{ asset.player_value.toLocaleString() }}</div>
-              </a-col>
-            </a-row>
+                <div class="player-name">{{ asset.player_full_name }}</div>
+              </div>
+            </div>
+            <div class="cell cell-team">{{ asset.team || '—' }}</div>
+            <div class="cell cell-age">{{ asset.age || '—' }}</div>
+            <div class="cell cell-value">{{ asset.player_value.toLocaleString() }}</div>
           </div>
         </div>
-        <a-pagination
-          :current="currentPage"
-          :total="filteredData.length"
-          :pageSize="perPage"
-          @change="handlePageChange"
-        ></a-pagination>
+
+        <div class="pagination-container">
+          <a-pagination
+            :current="currentPage"
+            :total="filteredData.length"
+            :pageSize="perPage"
+            @change="handlePageChange"
+          ></a-pagination>
+        </div>
       </a-spin>
     </a-layout-content>
     <AppFooter />
@@ -297,6 +273,25 @@ function getPositionTag(position) {
   }
 }
 
+// Tier logic: adjusted with your preferred thresholds
+function getTierClass(value: number) {
+  if (value >= 8000) return 'tier-elite'
+  if (value >= 5000) return 'tier-1'
+  if (value >= 3000) return 'tier-2'
+  if (value >= 1500) return 'tier-3'
+  if (value >= 800) return 'tier-4'
+  return 'tier-depth'
+}
+
+function getTierLabel(value: number) {
+  if (value >= 8000) return 'Elite'
+  if (value >= 5000) return 'Tier 1'
+  if (value >= 3000) return 'Tier 2'
+  if (value >= 1500) return 'Tier 3'
+  if (value >= 800) return 'Depth'
+  return 'Waiver'
+}
+
 async function fetchRanks(platform: string) {
   isLoading.value = true
   const apiUrl = import.meta.env.VITE_API_URL
@@ -365,86 +360,279 @@ function handlePageChange(page) {
   currentPage.value = page
 }
 </script>
+
 <style scoped>
+/* General layout */
+.responsive-padding {
+  padding: 0 16px;
+  max-width: 100%; /* Allow table to fill more screen space */
+  margin: 0; /* Align to left instead of center */
+}
+
 .rank-logos {
   width: 24px;
   height: 20px;
   vertical-align: middle;
   border-radius: 3px;
+  margin-right: 5px;
 }
 
-/* This is the base style, for mobile screens */
-.responsive-padding {
-  padding: 0 16px; /* Small padding for small screens */
-}
-
-/* Media query for screens wider than 768px */
-@media (min-width: 768px) {
-  .responsive-padding {
-    padding: 0 300px; /* Larger padding for larger screens */
-  }
-}
-.switch-container > div[title='Settings'] {
+/* Controls styling */
+.ranks-controls {
   display: flex;
-  justify-content: start; /* Align items to the start of the container */
-  align-items: center; /* Align items vertically in the center */
-  gap: 10px; /* Adds space between the switches */
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ranks-source-selector {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ranks-toggle-section {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ranks-filter-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.download-btn {
+  margin-left: auto;
 }
 
 .setting-item {
-  display: flex; /* This makes sure the content of each setting item aligns correctly */
-  align-items: center; /* Aligns the switch vertically in the middle */
-}
-.card-list {
-  display: flex;
-  flex-direction: column;
-  padding: 1em;
-  margin-top: 10px;
-}
-
-.header-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-  border: 1px solid #f0f0f0;
-  border-radius: 5px;
 }
 
-.avatar {
-  background-color: rgb(87, 117, 144);
+/* Table styling */
+.rankings-table {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: white;
+  max-width: 100%; /* Allow table to expand on desktop */
+}
+
+.rankings-header {
+  display: grid;
+  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px; /* Wider columns for desktop */
+  padding: 12px 8px;
+  font-weight: 600;
+  color: #1f2937;
+  background: #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.rankings-row {
+  display: grid;
+  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px; /* Match header columns */
+  padding: 10px 8px;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.rankings-row:last-child {
+  border-bottom: none;
+}
+
+.rankings-row:hover {
+  background-color: #f9fafb;
+}
+
+.cell {
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell-rank {
+  font-weight: 600;
+  color: #4b5563;
+  text-align: center;
+}
+
+.cell-value {
+  font-weight: 700;
+  color: #1e3a8a;
+  text-align: right;
+}
+
+.cell-team {
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.cell-age {
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Player cell styling */
+.player-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .player-name {
-  margin-right: 5px; /* Space between name and tag */
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.gutter-box {
-  padding: 12px 0;
-  text-align: center;
-  align-items: center;
-  gap: 0.5rem;
-  align-items: center;
-  gap: 0.5rem;
-}
-.gutter-box-value {
-  padding: 12px 0;
-  text-align: center;
-  font-weight: bold;
-  align-items: center;
-  gap: 0.5rem;
-  align-items: center;
-  gap: 0.5rem;
-}
-.gutter-box-playername {
-  padding: 8px 0;
+.position-tag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 4px;
+  white-space: nowrap;
 }
-.ranks-row {
-  border: 1px solid lightgray;
-  border-radius: 8px;
-  margin-bottom: 5px;
+
+.pos-rank {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+/* Tier styling */
+.tier-indicator {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-align: center;
+  color: white;
+  max-width: 60px;
+}
+
+.tier-elite {
+  border-left: 4px solid #277da1;
+}
+.tier-elite .tier-indicator {
+  background-color: #277da1;
+}
+
+.tier-1 {
+  border-left: 4px solid #43aa8b;
+}
+.tier-1 .tier-indicator {
+  background-color: #43aa8b;
+}
+
+.tier-2 {
+  border-left: 4px solid #90be6d;
+}
+.tier-2 .tier-indicator {
+  background-color: #90be6d;
+}
+
+.tier-3 {
+  border-left: 4px solid #f9c74f;
+}
+.tier-3 .tier-indicator {
+  background-color: #f9c74f;
+  color: #333;
+}
+
+.tier-4 {
+  border-left: 4px solid #f9844a;
+}
+.tier-4 .tier-indicator {
+  background-color: #f9844a;
+}
+
+.tier-depth {
+  border-left: 4px solid #bdbdbd;
+}
+.tier-depth .tier-indicator {
+  background-color: #bdbdbd;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 32px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 1400px) {
+  .responsive-padding {
+    padding: 0 32px;
+    max-width: 90%; /* Cap width on very large screens */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1399px) {
+  .responsive-padding {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .rankings-header,
+  .rankings-row {
+    grid-template-columns: 40px 70px minmax(150px, 1fr) 70px 50px 80px;
+    font-size: 0.9rem;
+    padding: 8px 4px;
+  }
+
+  .cell {
+    padding: 0 4px;
+  }
+
+  .player-container {
+    gap: 8px;
+  }
+
+  .position-tag {
+    padding: 2px 6px;
+    font-size: 0.75rem;
+  }
+
+  .tier-indicator {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    max-width: 50px;
+  }
+}
+
+@media (max-width: 575px) {
+  .rankings-header,
+  .rankings-row {
+    grid-template-columns: 30px 55px minmax(120px, 1fr) 50px 40px 70px;
+    font-size: 0.8rem;
+    padding: 6px 2px;
+  }
+
+  .player-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .cell-team,
+  .cell-age {
+    font-size: 0.75rem;
+  }
 }
 </style>
