@@ -3,93 +3,113 @@
     <theme-toggle-button />
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-      <div class="trade-calculator" style="">
-        <div>
-          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
-            <a-col class="gutter-box-options-left" :xs="12" :sm="12" :md="12" :lg="12"
-              ><a-radio-group v-model:value="rankType" button-style="solid" size="small">
+    <a-layout-content class="responsive-padding">
+      <div class="page-title">
+        <h1>Trade Calculator</h1>
+        <p class="subtitle">Evaluate trades with precision using our advanced calculator</p>
+      </div>
+
+      <div class="trade-calculator-container">
+        <!-- Settings Panel -->
+        <a-card class="settings-card">
+          <div class="settings-row">
+            <div class="settings-group">
+              <a-radio-group v-model:value="rankType" button-style="solid" size="middle">
                 <a-radio-button value="dynasty">Dynasty</a-radio-button>
                 <a-radio-button value="redraft">Redraft</a-radio-button>
-              </a-radio-group></a-col
-            >
-            <a-col class="gutter-box-refresh" :xs="12" :sm="12" :md="12" :lg="12"
-              ><a-dropdown-button>
-                Share
-                <template #overlay>
-                  <a-menu @click="handleShareClick">
-                    <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                      <img class="social-logos" :src="source.logo" />
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-                <template #icon><ShareAltOutlined /></template>
-              </a-dropdown-button>
-              <a-button type="text" @click="showModal"><QuestionCircleOutlined /> </a-button>
-              <a-modal v-model:open="open" @ok="handleOk">
-                <p>
-                  Fantasy Navigator Rankings are derived from an extensive array of sources,
-                  including millions of crowd-sourced data points, expert consensus rankings, and
-                  real trade analyses. This comprehensive approach ensures that our rankings are not
-                  only well-informed but also reflect the most current trends and insights in
-                  fantasy sports.
-                </p>
-              </a-modal></a-col
-            >
-          </a-row>
-          <a-row :gutter="{ xs: 10, sm: 12, md: 24, lg: 32 }">
-            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-left">
-              <a-flex :gap="10" :wrap="true" style="align-items: center">
-                <a-switch
-                  size="large"
-                  v-model:checked="state.checked1"
-                  checked-children="Superflex"
-                  un-checked-children="OneQB"
-                />
-                <div>
-                  <a-select
-                    ref="select"
-                    v-model:value="dropDownValue1"
-                    :options="dropDownOptions1"
-                    @focus="dropDownfocus"
-                    @change="dropDownHandleChange"
-                  ></a-select>
+              </a-radio-group>
 
-                  <span style="font-size: 16px; margin-left: 5px">Team</span>
-                </div>
-                <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange">
-                  <span style="font-size: 16px">TE Premium</span>
-                </a-checkbox>
-              </a-flex>
-            </a-col>
-            <a-col :xs="24" :sm="12" :md="12" :lg="12" class="gutter-box-options-right">
-              <a-flex :gap="0"> </a-flex>
-            </a-col>
-          </a-row>
-        </div>
-        <a-divider></a-divider>
-        <a-row :gutter="100" class="teams">
-          <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-            <div>
-              <div class="search-bar-container">
-                <a-auto-complete
-                  v-model:value="value1"
-                  :options="options1"
-                  :allow-clear="true"
-                  style="width: 100%"
-                  placeholder="Team A..."
-                  @select="selectPlayer1"
-                  @search="searchPlayer1"
+              <a-switch
+                size="default"
+                v-model:checked="state.checked1"
+                checked-children="Superflex"
+                un-checked-children="OneQB"
+                class="format-switch"
+              />
+            </div>
+
+            <div class="settings-group">
+              <div class="team-size-selector">
+                <a-select
+                  v-model:value="dropDownValue1"
+                  :options="dropDownOptions1"
+                  @change="dropDownHandleChange"
+                  size="middle"
+                  style="width: 70px"
                 />
+                <span class="team-label">Team</span>
               </div>
+
+              <a-checkbox v-model:checked="tepCheck" @change="onCheckTepChange" class="tep-check">
+                TE Premium
+              </a-checkbox>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <a-dropdown-button type="primary" size="middle">
+              Share
+              <template #overlay>
+                <a-menu @click="handleShareClick">
+                  <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                    <img class="social-logos" :src="source.logo" />
+                    <span style="margin-left: 8px">{{ source.name }}</span>
+                  </a-menu-item>
+                </a-menu>
+              </template>
+              <template #icon><ShareAltOutlined /></template>
+            </a-dropdown-button>
+
+            <a-button type="text" @click="showModal" class="help-button">
+              <QuestionCircleOutlined />
+              <span class="help-text">How it works</span>
+            </a-button>
+          </div>
+        </a-card>
+
+        <!-- Trade Teams Section -->
+        <div class="trade-teams">
+          <!-- Team A -->
+          <a-card class="team-card" :bordered="false">
+            <template #title>
+              <div class="team-header">
+                <h2>Team A</h2>
+                <div
+                  class="team-value"
+                  :class="{ 'value-favorable': aFavoredTrade, 'value-balanced': isFairTrade }"
+                >
+                  <span v-if="selectedPlayers1.length > 0">{{ totalValue1.toLocaleString() }}</span>
+                </div>
+              </div>
+            </template>
+
+            <div class="search-bar-container">
+              <a-auto-complete
+                v-model:value="value1"
+                :options="options1"
+                :allow-clear="true"
+                style="width: 100%"
+                placeholder="Search for players and picks..."
+                @select="selectPlayer1"
+                @search="searchPlayer1"
+                size="large"
+              >
+                <template #prefix>
+                  <SearchOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-auto-complete>
+            </div>
+
+            <div class="players-container">
               <div
                 v-for="(player, index) in selectedPlayers1"
-                :key="player.player_full_name"
+                :key="player.player_full_name + index"
                 class="player-card"
               >
                 <a-badge-ribbon
                   :text="player._position"
                   :color="getPositionColor(player._position)"
+                  placement="start"
                 >
                   <a-card
                     size="small"
@@ -99,274 +119,264 @@
                       borderColor: getPositionColor(player._position)
                     }"
                   >
-                    <a-row justify="space-between">
-                      <a-col :span="12" class="gutter-box-player">
-                        <span>{{ player.player_full_name }}</span>
-                      </a-col>
-                      <a-col :span="6" class="gutter-box">
-                        <span class="age-value" v-if="player.age !== null"
-                          >Age {{ player.age }}</span
-                        >
-                      </a-col>
-
-                      <a-col :span="4" class="gutter-box-value">
+                    <div class="player-info">
+                      <div class="player-name">{{ player.player_full_name }}</div>
+                      <div class="player-details">
+                        <span v-if="player.age" class="player-age">Age {{ player.age }}</span>
                         <span class="player-value">{{
                           state.checked1 ? player.sf_value : player.one_qb_value
                         }}</span>
-                      </a-col>
-
-                      <MinusCircleTwoTone
-                        class="close-icon"
-                        two-tone-color="darkgray"
-                        :style="{ fontSize: '22px' }"
-                        @click.stop="removePlayer1(index)"
-                      />
-                    </a-row>
-                  </a-card>
-                </a-badge-ribbon>
-              </div>
-              <div v-if="addAdjustmentA">
-                <a-card size="small" :bordered="true" class="va-card">
-                  <div class="card-content">
-                    <span> Value Adjustment </span>
-                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
-                  </div>
-                </a-card>
-
-                <div class="total-assets-container">
-                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
-                  <div class="total-value">
-                    Total Value:
-                    {{ Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString() }}
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="total-assets-container">
-                  <div class="total-value">{{ selectedPlayers1.length }} Piece(s)</div>
-                  <div class="total-value">Total Value: {{ totalValue1.toLocaleString() }}</div>
-                </div>
-              </div>
-            </div>
-          </a-col>
-          <a-divider class="mobile-divider" :style="{ display: 'none' }"></a-divider>
-          <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-            <div>
-              <div class="search-bar-container">
-                <a-auto-complete
-                  v-model:value="value2"
-                  :options="options2"
-                  :allow-clear="true"
-                  style="width: 100%"
-                  placeholder="Team B..."
-                  @select="selectPlayer2"
-                  @search="searchPlayer2"
-                />
-              </div>
-              <div
-                v-for="(player, index) in selectedPlayers2"
-                :key="player.player_full_name"
-                class="player-card"
-              >
-                <a-badge-ribbon
-                  :text="player._position"
-                  :color="getPositionColor(player._position)"
-                >
-                  <a-card
-                    size="small"
-                    :bordered="true"
-                    :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
-                    }"
-                    ><a-row justify="space-between">
-                      <a-col :span="12" class="gutter-box-player">
-                        <span>{{ player.player_full_name }}</span>
-                      </a-col>
-                      <a-col :span="6" class="gutter-box">
-                        <span class="age-value" v-if="player.age !== null"
-                          >Age {{ player.age }}</span
-                        >
-                      </a-col>
-
-                      <a-col :span="4" class="gutter-box-value">
-                        <span class="player-value">{{
-                          state.checked1 ? player.sf_value : player.one_qb_value
-                        }}</span>
-                      </a-col>
-
-                      <MinusCircleTwoTone
-                        class="close-icon"
-                        two-tone-color="darkgray"
-                        :style="{ fontSize: '22px' }"
-                        @click.stop="removePlayer2(index)"
-                      />
-                    </a-row>
-                  </a-card>
-                </a-badge-ribbon>
-              </div>
-              <div v-if="showCardB">
-                <a-card size="small" :bordered="true" class="va-card">
-                  <div class="card-content">
-                    <span> Value Adjustment </span>
-                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
-                  </div>
-                </a-card>
-
-                <div class="total-assets-container">
-                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
-                  <div class="total-value">
-                    Total Value:
-                    {{ Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString() }}
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="total-assets-container">
-                  <div class="total-value">{{ selectedPlayers2.length }} Piece(s)</div>
-                  <div class="total-value">Total Value: {{ totalValue2.toLocaleString() }}</div>
-                </div>
-              </div>
-            </div>
-          </a-col>
-        </a-row>
-        <div class="trade-comparison" style="padding-top: 10px">
-          <a-row type="flex" justify="center" style="padding-bottom: 10px">
-            <a-col :xs="24" :sm="24" :md="24" :lg="24" :xl="12">
-              <div v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
-                <a-card
-                  v-if="aFavoredTrade"
-                  style="
-                    background: rgb(249, 65, 68, 0.1);
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    font-size: 18px;
-                  "
-                  size="small"
-                >
-                  <div>
-                    <ArrowLeftOutlined style="padding-right: 20px" class="arrow-icon" />
-                    <span>Favors Team A</span>
-                  </div>
-                  <div>
-                    Add
-                    <span style="font-weight: bold">{{
-                      Math.round(balancingPlayerValue).toLocaleString()
-                    }}</span>
-                    to balance trade
-                    <ArrowRightOutlined style="padding-left: 15px" class="arrow-icon" />
-                  </div>
-                </a-card>
-                <a-card
-                  v-if="bFavoredTrade"
-                  style="
-                    background: rgb(249, 65, 68, 0.1);
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    font-size: 18px;
-                  "
-                  size="small"
-                >
-                  <div>
-                    <span>Favors Team B</span>
-                    <ArrowRightOutlined style="padding-left: 20px" class="arrow-icon" />
-                  </div>
-
-                  <div>
-                    <ArrowLeftOutlined style="padding-right: 15px" class="arrow-icon" />
-                    Add
-                    <span style="font-weight: bold">{{
-                      Math.round(balancingPlayerValue).toLocaleString()
-                    }}</span>
-                    to balance trade
-                  </div>
-                </a-card>
-                <a-card
-                  v-if="isFairTrade"
-                  style="
-                    background: rgb(144, 190, 109, 0.3);
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    font-size: 20px;
-                  "
-                  ><DoubleLeftOutlined style="padding-right: 25px" />Balanced
-                  <DoubleRightOutlined style="padding-left: 25px"
-                /></a-card>
-              </div>
-            </a-col>
-          </a-row>
-          <a-collapse :bordered="false">
-            <a-collapse-panel key="1" header="Options">
-              <a-row type="flex" justify="left">
-                <a-col :xs="24" :sm="12" :md="8" :lg="8" :xl="12">
-                  <div class="slider-label">Acceptable Variance</div>
-                  <a-slider max="25" v-model:value="percentThreshold" />
-                  <span> {{ percentThreshold }}%</span>
-                </a-col>
-              </a-row>
-            </a-collapse-panel>
-          </a-collapse>
-          <div
-            v-if="
-              tradeAnalysis.percentageDifference > percentThreshold &&
-              closestBalancingPlayers.length > 0
-            "
-            class="nearest-players"
-          >
-            <div>
-              <h3>Players to Help Balance</h3>
-              <div
-                v-for="player in closestBalancingPlayers"
-                :key="player.player_full_name"
-                class="player-card-nearest"
-              >
-                <a-badge-ribbon
-                  :text="player._position"
-                  :color="getPositionColor(player._position)"
-                >
-                  <a-card
-                    size="small"
-                    :bordered="true"
-                    :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
-                    }"
-                    style="border-radius: 3px"
-                  >
-                    <div class="card-content">
-                      <span>{{ player.player_full_name }}</span>
-                      <span class="player-value">{{
-                        state.checked1 ? player.sf_value : player.one_qb_value
-                      }}</span>
-                      <PlusCircleTwoTone
-                        class="close-icon"
-                        two-tone-color="#90BE6D"
-                        :style="{ fontSize: '22px' }"
-                        @click.stop="addPlayerToTrade(player)"
-                      />
+                      </div>
+                      <button class="remove-player" @click="removePlayer1(index)">
+                        <MinusCircleTwoTone two-tone-color="#f5222d" />
+                      </button>
                     </div>
                   </a-card>
                 </a-badge-ribbon>
               </div>
+
+              <!-- Value Adjustment Card -->
+              <div v-if="addAdjustmentA" class="adjustment-card">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span>Value Adjustment</span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
+                  </div>
+                </a-card>
+              </div>
             </div>
+
+            <div class="team-summary">
+              <div class="asset-count">
+                {{ selectedPlayers1.length }} Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
+              </div>
+              <div class="total-value-display">
+                Total:
+                <strong>{{
+                  addAdjustmentA
+                    ? Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString()
+                    : totalValue1.toLocaleString()
+                }}</strong>
+              </div>
+            </div>
+          </a-card>
+
+          <!-- Trade Evaluation -->
+          <div class="trade-evaluation">
+            <a-card
+              v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0"
+              :class="{
+                'evaluation-balanced': isFairTrade,
+                'evaluation-favors-a': aFavoredTrade,
+                'evaluation-favors-b': bFavoredTrade
+              }"
+            >
+              <template v-if="isFairTrade">
+                <CheckCircleFilled class="eval-icon" />
+                <div class="eval-message">Balanced Trade</div>
+              </template>
+
+              <template v-else-if="aFavoredTrade">
+                <div class="eval-heading">Favors Team A</div>
+                <div class="eval-message">
+                  Team B needs
+                  <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
+                  value
+                </div>
+                <ArrowLeftOutlined class="direction-arrow" />
+              </template>
+
+              <template v-else-if="bFavoredTrade">
+                <div class="eval-heading">Favors Team B</div>
+                <div class="eval-message">
+                  Team A needs
+                  <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
+                  value
+                </div>
+                <ArrowRightOutlined class="direction-arrow" />
+              </template>
+            </a-card>
           </div>
+
+          <!-- Team B -->
+          <a-card class="team-card" :bordered="false">
+            <template #title>
+              <div class="team-header">
+                <h2>Team B</h2>
+                <div
+                  class="team-value"
+                  :class="{ 'value-favorable': bFavoredTrade, 'value-balanced': isFairTrade }"
+                >
+                  <span v-if="selectedPlayers2.length > 0">{{ totalValue2.toLocaleString() }}</span>
+                </div>
+              </div>
+            </template>
+
+            <div class="search-bar-container">
+              <a-auto-complete
+                v-model:value="value2"
+                :options="options2"
+                :allow-clear="true"
+                style="width: 100%"
+                placeholder="Search for players and picks..."
+                @select="selectPlayer2"
+                @search="searchPlayer2"
+                size="large"
+              >
+                <template #prefix>
+                  <SearchOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-auto-complete>
+            </div>
+
+            <div class="players-container">
+              <div
+                v-for="(player, index) in selectedPlayers2"
+                :key="player.player_full_name + index"
+                class="player-card"
+              >
+                <a-badge-ribbon
+                  :text="player._position"
+                  :color="getPositionColor(player._position)"
+                  placement="start"
+                >
+                  <a-card
+                    size="small"
+                    :bordered="true"
+                    :style="{
+                      backgroundColor: getCardPositionColor(player._position),
+                      borderColor: getPositionColor(player._position)
+                    }"
+                  >
+                    <div class="player-info">
+                      <div class="player-name">{{ player.player_full_name }}</div>
+                      <div class="player-details">
+                        <span v-if="player.age" class="player-age">Age {{ player.age }}</span>
+                        <span class="player-value">{{
+                          state.checked1 ? player.sf_value : player.one_qb_value
+                        }}</span>
+                      </div>
+                      <button class="remove-player" @click="removePlayer2(index)">
+                        <MinusCircleTwoTone two-tone-color="#f5222d" />
+                      </button>
+                    </div>
+                  </a-card>
+                </a-badge-ribbon>
+              </div>
+
+              <!-- Value Adjustment Card -->
+              <div v-if="showCardB" class="adjustment-card">
+                <a-card size="small" :bordered="true" class="va-card">
+                  <div class="card-content">
+                    <span>Value Adjustment</span>
+                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
+                  </div>
+                </a-card>
+              </div>
+            </div>
+
+            <div class="team-summary">
+              <div class="asset-count">
+                {{ selectedPlayers2.length }} Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
+              </div>
+              <div class="total-value-display">
+                Total:
+                <strong>{{
+                  showCardB
+                    ? Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString()
+                    : totalValue2.toLocaleString()
+                }}</strong>
+              </div>
+            </div>
+          </a-card>
         </div>
 
-        <div class="actions">
-          <a-space :xs="12" :sm="12" :md="24" :lg="48" :xl="48">
-            <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
-          </a-space>
-        </div>
+        <!-- Balancing Players Suggestions -->
+        <a-card
+          v-if="
+            tradeAnalysis.percentageDifference > percentThreshold &&
+            closestBalancingPlayers.length > 0
+          "
+          class="balancing-players-card"
+        >
+          <template #title>
+            <div class="balancing-title">
+              <h3>Balance the Trade</h3>
+              <a-tooltip title="These players could help balance the trade">
+                <InfoCircleOutlined style="margin-left: 8px" />
+              </a-tooltip>
+            </div>
+          </template>
+
+          <div class="balancing-players-container">
+            <div
+              v-for="player in closestBalancingPlayers.slice(0, 6)"
+              :key="player.player_full_name"
+              class="balancing-player-card"
+            >
+              <a-badge-ribbon
+                :text="player._position"
+                :color="getPositionColor(player._position)"
+                placement="start"
+              >
+                <a-card
+                  size="small"
+                  :bordered="true"
+                  :style="{
+                    backgroundColor: getCardPositionColor(player._position),
+                    borderColor: getPositionColor(player._position)
+                  }"
+                  hoverable
+                  @click="addPlayerToTrade(player)"
+                >
+                  <div class="balancing-player-info">
+                    <div class="balancing-player-name">{{ player.player_full_name }}</div>
+                    <div class="balancing-player-value">
+                      {{ state.checked1 ? player.sf_value : player.one_qb_value }}
+                    </div>
+                    <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
+                  </div>
+                </a-card>
+              </a-badge-ribbon>
+            </div>
+          </div>
+
+          <div class="view-more" v-if="closestBalancingPlayers.length > 6">
+            <a-button type="link">View More Players</a-button>
+          </div>
+        </a-card>
+
+        <!-- Options Panel -->
+        <a-card class="options-card">
+          <a-row>
+            <a-col :xs="24" :sm="16" :md="16">
+              <div class="slider-container">
+                <div class="slider-label">Acceptable Trade Variance: {{ percentThreshold }}%</div>
+                <a-slider v-model:value="percentThreshold" :min="1" :max="25" :step="1" />
+              </div>
+            </a-col>
+            <a-col :xs="24" :sm="8" :md="8" class="clear-button-container">
+              <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
+            </a-col>
+          </a-row>
+        </a-card>
       </div>
+
+      <!-- Help Modal -->
+      <a-modal v-model:open="open" @ok="handleOk" title="How the Trade Calculator Works">
+        <p>
+          Fantasy Navigator Rankings are derived from an extensive array of sources, including
+          millions of crowd-sourced data points, expert consensus rankings, and real trade analyses.
+          This comprehensive approach ensures that our rankings are not only well-informed but also
+          reflect the most current trends and insights in fantasy sports.
+        </p>
+        <p>
+          The calculator accounts for value consolidation, meaning that higher-valued players are
+          worth more than the sum of multiple lower-valued players. This provides a more realistic
+          assessment of fantasy football trades.
+        </p>
+      </a-modal>
+
       <AppFooter />
     </a-layout-content>
   </a-layout>
@@ -393,7 +403,10 @@ import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
   HomeOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  SearchOutlined,
+  CheckCircleFilled,
+  InfoCircleOutlined
 } from '@ant-design/icons-vue'
 
 // Sourec image imports
@@ -1164,282 +1177,457 @@ function getCardPositionColor(position: string): string {
 </script>
 
 <style scoped>
-.trade-calculator {
-  padding: 40px;
-  border: 1px solid rgb(39, 125, 161);
-  border-radius: 3px;
-  min-width: 500px;
-}
+/* General Layout */
 .layout {
   min-height: 100vh;
+  background-color: #f5f7fa;
 }
 
-.switches {
-  margin-bottom: 24px;
-  text-align: left;
+.responsive-padding {
+  padding: 0 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.team-box {
-  padding: 24px;
-  border-radius: 2px;
+.page-title {
+  text-align: center;
+  margin: 24px 0;
 }
 
-.team-box h3 {
+.page-title h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #2d3142;
+}
+
+.subtitle {
+  color: #5c5f6b;
+  font-size: 16px;
+}
+
+.trade-calculator-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+/* Settings Card */
+.settings-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
-.total-pieces {
+.settings-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.format-switch {
+  margin-left: 8px;
+}
+
+.team-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-label {
+  font-size: 14px;
+  color: #5c5f6b;
+}
+
+.tep-check {
+  margin-left: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
   margin-top: 16px;
-  text-align: center;
-  font-weight: bold;
 }
 
-.actions {
-  margin-top: 24px;
-  text-align: center;
+.help-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.rank-logos {
-  width: 24px;
+.help-text {
+  font-size: 14px;
+}
+
+.social-logos {
+  width: 20px;
   height: 20px;
   vertical-align: middle;
   border-radius: 3px;
 }
-.social-logos {
-  width: 24px;
-  height: 22px;
-  vertical-align: middle;
-  border-radius: 3px;
+
+/* Trade Teams */
+.trade-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 16px;
+}
+
+.team-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.team-value {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: #f0f2f5;
+}
+
+.value-favorable {
+  color: #52c41a;
+  background-color: rgba(82, 196, 26, 0.1);
+}
+
+.value-balanced {
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.search-bar-container {
+  margin-bottom: 16px;
+}
+
+.players-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 120px;
+}
+
+/* Player Cards - Fix badge positioning */
+.player-card {
+  position: relative;
+  margin-left: 2px; /* Reduce left margin to bring badge closer */
+  padding-left: 18px; /* Slight reduction in padding */
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 4px 20px; /* Adjust content padding to prevent overlap */
+}
+
+/* Position the ribbon properly - improved format */
+:deep(.ant-ribbon) {
+  margin-left: -8px; /* Move closer to the card */
+  top: 8px; /* Position a bit lower */
+  height: 22px; /* Control the overall badge height */
+  line-height: 22px; /* Align text in badge */
+  padding: 0 6px; /* Reduce horizontal padding */
+}
+
+:deep(.ant-ribbon-text) {
+  font-size: 13px; /* Slightly larger font */
+  font-weight: 600; /* Make font bolder */
+  white-space: nowrap;
+}
+
+/* Balancing Player Cards - Fix badge positioning */
+.balancing-player-card {
+  position: relative;
+  margin-left: 2px; /* Reduce left margin to bring badge closer */
+  padding-left: 18px; /* Slight reduction in padding */
+}
+
+.balancing-player-info {
+  padding-left: 20px; /* Adjust content padding to prevent overlap */
+}
+
+.player-name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: 8px;
+}
+
+.player-age {
+  color: #8c8c8c;
+  font-size: 13px;
+}
+
+.player-value {
+  font-weight: 700;
+  color: #1890ff;
+}
+
+.remove-player {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adjustment-card {
+  margin-top: 8px;
 }
 
 .card-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 24px;
-  padding-left: 10px;
 }
 
-.player-value {
-  font-weight: bold;
-  margin-left: auto;
-  padding-right: 8px;
-}
-.age-value {
-  margin-left: auto;
-  padding-right: 8px;
-}
-
-.player-card {
-  margin-bottom: 5px;
-  position: relative;
-  width: 100%;
-}
-
-.player-card .close-icon {
-  position: absolute;
-  top: 11px;
-  left: -11px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.player-card .close-icon:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
-}
-
-.player-card .a-card {
-  padding-left: 24px;
-}
-
-.player-card-nearest {
-  margin-bottom: 5px;
-  position: relative;
-  width: 100%;
-  padding-left: 10px;
-  padding-bottom: 6px;
-}
-
-.player-card-nearest .close-icon {
-  position: absolute;
-  top: 11px;
-  left: -11px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.player-card-nearest .close-icon:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
-}
-
-.player-card-nearest .a-card {
-  padding-left: 24px;
-  transition: box-shadow 0.3s;
-}
-
-.player-card-nearest .a-card:hover {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-}
-
-.total-value {
-  margin-top: 24px;
-  text-align: center;
-  font-weight: bold;
-}
-.search-bar-container {
-  margin-bottom: 20px;
-}
-.trade-comparison .a-alert {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.slider-container {
-  margin: 20px 0;
-}
-
-.slider-label {
-  text-align: center;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-.nearest-players {
-  max-width: 450px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 5px;
-}
-
-@media (max-width: 440px) {
-  .nearest-players {
-    width: auto;
-    padding: 5px;
-  }
-  .trade-comparison .trade-status {
-    font-size: 14px;
-  }
-  /* some work here on the divider */
-  .mobile-divider {
-    display: block !important;
-  }
-  .trade-calculator {
-    padding: 6px;
-    width: 100%;
-    min-width: auto;
-  }
-  .team-heading {
-    text-align: center;
-  }
-  .responsive-padding {
-    padding: 0 10px;
-  }
-}
-
-.status-message {
-  padding: 16px;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 1.2em;
-}
-
-.fair-trade {
-  color: #90be6d;
-  border: 1px solid #90be6d;
-}
-
-.favored-trade {
-  background-color: #ffedede6;
-  color: #f94144;
-  border: 1px solid #f94144;
-}
-
-.total-assets-container {
+.team-summary {
   display: flex;
   justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed #d9d9d9;
+}
+
+.asset-count {
+  color: #5c5f6b;
+  font-size: 14px;
+}
+
+.total-value-display {
+  font-size: 14px;
+}
+
+/* Trade Evaluation */
+.trade-evaluation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evaluation-balanced,
+.evaluation-favors-a,
+.evaluation-favors-b {
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.evaluation-balanced {
+  background-color: rgba(82, 196, 26, 0.1);
+  border-color: #52c41a;
+}
+
+.evaluation-favors-a,
+.evaluation-favors-b {
+  background-color: rgba(245, 34, 45, 0.05);
+  border-color: #f5222d;
+}
+
+.eval-icon {
+  font-size: 24px;
+  color: #52c41a;
+  margin-bottom: 8px;
+}
+
+.eval-heading {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.eval-message {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.direction-arrow {
+  font-size: 20px;
+  color: #f5222d;
+}
+
+/* Balancing Players */
+.balancing-players-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.balancing-title {
+  display: flex;
   align-items: center;
 }
 
-@media (min-width: 768px) {
-  .responsive-padding {
-    padding: 0 300px;
-  }
+.balancing-title h3 {
+  font-size: 16px;
+  margin: 0;
 }
 
-.team-heading {
-  padding: 2px;
-  border: 1px solid rgba(87, 117, 144, 0.5);
-  border-radius: 5px;
-  font-weight: bolder;
+.balancing-players-container {
+  display: grid;
+  /* Adjusted to ensure only 3 cards per row on larger screens */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
 }
 
-.nearest-players {
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 5px;
-  width: 100%;
-  margin-top: 20px;
-  box-sizing: border-box;
-}
-.team-heading.none {
-  border: none;
-}
-.team-heading.behind {
-  border: 1px solid rgba(249, 65, 68, 0.6);
+.balancing-player-card {
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
-.team-heading.ahead {
-  border: 1px solid rgba(144, 190, 109, 0.6);
+.balancing-player-card:hover {
+  transform: translateY(-2px);
 }
-.team-heading.fair {
-  border: 1px solid rgba(30, 144, 255, 0.6);
+
+.balancing-player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 20px; /* Adjust padding */
 }
-.va-card {
-  border: 1px solid rgb(70, 70, 70, 0.55);
-  border-radius: 4px;
-  background: rgb(70, 70, 70, 0.15);
+
+.balancing-player-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  font-size: 14px; /* Make font slightly smaller to fit longer names */
+  padding-right: 8px; /* Add some spacing before the value */
 }
-.a-auto-complete input {
+
+.balancing-player-value {
+  font-weight: 700;
+  color: #1890ff;
+}
+
+.add-player-icon {
   font-size: 16px;
 }
-@media (max-width: 4400px) {
-  .ant-modal {
-    top: 52% !important;
-    transform: translateY(-90%) !important;
+
+.view-more {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 991px) {
+  .trade-teams {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-evaluation {
+    order: 3;
   }
 }
-.gutter-box-refresh {
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: right;
-  align-items: baseline;
-}
-.gutter-box-options-left {
-  display: flex;
-  justify-content: left;
-  align-items: center;
-}
-.gutter-box-options-right {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-}
-.gutter-box {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-}
-.gutter-box-player {
-  display: flex;
-  justify-content: left;
-  align-items: baseline;
-}
-.gutter-box-value {
-  justify-content: left;
 
-  align-items: baseline;
+@media (max-width: 767px) {
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .balancing-players-container {
+    grid-template-columns: 1fr; /* Just one column on mobile */
+  }
+
+  .balancing-player-name {
+    font-size: 14px;
+    padding-right: 40px; /* Make space for the add icon */
+    max-width: calc(100% - 80px); /* Prevent overlap with value */
+  }
+
+  .player-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .player-details {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .remove-player {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  /* Make badges more visible on mobile */
+  :deep(.ant-ribbon) {
+    top: 6px; /* Adjust position for mobile */
+  }
+}
+
+@media (max-width: 576px) {
+  .responsive-padding {
+    padding: 0 12px;
+  }
+
+  .page-title h1 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .clear-button-container {
+    justify-content: center;
+    margin-top: 16px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .balancing-players-container {
+    grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns on most desktops */
+  }
+}
+
+@media (min-width: 1200px) {
+  .balancing-players-container {
+    grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns on larger screens too */
+  }
 }
 </style>
