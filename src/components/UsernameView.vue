@@ -3,102 +3,100 @@
     <theme-toggle-button />
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 50px', marginTop: '0px' }">
-      <a-breadcrumb style="padding-top: 10px">
-        <a-breadcrumb-item>
-          <a href="/username"></a>
-        </a-breadcrumb-item>
-      </a-breadcrumb>
-      <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="center" class="message-row">
-        <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="10">
-          <div
-            style="border: 1px solid #577590; padding: 1em; border-radius: 5px; text-align: center"
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">Fantasy Navigator</h1>
+        <p class="hero-subtitle">
+          The ultimate toolkit for Dynasty and Redraft fantasy football. Instantly analyze your
+          Sleeper leagues, discover trade opportunities, and dominate your competition.
+        </p>
+        <div class="hero-form">
+          <a-form
+            :model="formState"
+            name="basic"
+            autocomplete="off"
+            @finish="onFinish"
+            @finishFailed="onFinishFailed"
+            layout="inline"
+            class="landing-form"
           >
-            <h1 class="site-title">Fantasy Navigator</h1>
-            <span>
-              Navigate your way to victory in both Dynasty and Redraft with our suite of tools.
-              Utilize our Trade Calculator, Rankings, and League Analytics, all powered by popular
-              fantasy markets as our own ranks. Enter your Sleeper username below to take a 1,000
-              foot view of your league.
-            </span>
-          </div>
-        </a-col>
-      </a-row>
-
-      <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" justify="space-around">
-        <a-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
-          <a-card class="form-card" :bordered="false">
-            <template #cover>
-              <img
-                alt="example"
-                :src="landingPage"
-                style="width: 100%; height: 300px; object-fit: cover; object-position: center"
-              />
-            </template>
-            <a-form
-              :model="formState"
-              name="basic"
-              autocomplete="off"
-              @finish="onFinish"
-              @finishFailed="onFinishFailed"
-              layout="vertical"
+            <a-form-item
+              name="userName"
+              :rules="[{ required: true, message: 'Please enter your Sleeper username' }]"
+              class="form-item-large"
             >
-              <a-form-item label="" name="userName" :rules="[{}]">
-                <div style="display: flex; align-items: center; gap: 1px">
-                  <a-input v-model:value="formState.userName" placeholder="Sleeper Username">
-                    <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
-                    <a-button type="primary" @click="showModal">Open Modal</a-button>
-                  </a-input>
-                  <a-button type="text" @click="showModal"><InfoCircleOutlined /></a-button>
-                  <a-modal v-model:open="open" @ok="handleOk">
-                    <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
-                  </a-modal>
-                </div>
-              </a-form-item>
+              <a-input
+                v-model:value="formState.userName"
+                placeholder="Enter Sleeper Username"
+                size="large"
+                style="width: 220px"
+              >
+                <template #prefix>
+                  <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                </template>
+              </a-input>
+            </a-form-item>
+            <a-form-item
+              name="leagueYear"
+              :rules="[{ required: true, message: 'Please select a league year' }]"
+              class="form-item-large"
+            >
+              <a-select
+                v-model:value="formState.leagueYear"
+                placeholder="Year"
+                size="large"
+                style="width: 120px"
+              >
+                <a-select-option value="2025">2025</a-select-option>
+                <a-select-option value="2024">2024</a-select-option>
+                <a-select-option value="2023">2023</a-select-option>
+                <a-select-option value="2022">2022</a-select-option>
+                <a-select-option value="2021">2021</a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item class="form-item-large">
+              <a-button
+                type="primary"
+                html-type="submit"
+                size="large"
+                :loading="formIsLoading"
+                class="cta-btn"
+              >
+                Load My Leagues
+              </a-button>
+            </a-form-item>
+            <a-form-item class="form-item-large">
+              <a-button
+                type="default"
+                html-type="button"
+                size="large"
+                :loading="demoFormIsLoading"
+                @click="navigateToDemoPage"
+              >
+                Try Demo
+              </a-button>
+            </a-form-item>
+            <a-form-item>
+              <a-button type="text" @click="showModal" style="margin-left: 8px">
+                <InfoCircleOutlined />
+              </a-button>
+              <a-modal v-model:open="open" @ok="handleOk">
+                <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
+              </a-modal>
+            </a-form-item>
+          </a-form>
+        </div>
+      </div>
+    </section>
 
-              <a-form-item
-                label=""
-                name="leagueYear"
-                :rules="[{ required: true, message: 'Please select a league year' }]"
-                ><span>Year</span>
-                <a-select v-model:value="formState.leagueYear" placeholder="Select a year">
-                  <a-select-option value="2025">2025</a-select-option>
-                  <a-select-option value="2024">2024</a-select-option>
-                  <a-select-option value="2023">2023</a-select-option>
-                  <a-select-option value="2022">2022</a-select-option>
-                  <a-select-option value="2021">2021</a-select-option>
-                  <!-- Add more years as needed -->
-                </a-select>
-              </a-form-item>
-
-              <a-form-item>
-                <a-row :gutter="16">
-                  <a-col :span="12">
-                    <a-button
-                      type="default"
-                      html-type="button"
-                      :block="true"
-                      :loading="demoFormIsLoading"
-                      @click="navigateToDemoPage"
-                      >Try a Demo</a-button
-                    >
-                  </a-col>
-                  <a-col :span="12">
-                    <a-button
-                      type="primary"
-                      html-type="submit"
-                      :block="true"
-                      :loading="formIsLoading"
-                      >Submit</a-button
-                    >
-                  </a-col>
-                </a-row>
-              </a-form-item>
-            </a-form>
-          </a-card>
-        </a-col>
-      </a-row>
-      <a-divider>Navigator Metrics</a-divider>
+    <!-- Features Section -->
+    <a-layout-content class="responsive-padding" :style="{ padding: '0 0px', marginTop: '0px' }">
+      <div class="features-header">
+        <a-divider>
+          <span class="features-title">What Can You Do?</span>
+        </a-divider>
+      </div>
       <a-row
         :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }"
         justify="space-around"
@@ -375,6 +373,74 @@ const onFinishFailed = (errorInfo: any) => {
 }
 </script>
 <style scoped>
+/* Hero Section Styles */
+.hero-section {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0 40px 0;
+  position: relative;
+  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+}
+
+.hero-content {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #2d3142;
+  margin-bottom: 18px;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #495670;
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+.hero-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.form-item-large {
+  margin-bottom: 0 !important;
+}
+
+.cta-btn {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.features-header {
+  margin-top: 32px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.features-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2d3142;
+  letter-spacing: 0.5px;
+}
+
 .responsive-padding {
   padding: 0 100px;
 }
@@ -386,45 +452,39 @@ const onFinishFailed = (errorInfo: any) => {
   min-height: 100vh;
 }
 .layout-content {
-  margin: 0 auto; /* Centers content horizontally */
-  max-width: 1200px; /* Maximum width of the content area */
-  width: 100%; /* Ensures it takes up the necessary width */
+  margin: 0 auto;
+  max-width: 1200px;
+  width: 100%;
 }
-
 .form-style {
   width: 100%;
-  max-width: 400px; /* Adjust based on your preference */
+  max-width: 400px;
   padding: 25px;
   border-radius: 15px;
 }
-
 .logo {
-  max-width: 100%; /* Ensures the image is responsive */
-  height: auto; /* Maintains aspect ratio */
+  max-width: 100%;
+  height: auto;
   max-height: 100px;
 }
 .header {
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  width: 100%; /* Take the full width */
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   padding-bottom: 10px;
 }
-
-/* Media query for screens wider than 768px */
 @media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 100px; /* Larger padding for larger screens */
+    padding: 0 100px;
   }
 }
 .message-row {
-  margin-bottom: 25px; /* Spacing between the message row and the form row */
+  margin-bottom: 25px;
 }
-
 @media (min-width: 992px) {
-  /* Adjust breakpoint as needed */
   .layout-content {
-    padding: 0 200px; /* Increase padding on larger screens */
+    padding: 0 200px;
   }
 }
 .image-cards-col {
@@ -432,27 +492,26 @@ const onFinishFailed = (errorInfo: any) => {
 }
 @media (max-width: 599px) {
   .layout-content {
-    padding: 0 20px; /* Smaller padding on smaller screens */
+    padding: 0 20px;
+  }
+  .hero-title {
+    font-size: 2rem;
+  }
+  .hero-section {
+    padding: 32px 0 24px 0;
   }
 }
-
 @media (min-width: 600px) {
   .layout-content {
-    padding: 0 50px; /* Increased padding for larger screens */
+    padding: 0 50px;
   }
 }
-
 @media (min-width: 1200px) {
   .layout-content {
-    padding: 0 100px; /* More padding for very large screens */
+    padding: 0 100px;
   }
 }
 .site-title {
-  position: absolute;
-  top: -30px;
-  left: 20%;
-  padding: 0 1px;
-  transform: translateX(-50%);
-  padding: 0 5px;
+  display: none; /* Hide old site title in hero */
 }
 </style>
