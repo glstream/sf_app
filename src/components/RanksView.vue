@@ -67,7 +67,7 @@
             :indeterminate="checkState.indeterminate"
             @change="onCheckAllChange"
           >
-            Check all
+            ALL
           </a-checkbox>
           <a-checkbox-group v-model:value="checkState.checkedList" :options="plainOptions" />
         </a-col>
