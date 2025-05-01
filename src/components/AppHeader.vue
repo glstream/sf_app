@@ -94,17 +94,6 @@ function updateActiveKey() {
 
 const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
 
-function groupLeaguesByType(leagues) {
-  return leagues.reduce((acc, league) => {
-    const type = league.league_type || 'Other' // Use 'Other' as a default group if league_type is undefined
-    if (!acc[type]) {
-      acc[type] = []
-    }
-    acc[type].push(league)
-    return acc
-  }, {})
-}
-
 function handleMenuClick(e) {
   // Close mobile menu after clicking
   mobileMenuVisible.value = false
@@ -135,21 +124,11 @@ const items = ref<MenuProps['items']>([
     icon: () => h(AppstoreOutlined),
     label: 'Leagues',
     title: 'Leagues',
-    children: computed(() => {
-      const grouped = groupLeaguesByType(leaguesStore.leagues)
-      return Object.keys(grouped).map((leagueType) => ({
-        key: `group-${leagueType}`,
-        label: leagueType,
-        children: grouped[leagueType].map((league) => ({
-          key: league.league_id,
-          label: league.league_name,
-          onClick: () =>
-            router.push(
-              `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
-            )
-        }))
-      }))
-    })
+    onClick: () => {
+      if (store.userName && store.leagueYear && store.guid) {
+        router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+      }
+    }
   },
   {
     key: 'ranks',
@@ -212,20 +191,6 @@ const mobileItems = computed(() => {
           router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
         }
       }
-    })
-
-    // Add each league as a separate menu item in mobile view
-    leaguesStore.leagues.forEach((league) => {
-      baseItems.push({
-        key: `league-${league.league_id}`,
-        label: `- ${league.league_name}`,
-        title: league.league_name,
-        class: 'mobile-league-item',
-        onClick: () =>
-          router.push(
-            `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
-          )
-      })
     })
   }
 
