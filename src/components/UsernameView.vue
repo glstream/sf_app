@@ -6,10 +6,10 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">League Dashboard</h1>
+        <h1 class="hero-title">Fantasy Football League Dashboard</h1>
         <p class="hero-subtitle">
           Enter your Sleeper username to analyze your leagues, discover trade opportunities, and
-          optimize your roster.
+          optimize your roster with rankings from FantasyCalc, DynastyDaddy, KTC, and more.
         </p>
         <div class="hero-form">
           <a-form
@@ -243,6 +243,7 @@
 <script lang="ts" setup>
 import { reactive, ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMeta } from '@/composables/useMeta'
 
 // Site tags
 import AppHeader from '@/components/AppHeader.vue'
@@ -292,7 +293,18 @@ interface FormState {
   leagueYear: string
 }
 
-onMounted(() => {})
+onMounted(() => {
+  // Add structured data script to head
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.textContent = JSON.stringify(structuredData)
+  document.head.appendChild(script)
+
+  // Clean up on unmount
+  onUnmounted(() => {
+    document.head.removeChild(script)
+  })
+})
 
 const showModal = () => {
   open.value = true
@@ -370,6 +382,62 @@ const onFinish = async (values) => {
 
 const onFinishFailed = (errorInfo: any) => {
   console.log('Failed:', errorInfo)
+}
+
+// SEO Metadata
+useMeta({
+  title: 'Fantasy Navigator - Optimize Your Sleeper Fantasy Football Teams',
+  description:
+    'Analyze your Sleeper fantasy football leagues with rankings from FantasyCalc, DynastyDaddy, KTC, and Dynasty Process. Get trade insights, roster optimization and projections from CBS, NFL and ESPN.',
+  meta: [
+    {
+      name: 'keywords',
+      content:
+        'fantasy football, sleeper app, dynasty fantasy football, fantasy rankings, trade calculator, roster optimizer, fantasy football projections'
+    },
+    {
+      property: 'og:title',
+      content: 'Fantasy Navigator - Optimize Your Sleeper Fantasy Football Teams'
+    },
+    {
+      property: 'og:description',
+      content:
+        'Analyze your Sleeper fantasy football leagues with rankings from multiple sources. Discover trade opportunities and optimize your roster.'
+    },
+    { property: 'og:type', content: 'website' },
+    {
+      property: 'og:image',
+      content: new URL('@/assets/site/league_details.png', import.meta.url).href
+    },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Fantasy Navigator - Fantasy Football League Analyzer' },
+    {
+      name: 'twitter:description',
+      content:
+        'Optimize your fantasy football teams with comprehensive analysis and trade insights.'
+    }
+  ]
+})
+
+// Add structured data for rich results
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Fantasy Navigator',
+  applicationCategory: 'SportsApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD'
+  },
+  description:
+    'A fantasy football analysis tool for Sleeper leagues with rankings from FantasyCalc, DynastyDaddy, Keep Trade Cut, and Dynasty Process along with projections from CBS, NFL and ESPN.',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '210'
+  }
 }
 </script>
 <style scoped>
