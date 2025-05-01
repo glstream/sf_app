@@ -73,7 +73,16 @@
         <!-- Trade Teams Section -->
         <div class="trade-teams">
           <!-- Team A -->
-          <a-card class="team-card" :bordered="false">
+          <a-card
+            class="team-card"
+            :bordered="false"
+            :class="{
+              'card-outline-balanced':
+                isFairTrade && (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+              'card-outline-winning': bFavoredTrade, // Losing side (A) gets blue outline when B is favored
+              'card-outline-losing': aFavoredTrade // Winning side (A) gets red outline when A is favored
+            }"
+          >
             <template #title>
               <div class="team-header">
                 <h2>Team A</h2>
@@ -172,54 +181,22 @@
               :valueA="totalValueSideA"
               :valueB="totalValueSideB"
               :isFair="isFairTrade"
+              :balancingValue="balancingPlayerValue"
               class="balance-visualizer-spacing"
             />
-
-            <a-card
-              :class="{
-                'evaluation-balanced':
-                  isFairTrade && (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
-                'evaluation-favors-a': aFavoredTrade,
-                'evaluation-favors-b': bFavoredTrade,
-                'evaluation-placeholder':
-                  selectedPlayers1.length === 0 && selectedPlayers2.length === 0
-              }"
-            >
-              <template v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
-                <template v-if="isFairTrade">
-                  <CheckCircleFilled class="eval-icon" />
-                  <div class="eval-message">Balanced Trade</div>
-                </template>
-
-                <template v-else-if="aFavoredTrade">
-                  <div class="eval-heading">Favors Team A</div>
-                  <div class="eval-message">
-                    Team B needs
-                    <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
-                    value
-                  </div>
-                  <ArrowLeftOutlined class="direction-arrow" />
-                </template>
-
-                <template v-else-if="bFavoredTrade">
-                  <div class="eval-heading">Favors Team B</div>
-                  <div class="eval-message">
-                    Team A needs
-                    <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
-                    value
-                  </div>
-                  <ArrowRightOutlined class="direction-arrow" />
-                </template>
-              </template>
-              <template v-else>
-                <!-- Placeholder Content -->
-                <div class="eval-placeholder-content">Add assets to evaluate the trade</div>
-              </template>
-            </a-card>
           </div>
 
           <!-- Team B -->
-          <a-card class="team-card" :bordered="false">
+          <a-card
+            class="team-card"
+            :bordered="false"
+            :class="{
+              'card-outline-balanced':
+                isFairTrade && (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+              'card-outline-winning': aFavoredTrade, // Losing side (B) gets blue outline when A is favored
+              'card-outline-losing': bFavoredTrade // Winning side (B) gets red outline when B is favored
+            }"
+          >
             <template #title>
               <div class="team-header">
                 <h2>Team B</h2>
@@ -1413,6 +1390,23 @@ function getCardPositionColor(position: string): string {
   min-height: 350px; /* Add minimum height */
   display: flex; /* Use flexbox for better height management */
   flex-direction: column; /* Stack content vertically */
+  border: 2px solid transparent; /* Default transparent border */
+  transition: border-color 0.4s ease; /* Add transition for border-color */
+}
+
+/* Updated styles for card border based on trade status */
+.team-card.card-outline-balanced {
+  border-color: rgba(82, 196, 26, 0.5); /* Light green border */
+}
+
+.team-card.card-outline-winning {
+  /* Losing side */
+  border-color: rgba(24, 144, 255, 0.5); /* Light blue border */
+}
+
+.team-card.card-outline-losing {
+  /* Winning side */
+  border-color: rgba(245, 34, 45, 0.4); /* Light red border */
 }
 
 .team-header {
@@ -1663,6 +1657,10 @@ function getCardPositionColor(position: string): string {
     /* Evaluation in the middle */
     grid-area: evaluation;
     margin: 0 16px; /* Add horizontal margin */
+    min-width: 250px; /* Ensure minimum width for visualizer */
+    display: flex; /* Align visualizer */
+    align-items: center; /* Center visualizer vertically */
+    justify-content: center; /* Center visualizer horizontally */
   }
 
   .team-card:nth-of-type(2) {
@@ -1688,7 +1686,12 @@ function getCardPositionColor(position: string): string {
 
   .trade-evaluation {
     grid-area: evaluation;
-    margin: 16px 0; /* Add vertical margin */
+    margin: 16px auto; /* Center and add vertical margin */
+    min-width: 250px; /* Ensure minimum width for visualizer */
+    width: 100%; /* Allow it to take full width if needed */
+    max-width: 350px; /* Match visualizer max-width */
+    display: flex;
+    justify-content: center;
   }
 
   .team-card:nth-of-type(2) {
@@ -1755,105 +1758,5 @@ function getCardPositionColor(position: string): string {
 .view-more {
   text-align: center;
   margin-top: 16px;
-}
-
-/* Trade Evaluation */
-.evaluation-balanced,
-.evaluation-favors-a,
-.evaluation-favors-b,
-.evaluation-placeholder {
-  width: 100%;
-  text-align: center;
-  border-radius: 8px;
-  padding: 16px;
-  height: 110px; /* Use fixed height */
-  display: flex; /* Use flexbox for alignment */
-  flex-direction: column; /* Stack content vertically */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
-  box-sizing: border-box; /* Include padding in height calculation */
-  overflow: hidden; /* Prevent content overflow */
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease; /* Add transitions */
-}
-
-.evaluation-balanced {
-  background-color: rgba(82, 196, 26, 0.1); /* Light green background */
-  border: 1px solid rgba(82, 196, 26, 0.3); /* Subtle green border */
-  color: #389e0d; /* Darker green text */
-}
-
-/* Specific styles for placeholder */
-.evaluation-placeholder {
-  background-color: #f0f2f5; /* Neutral background */
-  border: 1px solid #d9d9d9; /* Neutral border */
-  color: #8c8c8c; /* Muted text color */
-}
-
-.eval-placeholder-content {
-  font-size: 14px;
-  font-style: italic;
-}
-
-/* Specific styles for favored states */
-.evaluation-favors-a,
-.evaluation-favors-b {
-  background-color: rgba(245, 34, 45, 0.05); /* Light red background */
-  border: 1px solid rgba(245, 34, 45, 0.2); /* Subtle red border */
-  color: #cf1322; /* Darker red text */
-}
-
-.eval-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-  color: #52c41a; /* Explicitly set icon color to green for balanced */
-}
-
-.evaluation-balanced .eval-message {
-  color: #389e0d; /* Ensure message text is green for balanced */
-  font-weight: 600;
-}
-
-.eval-heading {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: inherit; /* Inherit color from parent card */
-}
-
-.eval-message {
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: inherit; /* Inherit color from parent card */
-}
-
-.eval-message strong {
-  color: inherit; /* Ensure strong text inherits color */
-}
-
-.direction-arrow {
-  font-size: 20px;
-  margin-top: 4px; /* Add a little space above arrow */
-  color: #f5222d; /* Red arrow for favored states */
-}
-
-/* Responsive Design */
-@media (max-width: 991px) {
-  .trade-teams {
-    /* Revert to single column layout on smaller screens */
-    grid-template-columns: 1fr;
-  }
-
-  .trade-evaluation {
-    order: 2; /* Place evaluation between Team A and Team B */
-    margin: 16px 0; /* Add vertical margin */
-  }
-
-  /* Ensure Team B comes after evaluation */
-  .team-card:nth-of-type(2) {
-    /* Selects Team B card */
-    order: 3;
-  }
 }
 </style>

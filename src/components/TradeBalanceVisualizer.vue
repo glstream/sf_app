@@ -1,22 +1,42 @@
 <template>
   <div class="trade-balance-visualizer">
-    <!-- Top Labels -->
+    <!-- Top Labels - Modified for Balancing Value and Arrow -->
     <div class="balance-labels top-labels">
-      <!-- Show only if Team A is favored and trade is not fair -->
-      <span class="label-a" v-if="!isFair && valueA > valueB">
-        <span class="favor-icon">↑</span> Team A Favored
-        <span class="diff-value" v-if="showDifference">(+{{ Math.round(valueA - valueB) }})</span>
+      <!-- Team A Favored (B needs value) -->
+      <span class="label-container" v-if="!isFair && valueA > valueB">
+        <span class="label-favored label-a-favored">
+          <span class="favor-icon side-arrow left-arrow">←</span>
+          <!-- Points to A -->
+          <span class="favor-icon up-arrow">↑</span>
+          <!-- Points up from A -->
+          Team A Favored
+        </span>
+        <span class="label-needs label-b-needs">
+          <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
+          <span class="favor-icon side-arrow right-arrow">→</span>
+          <!-- Points to B -->
+          <span class="favor-icon up-arrow">↓</span>
+          <!-- Points down to B -->
+        </span>
       </span>
-      <!-- Add a placeholder span to maintain space-between alignment when only B is shown -->
-      <span v-else-if="!isFair && valueB > valueA"></span>
 
-      <!-- Show only if Team B is favored and trade is not fair -->
-      <span class="label-b" v-if="!isFair && valueB > valueA">
-        Team B Favored <span class="favor-icon">↑</span>
-        <span class="diff-value" v-if="showDifference">(+{{ Math.round(valueB - valueA) }})</span>
+      <!-- Team B Favored (A needs value) -->
+      <span class="label-container" v-if="!isFair && valueB > valueA">
+        <span class="label-needs label-a-needs">
+          <span class="favor-icon side-arrow left-arrow">←</span>
+          <!-- Points to A -->
+          <span class="favor-icon up-arrow">↑</span>
+          <!-- Points up to A on mobile -->
+          <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
+        </span>
+        <span class="label-favored label-b-favored">
+          Team B Favored
+          <span class="favor-icon side-arrow right-arrow">→</span>
+          <!-- Points to B -->
+          <span class="favor-icon up-arrow">↓</span>
+          <!-- Points down from B -->
+        </span>
       </span>
-      <!-- Add a placeholder span to maintain space-between alignment when only A is shown -->
-      <span v-else-if="!isFair && valueA > valueB"></span>
     </div>
 
     <!-- Balance Bar -->
@@ -55,6 +75,7 @@ const props = defineProps<{
   valueA: number
   valueB: number
   isFair: boolean
+  balancingValue: number // Add the new prop
   showDifference?: boolean
 }>()
 
@@ -94,11 +115,61 @@ const teamBPercentage = computed(() => {
   color: #555;
   padding: 0 5px;
   box-sizing: border-box;
-  min-height: 18px;
+  min-height: 18px; /* Ensure space for labels */
+  align-items: center; /* Vertically align items if they wrap */
 }
 
 .top-labels {
   margin-bottom: 6px;
+  position: relative; /* Needed for absolute positioning if used */
+  min-height: 18px; /* Ensure space */
+}
+
+/* New container for top labels when imbalanced */
+.label-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+/* Styles for the "Needs Value" part */
+.label-needs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #096dd9; /* Changed to blue */
+}
+.label-a-needs {
+  justify-content: flex-start;
+}
+.label-b-needs {
+  justify-content: flex-end;
+}
+
+/* Styles for the "Team Favored" part */
+.label-favored {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px; /* Match original label size */
+  font-weight: 500;
+  color: #cf1322; /* Always red */
+}
+.label-a-favored {
+  justify-content: flex-start;
+}
+.label-b-favored {
+  justify-content: flex-end;
+}
+
+.balancing-value-display {
+  padding: 1px 5px;
+  background-color: rgba(24, 144, 255, 0.1); /* Use blue background */
+  border-radius: 4px;
+  color: #096dd9; /* Ensure text is blue */
 }
 
 .bottom-label {
@@ -151,7 +222,7 @@ const teamBPercentage = computed(() => {
 }
 
 .team-b {
-  background: linear-gradient(to right, #69c0ff, #1890ff);
+  background: linear-gradient(to right, #69c0ff, #1890ff); /* Keep B blue */
   border-radius: 0 8px 8px 0;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -201,36 +272,35 @@ const teamBPercentage = computed(() => {
   animation: fadeIn 0.5s ease-out;
 }
 
-.label-a {
-  text-align: left;
-  color: #cf1322;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  animation: slideIn 0.3s ease-out;
-}
-
-.label-b {
-  text-align: right;
-  color: #096dd9;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  animation: slideIn 0.3s ease-out;
-}
-
 .favor-icon {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
+  line-height: 1;
+}
+/* Arrow colors based on context */
+.label-needs .favor-icon {
+  color: #096dd9; /* Blue for needing value arrow */
+}
+.label-favored .favor-icon {
+  color: #cf1322; /* Red for favored arrow */
 }
 
-.balance-icon {
-  font-size: 14px;
+/* Hide side arrows by default (mobile-first) */
+.side-arrow {
+  display: none;
+}
+.up-arrow {
+  display: inline; /* Show up/down arrows on mobile */
 }
 
-.diff-value {
-  font-size: 11px;
-  opacity: 0.8;
+/* Desktop Styles */
+@media (min-width: 992px) {
+  .up-arrow {
+    display: none; /* Hide up/down arrows on desktop */
+  }
+  .side-arrow {
+    display: inline; /* Show side arrows on desktop */
+  }
 }
 
 .value-badge {
