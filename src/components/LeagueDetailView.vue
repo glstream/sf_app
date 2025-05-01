@@ -209,340 +209,125 @@
                   <a-table
                     :columns="showProjections ? projColumns : columns"
                     :dataSource="showProjections ? projSummaryData : summaryData"
-                    :pagination="{ pageSize: 20 }"
+                    :pagination="false"
                     row-key="user_id"
                     :expand-column-width="100"
                     style="width: 100%; max-width: 1150px"
                     :scroll="{ x: '1150px' }"
+                    :rowClassName="
+                      (record) => (record.user_id === leagueInfo.userId ? 'highlighted-row' : '')
+                    "
                   >
+                    <!-- Customized expandable row -->
                     <template #expandedRowRender="{ record }">
-                      <div>
-                        <a-row :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
-                          <a-col :span="5" style="padding-bottom: 7px">
-                            <span>QBs </span>
-                            <a-tag>
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
-                                )
-                              }}</a-tag
-                            >
-                            <span>Avg Age </span>
-                            <a-tag>
-                              {{
-                                overallFilter === 'all'
-                                  ? record.qb_average_age
-                                  : record.qb_starter_average_age
-                              }}
-                            </a-tag>
-                          </a-col>
-
-                          <a-col :span="5" style="padding-bottom: 7px">
-                            <span>RBs </span>
-                            <a-tag>
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
-                                )
-                              }}</a-tag
-                            >
-                            <span>Avg Age </span>
-                            <a-tag>
-                              {{
-                                overallFilter === 'all'
-                                  ? record.rb_average_age
-                                  : record.rb_starter_average_age
-                              }}
-                            </a-tag></a-col
+                      <div class="expanded-row-content">
+                        <!-- Position Summary Section -->
+                        <div class="position-summary">
+                          <div
+                            v-for="position in [
+                              'QB',
+                              'RB',
+                              'WR',
+                              'TE',
+                              overallFilter === 'all' && !showProjections ? 'PICKS' : null
+                            ].filter(Boolean)"
+                            :key="position"
+                            class="position-summary-item"
+                            :class="`position-${position.toLowerCase()}`"
                           >
-                          <a-col :span="5" style="padding-bottom: 7px">
-                            <span>WRs </span>
-                            <a-tag>
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
+                            <div class="position-header">
+                              <span class="position-name">{{ position }}</span>
+                              <a-tag
+                                :style="
+                                  getCellStyle(
+                                    overallFilter === 'all'
+                                      ? record[`${position.toLowerCase()}_rank`]
+                                      : record[`${position.toLowerCase()}_starter_rank`]
+                                  )
+                                "
+                                class="position-rank"
+                              >
+                                {{
+                                  addOrdinalSuffix(
+                                    overallFilter === 'all'
+                                      ? record[`${position.toLowerCase()}_rank`]
+                                      : record[`${position.toLowerCase()}_starter_rank`]
+                                  )
+                                }}
+                              </a-tag>
+                            </div>
+                            <div class="position-stats">
+                              <span class="age-label">Avg Age:</span>
+                              <span class="age-value">{{
+                                position === 'PICKS'
+                                  ? '--'
+                                  : overallFilter === 'all'
+                                    ? record[`${position.toLowerCase()}_average_age`]
+                                    : record[`${position.toLowerCase()}_starter_average_age`]
+                              }}</span>
+                              <span class="value-label">Total:</span>
+                              <span class="value-amount">{{
+                                (overallFilter === 'all'
+                                  ? record[`${position.toLowerCase()}_sum`]
+                                  : record[`${position.toLowerCase()}_starter_sum`] || 0
+                                ).toLocaleString()
+                              }}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Position Players Grid -->
+                        <div class="players-grid">
+                          <div
+                            v-for="position in [
+                              'QB',
+                              'RB',
+                              'WR',
+                              'TE',
+                              overallFilter === 'all' && !showProjections ? 'PICKS' : null
+                            ].filter(Boolean)"
+                            :key="`players-${position}`"
+                            class="position-players-column"
+                            :data-position="position"
+                          >
+                            <div class="players-list">
+                              <div
+                                v-for="player in (showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)
                                 )
-                              }}</a-tag
-                            >
-                            <span>Avg Age </span>
-                            <a-tag>
-                              {{
-                                overallFilter === 'all'
-                                  ? record.wr_average_age
-                                  : record.wr_starter_average_age
-                              }}
-                            </a-tag></a-col
-                          >
-                          <a-col :span="5" style="padding-bottom: 7px">
-                            <span>TEs </span>
-                            <a-tag>
-                              {{
-                                addOrdinalSuffix(
-                                  overallFilter === 'all' ? record.te_rank : record.te_starter_rank
-                                )
-                              }}</a-tag
-                            >
-                            <span>Avg Age </span>
-                            <a-tag>
-                              {{
-                                overallFilter === 'all'
-                                  ? record.te_average_age
-                                  : record.te_starter_average_age
-                              }}
-                            </a-tag></a-col
-                          >
-                          <a-col :span="4" v-if="overallFilter === 'all' && !showProjections">
-                            <span>Picks </span>
-                            <a-tag> {{ addOrdinalSuffix(record.picks_rank) }}</a-tag>
-                            <span>Avg Age </span>
-                            <a-tag> -- </a-tag></a-col
-                          >
-                        </a-row>
-                        <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 8 }">
-                          <a-col :span="5">
-                            <div>
-                              <ul
-                                style="padding: 0; list-style: none"
-                                v-for="player in showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)"
+                                  .filter((p) => p.player_position === position)
+                                  .sort((a, b) => b.player_value - a.player_value)"
+                                :key="player.sleeper_id"
+                                class="player-card"
+                                :style="getPositionTagList(player.player_position, 0.25)"
                               >
-                                <li
-                                  v-if="player.player_position === 'QB'"
-                                  :key="player.sleeper_id"
-                                  :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2px;
-                                    border-radius: 2px;
-                                    padding: 0 10px;
-                                  "
-                                >
-                                  <span
-                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                  >
-                                    {{ player?.full_name }} {{ player?.team }}
-                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                  </span>
-                                  <span>
-                                    {{
+                                <div class="player-info">
+                                  <div class="player-name-team">
+                                    <span class="player-name">{{ player?.full_name }}</span>
+                                    <span
+                                      v-if="player.player_position !== 'PICKS'"
+                                      class="player-team"
+                                      >{{ player?.team }}</span
+                                    >
+                                  </div>
+                                  <div class="player-meta">
+                                    <span
+                                      v-if="player.player_position !== 'PICKS'"
+                                      class="player-age"
+                                      >{{ player?.age }}y</span
+                                    >
+                                    <span class="player-value">{{
                                       player.player_value === -1
                                         ? 'N/A'
                                         : player.player_value?.toLocaleString()
-                                    }}
-                                  </span>
-                                </li>
-                              </ul>
-                              <div style="float: right; padding-top: 5px">
-                                <span>Total </span>
-                                <a-tag>
-                                  {{
-                                    overallFilter === 'all'
-                                      ? record.qb_sum.toLocaleString()
-                                      : record.qb_starter_sum.toLocaleString()
-                                  }}
-                                </a-tag>
+                                    }}</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          </a-col>
-
-                          <!-- RB section -->
-                          <a-col :span="5">
-                            <div>
-                              <ul
-                                style="padding: 0; list-style: none"
-                                v-for="player in showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)"
-                              >
-                                <li
-                                  v-if="player.player_position === 'RB'"
-                                  :key="player.sleeper_id"
-                                  :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2px;
-                                    border-radius: 2px;
-                                    padding: 0 10px;
-                                  "
-                                >
-                                  <span
-                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                  >
-                                    {{ player?.full_name }} {{ player?.team }}
-                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                  </span>
-                                  <span>
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value?.toLocaleString()
-                                    }}
-                                  </span>
-                                </li>
-                              </ul>
-                              <div style="float: right; padding-top: 5px">
-                                <span>Total </span>
-                                <a-tag>
-                                  {{
-                                    overallFilter === 'all'
-                                      ? record.rb_sum.toLocaleString()
-                                      : record.rb_starter_sum.toLocaleString()
-                                  }}
-                                </a-tag>
-                              </div>
-                            </div>
-                          </a-col>
-
-                          <!-- WR section -->
-                          <a-col :span="5">
-                            <div>
-                              <ul
-                                style="padding: 0; list-style: none"
-                                v-for="player in showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)"
-                              >
-                                <li
-                                  v-if="player.player_position === 'WR'"
-                                  :key="player.sleeper_id"
-                                  :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2px;
-                                    border-radius: 2px;
-                                    padding: 0 10px;
-                                  "
-                                >
-                                  <span
-                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                  >
-                                    {{ player?.full_name }} {{ player?.team }}
-                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                  </span>
-                                  <span>
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value?.toLocaleString()
-                                    }}
-                                  </span>
-                                </li>
-                              </ul>
-                              <div style="float: right; padding-top: 5px">
-                                <span>Total </span>
-                                <a-tag>
-                                  {{
-                                    overallFilter === 'all'
-                                      ? record.wr_sum.toLocaleString()
-                                      : record.wr_starter_sum.toLocaleString()
-                                  }}
-                                </a-tag>
-                              </div>
-                            </div>
-                          </a-col>
-
-                          <!-- TE section -->
-                          <a-col :span="5">
-                            <div>
-                              <ul
-                                style="padding: 0; list-style: none"
-                                v-for="player in showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)"
-                              >
-                                <li
-                                  v-if="player.player_position === 'TE'"
-                                  :key="player.sleeper_id"
-                                  :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2px;
-                                    border-radius: 2px;
-                                    padding: 0 10px;
-                                  "
-                                >
-                                  <span
-                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                  >
-                                    {{ player?.full_name }} {{ player?.team }}
-                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                  </span>
-                                  <span>
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value?.toLocaleString()
-                                    }}
-                                  </span>
-                                </li>
-                              </ul>
-                              <div style="float: right; padding-top: 5px">
-                                <span>Total </span>
-                                <a-tag>
-                                  {{
-                                    overallFilter === 'all'
-                                      ? record.te_sum.toLocaleString()
-                                      : record.te_starter_sum.toLocaleString()
-                                  }}
-                                </a-tag>
-                              </div>
-                            </div>
-                          </a-col>
-
-                          <!-- PICKS section - only show if viewing all players -->
-                          <a-col :span="4" v-if="overallFilter === 'all' && !showProjections">
-                            <div>
-                              <ul
-                                style="padding: 0; list-style: none"
-                                v-for="player in showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)"
-                              >
-                                <li
-                                  v-if="player.player_position === 'PICKS'"
-                                  :key="player.sleeper_id"
-                                  :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    margin-bottom: 2px;
-                                    border-radius: 2px;
-                                    padding: 0 10px;
-                                  "
-                                >
-                                  <span
-                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                  >
-                                    {{ player?.full_name }}
-                                  </span>
-                                  <span>
-                                    {{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value?.toLocaleString()
-                                    }}
-                                  </span>
-                                </li>
-                              </ul>
-                              <div style="float: right; padding-top: 5px">
-                                <span>Total </span>
-                                <a-tag>
-                                  {{ record.picks_sum ? record.picks_sum.toLocaleString() : '0' }}
-                                </a-tag>
-                              </div>
-                            </div>
-                          </a-col>
-                        </a-row>
+                          </div>
+                        </div>
                       </div>
                     </template>
                   </a-table>
@@ -3531,6 +3316,281 @@ h4 {
 @media (max-width: 992px) {
   .position-player-item {
     font-size: 11px;
+  }
+}
+
+/* New Heat Map Styles */
+.expanded-row-content {
+  padding: 12px 8px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.position-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.position-summary-item {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  max-width: 340px;
+}
+
+.position-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.position-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.position-rank {
+  margin: 0;
+}
+
+.position-stats {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  font-size: 13px;
+}
+
+.age-label,
+.value-label {
+  color: #777;
+}
+
+.age-value,
+.value-amount {
+  font-weight: 500;
+  text-align: right;
+}
+
+.value-amount {
+  font-weight: 600;
+}
+
+/* Position-specific styling */
+.position-qb {
+  border-left: 3px solid rgb(39, 125, 161);
+}
+
+.position-rb {
+  border-left: 3px solid rgb(144, 190, 109);
+}
+
+.position-wr {
+  border-left: 3px solid rgb(67, 170, 139);
+}
+
+.position-te {
+  border-left: 3px solid rgb(249, 132, 74);
+}
+
+.position-picks {
+  border-left: 3px solid rgb(143, 145, 146);
+}
+
+/* Players Grid styling */
+.players-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.position-players-column {
+  flex: 1;
+  min-width: 165px;
+  max-width: 340px;
+}
+
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.player-card {
+  padding: 6px 8px;
+  border-radius: 4px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.player-name-team {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.player-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-team {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.player-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 45px;
+}
+
+.player-age {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.player-value {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Highlighted row for current user */
+.highlighted-row {
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
+.highlighted-row td {
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .position-summary {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .position-summary-item {
+    width: 100%;
+  }
+
+  .players-grid {
+    flex-direction: column;
+  }
+
+  .position-players-column {
+    width: 100%;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  .position-players-column:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .player-card {
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .player-info {
+    font-size: 14px;
+  }
+
+  .player-name {
+    font-size: 14px;
+    max-width: 160px;
+  }
+
+  .player-team {
+    font-size: 12px;
+  }
+
+  .player-meta {
+    min-width: 60px;
+  }
+
+  .player-age {
+    font-size: 12px;
+  }
+
+  .player-value {
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .expanded-row-content {
+    padding: 8px 4px;
+  }
+
+  .player-card {
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+
+  .player-name-team {
+    width: 65%;
+  }
+
+  .player-name {
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .position-summary-item {
+    padding: 10px;
+    margin-bottom: 4px;
+    width: auto;
+  }
+
+  .players-grid::before {
+    content: 'Players';
+    display: block;
+    font-weight: 600;
+    margin: 8px 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eaeaea;
+    color: #555;
+  }
+
+  .position-players-column::before {
+    content: attr(data-position);
+    display: block;
+    font-weight: 600;
+    margin: 12px 0 8px;
+    color: #444;
+    font-size: 15px;
   }
 }
 </style>
