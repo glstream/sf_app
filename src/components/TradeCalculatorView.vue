@@ -5,8 +5,11 @@
 
     <a-layout-content class="responsive-padding">
       <div class="page-title">
-        <h1>Trade Calculator</h1>
-        <p class="subtitle">Evaluate trades with precision using our advanced calculator</p>
+        <h1>Fantasy Football Trade Calculator</h1>
+        <p class="subtitle">
+          Evaluate dynasty and redraft trades with precision using our advanced fantasy football
+          trade calculator
+        </p>
       </div>
 
       <div class="trade-calculator-container">
@@ -73,7 +76,7 @@
           <a-card class="team-card" :bordered="false">
             <template #title>
               <div class="team-header">
-                <h2>Team B</h2>
+                <h2>Team A</h2>
                 <div
                   class="team-value"
                   :class="{ 'value-favorable': aFavoredTrade, 'value-balanced': isFairTrade }"
@@ -219,7 +222,7 @@
           <a-card class="team-card" :bordered="false">
             <template #title>
               <div class="team-header">
-                <h2>Team A</h2>
+                <h2>Team B</h2>
                 <div
                   class="team-value"
                   :class="{ 'value-favorable': bFavoredTrade, 'value-balanced': isFairTrade }"
@@ -407,7 +410,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed, watch, onUnmounted } from 'vue'
+import { useMeta } from '@/composables/useMeta' // Import useMeta
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -978,10 +982,12 @@ const aFavored = computed(() => {
 })
 
 const bFavored = computed(() => {
+  // Corrected logic: Check if B's value is greater than A's value
+  // and the difference is within the threshold.
   return (
-    tradeAnalysis.value.percentageDifference < percentThreshold.value &&
-    valueDifferenceA.value > 0 &&
-    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
+    tradeAnalysis.value.percentageDifference > percentThreshold.value && // Ensure it's NOT a fair trade first
+    totalValueSideB.value > totalValueSideA.value && // Check if B's value is actually higher
+    (selectedPlayers1.value.length > 0 || selectedPlayers2.value.length > 0) // Ensure players are selected
   )
 })
 
@@ -1070,6 +1076,67 @@ const state = reactive({
   checked2: true
 })
 
+// SEO Metadata
+useMeta({
+  title: 'Fantasy Football Trade Calculator | Dynasty & Redraft Value Analysis',
+  description:
+    'Evaluate fantasy football trades with our advanced calculator. Compare player values from FantasyCalc, DynastyDaddy, KTC, and Dynasty Process for dynasty and redraft leagues.',
+  meta: [
+    {
+      name: 'keywords',
+      content:
+        'fantasy football trade calculator, dynasty trade calculator, redraft trade calculator, sleeper trade calculator, fantasy football trade analyzer'
+    },
+    {
+      property: 'og:title',
+      content: 'Fantasy Football Trade Calculator | Dynasty & Redraft Value Analysis'
+    },
+    {
+      property: 'og:description',
+      content:
+        'Analyze fantasy football trades with our comprehensive calculator. Get fair trade values with adjustments for team formats and league size.'
+    },
+    { property: 'og:type', content: 'website' },
+    {
+      property: 'og:image',
+      content: new URL('@/assets/site/trade_calc.png', import.meta.url).href
+    }, // Ensure this path is correct
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Fantasy Football Trade Calculator' },
+    {
+      name: 'twitter:description',
+      content:
+        'Get accurate fantasy football trade values with our advanced calculator for dynasty and redraft leagues.'
+    }
+  ]
+})
+
+// Add structured data for rich results
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Fantasy Football Trade Calculator',
+  applicationCategory: 'SportsApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD'
+  },
+  description:
+    'A comprehensive fantasy football trade calculator for evaluating trades in dynasty and redraft leagues with values from multiple ranking sources.',
+  browserRequirements: 'Requires JavaScript. Requires HTML5.',
+  featureList: [
+    'Dynasty and redraft rankings',
+    'Superflex and 1QB league support',
+    'TE premium adjustments',
+    'Team size configuration',
+    'Value consolidation calculations',
+    'Balance trade suggestions',
+    'Trade sharing on social media'
+  ]
+}
+
 async function fetchRanks(platform: string, rankType: string) {
   isLoading.value = true
   tepCheck.value = false
@@ -1121,6 +1188,21 @@ async function fetchRanks(platform: string, rankType: string) {
 
 onMounted(() => {
   fetchRanks(platform.value, rankType.value)
+
+  // Add structured data script to head
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.textContent = JSON.stringify(structuredData)
+  script.setAttribute('data-seo-script', 'true') // Add an attribute for easier removal
+  document.head.appendChild(script)
+})
+
+onUnmounted(() => {
+  // Clean up structured data script
+  const script = document.querySelector('script[data-seo-script="true"]')
+  if (script && script.parentNode) {
+    script.parentNode.removeChild(script)
+  }
 })
 
 watch(
@@ -1567,28 +1649,94 @@ function getCardPositionColor(position: string): string {
 @media (min-width: 992px) {
   /* Styles for screens >= 992px */
   .trade-teams {
-    /* Change to 2 columns */
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .trade-evaluation {
-    grid-column: 1 / -1; /* Span both columns */
-    order: 3; /* Ensure it comes after Team A (1) and Team B (2) */
-    margin-top: 16px; /* Add space above */
-    margin-bottom: 0; /* Remove bottom margin if set previously */
-    /* Optional: Limit max-width if desired */
-    /* max-width: 600px; */
-    /* justify-self: center; */ /* Center if max-width is used */
+    /* Change to 3 columns grid with the middle column for evaluation */
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: 'teamA evaluation teamB';
   }
 
   .team-card:nth-of-type(1) {
-    /* Team A */
-    order: 1; /* Explicitly set order */
+    /* Team A - position on the left */
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    /* Evaluation in the middle */
+    grid-area: evaluation;
+    margin: 0 16px; /* Add horizontal margin */
   }
 
   .team-card:nth-of-type(2) {
-    /* Team B */
-    order: 2; /* Ensure Team B is second */
+    /* Team B - position on the right */
+    grid-area: teamB;
+  }
+}
+
+@media (max-width: 991px) {
+  /* Styles for screens < 992px */
+  .trade-teams {
+    /* Single column layout */
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'teamA'
+      'evaluation'
+      'teamB';
+  }
+
+  .team-card:nth-of-type(1) {
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    grid-area: evaluation;
+    margin: 16px 0; /* Add vertical margin */
+  }
+
+  .team-card:nth-of-type(2) {
+    grid-area: teamB;
+  }
+}
+
+@media (max-width: 767px) {
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .balancing-players-container {
+    grid-template-columns: 1fr;
+  }
+
+  .balancing-player-name {
+    font-size: 14px;
+    padding-right: 40px;
+    max-width: calc(100% - 80px);
+  }
+
+  .player-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .player-details {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .remove-player {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  :deep(.ant-ribbon) {
+    top: 6px;
   }
 }
 
@@ -1601,25 +1749,6 @@ function getCardPositionColor(position: string): string {
 @media (min-width: 1200px) {
   .balancing-players-container {
     grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 991px) {
-  /* Styles for screens < 992px */
-  .trade-teams {
-    /* Already 1fr by default */
-    grid-template-columns: 1fr;
-  }
-
-  .trade-evaluation {
-    order: 2; /* Place evaluation between Team A and Team B */
-    margin: 16px 0; /* Add vertical margin */
-  }
-
-  /* Ensure Team B comes after evaluation */
-  .team-card:nth-of-type(2) {
-    /* Selects Team B card */
-    order: 3;
   }
 }
 
@@ -1725,50 +1854,6 @@ function getCardPositionColor(position: string): string {
   .team-card:nth-of-type(2) {
     /* Selects Team B card */
     order: 3;
-  }
-}
-
-@media (max-width: 767px) {
-  .settings-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .balancing-players-container {
-    grid-template-columns: 1fr;
-  }
-
-  .balancing-player-name {
-    font-size: 14px;
-    padding-right: 40px;
-    max-width: calc(100% - 80px);
-  }
-
-  .player-info {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .player-details {
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 4px;
-  }
-
-  .remove-player {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-  }
-
-  :deep(.ant-ribbon) {
-    top: 6px;
   }
 }
 </style>
