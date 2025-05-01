@@ -541,6 +541,7 @@ const getCurrentYear = async () => {
 /* Additional styles for layout */
 .layout {
   min-height: 100vh;
+  background-color: #f5f7fa;
 }
 .table-section {
   display: flex;

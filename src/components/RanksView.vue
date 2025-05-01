@@ -3,10 +3,13 @@
     <theme-toggle-button />
     <AppHeader />
 
-    <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-      <!-- Add Title Here -->
+    <a-layout-content class="responsive-padding">
       <div class="page-title">
-        <h1>Fantasy Football Rankings</h1>
+        <h1>Fantasy Football Trade Calculator</h1>
+        <p class="subtitle">
+          Evaluate dynasty and redraft trades with precision using our advanced fantasy football
+          trade calculator
+        </p>
       </div>
 
       <!-- Controls section -->
@@ -367,10 +370,15 @@ function handlePageChange(page) {
 
 <style scoped>
 /* General layout */
+
+.layout {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
 .responsive-padding {
   padding: 0 16px;
-  max-width: 100%; /* Allow table to fill more screen space */
-  margin: 0; /* Align to left instead of center */
+  max-width: 1400px; /* Adjust this value as needed */
+  margin: 0 auto; /* Center the container */
 }
 
 /* Add Page Title Style */
@@ -599,7 +607,6 @@ function handlePageChange(page) {
 @media (min-width: 1400px) {
   .responsive-padding {
     padding: 0 32px;
-    max-width: 90%; /* Cap width on very large screens */
   }
 }
 
@@ -610,6 +617,10 @@ function handlePageChange(page) {
 }
 
 @media (max-width: 767px) {
+  .responsive-padding {
+    max-width: 100%;
+  }
+
   .rankings-header,
   .rankings-row {
     grid-template-columns: 24px 36px minmax(60px, 1fr) 34px 24px 54px;

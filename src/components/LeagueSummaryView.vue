@@ -825,6 +825,7 @@ function getColorByRank(rank) {
 <style>
 .layout {
   min-height: 100vh;
+  background-color: #f5f7fa;
 }
 
 .tags-vertical {
