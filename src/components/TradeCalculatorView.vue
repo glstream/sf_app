@@ -5,11 +5,8 @@
 
     <a-layout-content class="responsive-padding">
       <div class="page-title">
-        <h1>Fantasy Football Trade Calculator</h1>
-        <p class="subtitle">
-          Evaluate dynasty and redraft trades with precision using our advanced fantasy football
-          trade calculator
-        </p>
+        <h1>Trade Calculator</h1>
+        <p class="subtitle">Evaluate trades with precision using our advanced calculator</p>
       </div>
 
       <div class="trade-calculator-container">
@@ -410,93 +407,40 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watch, onUnmounted } from 'vue'
-import { useMeta } from '@/composables/useMeta'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
-import TradeBalanceVisualizer from '@/components/TradeBalanceVisualizer.vue'
+import TradeBalanceVisualizer from '@/components/TradeBalanceVisualizer.vue' // Import the new component
 
-// SEO Metadata
-useMeta({
-  title: 'Fantasy Football Trade Calculator | Dynasty & Redraft Value Analysis',
-  description:
-    'Evaluate fantasy football trades with our advanced calculator. Compare player values from FantasyCalc, DynastyDaddy, KTC, and Dynasty Process for dynasty and redraft leagues.',
-  meta: [
-    {
-      name: 'keywords',
-      content:
-        'fantasy football trade calculator, dynasty trade calculator, redraft trade calculator, sleeper trade calculator, fantasy football trade analyzer'
-    },
-    {
-      property: 'og:title',
-      content: 'Fantasy Football Trade Calculator | Dynasty & Redraft Value Analysis'
-    },
-    {
-      property: 'og:description',
-      content:
-        'Analyze fantasy football trades with our comprehensive calculator. Get fair trade values with adjustments for team formats and league size.'
-    },
-    { property: 'og:type', content: 'website' },
-    {
-      property: 'og:image',
-      content: new URL('@/assets/site/trade_calc.png', import.meta.url).href
-    },
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Fantasy Football Trade Calculator' },
-    {
-      name: 'twitter:description',
-      content:
-        'Get accurate fantasy football trade values with our advanced calculator for dynasty and redraft leagues.'
-    }
-  ]
-})
+//  Custom Utils
 
-// Add structured data for rich results
-const structuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'WebApplication',
-  name: 'Fantasy Football Trade Calculator',
-  applicationCategory: 'SportsApplication',
-  operatingSystem: 'Web',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD'
-  },
-  description:
-    'A comprehensive fantasy football trade calculator for evaluating trades in dynasty and redraft leagues with values from multiple ranking sources.',
-  browserRequirements: 'Requires JavaScript. Requires HTML5.',
-  featureList: [
-    'Dynasty and redraft rankings',
-    'Superflex and 1QB league support',
-    'TE premium adjustments',
-    'Team size configuration',
-    'Value consolidation calculations',
-    'Balance trade suggestions',
-    'Trade sharing on social media'
-  ]
-}
+// 3rd Party imports
+import axios from 'axios'
+import { message, Spin, Column, Empty, MenuProps, SelectProps, Checkbox } from 'ant-design-vue'
+import {
+  PlusCircleTwoTone,
+  ArrowRightOutlined,
+  ArrowLeftOutlined,
+  MinusCircleTwoTone,
+  ShareAltOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  HomeOutlined,
+  QuestionCircleOutlined,
+  SearchOutlined,
+  CheckCircleFilled,
+  InfoCircleOutlined
+} from '@ant-design/icons-vue'
 
-onMounted(() => {
-  // ...existing code...
-
-  // Add structured data script to head
-  const script = document.createElement('script')
-  script.type = 'application/ld+json'
-  script.textContent = JSON.stringify(structuredData)
-  document.head.appendChild(script)
-
-  // Clean up on unmount
-  onUnmounted(() => {
-    if (script.parentNode) {
-      document.head.removeChild(script)
-    }
-  })
-})
-
-// ...existing code...
+// Sourec image imports
+import fnLogo from '@/assets/sourceLogos/fn.png'
+// import ktcLogo from '@/assets/sourceLogos/ktc.png'
+// import dpLogo from '@/assets/sourceLogos/dp.png'
+// import fcLogo from '@/assets/sourceLogos/fc.png'
+import xLogo from '@/assets/socialLogos/x.png'
+import redditLogo from '@/assets/socialLogos/reddit.png'
 
 const apiUrl = import.meta.env.VITE_API_URL
 const percentThreshold = ref<number>(5)
@@ -1036,8 +980,8 @@ const aFavored = computed(() => {
 const bFavored = computed(() => {
   return (
     tradeAnalysis.value.percentageDifference < percentThreshold.value &&
-    valueDifferenceB.value > 0 &&
-    (selectedPlayers1.value.length > 0 || selectedPlayers2.value.length > 0)
+    valueDifferenceA.value > 0 &&
+    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
   )
 })
 
