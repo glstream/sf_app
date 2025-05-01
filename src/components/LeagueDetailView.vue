@@ -1221,6 +1221,10 @@ import ScatterPlot from '@/components/ScatterPlot.vue'
 import RadarChart from '@/components/RadarChart.vue'
 import OverallScatterPlot from '@/components/OverallScatterPlot.vue'
 
+import { useCacheStore } from '@/stores/cacheStore'
+
+const cacheStore = useCacheStore()
+
 const bchartData = ref([])
 const scatterPlotData = ref([])
 const projectionBarChartData = ref([])
@@ -2129,6 +2133,14 @@ const getPlayersProj = (userId) => {
 }
 
 const insertLeagueDetials = async (values: any) => {
+  // Clear specific cache entries for this league to ensure fresh data
+  const leagueIdStr = leagueInfo.leagueId.toString()
+  Object.keys(cacheStore.cache).forEach((key) => {
+    if (key.includes(leagueIdStr)) {
+      cacheStore.remove(key)
+    }
+  })
+
   isLoading.value = true
   detailIsLoading.value = true
   summaryIsLoading.value = true
@@ -2247,6 +2259,22 @@ async function fetchSummaryData(
   leagueType: string // Assuming this is defined somewhere as it's used in your params
 ) {
   summaryIsLoading.value = true
+
+  // Create a unique cache key based on parameters
+  const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
+
+  // Check if we have valid cached data
+  if (cacheStore.has(cacheKey)) {
+    console.log('Using cached summary data')
+    const cachedData = cacheStore.get(cacheKey)
+    summaryData.value = cachedData
+    updateBchartData(cachedData)
+    updateScatterPlotData(cachedData)
+    summaryIsLoading.value = false
+    return
+  }
+
+  // If no cache or cache expired, fetch from API
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500 // Delay in milliseconds
@@ -2267,7 +2295,7 @@ async function fetchSummaryData(
 
         const rawData = response.data
 
-        summaryData.value = rawData.map((item) => {
+        const processedData = rawData.map((item) => {
           return {
             ...item,
             total_rank_display: addOrdinalSuffix(item.total_rank),
@@ -2276,6 +2304,10 @@ async function fetchSummaryData(
           }
         })
 
+        // Save to cache
+        cacheStore.set(cacheKey, processedData)
+
+        summaryData.value = processedData
         updateBchartData(rawData)
         updateScatterPlotData(rawData)
         break // Exit the loop on success
@@ -2295,9 +2327,8 @@ async function fetchSummaryData(
 
     if (!userSummary) {
       console.error('No summary data found for user:', leagueInfo.userId)
-      // message.error('League must be done drafting to view ranks.');
-      summaryIsLoading.value = false // Ensure loading is turned off
-      return // Exit the function or handle differently as required
+      summaryIsLoading.value = false
+      return
     }
 
     summaryIsLoading.value = false
@@ -2315,13 +2346,11 @@ async function fetchSummaryData(
       })
     } catch (error) {
       console.error('Error updating ranks summary:', error.message)
-      // Handle the error as needed
     }
   }
 
   if (retryCount === maxRetries) {
     console.error('Maximum retries reached for fetching league summary data')
-    // handle the max retry limit being reached as needed
   }
 }
 
@@ -2333,6 +2362,18 @@ async function fetchBaData(
   rosterType: string
 ) {
   baIsLoading.value = true // Assuming you have a reactive variable to track loading state
+
+  // Create a unique cache key based on parameters
+  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+
+  // Check if we have valid cached data
+  if (cacheStore.has(cacheKey)) {
+    console.log('Using cached best available data')
+    bestAvailableData.value = cacheStore.get(cacheKey)
+    baIsLoading.value = false
+    return
+  }
+
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500 // Delay in milliseconds
@@ -2349,6 +2390,8 @@ async function fetchBaData(
         }
       })
 
+      // Store in cache before assigning to reactive variable
+      cacheStore.set(cacheKey, response.data)
       bestAvailableData.value = response.data
       console.log('Best available data fetched successfully.')
       return // Exit the function after successful fetch
@@ -2541,6 +2584,18 @@ async function fetchDetailData(
   rosterType: string
 ) {
   detailIsLoading.value = true
+
+  // Create a unique cache key based on parameters
+  const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+
+  // Check if we have valid cached data
+  if (cacheStore.has(cacheKey)) {
+    console.log('Using cached detail data')
+    detailData.value = cacheStore.get(cacheKey)
+    detailIsLoading.value = false
+    return
+  }
+
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500 // delay in milliseconds
@@ -2557,6 +2612,8 @@ async function fetchDetailData(
         }
       })
 
+      // Store in cache before assigning to reactive variable
+      cacheStore.set(cacheKey, response.data)
       detailData.value = response.data
       break
     } catch (error) {
