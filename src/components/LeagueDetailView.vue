@@ -1,7 +1,8 @@
 <template>
   <a-layout class="layout">
-    <theme-toggle-button />
     <AppHeader />
+    <theme-toggle-button />
+
     <a-layout-content class="responsive-padding" :style="{ marginTop: '12px' }">
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
@@ -52,47 +53,74 @@
                 </div>
               </a-col>
             </a-row>
-            <a-row>
-              <a-col class="gutter-row" :span="12">
-                <div class="gutter-box-button">
-                  <span style="padding-right: 5px">Proj.</span>
-                  <a-select ref="select" v-model:value="value1" @change="handleProjChange">
-                    <a-select-option value="espn">ESPN</a-select-option>
-                    <a-select-option value="cbs">CBS</a-select-option>
-                    <a-select-option value="nfl">NFL</a-select-option>
-                  </a-select>
-                </div>
-              </a-col>
-              <a-col class="gutter-row" :span="12">
-                <div class="gutter-box-refresh">
-                  <span style="padding-right: 5px">Ranks:</span>
-                  <a-dropdown-button :loading="summaryIsLoading">
-                    <img style="padding-right: 5px" class="rank-logos" :src="selectedSource.logo" />
-                    {{ selectedSource.name }}
-                    <template #overlay>
-                      <a-menu @click="handleMenuClick">
-                        <a-menu-item v-for="source in filteredSources" :key="source.key">
-                          <UserOutlined />
-                          <img style="padding-right: 5px" class="rank-logos" :src="source.logo" />{{
-                            source.name
-                          }}
-                        </a-menu-item>
-                      </a-menu>
-                    </template>
-                  </a-dropdown-button>
-                </div>
-              </a-col>
-            </a-row>
-            <a-row
-              ><a-col class="gutter-row" :span="12"
-                ><div class="gutter-box-dropdown">
-                  <a-radio-group v-model:value="overallFilter">
-                    <a-radio-button value="all">All Players</a-radio-button>
-                    <a-radio-button value="STARTER">Starters</a-radio-button>
-                  </a-radio-group>
-                </div></a-col
-              ></a-row
-            >
+
+            <!-- New Data Controls Card -->
+            <a-card class="data-controls-card" :bordered="false">
+              <a-row :gutter="[16, 16]" align="middle">
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
+                  <div class="control-group">
+                    <span class="control-label">Data View:</span>
+                    <a-switch
+                      v-model:checked="showProjections"
+                      checked-children="Projections"
+                      un-checked-children="Overall"
+                      @change="handleViewToggle"
+                    />
+                  </div>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
+                  <div class="control-group">
+                    <span class="control-label">Player Filter:</span>
+                    <a-radio-group v-model:value="overallFilter" button-style="solid" size="small">
+                      <a-radio-button value="all">All Players</a-radio-button>
+                      <a-radio-button value="STARTER">Starters</a-radio-button>
+                    </a-radio-group>
+                  </div>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
+                  <div class="control-group">
+                    <span class="control-label">Projection Source:</span>
+                    <a-select
+                      ref="select"
+                      v-model:value="value1"
+                      @change="handleProjChange"
+                      size="small"
+                      style="width: 100px"
+                    >
+                      <a-select-option value="espn">ESPN</a-select-option>
+                      <a-select-option value="cbs">CBS</a-select-option>
+                      <a-select-option value="nfl">NFL</a-select-option>
+                    </a-select>
+                  </div>
+                </a-col>
+                <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
+                  <div class="control-group">
+                    <span class="control-label">Rankings Source:</span>
+                    <a-dropdown-button :loading="summaryIsLoading" size="small">
+                      <img
+                        style="padding-right: 5px"
+                        class="rank-logos"
+                        :src="selectedSource.logo"
+                      />
+                      {{ selectedSource.name }}
+                      <template #overlay>
+                        <a-menu @click="handleMenuClick">
+                          <a-menu-item v-for="source in filteredSources" :key="source.key">
+                            <UserOutlined />
+                            <img
+                              style="padding-right: 5px"
+                              class="rank-logos"
+                              :src="source.logo"
+                            />{{ source.name }}
+                          </a-menu-item>
+                        </a-menu>
+                      </template>
+                    </a-dropdown-button>
+                  </div>
+                </a-col>
+              </a-row>
+            </a-card>
+            <!-- End New Data Controls Card -->
           </div>
         </div>
 
@@ -101,21 +129,6 @@
             <a-tabs v-model:activeKey="activeKey">
               <a-tab-pane key="1" tab="Power Rankings">
                 <h2 class="tab-sub-header">Power Ranks</h2>
-
-                <!-- Data view toggle - moved to the left -->
-                <a-row style="margin-bottom: 20px">
-                  <a-col
-                    :span="24"
-                    style="display: flex; justify-content: flex-start; margin-left: 15px"
-                  >
-                    <a-switch
-                      v-model:checked="showProjections"
-                      checked-children="Projections"
-                      un-checked-children="Overall"
-                      @change="handleViewToggle"
-                    />
-                  </a-col>
-                </a-row>
 
                 <!-- Redesigned League Managers section -->
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -336,7 +349,7 @@
 
               <!-- Renamed tab from ROSTERS to TEAM COMPOSITION -->
               <a-tab-pane key="2" tab="Team Composition">
-                <h2 style="text-align: left">Team Roster Breakdown</h2>
+                <h2 class="tab-sub-header">Team Roster Breakdown</h2>
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                   <a-col :span="24">
                     <a-card :bordered="false" class="managers-card">
@@ -2814,12 +2827,6 @@ table {
   margin: auto;
   max-width: 1100px;
 }
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
 
 .title-container {
   flex-grow: 1;
@@ -3650,4 +3657,82 @@ h4 {
     font-size: 15px;
   }
 }
+
+/* New Data Controls Card Styling */
+.data-controls-card {
+  margin-bottom: 24px; /* Increased margin */
+  background-color: var(--background-color-secondary, #f9f9f9); /* Subtle background */
+  border: 1px solid var(--border-color, #e8e8e8); /* Softer border */
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); /* Softer shadow */
+}
+
+.data-controls-card .ant-card-body {
+  padding: 20px 24px !important; /* Adjusted padding */
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column; /* Default to column for mobile */
+  align-items: flex-start; /* Align items to start */
+  gap: 6px; /* Reduced gap */
+  width: 100%;
+}
+
+.control-label {
+  font-weight: 500;
+  font-size: 13px; /* Slightly smaller font */
+  color: var(--text-color-secondary, #555); /* Adjusted color */
+  margin-bottom: 0; /* Remove bottom margin */
+  line-height: 1.4; /* Ensure consistent line height */
+}
+
+/* Style adjustments for controls */
+.ant-switch {
+  transform: scale(1); /* Reset scale */
+  margin: 0; /* Reset margin */
+}
+
+.ant-radio-group {
+  display: inline-flex; /* Use inline-flex for better alignment */
+}
+
+.ant-select,
+.ant-dropdown-button .ant-btn {
+  min-width: 120px; /* Ensure minimum width for dropdowns */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1199px) {
+  /* Adjust breakpoint for better stacking */
+  .control-group {
+    align-items: center; /* Center align on medium/small screens */
+    margin-bottom: 16px; /* Add margin between stacked items */
+  }
+  .control-group:last-child {
+    margin-bottom: 0;
+  }
+  .ant-radio-group,
+  .ant-select,
+  .ant-dropdown-button {
+    width: auto; /* Allow natural width */
+    max-width: 250px; /* Prevent excessive width */
+  }
+}
+
+@media (min-width: 1200px) {
+  /* Adjust breakpoint */
+  .control-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px; /* Slightly increased gap for row layout */
+  }
+  .control-label {
+    min-width: 110px; /* Ensure labels align nicely */
+    text-align: right; /* Right-align labels */
+    margin-right: 4px;
+  }
+}
+/* End of Data Controls Card Styling */
 </style>

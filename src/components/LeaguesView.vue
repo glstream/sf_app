@@ -1,7 +1,7 @@
 <template>
   <a-layout class="layout">
-    <theme-toggle-button />
     <AppHeader />
+    <theme-toggle-button />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '12px' }">
       <a-breadcrumb style="padding-top: 10px">

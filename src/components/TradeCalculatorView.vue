@@ -106,33 +106,35 @@
                 :key="player.player_full_name + index"
                 class="player-card"
               >
-                <a-badge-ribbon
-                  :text="player._position"
-                  :color="getPositionColor(player._position)"
-                  placement="start"
+                <a-card
+                  size="small"
+                  :bordered="false"
+                  class="player-item"
+                  :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
                 >
-                  <a-card
-                    size="small"
-                    :bordered="true"
-                    :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
-                    }"
-                  >
-                    <div class="player-info">
+                  <div class="player-details-wrapper">
+                    <div class="player-name-info">
                       <div class="player-name">{{ player.player_full_name }}</div>
-                      <div class="player-details">
-                        <span v-if="player.age" class="player-age">Age {{ player.age }}</span>
-                        <span class="player-value">{{
-                          state.checked1 ? player.sf_value : player.one_qb_value
-                        }}</span>
+                      <div class="player-meta">
+                        <span
+                          class="player-position"
+                          :style="{ color: getPositionColor(player._position) }"
+                        >
+                          {{ player._position }}
+                        </span>
+                        <span class="player-age" v-if="player.age">Age: {{ player.age }}</span>
+                      </div>
+                    </div>
+                    <div class="player-value-container">
+                      <div class="player-value">
+                        {{ state.checked1 ? player.sf_value : player.one_qb_value }}
                       </div>
                       <button class="remove-player" @click="removePlayer1(index)">
                         <MinusCircleTwoTone two-tone-color="#f5222d" />
                       </button>
                     </div>
-                  </a-card>
-                </a-badge-ribbon>
+                  </div>
+                </a-card>
               </div>
 
               <!-- Value Adjustment Card -->
@@ -235,33 +237,35 @@
                 :key="player.player_full_name + index"
                 class="player-card"
               >
-                <a-badge-ribbon
-                  :text="player._position"
-                  :color="getPositionColor(player._position)"
-                  placement="start"
+                <a-card
+                  size="small"
+                  :bordered="false"
+                  class="player-item"
+                  :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
                 >
-                  <a-card
-                    size="small"
-                    :bordered="true"
-                    :style="{
-                      backgroundColor: getCardPositionColor(player._position),
-                      borderColor: getPositionColor(player._position)
-                    }"
-                  >
-                    <div class="player-info">
+                  <div class="player-details-wrapper">
+                    <div class="player-name-info">
                       <div class="player-name">{{ player.player_full_name }}</div>
-                      <div class="player-details">
-                        <span v-if="player.age" class="player-age">Age {{ player.age }}</span>
-                        <span class="player-value">{{
-                          state.checked1 ? player.sf_value : player.one_qb_value
-                        }}</span>
+                      <div class="player-meta">
+                        <span
+                          class="player-position"
+                          :style="{ color: getPositionColor(player._position) }"
+                        >
+                          {{ player._position }}
+                        </span>
+                        <span class="player-age" v-if="player.age">Age: {{ player.age }}</span>
+                      </div>
+                    </div>
+                    <div class="player-value-container">
+                      <div class="player-value">
+                        {{ state.checked1 ? player.sf_value : player.one_qb_value }}
                       </div>
                       <button class="remove-player" @click="removePlayer2(index)">
                         <MinusCircleTwoTone two-tone-color="#f5222d" />
                       </button>
                     </div>
-                  </a-card>
-                </a-badge-ribbon>
+                  </div>
+                </a-card>
               </div>
 
               <!-- Value Adjustment Card -->
@@ -314,30 +318,35 @@
               :key="player.player_full_name"
               class="balancing-player-card"
             >
-              <a-badge-ribbon
-                :text="player._position"
-                :color="getPositionColor(player._position)"
-                placement="start"
+              <a-card
+                size="small"
+                :bordered="false"
+                class="player-item"
+                :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
+                hoverable
+                @click="addPlayerToTrade(player)"
               >
-                <a-card
-                  size="small"
-                  :bordered="true"
-                  :style="{
-                    backgroundColor: getCardPositionColor(player._position),
-                    borderColor: getPositionColor(player._position)
-                  }"
-                  hoverable
-                  @click="addPlayerToTrade(player)"
-                >
-                  <div class="balancing-player-info">
-                    <div class="balancing-player-name">{{ player.player_full_name }}</div>
-                    <div class="balancing-player-value">
+                <div class="player-details-wrapper">
+                  <div class="player-name-info">
+                    <div class="player-name">{{ player.player_full_name }}</div>
+                    <div class="player-meta">
+                      <span
+                        class="player-position"
+                        :style="{ color: getPositionColor(player._position) }"
+                      >
+                        {{ player._position }}
+                      </span>
+                      <span class="player-age" v-if="player.age">Age: {{ player.age }}</span>
+                    </div>
+                  </div>
+                  <div class="player-value-container">
+                    <div class="player-value">
                       {{ state.checked1 ? player.sf_value : player.one_qb_value }}
                     </div>
                     <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
                   </div>
-                </a-card>
-              </a-badge-ribbon>
+                </div>
+              </a-card>
             </div>
           </div>
 
@@ -1330,83 +1339,112 @@ function getCardPositionColor(position: string): string {
   min-height: 120px;
 }
 
-/* Player Cards - Fix badge positioning */
+/* Player Cards - New Style */
 .player-card {
-  position: relative;
-  margin-left: 2px; /* Reduce left margin to bring badge closer */
-  padding-left: 18px; /* Slight reduction in padding */
+  margin-bottom: 8px;
 }
 
-.player-info {
+.player-item {
+  border-radius: 4px;
+  background-color: var(--background-color, #fff);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.player-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.player-details-wrapper {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 4px 8px 4px 20px; /* Adjust content padding to prevent overlap */
+  align-items: center;
+  padding: 6px 12px;
 }
 
-/* Position the ribbon properly - improved format */
-:deep(.ant-ribbon) {
-  margin-left: -8px; /* Move closer to the card */
-  top: 8px; /* Position a bit lower */
-  height: 22px; /* Control the overall badge height */
-  line-height: 22px; /* Align text in badge */
-  padding: 0 6px; /* Reduce horizontal padding */
-}
-
-:deep(.ant-ribbon-text) {
-  font-size: 13px; /* Slightly larger font */
-  font-weight: 600; /* Make font bolder */
-  white-space: nowrap;
-}
-
-/* Balancing Player Cards - Fix badge positioning */
-.balancing-player-card {
-  position: relative;
-  margin-left: 2px; /* Reduce left margin to bring badge closer */
-  padding-left: 18px; /* Slight reduction in padding */
-}
-
-.balancing-player-info {
-  padding-left: 20px; /* Adjust content padding to prevent overlap */
+.player-name-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0; /* Required for text truncation */
+  flex: 1;
 }
 
 .player-name {
-  flex: 1;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 180px;
+  color: var(--text-color, #2d3142);
+  line-height: 1.2;
 }
 
-.player-details {
+.player-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-right: 8px;
+  gap: 8px;
+}
+
+.player-position {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .player-age {
+  font-size: 11px;
   color: #8c8c8c;
-  font-size: 13px;
+  line-height: 1;
+}
+
+.player-value-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .player-value {
+  font-size: 16px;
   font-weight: 700;
   color: #1890ff;
+  padding: 2px 8px;
+  background-color: rgba(24, 144, 255, 0.1);
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 .remove-player {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Balancing Player Cards - Updated Style */
+.balancing-player-card {
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.balancing-player-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Adjustment Card */
 .adjustment-card {
   margin-top: 8px;
+}
+
+.va-card {
+  background-color: rgba(24, 144, 255, 0.05);
+  border-color: rgba(24, 144, 255, 0.2);
 }
 
 .card-content {
@@ -1415,21 +1453,26 @@ function getCardPositionColor(position: string): string {
   align-items: center;
 }
 
-.team-summary {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed #d9d9d9;
+/* Responsive Design adjustments for the new card design */
+@media (max-width: 767px) {
+  .player-name {
+    max-width: 140px;
+  }
+
+  .player-details-wrapper {
+    padding: 6px 10px;
+  }
+
+  .player-value {
+    font-size: 14px;
+    padding: 2px 6px;
+  }
 }
 
-.asset-count {
-  color: #5c5f6b;
-  font-size: 14px;
-}
-
-.total-value-display {
-  font-size: 14px;
+@media (max-width: 576px) {
+  .player-name {
+    max-width: 120px;
+  }
 }
 
 /* Trade Evaluation */
@@ -1502,41 +1545,6 @@ function getCardPositionColor(position: string): string {
   /* Adjusted to ensure only 3 cards per row on larger screens */
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 12px;
-}
-
-.balancing-player-card {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.balancing-player-card:hover {
-  transform: translateY(-2px);
-}
-
-.balancing-player-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 20px; /* Adjust padding */
-}
-
-.balancing-player-name {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-weight: 500;
-  font-size: 14px; /* Make font slightly smaller to fit longer names */
-  padding-right: 8px; /* Add some spacing before the value */
-}
-
-.balancing-player-value {
-  font-weight: 700;
-  color: #1890ff;
-}
-
-.add-player-icon {
-  font-size: 16px;
 }
 
 .view-more {
