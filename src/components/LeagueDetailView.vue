@@ -97,1459 +97,236 @@
         </div>
 
         <a-spin tip="Loading..." :spinning="summaryIsLoading">
-          <a-tabs v-model:activeKey="activeKey">
-            <a-tab-pane key="1" tab="OVERALL">
-              <h2 class="tab-sub-header">Power Ranks</h2>
-              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col :span="{ xs: 24, sm: 8, md: 8, lg: 8 }">
-                  <div class="avatar-container">
-                    <span class="avatar-title">League Managers</span>
-                    <a-avatar-group
-                      maxCount="10"
-                      maxPopoverPlacement="bottom"
-                      maxPopoverTrigger="hover"
-                      :max-count="12"
-                      class="avatar-group-container"
-                    >
-                      <div v-for="user in sortedSummaryData" :key="user.user_id">
-                        <div
-                          v-if="user.user_id === leagueInfo.userId"
-                          style="position: relative; display: inline-block"
-                        >
-                          <a-tooltip
-                            :title="`${getRank(user)} ${user.display_name}`"
-                            placement="top"
-                          >
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              maxPopoverTrigger="hover"
-                              :size="40"
-                              style="border: 2px solid gold"
-                            />
-                          </a-tooltip>
-                          <span class="badge-label">
-                            {{ getRank(user) }}
-                          </span>
-                        </div>
+          <div class="tab-header-container">
+            <a-tabs v-model:activeKey="activeKey">
+              <a-tab-pane key="1" tab="Power Rankings">
+                <h2 class="tab-sub-header">Power Ranks</h2>
 
-                        <div v-else>
-                          <a-tooltip
-                            :title="`${getRank(user)} ${user.display_name}`"
-                            placement="top"
-                          >
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              maxPopoverTrigger="hover"
-                            />
-                          </a-tooltip>
-                        </div>
-                      </div>
-                    </a-avatar-group>
-                  </div>
-                </a-col>
-              </a-row>
-
-              <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                <a-col :xs="24" :sm="24" :md="12" :lg="11" :xl="11">
-                  <div class="viz-container">
-                    <h3 class="chart-title">Ranks</h3>
-
-                    <BarChart :chartData="bchartData" />
-                  </div>
-                </a-col>
-                <a-col :xs="0" :sm="0" :md="2" :lg="2" :xl="2"></a-col>
-                <a-col :xs="24" :sm="24" :md="12" :lg="11" :xl="11">
-                  <div class="viz-container">
-                    <h3 class="chart-title">Tiers</h3>
-                    <OverallScatterPlot :scatterPlotData="OverallScatterPlotData" />
-                  </div>
-                </a-col>
-              </a-row>
-              <h2 style="text-align: center">Ranks Heat Map</h2>
-              <div class="table-section" style="flex: 2">
-                <a-table
-                  :columns="columns"
-                  :dataSource="summaryData"
-                  :pagination="{ pageSize: 20 }"
-                  row-key="user_id"
-                  :expand-column-width="100"
-                  style="width: 100%; max-width: 1150px"
-                  :scroll="{ x: '1150px' }"
-                >
-                  <template #expandedRowRender="{ record }">
-                    <div>
-                      <a-row :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
-                        <a-col :span="5" style="padding-bottom: 7px">
-                          <span>QBs </span>
-                          <a-tag>
-                            {{
-                              addOrdinalSuffix(
-                                overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
-                              )
-                            }}</a-tag
-                          >
-                          <span>Avg Age </span>
-                          <a-tag>
-                            {{
-                              overallFilter === 'all'
-                                ? record.qb_average_age
-                                : record.qb_starter_average_age
-                            }}
-                          </a-tag>
-                        </a-col>
-
-                        <a-col :span="5" style="padding-bottom: 7px">
-                          <span>RBs </span>
-                          <a-tag>
-                            {{
-                              addOrdinalSuffix(
-                                overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
-                              )
-                            }}</a-tag
-                          >
-                          <span>Avg Age </span>
-                          <a-tag>
-                            {{
-                              overallFilter === 'all'
-                                ? record.rb_average_age
-                                : record.rb_starter_average_age
-                            }}
-                          </a-tag></a-col
-                        >
-                        <a-col :span="5" style="padding-bottom: 7px">
-                          <span>WRs </span>
-                          <a-tag>
-                            {{
-                              addOrdinalSuffix(
-                                overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
-                              )
-                            }}</a-tag
-                          >
-                          <span>Avg Age </span>
-                          <a-tag>
-                            {{
-                              overallFilter === 'all'
-                                ? record.wr_average_age
-                                : record.wr_starter_average_age
-                            }}
-                          </a-tag></a-col
-                        >
-                        <a-col :span="5" style="padding-bottom: 7px">
-                          <span>TEs </span>
-                          <a-tag>
-                            {{
-                              addOrdinalSuffix(
-                                overallFilter === 'all' ? record.te_rank : record.te_starter_rank
-                              )
-                            }}</a-tag
-                          >
-                          <span>Avg Age </span>
-                          <a-tag>
-                            {{
-                              overallFilter === 'all'
-                                ? record.te_average_age
-                                : record.te_starter_average_age
-                            }}
-                          </a-tag></a-col
-                        >
-                        <a-col :span="4" v-if="overallFilter === 'all'">
-                          <span>Picks </span>
-                          <a-tag> {{ addOrdinalSuffix(record.picks_rank) }}</a-tag>
-                          <span>Avg Age </span>
-                          <a-tag> -- </a-tag></a-col
-                        >
-                      </a-row>
-                      <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 8 }">
-                        <a-col :span="5">
-                          <div>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'QB'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.35)"
-                                style="
-                                  display: flex;
-                                  justify-content: space-between;
-                                  align-items: center;
-                                  margin-bottom: 2px;
-                                  border-radius: 2px;
-                                  padding: 0 10px;
-                                "
-                              >
-                                <span
-                                  style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                >
-                                  {{ player?.full_name }} {{ player?.team }}
-                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                </span>
-                                <span>
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                            <div style="float: right; padding-top: 5px">
-                              <span>Total </span>
-                              <a-tag>
-                                {{
-                                  overallFilter === 'all'
-                                    ? record.qb_sum.toLocaleString()
-                                    : record.qb_starter_sum.toLocaleString()
-                                }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </a-col>
-
-                        <a-col :span="5">
-                          <div>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'RB'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.35)"
-                                style="
-                                  display: flex;
-                                  justify-content: space-between;
-                                  align-items: center;
-                                  margin-bottom: 2px;
-                                  border-radius: 2px;
-                                  padding: 0 10px;
-                                  overflow: hidden;
-                                "
-                              >
-                                <span style="flex-grow: 1; white-space: normal; margin-right: 10px">
-                                  {{ player?.full_name }} {{ player?.team }}
-                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                </span>
-                                <span>
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                            <div style="float: right; padding-top: 5px">
-                              <span>Total </span>
-                              <a-tag>
-                                {{
-                                  overallFilter === 'all'
-                                    ? record.rb_sum.toLocaleString()
-                                    : record.rb_starter_sum.toLocaleString()
-                                }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </a-col>
-
-                        <a-col :span="5">
-                          <div>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'WR'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.35)"
-                                style="
-                                  display: flex;
-                                  justify-content: space-between;
-                                  align-items: center;
-                                  margin-bottom: 2px;
-                                  border-radius: 2px;
-                                  padding: 0 10px;
-                                "
-                              >
-                                <span
-                                  style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                >
-                                  {{ player?.full_name }} {{ player?.team }}
-                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                </span>
-                                <span>
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                            <div style="float: right; padding-top: 5px">
-                              <span>Total </span>
-                              <a-tag>
-                                {{
-                                  overallFilter === 'all'
-                                    ? record.wr_sum.toLocaleString()
-                                    : record.wr_starter_sum.toLocaleString()
-                                }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </a-col>
-                        <a-col :span="5">
-                          <div>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'TE'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.35)"
-                                style="
-                                  display: flex;
-                                  justify-content: space-between;
-                                  align-items: center;
-                                  margin-bottom: 2px;
-                                  border-radius: 2px;
-                                  padding: 0 10px;
-                                "
-                              >
-                                <span
-                                  style="flex: 1; white-space: normal; overflow-wrap: break-word"
-                                >
-                                  {{ player?.full_name }} {{ player?.team }}
-                                  <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                </span>
-                                <span>
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                            <div style="float: right; padding-top: 5px">
-                              <span>Total </span>
-                              <a-tag>
-                                {{
-                                  overallFilter === 'all'
-                                    ? record.te_sum.toLocaleString()
-                                    : record.te_starter_sum.toLocaleString()
-                                }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </a-col>
-                        <a-col :span="4" v-if="overallFilter === 'all'">
-                          <div>
-                            <ul
-                              style="padding: 0; list-style: none"
-                              v-for="player in getPlayers(record.user_id)"
-                            >
-                              <li
-                                v-if="player.player_position === 'PICKS'"
-                                :key="player.sleeper_id"
-                                :style="getPositionTagList(player.player_position, 0.35)"
-                                style="margin-bottom: 2px; border-radius: 2px"
-                              >
-                                <span>{{ player?.full_name }}</span
-                                ><span style="float: right">
-                                  {{
-                                    player.player_value === -1
-                                      ? 'N/A'
-                                      : player.player_value?.toLocaleString()
-                                  }}
-                                </span>
-                              </li>
-                            </ul>
-                            <div style="float: right; padding-top: 5px">
-                              <span>Total </span>
-                              <a-tag>
-                                {{ record.picks_sum.toLocaleString() }}
-                              </a-tag>
-                            </div>
-                          </div>
-                        </a-col>
-                      </a-row>
-                    </div>
-                  </template>
-                  <template v-slot:totalValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`Total Value: ${record.total_value.toLocaleString()}`"
-                      ><span>{{ record.total_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:qbValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :overlayStyle="{ maxWidth: '130px' }"
-                      :title="`QB Value: ${record.qb_sum.toLocaleString()} 
-              QB Avg. ${record.qb_average.toLocaleString()}`"
-                      ><span>{{ record.qb_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:rbValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :overlayStyle="{ maxWidth: '130px' }"
-                      :title="`RB Value: ${record.rb_sum.toLocaleString()} 
-              RB Avg. ${record.rb_average.toLocaleString()}`"
-                      ><span>{{ record.rb_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:wrValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :overlayStyle="{ maxWidth: '130px' }"
-                      :title="`WR Value: ${record.wr_sum.toLocaleString()} 
-              WR Avg. ${record.wr_average.toLocaleString()}`"
-                      ><span>{{ record.wr_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:teValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :overlayStyle="{ maxWidth: '130px' }"
-                      :title="`TE Value: ${record.te_sum.toLocaleString()} 
-              TE Avg. ${record.te_average.toLocaleString()}`"
-                      ><span>{{ record.te_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:picksValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :title="`Picks Value: ${record.picks_sum.toLocaleString()}`"
-                      ><span>{{ record.picks_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                  <template v-slot:benchValueTooltip="{ record }">
-                    <a-tooltip
-                      color="blue"
-                      :overlayStyle="{ maxWidth: '150px' }"
-                      :title="`Bench Value: ${record.bench_sum.toLocaleString()} 
-              Bench Avg. ${record.bench_average.toLocaleString()}`"
-                      ><span>{{ record.bench_rank_display }}</span>
-                    </a-tooltip>
-                  </template>
-                </a-table>
-              </div>
-            </a-tab-pane>
-            <a-tab-pane key="2" tab="ROSTERS">
-              <h2 style="text-align: left">Players by Manager</h2>
-              <a-row justify="space-around" :gutter="8">
-                <a-col
-                  v-for="manager in summaryData"
-                  :key="manager.user_id"
-                  xs="{24}"
-                  sm="{12}"
-                  md="{8}"
-                  lg="{6}"
-                  style="min-width: 300px; max-width: 315px"
-                >
-                  <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
-                    <h4 style="padding: 5px 5px">
-                      <img
-                        class="manager-logos"
-                        :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
-                        alt="League Logo"
-                      />
-                      {{ manager.display_name }} &bull;
-
-                      {{ overallFilter === 'all' ? 'Overall' : 'Starters' }}
-                      {{
-                        addOrdinalSuffix(
-                          overallFilter === 'all' ? manager.total_rank : manager.starters_rank
-                        )
-                      }}
-                      <a-tag>
-                        {{
-                          (overallFilter === 'all'
-                            ? manager.total_value
-                            : manager.starters_sum || 0
-                          ).toLocaleString()
-                        }}</a-tag
-                      >
-                    </h4>
-                    <ul style="padding: 0; list-style-type: none">
-                      <li
-                        v-for="(player, index) in getPlayers(manager.user_id)"
-                        :style="getPositionTagList(player.player_position, 0.35)"
-                        style="
-                          display: flex;
-                          justify-content: space-between;
-                          align-items: center;
-                          border-radius: 2px;
-                          margin: 2px;
-                        "
-                      >
-                        <span style="margin-right: 2px"> {{ index + 1 }}.</span>
-                        <span style="margin-right: 5px">{{ player.full_name }}</span>
-                        <span style="margin-right: 5px">{{ player.team }}</span>
-                        <a-tag :style="getPositionTagList(player.player_position)">{{
-                          player.player_position
-                        }}</a-tag>
-                        <span class="player-value">
-                          {{
-                            player.player_value === -1
-                              ? 'N/A'
-                              : player.player_value.toLocaleString()
-                          }}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
-            </a-tab-pane>
-            <a-tab-pane key="3" tab="POSITIONS">
-              <h2 class="tab-sub-header">Rankings by Position</h2>
-              <div style="display: flex; justify-content: left">
-                <div class="avatar-container">
-                  <span style="font-size: small" class="avatar-title">Managers (click) </span>
-                  <a-avatar-group
-                    maxCount="10"
-                    maxPopoverPlacement="bottom"
-                    maxPopoverTrigger="hover"
-                    class="avatar-group-container"
+                <!-- Data view toggle - moved to the left -->
+                <a-row style="margin-bottom: 20px">
+                  <a-col
+                    :span="24"
+                    style="display: flex; justify-content: flex-start; margin-left: 15px"
                   >
-                    <div v-for="user in sortedSummaryData" :key="user.user_id">
-                      <div
-                        v-if="user.user_id === leagueInfo.userId"
-                        style="position: relative; display: inline-block"
-                      >
-                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            :size="40"
-                            style="border: 2px solid gold"
-                            @click="handleUserClick(user)"
-                            class="avatar"
-                          />
-                        </a-tooltip>
-                        <span class="badge-label">
-                          {{ getRank(user) }}
-                        </span>
-                      </div>
+                    <a-switch
+                      v-model:checked="showProjections"
+                      checked-children="Projections"
+                      un-checked-children="Overall"
+                      @change="handleViewToggle"
+                    />
+                  </a-col>
+                </a-row>
 
-                      <div v-else>
-                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            @click="handleUserClick(user)"
-                            :style="avatarStyle(user)"
-                            class="avatar"
-                          />
-                        </a-tooltip>
-                      </div>
-                    </div>
-                  </a-avatar-group>
-                </div>
-              </div>
-
-              <div v-if="selectedUser" class="mirrored-user">
-                <div class="user-card">
-                  <a-row>
-                    <a-col :span="9">
-                      <div class="gutter-box">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
-                          :size="24"
-                          style="border: 2px solid rgb(39, 125, 161)"
-                          class="avatar"
-                        />
-                      </div>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">QB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">RB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">WR</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">TE</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">Picks</span>
-                    </a-col>
-                  </a-row>
-                  <a-row>
-                    <a-col :span="9">
-                      <h4>{{ selectedUser.display_name }}</h4>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.qb_rank)
-                              : Number(selectedUser.qb_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.qb_rank
-                              : selectedUser.qb_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.rb_rank)
-                              : Number(selectedUser.rb_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.rb_rank
-                              : selectedUser.rb_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.wr_rank)
-                              : Number(selectedUser.wr_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.wr_rank
-                              : selectedUser.wr_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.te_rank)
-                              : Number(selectedUser.te_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.te_rank
-                              : selectedUser.te_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
-                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
-                        {{ addOrdinalSuffix(selectedUser.picks_rank) }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
-                      <a-tag> -- </a-tag>
-                    </a-col>
-                  </a-row>
-                </div>
-              </div>
-
-              <div v-else class="mirrored-user">
-                <div class="user-card">
-                  <a-row>
-                    <a-col :span="9">
-                      <div class="gutter-box">
-                        <a-avatar
-                          :size="24"
-                          style="border: 2px solid rgb(39, 125, 161)"
-                          class="avatar"
-                        />
-                      </div>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">QB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">RB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">WR</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">TE</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">Picks</span>
-                    </a-col>
-                  </a-row>
-                  <a-row>
-                    <a-col :span="9">
-                      <h4>Select Team</h4>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                  </a-row>
-                </div>
-              </div>
-
-              <div class="legend">
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
-                  <span class="legend-text">QB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
-                  <span class="legend-text">RB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
-                  <span class="legend-text">WR</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
-                  <span class="legend-text">TE</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
-                  <span class="legend-text">Picks</span>
-                </div>
-              </div>
-
-              <a-row style="justify-content: center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                <a-col
-                  v-for="(players, position) in playersByPosition"
-                  :key="position"
-                  xs="{24}"
-                  sm="{12}"
-                  md="{8}"
-                  lg="{6}"
-                  style="min-width: 260px; max-width: 400px"
-                >
-                  <div>
-                    <h3>{{ position }}</h3>
-                    <ul style="padding: 0; list-style: none">
-                      <li
-                        v-for="(player, index) in players"
-                        :key="player.sleeper_id"
-                        :style="getPositionTagList(player.player_position, 0.45)"
-                        style="border-radius: 2px; margin: 2px"
-                        :class="{
-                          lighter: clickedManager !== '' && clickedManager !== player.display_name
-                        }"
-                      >
-                        <span
-                          :class="{
-                            'dimmed-text':
-                              clickedManager !== '' && clickedManager !== player.display_name
-                          }"
+                <!-- Redesigned League Managers section -->
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="managers-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">League Managers</span>
+                        </div>
+                      </template>
+                      <div class="managers-grid">
+                        <div
+                          v-for="user in sortedSummaryData"
+                          :key="user.user_id"
+                          class="manager-item"
+                          :class="{ 'current-user': user.user_id === leagueInfo.userId }"
+                          @click="handleUserClick(user)"
                         >
-                          {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
-                          <span
-                            v-if="player.player_position.toLowerCase() !== 'picks'"
-                            style="font-size: 11px"
-                            >{{ player?.age }}yrs</span
-                          >
-                        </span>
-                        <span style="float: right"
-                          >{{
-                            player.player_value === -1
-                              ? 'N/A'
-                              : player.player_value?.toLocaleString()
-                          }}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
-            </a-tab-pane>
-            <a-tab-pane key="4" tab="PROJECTIONS">
-              <a-space>
-                <a-select
-                  ref="select"
-                  v-model:value="value1"
-                  style="width: 175px"
-                  @change="handleProjChange"
-                >
-                  <a-select-option value="espn">ESPN</a-select-option>
-                  <a-select-option value="cbs">CBS</a-select-option>
-                  <a-select-option value="nfl">NFL</a-select-option>
-                </a-select>
-              </a-space>
-
-              <h2 style="text-align: center">League Projections</h2>
-
-              <a-spin :spinning="isProjectionLoading">
-                <div>
-                  <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                    <a-col :xs="24" :sm="24" :md="11" :lg="11" :xl="11">
-                      <div class="viz-container">
-                        <h3 class="chart-title">Projections by team</h3>
-                        <ProjectionBarChart :chartData="projectionBarChartData" />
+                          <div class="manager-avatar">
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              :size="45"
+                            />
+                            <span class="manager-rank">{{ getRank(user) }}</span>
+                          </div>
+                          <div class="manager-details">
+                            <div class="manager-name">{{ user.display_name }}</div>
+                            <div class="manager-stats">
+                              <span
+                                >{{ showProjections ? 'Proj' : 'Value' }}:
+                                {{
+                                  (showProjections
+                                    ? projSummaryData.find((p) => p.user_id === user.user_id)
+                                        ?.total_value || 0
+                                    : user.total_value
+                                  ).toLocaleString()
+                                }}</span
+                              >
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </a-col>
-                    <a-col :xs="0" :sm="0" :md="2" :lg="2" :xl="2"></a-col>
-                    <a-col :xs="24" :sm="24" :md="11" :lg="11" :xl="11">
+                    </a-card>
+                  </a-col>
+                </a-row>
+
+                <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                  <a-col :xs="24" :sm="24" :md="12" :lg="11" :xl="11">
+                    <a-card :bordered="false" class="modern-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">{{
+                            showProjections ? 'Projections' : 'Ranks'
+                          }}</span>
+                        </div>
+                      </template>
                       <div class="viz-container">
-                        <h3 class="chart-title">Rosters - Starters vs Bench %</h3>
+                        <BarChart v-if="!showProjections" :chartData="bchartData" />
+                        <ProjectionBarChart v-else :chartData="projectionBarChartData" />
+                      </div>
+                    </a-card>
+                  </a-col>
+                  <a-col :xs="0" :sm="0" :md="2" :lg="2" :xl="2"></a-col>
+                  <a-col :xs="24" :sm="24" :md="12" :lg="11" :xl="11">
+                    <a-card :bordered="false" class="modern-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">{{
+                            showProjections ? 'Roster Composition' : 'Team Tiers'
+                          }}</span>
+                        </div>
+                      </template>
+                      <div class="viz-container">
+                        <OverallScatterPlot
+                          v-if="!showProjections"
+                          :scatterPlotData="OverallScatterPlotData"
+                        />
                         <ProjectionPercentColumn
+                          v-else
                           :projectionPercentColumnData="projectionPercentColumnData"
                         />
                       </div>
-                    </a-col>
-                  </a-row>
+                    </a-card>
+                  </a-col>
+                </a-row>
 
-                  <a-row
-                    ><a-col :span="24">
-                      <h2 style="text-align: center">Projections Heat Map</h2>
-                      <div class="table-section" style="flex: 2">
-                        <a-table
-                          :data-source="projSummaryData"
-                          :columns="projColumns"
-                          :pagination="{ pageSize: 20 }"
-                          style="width: 100%; max-width: 1150px"
-                          row-key="user_id"
-                          :expand-column-width="100"
-                          :scroll="{ x: '850px' }"
-                          ><template #expandedRowRender="{ record }">
-                            <div>
-                              <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 4 }">
-                                <a-col :span="6" style="padding-bottom: 7px">
-                                  <span>QBs </span>
-                                  <a-tag>
-                                    {{
-                                      addOrdinalSuffix(
-                                        overallFilter === 'all'
-                                          ? record.qb_rank
-                                          : record.qb_starter_rank
-                                      )
-                                    }}</a-tag
-                                  >
-                                  <span>Avg Age </span>
-                                  <a-tag>
-                                    {{
-                                      overallFilter === 'all'
-                                        ? record.qb_average_age
-                                        : record.qb_starter_average_age
-                                    }}
-                                  </a-tag>
-                                </a-col>
-
-                                <a-col :span="6" style="padding-bottom: 7px">
-                                  <span>RBs </span>
-                                  <a-tag>
-                                    {{
-                                      addOrdinalSuffix(
-                                        overallFilter === 'all'
-                                          ? record.rb_rank
-                                          : record.rb_starter_rank
-                                      )
-                                    }}</a-tag
-                                  >
-                                  <span>Avg Age </span>
-                                  <a-tag>
-                                    {{
-                                      overallFilter === 'all'
-                                        ? record.rb_average_age
-                                        : record.rb_starter_average_age
-                                    }}
-                                  </a-tag></a-col
-                                >
-                                <a-col :span="6" style="padding-bottom: 7px">
-                                  <span>WRs </span>
-                                  <a-tag>
-                                    {{
-                                      addOrdinalSuffix(
-                                        overallFilter === 'all'
-                                          ? record.wr_rank
-                                          : record.wr_starter_rank
-                                      )
-                                    }}</a-tag
-                                  >
-                                  <span>Avg Age </span>
-                                  <a-tag>
-                                    {{
-                                      overallFilter === 'all'
-                                        ? record.wr_average_age
-                                        : record.wr_starter_average_age
-                                    }}
-                                  </a-tag></a-col
-                                >
-                                <a-col :span="6" style="padding-bottom: 7px">
-                                  <span>TEs </span>
-                                  <a-tag>
-                                    {{
-                                      addOrdinalSuffix(
-                                        overallFilter === 'all'
-                                          ? record.te_rank
-                                          : record.te_starter_rank
-                                      )
-                                    }}</a-tag
-                                  >
-                                  <span>Avg Age </span>
-                                  <a-tag>
-                                    {{
-                                      overallFilter === 'all'
-                                        ? record.te_average_age
-                                        : record.te_starter_average_age
-                                    }}
-                                  </a-tag></a-col
-                                >
-                              </a-row>
-                              <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 4 }">
-                                <!-- Quarterbacks -->
-                                <a-col :span="6">
-                                  <div>
-                                    <ul
-                                      style="padding: 0; list-style: none"
-                                      v-for="player in getPlayersProj(record.user_id)"
-                                    >
-                                      <li
-                                        v-if="player.player_position === 'QB'"
-                                        :key="player.sleeper_id"
-                                        :style="getPositionTagList(player.player_position, 0.35)"
-                                        style="
-                                          display: flex;
-                                          justify-content: space-between;
-                                          align-items: center;
-                                          margin-bottom: 2px;
-                                          border-radius: 2px;
-                                          padding: 0 10px;
-                                        "
-                                      >
-                                        <span
-                                          style="
-                                            flex: 1;
-                                            white-space: normal;
-                                            overflow-wrap: break-word;
-                                          "
-                                        >
-                                          {{ player?.full_name }} {{ player?.team }}
-                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                        </span>
-                                        <span>
-                                          {{
-                                            player.player_value === -1
-                                              ? 'N/A'
-                                              : player.player_value?.toLocaleString()
-                                          }}
-                                        </span>
-                                      </li>
-                                    </ul>
-                                    <div style="float: right; padding-top: 5px">
-                                      <span>Total </span>
-                                      <a-tag>
-                                        {{
-                                          overallFilter === 'all'
-                                            ? record.qb_sum.toLocaleString()
-                                            : record.qb_starter_sum.toLocaleString()
-                                        }}
-                                      </a-tag>
-                                    </div>
-                                  </div>
-                                </a-col>
-
-                                <!-- Runningbacks -->
-                                <a-col :span="6">
-                                  <div>
-                                    <ul
-                                      style="padding: 0; list-style: none"
-                                      v-for="player in getPlayersProj(record.user_id)"
-                                    >
-                                      <li
-                                        v-if="player.player_position === 'RB'"
-                                        :key="player.sleeper_id"
-                                        :style="getPositionTagList(player.player_position, 0.35)"
-                                        style="
-                                          display: flex;
-                                          justify-content: space-between;
-                                          align-items: center;
-                                          margin-bottom: 2px;
-                                          border-radius: 2px;
-                                          padding: 0 10px;
-                                        "
-                                      >
-                                        <span
-                                          style="
-                                            flex: 1;
-                                            white-space: normal;
-                                            overflow-wrap: break-word;
-                                          "
-                                        >
-                                          {{ player?.full_name }} {{ player?.team }}
-                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                        </span>
-                                        <span>
-                                          {{
-                                            player.player_value === -1
-                                              ? 'N/A'
-                                              : player.player_value?.toLocaleString()
-                                          }}
-                                        </span>
-                                      </li>
-                                    </ul>
-                                    <div style="float: right; padding-top: 5px">
-                                      <span>Total </span>
-                                      <a-tag>
-                                        {{
-                                          overallFilter === 'all'
-                                            ? record.rb_sum.toLocaleString()
-                                            : record.rb_starter_sum.toLocaleString()
-                                        }}
-                                      </a-tag>
-                                    </div>
-                                  </div>
-                                </a-col>
-
-                                <!-- Wide Receivers -->
-                                <a-col :span="6">
-                                  <div>
-                                    <ul
-                                      style="padding: 0; list-style: none"
-                                      v-for="player in getPlayersProj(record.user_id)"
-                                    >
-                                      <li
-                                        v-if="player.player_position === 'WR'"
-                                        :key="player.sleeper_id"
-                                        :style="getPositionTagList(player.player_position, 0.35)"
-                                        style="
-                                          display: flex;
-                                          justify-content: space-between;
-                                          align-items: center;
-                                          margin-bottom: 2px;
-                                          border-radius: 2px;
-                                          padding: 0 10px;
-                                        "
-                                      >
-                                        <span
-                                          style="
-                                            flex: 1;
-                                            white-space: normal;
-                                            overflow-wrap: break-word;
-                                          "
-                                        >
-                                          {{ player?.full_name }} {{ player?.team }}
-                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                        </span>
-                                        <span>
-                                          {{
-                                            player.player_value === -1
-                                              ? 'N/A'
-                                              : player.player_value?.toLocaleString()
-                                          }}
-                                        </span>
-                                      </li>
-                                    </ul>
-                                    <div style="float: right; padding-top: 5px">
-                                      <span>Total </span>
-                                      <a-tag>
-                                        {{
-                                          overallFilter === 'all'
-                                            ? record.wr_sum.toLocaleString()
-                                            : record.wr_starter_sum.toLocaleString()
-                                        }}
-                                      </a-tag>
-                                    </div>
-                                  </div>
-                                </a-col>
-
-                                <!-- Tight Ends -->
-                                <a-col :span="6">
-                                  <div>
-                                    <ul
-                                      style="padding: 0; list-style: none"
-                                      v-for="player in getPlayersProj(record.user_id)"
-                                    >
-                                      <li
-                                        v-if="player.player_position === 'TE'"
-                                        :key="player.sleeper_id"
-                                        :style="getPositionTagList(player.player_position, 0.35)"
-                                        style="
-                                          display: flex;
-                                          justify-content: space-between;
-                                          align-items: center;
-                                          margin-bottom: 2px;
-                                          border-radius: 2px;
-                                          padding: 0 10px;
-                                        "
-                                      >
-                                        <span
-                                          style="
-                                            flex: 1;
-                                            white-space: normal;
-                                            overflow-wrap: break-word;
-                                          "
-                                        >
-                                          {{ player?.full_name }} {{ player?.team }}
-                                          <span style="font-size: 11px">{{ player?.age }}yrs</span>
-                                        </span>
-                                        <span>
-                                          {{
-                                            player.player_value === -1
-                                              ? 'N/A'
-                                              : player.player_value?.toLocaleString()
-                                          }}
-                                        </span>
-                                      </li>
-                                    </ul>
-                                    <div style="float: right; padding-top: 5px">
-                                      <span>Total </span>
-                                      <a-tag>
-                                        {{
-                                          overallFilter === 'all'
-                                            ? record.te_sum.toLocaleString()
-                                            : record.te_starter_sum.toLocaleString()
-                                        }}
-                                      </a-tag>
-                                    </div>
-                                  </div>
-                                </a-col>
-                              </a-row>
-                            </div>
-                          </template>
-                        </a-table>
-                      </div>
-                    </a-col>
-                  </a-row>
-                </div>
-              </a-spin>
-            </a-tab-pane>
-
-            <a-tab-pane key="5" tab="PLAYERS">
-              <h2 class="tab-sub-header">All Players in League</h2>
-              <div style="display: flex; justify-content: left">
-                <div class="avatar-container">
-                  <span style="font-size: small" class="avatar-title">Managers (click) </span>
-                  <a-avatar-group
-                    maxCount="10"
-                    maxPopoverPlacement="bottom"
-                    maxPopoverTrigger="hover"
-                    class="avatar-group-container"
+                <h2 style="text-align: center; margin-top: 30px">
+                  {{ showProjections ? 'Projections' : 'Ranks' }} Heat Map
+                </h2>
+                <div class="table-section" style="flex: 2">
+                  <a-table
+                    :columns="showProjections ? projColumns : columns"
+                    :dataSource="showProjections ? projSummaryData : summaryData"
+                    :pagination="{ pageSize: 20 }"
+                    row-key="user_id"
+                    :expand-column-width="100"
+                    style="width: 100%; max-width: 1150px"
+                    :scroll="{ x: '1150px' }"
                   >
-                    <div v-for="user in sortedSummaryData" :key="user.user_id">
-                      <div
-                        v-if="user.user_id === leagueInfo.userId"
-                        style="position: relative; display: inline-block"
-                      >
-                        <a-tooltip :title="`${getRank(user)} ${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            :size="45"
-                            style="border: 2px solid gold"
-                            @click="handleUserClick(user)"
-                            class="avatar"
-                          />
-                        </a-tooltip>
-                        <span class="badge-label">
-                          {{ getRank(user) }}
-                        </span>
-                      </div>
+                    <template #expandedRowRender="{ record }">
+                      <div>
+                        <a-row :gutter="{ xs: 0, sm: 2, md: 2, lg: 2, xl: 2 }">
+                          <a-col :span="5" style="padding-bottom: 7px">
+                            <span>QBs </span>
+                            <a-tag>
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter === 'all' ? record.qb_rank : record.qb_starter_rank
+                                )
+                              }}</a-tag
+                            >
+                            <span>Avg Age </span>
+                            <a-tag>
+                              {{
+                                overallFilter === 'all'
+                                  ? record.qb_average_age
+                                  : record.qb_starter_average_age
+                              }}
+                            </a-tag>
+                          </a-col>
 
-                      <div v-else>
-                        <a-tooltip :title="`${getRank(user)}${user.display_name}`" placement="top">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                            maxPopoverTrigger="hover"
-                            @click="handleUserClick(user)"
-                            class="avatar"
-                            :style="avatarStyle(user)"
-                          />
-                        </a-tooltip>
-                      </div>
-                    </div>
-                  </a-avatar-group>
-                </div>
-              </div>
-              <div v-if="selectedUser" class="mirrored-user">
-                <div class="user-card">
-                  <a-row>
-                    <a-col :span="9">
-                      <div class="gutter-box">
-                        <a-avatar
-                          :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
-                          :size="24"
-                          style="border: 2px solid rgb(39, 125, 161)"
-                          class="avatar"
-                        />
-                      </div>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">QB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">RB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">WR</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">TE</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">Picks</span>
-                    </a-col>
-                  </a-row>
-                  <a-row>
-                    <a-col :span="9">
-                      <h4>{{ selectedUser.display_name }}</h4>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.qb_rank)
-                              : Number(selectedUser.qb_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.qb_rank
-                              : selectedUser.qb_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.rb_rank)
-                              : Number(selectedUser.rb_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.rb_rank
-                              : selectedUser.rb_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.wr_rank)
-                              : Number(selectedUser.wr_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.wr_rank
-                              : selectedUser.wr_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <a-tag
-                        :style="
-                          getCellStyle(
-                            overallFilter === 'all'
-                              ? Number(selectedUser.te_rank)
-                              : Number(selectedUser.te_starter_rank)
-                          )
-                        "
-                      >
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all'
-                              ? selectedUser.te_rank
-                              : selectedUser.te_starter_rank
-                          )
-                        }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
-                      <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
-                        {{ addOrdinalSuffix(selectedUser.picks_rank) }}
-                      </a-tag>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
-                      <a-tag> -- </a-tag>
-                    </a-col>
-                  </a-row>
-                </div>
-              </div>
-
-              <div v-else class="mirrored-user">
-                <div class="user-card">
-                  <a-row>
-                    <a-col :span="9">
-                      <div class="gutter-box">
-                        <a-avatar
-                          :size="24"
-                          style="border: 2px solid rgb(39, 125, 161)"
-                          class="avatar"
-                        />
-                      </div>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">QB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">RB</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">WR</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">TE</span>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3">
-                      <span style="font-weight: bold">Picks</span>
-                    </a-col>
-                  </a-row>
-                  <a-row>
-                    <a-col :span="9">
-                      <h4>Select Team</h4>
-                    </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                    <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                  </a-row>
-                </div>
-              </div>
-              <div class="legend">
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
-                  <span class="legend-text">QB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
-                  <span class="legend-text">RB</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
-                  <span class="legend-text">WR</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
-                  <span class="legend-text">TE</span>
-                </div>
-                <div class="legend-item">
-                  <span class="legend-color" style="background-color: rgba(70, 70, 70, 0.7)"></span>
-                  <span class="legend-text">Picks</span>
-                </div>
-              </div>
-              <a-row :gutter="16">
-                <a-col
-                  v-for="(chunk, chunkIndex) in playerChunks"
-                  :key="chunkIndex"
-                  :xs="24"
-                  :sm="12"
-                  :md="8"
-                  :lg="6"
-                >
-                  <div
-                    style="
-                      border: 1px solid lightgray;
-                      border-radius: 5px;
-                      margin: 5px;
-                      padding: 5px;
-                    "
-                  >
-                    <ul style="padding: 0">
-                      <li
-                        v-for="(player, index) in chunk"
-                        :key="player.sleeper_id"
-                        :style="getPositionTagList(player.player_position, 0.35)"
-                        style="border-radius: 2px; margin: 2px"
-                        :class="{
-                          lighter: clickedManager !== '' && clickedManager !== player.display_name
-                        }"
-                      >
-                        <span
-                          :class="{
-                            'dimmed-text':
-                              clickedManager !== '' && clickedManager !== player.display_name
-                          }"
-                        >
-                          {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
-                          {{
-                            player.player_value === -1
-                              ? 'N/A'
-                              : player.player_value?.toLocaleString()
-                          }}
-                          - {{ player.display_name }}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </a-col>
-              </a-row>
-            </a-tab-pane>
-
-            <a-tab-pane key="6" tab="MANAGER VIEW">
-              <h2 class="tab-sub-header">Team Dashboard</h2>
-              <h3 class="chart-title">Roster</h3>
-              <div v-for="manager in summaryData" :key="manager.user_id">
-                <div v-if="manager.user_id === leagueInfo.userId">
-                  <a-row :gutter="{ xs: 0, sm: 16, md: 24, lg: 16, xl: 16 }" justify="space-around">
-                    <div
-                      v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
-                      :key="position"
-                      style="padding-bottom: 15px"
-                    >
-                      <a-col :key="position" :xs="24" :sm="24" :md="24" :lg="32">
-                        <a-card style="min-width: 220px">
-                          <template #title>
-                            <a-tag :style="getPositionTag(position)" size="large"
-                              >{{ position }} </a-tag
-                            >&bull;
-                            {{ addOrdinalSuffix(manager[position.toLowerCase() + '_rank'] || '') }}
-                            &bull;
-                            {{ (manager[position.toLowerCase() + '_sum'] || '').toLocaleString() }}
-                          </template>
-                          <div
-                            v-for="(player, index) in getPlayers(manager.user_id)"
-                            :key="player.full_name"
+                          <a-col :span="5" style="padding-bottom: 7px">
+                            <span>RBs </span>
+                            <a-tag>
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter === 'all' ? record.rb_rank : record.rb_starter_rank
+                                )
+                              }}</a-tag
+                            >
+                            <span>Avg Age </span>
+                            <a-tag>
+                              {{
+                                overallFilter === 'all'
+                                  ? record.rb_average_age
+                                  : record.rb_starter_average_age
+                              }}
+                            </a-tag></a-col
                           >
-                            <div v-if="player.player_position === position">
-                              <ul style="padding: 0; list-style: none">
+                          <a-col :span="5" style="padding-bottom: 7px">
+                            <span>WRs </span>
+                            <a-tag>
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter === 'all' ? record.wr_rank : record.wr_starter_rank
+                                )
+                              }}</a-tag
+                            >
+                            <span>Avg Age </span>
+                            <a-tag>
+                              {{
+                                overallFilter === 'all'
+                                  ? record.wr_average_age
+                                  : record.wr_starter_average_age
+                              }}
+                            </a-tag></a-col
+                          >
+                          <a-col :span="5" style="padding-bottom: 7px">
+                            <span>TEs </span>
+                            <a-tag>
+                              {{
+                                addOrdinalSuffix(
+                                  overallFilter === 'all' ? record.te_rank : record.te_starter_rank
+                                )
+                              }}</a-tag
+                            >
+                            <span>Avg Age </span>
+                            <a-tag>
+                              {{
+                                overallFilter === 'all'
+                                  ? record.te_average_age
+                                  : record.te_starter_average_age
+                              }}
+                            </a-tag></a-col
+                          >
+                          <a-col :span="4" v-if="overallFilter === 'all' && !showProjections">
+                            <span>Picks </span>
+                            <a-tag> {{ addOrdinalSuffix(record.picks_rank) }}</a-tag>
+                            <span>Avg Age </span>
+                            <a-tag> -- </a-tag></a-col
+                          >
+                        </a-row>
+                        <a-row :gutter="{ xs: 4, sm: 4, md: 4, lg: 4, xl: 8 }">
+                          <a-col :span="5">
+                            <div>
+                              <ul
+                                style="padding: 0; list-style: none"
+                                v-for="player in showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)"
+                              >
                                 <li
+                                  v-if="player.player_position === 'QB'"
                                   :key="player.sleeper_id"
                                   :style="getPositionTagList(player.player_position, 0.35)"
-                                  style="margin-bottom: 2px; border-radius: 2px"
+                                  style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 2px;
+                                    border-radius: 2px;
+                                    padding: 0 10px;
+                                  "
                                 >
+                                  <span
+                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
+                                  >
+                                    {{ player?.full_name }} {{ player?.team }}
+                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                  </span>
                                   <span>
-                                    {{ index + 1 }}. {{ player?.full_name }} &bull;
                                     {{
                                       player.player_value === -1
                                         ? 'N/A'
@@ -1558,288 +335,1054 @@
                                   </span>
                                 </li>
                               </ul>
+                              <div style="float: right; padding-top: 5px">
+                                <span>Total </span>
+                                <a-tag>
+                                  {{
+                                    overallFilter === 'all'
+                                      ? record.qb_sum.toLocaleString()
+                                      : record.qb_starter_sum.toLocaleString()
+                                  }}
+                                </a-tag>
+                              </div>
+                            </div>
+                          </a-col>
+
+                          <!-- RB section -->
+                          <a-col :span="5">
+                            <div>
+                              <ul
+                                style="padding: 0; list-style: none"
+                                v-for="player in showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)"
+                              >
+                                <li
+                                  v-if="player.player_position === 'RB'"
+                                  :key="player.sleeper_id"
+                                  :style="getPositionTagList(player.player_position, 0.35)"
+                                  style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 2px;
+                                    border-radius: 2px;
+                                    padding: 0 10px;
+                                  "
+                                >
+                                  <span
+                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
+                                  >
+                                    {{ player?.full_name }} {{ player?.team }}
+                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                  </span>
+                                  <span>
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value?.toLocaleString()
+                                    }}
+                                  </span>
+                                </li>
+                              </ul>
+                              <div style="float: right; padding-top: 5px">
+                                <span>Total </span>
+                                <a-tag>
+                                  {{
+                                    overallFilter === 'all'
+                                      ? record.rb_sum.toLocaleString()
+                                      : record.rb_starter_sum.toLocaleString()
+                                  }}
+                                </a-tag>
+                              </div>
+                            </div>
+                          </a-col>
+
+                          <!-- WR section -->
+                          <a-col :span="5">
+                            <div>
+                              <ul
+                                style="padding: 0; list-style: none"
+                                v-for="player in showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)"
+                              >
+                                <li
+                                  v-if="player.player_position === 'WR'"
+                                  :key="player.sleeper_id"
+                                  :style="getPositionTagList(player.player_position, 0.35)"
+                                  style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 2px;
+                                    border-radius: 2px;
+                                    padding: 0 10px;
+                                  "
+                                >
+                                  <span
+                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
+                                  >
+                                    {{ player?.full_name }} {{ player?.team }}
+                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                  </span>
+                                  <span>
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value?.toLocaleString()
+                                    }}
+                                  </span>
+                                </li>
+                              </ul>
+                              <div style="float: right; padding-top: 5px">
+                                <span>Total </span>
+                                <a-tag>
+                                  {{
+                                    overallFilter === 'all'
+                                      ? record.wr_sum.toLocaleString()
+                                      : record.wr_starter_sum.toLocaleString()
+                                  }}
+                                </a-tag>
+                              </div>
+                            </div>
+                          </a-col>
+
+                          <!-- TE section -->
+                          <a-col :span="5">
+                            <div>
+                              <ul
+                                style="padding: 0; list-style: none"
+                                v-for="player in showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)"
+                              >
+                                <li
+                                  v-if="player.player_position === 'TE'"
+                                  :key="player.sleeper_id"
+                                  :style="getPositionTagList(player.player_position, 0.35)"
+                                  style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 2px;
+                                    border-radius: 2px;
+                                    padding: 0 10px;
+                                  "
+                                >
+                                  <span
+                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
+                                  >
+                                    {{ player?.full_name }} {{ player?.team }}
+                                    <span style="font-size: 11px">{{ player?.age }}yrs</span>
+                                  </span>
+                                  <span>
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value?.toLocaleString()
+                                    }}
+                                  </span>
+                                </li>
+                              </ul>
+                              <div style="float: right; padding-top: 5px">
+                                <span>Total </span>
+                                <a-tag>
+                                  {{
+                                    overallFilter === 'all'
+                                      ? record.te_sum.toLocaleString()
+                                      : record.te_starter_sum.toLocaleString()
+                                  }}
+                                </a-tag>
+                              </div>
+                            </div>
+                          </a-col>
+
+                          <!-- PICKS section - only show if viewing all players -->
+                          <a-col :span="4" v-if="overallFilter === 'all' && !showProjections">
+                            <div>
+                              <ul
+                                style="padding: 0; list-style: none"
+                                v-for="player in showProjections
+                                  ? getPlayersProj(record.user_id)
+                                  : getPlayers(record.user_id)"
+                              >
+                                <li
+                                  v-if="player.player_position === 'PICKS'"
+                                  :key="player.sleeper_id"
+                                  :style="getPositionTagList(player.player_position, 0.35)"
+                                  style="
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    margin-bottom: 2px;
+                                    border-radius: 2px;
+                                    padding: 0 10px;
+                                  "
+                                >
+                                  <span
+                                    style="flex: 1; white-space: normal; overflow-wrap: break-word"
+                                  >
+                                    {{ player?.full_name }}
+                                  </span>
+                                  <span>
+                                    {{
+                                      player.player_value === -1
+                                        ? 'N/A'
+                                        : player.player_value?.toLocaleString()
+                                    }}
+                                  </span>
+                                </li>
+                              </ul>
+                              <div style="float: right; padding-top: 5px">
+                                <span>Total </span>
+                                <a-tag>
+                                  {{ record.picks_sum ? record.picks_sum.toLocaleString() : '0' }}
+                                </a-tag>
+                              </div>
+                            </div>
+                          </a-col>
+                        </a-row>
+                      </div>
+                    </template>
+                  </a-table>
+                </div>
+              </a-tab-pane>
+
+              <!-- Renamed tab from ROSTERS to TEAM COMPOSITION -->
+              <a-tab-pane key="2" tab="Team Composition">
+                <h2 style="text-align: left">Team Roster Breakdown</h2>
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="managers-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">League Managers (click to select)</span>
+                        </div>
+                      </template>
+                      <div class="managers-grid">
+                        <div
+                          v-for="user in sortedSummaryData"
+                          :key="user.user_id"
+                          class="manager-item"
+                          :class="{
+                            'current-user': user.user_id === leagueInfo.userId,
+                            'selected-manager':
+                              selectedUser && selectedUser.user_id === user.user_id
+                          }"
+                          @click="handleUserClick(user)"
+                        >
+                          <div class="manager-avatar">
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              :size="45"
+                            />
+                            <span class="manager-rank">{{ getRank(user) }}</span>
+                          </div>
+                          <div class="manager-details">
+                            <div class="manager-name">{{ user.display_name }}</div>
+                            <div class="manager-stats">
+                              <div class="position-badges">
+                                <span class="position-badge qb-badge"
+                                  >QB:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.qb_rank : user.qb_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge rb-badge"
+                                  >RB:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.rb_rank : user.rb_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge wr-badge"
+                                  >WR:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.wr_rank : user.wr_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge te-badge"
+                                  >TE:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.te_rank : user.te_starter_rank
+                                    )
+                                  }}</span
+                                >
+                              </div>
                             </div>
                           </div>
-                        </a-card>
-                      </a-col>
-                    </div>
-                  </a-row>
-                </div>
-              </div>
-              <a-row>
-                <a-col :span="24">
-                  <div class="viz-contaier">
-                    <h3 class="chart-title">Position Groups Average Age by Value</h3>
-                    <ScatterPlot :scatterPlotData="scatterPlotData" />
-                  </div>
-                </a-col>
-                <!-- <a-col :span="12">
-                  <RadarChart :data="radarChartData" />
-                </a-col> -->
-              </a-row>
-              <h3 class="chart-title">By Position Overall and Starters only</h3>
-              <div class="progress-bars-section-mv">
-                <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }" class="progress-bars-section-mv">
-                  <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <div class="progress-bar-group-mv" v-if="leagueOwnerData">
-                      <h3>
-                        Overall
-                        {{ addOrdinalSuffix(leagueOwnerData.total_rank) }}
-                      </h3>
-                      <span>QB</span>
-                      <span style="float: right"> Max</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.qb_rank)} ${leagueOwnerData.qb_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="(leagueOwnerData.qb_sum / leagueOwnerData.qb_max_value) * 100"
-                          :strokeColor="getPositionColor('QB')"
-                          strokeWidth="15"
-                          :format="(percent) => `${leagueOwnerData.qb_max_value?.toLocaleString()}`"
-                        />
-                      </a-tooltip>
-                      <span>RB</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.rb_rank)} ${leagueOwnerData.rb_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="(leagueOwnerData.rb_sum / leagueOwnerData.rb_max_value) * 100"
-                          :strokeColor="getPositionColor('RB')"
-                          strokeWidth="15"
-                          :format="(percent) => `${leagueOwnerData.rb_max_value?.toLocaleString()}`"
-                        />
-                      </a-tooltip>
-                      <span>WR</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.wr_rank)} ${leagueOwnerData.wr_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="(leagueOwnerData.wr_sum / leagueOwnerData.wr_max_value) * 100"
-                          :strokeColor="getPositionColor('WR')"
-                          strokeWidth="15"
-                          :format="(percent) => `${leagueOwnerData.wr_max_value?.toLocaleString()}`"
-                        />
-                      </a-tooltip>
-                      <span>TE</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.te_rank)} ${leagueOwnerData.te_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="(leagueOwnerData.te_sum / leagueOwnerData.te_max_value) * 100"
-                          :strokeColor="getPositionColor('TE')"
-                          strokeWidth="15"
-                          :format="(percent) => `${leagueOwnerData.te_max_value?.toLocaleString()}`"
-                        />
-                      </a-tooltip>
-                      <div>
-                        <span>Picks</span>
-                        <a-tooltip
-                          :title="`${addOrdinalSuffix(leagueOwnerData.picks_rank)} ${leagueOwnerData.picks_sum?.toLocaleString()}`"
-                          ><a-progress
-                            :percent="
-                              (leagueOwnerData.picks_sum / leagueOwnerData.picks_max_value) * 100
-                            "
-                            :strokeColor="getPositionColor('Picks')"
-                            strokeWidth="15"
-                            :format="
-                              (percent) => `${leagueOwnerData.picks_max_value?.toLocaleString()}`
-                            "
-                          />
-                        </a-tooltip>
+                        </div>
                       </div>
-                    </div>
+                    </a-card>
                   </a-col>
-                  <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
-                    <div class="progress-bar-group-mv" v-if="leagueOwnerData">
-                      <h3>
-                        Starters
-                        {{ addOrdinalSuffix(leagueOwnerData.starters_rank) }}
-                      </h3>
-                      <span>QB</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.qb_starter_rank)} ${leagueOwnerData.qb_starter_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="
-                            (leagueOwnerData.qb_starter_sum /
-                              leagueOwnerData.qb_max_starter_value) *
-                            100
-                          "
-                          :strokeColor="getPositionColor('QB')"
-                          strokeWidth="15"
-                          :format="
-                            (percent) => `${leagueOwnerData.qb_max_starter_value?.toLocaleString()}`
-                          "
+                </a-row>
+                <a-row justify="space-around" :gutter="8">
+                  <a-col
+                    v-for="manager in summaryData"
+                    :key="manager.user_id"
+                    xs="{24}"
+                    sm="{12}"
+                    md="{8}"
+                    lg="{6}"
+                    style="min-width: 300px; max-width: 315px"
+                  >
+                    <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
+                      <h4 style="padding: 5px 5px">
+                        <img
+                          class="manager-logos"
+                          :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                          alt="League Logo"
                         />
-                      </a-tooltip>
-                      <span>RB</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.rb_starter_rank)} ${leagueOwnerData.rb_starter_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="
-                            (leagueOwnerData.rb_starter_sum /
-                              leagueOwnerData.rb_max_starter_value) *
-                            100
+                        {{ manager.display_name }} &bull;
+
+                        {{ overallFilter === 'all' ? 'Overall' : 'Starters' }}
+                        {{
+                          addOrdinalSuffix(
+                            overallFilter === 'all' ? manager.total_rank : manager.starters_rank
+                          )
+                        }}
+                        <a-tag>
+                          {{
+                            (overallFilter === 'all'
+                              ? manager.total_value
+                              : manager.starters_sum || 0
+                            ).toLocaleString()
+                          }}</a-tag
+                        >
+                      </h4>
+                      <ul style="padding: 0; list-style-type: none">
+                        <li
+                          v-for="(player, index) in getPlayers(manager.user_id)"
+                          :style="getPositionTagList(player.player_position, 0.35)"
+                          style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-radius: 2px;
+                            margin: 2px;
                           "
-                          :strokeColor="getPositionColor('RB')"
-                          strokeWidth="15"
-                          :format="
-                            (percent) => `${leagueOwnerData.rb_max_starter_value?.toLocaleString()}`
-                          "
-                        />
-                      </a-tooltip>
-                      <span>WR</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.wr_starter_rank)} ${leagueOwnerData.wr_starter_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="
-                            (leagueOwnerData.wr_starter_sum /
-                              leagueOwnerData.wr_max_starter_value) *
-                            100
-                          "
-                          :strokeColor="getPositionColor('WR')"
-                          strokeWidth="15"
-                          :format="
-                            (percent) => `${leagueOwnerData.wr_max_starter_value?.toLocaleString()}`
-                          "
-                        />
-                      </a-tooltip>
-                      <span>TE</span>
-                      <a-tooltip
-                        :title="`${addOrdinalSuffix(leagueOwnerData.te_starter_rank)} ${leagueOwnerData.te_starter_sum?.toLocaleString()}`"
-                        ><a-progress
-                          :percent="
-                            (leagueOwnerData.te_starter_sum /
-                              leagueOwnerData.te_max_starter_value) *
-                            100
-                          "
-                          :strokeColor="getPositionColor('TE')"
-                          strokeWidth="15"
-                          :format="
-                            (percent) => `${leagueOwnerData.te_max_starter_value?.toLocaleString()}`
-                          "
-                        />
-                      </a-tooltip>
+                        >
+                          <span style="margin-right: 2px"> {{ index + 1 }}.</span>
+                          <span style="margin-right: 5px">{{ player.full_name }}</span>
+                          <span style="margin-right: 5px">{{ player.team }}</span>
+                          <a-tag :style="getPositionTagList(player.player_position)">{{
+                            player.player_position
+                          }}</a-tag>
+                          <span class="player-value">
+                            {{
+                              player.player_value === -1
+                                ? 'N/A'
+                                : player.player_value.toLocaleString()
+                            }}
+                          </span>
+                        </li>
+                      </ul>
                     </div>
                   </a-col>
                 </a-row>
-              </div>
-            </a-tab-pane>
-            <a-tab-pane key="7" tab="WAIVERS">
-              <div>
-                <h2>Best Available</h2>
-                <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+              </a-tab-pane>
+
+              <!-- Renamed tab from POSITIONS to POSITION GROUPS -->
+              <a-tab-pane key="3" tab="Position Groups">
+                <h2 class="tab-sub-header">Rankings by Position</h2>
+
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="managers-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">League Managers</span>
+                        </div>
+                      </template>
+                      <div class="managers-grid">
+                        <div
+                          v-for="user in sortedSummaryData"
+                          :key="user.user_id"
+                          class="manager-item"
+                          :class="{
+                            'current-user': user.user_id === leagueInfo.userId,
+                            'selected-manager':
+                              selectedUser && selectedUser.user_id === user.user_id
+                          }"
+                          @click="handleUserClick(user)"
+                        >
+                          <div class="manager-avatar">
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              :size="45"
+                            />
+                            <span class="manager-rank">{{ getRank(user) }}</span>
+                          </div>
+                          <div class="manager-details">
+                            <div class="manager-name">{{ user.display_name }}</div>
+                            <div class="manager-stats">
+                              <div class="position-badges">
+                                <span class="position-badge qb-badge"
+                                  >QB:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.qb_rank : user.qb_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge rb-badge"
+                                  >RB:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.rb_rank : user.rb_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge wr-badge"
+                                  >WR:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.wr_rank : user.wr_starter_rank
+                                    )
+                                  }}</span
+                                >
+                                <span class="position-badge te-badge"
+                                  >TE:
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all' ? user.te_rank : user.te_starter_rank
+                                    )
+                                  }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
+
+                <div v-if="selectedUser" class="mirrored-user">
+                  <div class="user-card">
+                    <a-row>
+                      <a-col :span="9">
+                        <div class="gutter-box">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                            :size="24"
+                            style="border: 2px solid rgb(39, 125, 161)"
+                            class="avatar"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">QB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">RB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">WR</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">TE</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">Picks</span>
+                      </a-col>
+                    </a-row>
+                    <a-row>
+                      <a-col :span="9">
+                        <h4>{{ selectedUser.display_name }}</h4>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.qb_rank)
+                                : Number(selectedUser.qb_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.qb_rank
+                                : selectedUser.qb_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.rb_rank)
+                                : Number(selectedUser.rb_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.rb_rank
+                                : selectedUser.rb_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.wr_rank)
+                                : Number(selectedUser.wr_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.wr_rank
+                                : selectedUser.wr_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.te_rank)
+                                : Number(selectedUser.te_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.te_rank
+                                : selectedUser.te_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
+                        <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
+                          {{ addOrdinalSuffix(selectedUser.picks_rank) }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
+                        <a-tag> -- </a-tag>
+                      </a-col>
+                    </a-row>
+                  </div>
+                </div>
+
+                <div v-else class="mirrored-user">
+                  <div class="user-card">
+                    <a-row>
+                      <a-col :span="9">
+                        <div class="gutter-box">
+                          <a-avatar
+                            :size="24"
+                            style="border: 2px solid rgb(39, 125, 161)"
+                            class="avatar"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">QB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">RB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">WR</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">TE</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">Picks</span>
+                      </a-col>
+                    </a-row>
+                    <a-row>
+                      <a-col :span="9">
+                        <h4>Select Team</h4>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    </a-row>
+                  </div>
+                </div>
+
+                <div class="legend">
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                    <span class="legend-text">QB</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                    <span class="legend-text">RB</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                    <span class="legend-text">WR</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                    <span class="legend-text">TE</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background-color: rgba(70, 70, 70, 0.7)"
+                    ></span>
+                    <span class="legend-text">Picks</span>
+                  </div>
+                </div>
+
+                <a-row style="justify-content: center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
                   <a-col
-                    v-for="(players, position) in groupedPlayers"
+                    v-for="(players, position) in playersByPosition"
                     :key="position"
+                    xs="{24}"
+                    sm="{12}"
+                    md="{8}"
+                    lg="{6}"
+                    style="min-width: 260px; max-width: 400px"
+                  >
+                    <div>
+                      <h3>{{ position }}</h3>
+                      <ul style="padding: 0; list-style: none">
+                        <li
+                          v-for="(player, index) in players"
+                          :key="player.sleeper_id"
+                          :style="getPositionTagList(player.player_position, 0.45)"
+                          style="border-radius: 2px; margin: 2px"
+                          :class="{
+                            lighter: clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          <span
+                            :class="{
+                              'dimmed-text':
+                                clickedManager !== '' && clickedManager !== player.display_name
+                            }"
+                          >
+                            {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
+                            <span
+                              v-if="player.player_position.toLowerCase() !== 'picks'"
+                              style="font-size: 11px"
+                              >{{ player?.age }}yrs</span
+                            >
+                          </span>
+                          <span style="float: right"
+                            >{{
+                              player.player_value === -1
+                                ? 'N/A'
+                                : player.player_value?.toLocaleString()
+                            }}
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </a-col>
+                </a-row>
+              </a-tab-pane>
+
+              <!-- Renamed tab from PLAYERS to LEAGUE ASSETS -->
+              <a-tab-pane key="4" tab="League Assets">
+                <h2 class="tab-sub-header">All Assets in League</h2>
+
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="managers-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">League Managers (click to select)</span>
+                        </div>
+                      </template>
+                      <div class="managers-grid">
+                        <div
+                          v-for="user in sortedSummaryData"
+                          :key="user.user_id"
+                          class="manager-item"
+                          :class="{
+                            'current-user': user.user_id === leagueInfo.userId,
+                            'selected-manager':
+                              selectedUser && selectedUser.user_id === user.user_id
+                          }"
+                          @click="handleUserClick(user)"
+                        >
+                          <div class="manager-avatar">
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                              :size="45"
+                            />
+                            <span class="manager-rank">{{ getRank(user) }}</span>
+                          </div>
+                          <div class="manager-details">
+                            <div class="manager-name">{{ user.display_name }}</div>
+                            <div class="manager-stats">
+                              <span
+                                >{{ overallFilter === 'all' ? 'Overall' : 'Starters' }}:
+                                {{
+                                  addOrdinalSuffix(
+                                    overallFilter === 'all' ? user.total_rank : user.starters_rank
+                                  )
+                                }}</span
+                              >
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
+
+                <div v-if="selectedUser" class="mirrored-user">
+                  <div class="user-card">
+                    <a-row>
+                      <a-col :span="9">
+                        <div class="gutter-box">
+                          <a-avatar
+                            :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                            :size="24"
+                            style="border: 2px solid rgb(39, 125, 161)"
+                            class="avatar"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">QB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">RB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">WR</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">TE</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">Picks</span>
+                      </a-col>
+                    </a-row>
+                    <a-row>
+                      <a-col :span="9">
+                        <h4>{{ selectedUser.display_name }}</h4>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.qb_rank)
+                                : Number(selectedUser.qb_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.qb_rank
+                                : selectedUser.qb_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.rb_rank)
+                                : Number(selectedUser.rb_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.rb_rank
+                                : selectedUser.rb_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.wr_rank)
+                                : Number(selectedUser.wr_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.wr_rank
+                                : selectedUser.wr_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              overallFilter === 'all'
+                                ? Number(selectedUser.te_rank)
+                                : Number(selectedUser.te_starter_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              overallFilter === 'all'
+                                ? selectedUser.te_rank
+                                : selectedUser.te_starter_rank
+                            )
+                          }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
+                        <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
+                          {{ addOrdinalSuffix(selectedUser.picks_rank) }}
+                        </a-tag>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
+                        <a-tag> -- </a-tag>
+                      </a-col>
+                    </a-row>
+                  </div>
+                </div>
+
+                <div v-else class="mirrored-user">
+                  <div class="user-card">
+                    <a-row>
+                      <a-col :span="9">
+                        <div class="gutter-box">
+                          <a-avatar
+                            :size="24"
+                            style="border: 2px solid rgb(39, 125, 161)"
+                            class="avatar"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">QB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">RB</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">WR</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">TE</span>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3">
+                        <span style="font-weight: bold">Picks</span>
+                      </a-col>
+                    </a-row>
+                    <a-row>
+                      <a-col :span="9">
+                        <h4>Select Team</h4>
+                      </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                    </a-row>
+                  </div>
+                </div>
+                <div class="legend">
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                    <span class="legend-text">QB</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                    <span class="legend-text">RB</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                    <span class="legend-text">WR</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                    <span class="legend-text">TE</span>
+                  </div>
+                  <div class="legend-item">
+                    <span
+                      class="legend-color"
+                      style="background-color: rgba(70, 70, 70, 0.7)"
+                    ></span>
+                    <span class="legend-text">Picks</span>
+                  </div>
+                </div>
+                <a-row :gutter="16">
+                  <a-col
+                    v-for="(chunk, chunkIndex) in playerChunks"
+                    :key="chunkIndex"
                     :xs="24"
                     :sm="12"
                     :md="8"
                     :lg="6"
                   >
-                    <a-card>
-                      <template #title>
-                        <span style="font-size: 18px; font-weight: bolder">{{ position }}</span>
-                      </template>
-                      <span v-for="player in players" :key="player.sleeper_id">
-                        <ul style="padding: 0; list-style: none">
-                          <li
-                            :key="player.sleeper_id"
-                            :style="getPositionTagList(player.player_position, 0.35)"
-                            style="margin-bottom: 2px; border-radius: 2px"
+                    <div
+                      style="
+                        border: 1px solid lightgray;
+                        border-radius: 5px;
+                        margin: 5px;
+                        padding: 5px;
+                      "
+                    >
+                      <ul style="padding: 0">
+                        <li
+                          v-for="(player, index) in chunk"
+                          :key="player.sleeper_id"
+                          :style="getPositionTagList(player.player_position, 0.35)"
+                          style="border-radius: 2px; margin: 2px"
+                          :class="{
+                            lighter: clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          <span
+                            :class="{
+                              'dimmed-text':
+                                clickedManager !== '' && clickedManager !== player.display_name
+                            }"
                           >
-                            <span>
-                              {{ player?.full_name }} &bull;
-                              {{
-                                player.player_value === -1
-                                  ? 'N/A'
-                                  : player.player_value?.toLocaleString()
-                              }}
-                            </span>
-                          </li>
-                        </ul>
-                      </span>
-                    </a-card>
+                            {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
+                            {{
+                              player.player_value === -1
+                                ? 'N/A'
+                                : player.player_value?.toLocaleString()
+                            }}
+                            - {{ player.display_name }}
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
                   </a-col>
                 </a-row>
-              </div>
-            </a-tab-pane>
-            <a-tab-pane key="8" tab="TRADES (Beta)">
-              <h2 style="text-align: left">Trades Table</h2>
+              </a-tab-pane>
 
-              <a-spin :spinning="isTradesLoading">
+              <a-tab-pane key="5" tab="Waivers">
                 <div>
-                  <a-table
-                    :columns="tradeColumns"
-                    :dataSource="tradesSummaryData"
-                    :pagination="{ pageSize: 20 }"
-                    row-key="display_name"
-                    :loading="isTradesLoading"
-                    :expand-column-width="100"
-                    style="max-width: 800px"
-                    :scroll="{ x: '800px' }"
-                  >
-                  </a-table>
-                </div>
-                <h2 style="text-align: center">Trade History</h2>
-
-                <a-divider />
-                <a-row
-                  v-for="(managers, transaction_id) in tradesDetailData"
-                  :key="transaction_id"
-                  :gutter="24"
-                  justify="center"
-                >
-                  <a-col
-                    xs="24"
-                    sm="24"
-                    md="12"
-                    lg="8"
-                    v-for="(details, manager) in managers"
-                    :key="manager"
-                  >
-                    <a-card style="width: 100%; max-width: 600px; margin: auto">
-                      <div
-                        style="
-                          display: flex;
-                          justify-content: space-between;
-                          align-items: center;
-                          padding-bottom: 5px;
-                        "
-                      >
-                        <h3 style="margin: 0">{{ manager }}</h3>
-                        <span>
-                          <a-tag
-                            :color="
-                              details[0].owner_total -
-                                (details[0].deal_total - details[0].owner_total) <
-                              0
-                                ? 'red'
-                                : 'green'
-                            "
-                          >
-                            {{
-                              (
-                                details[0].owner_total -
-                                (details[0].deal_total - details[0].owner_total)
-                              ).toLocaleString()
-                            }} </a-tag
-                          >-
-                          <a-tag color="blue">{{ details[0].deal_total.toLocaleString() }}</a-tag>
+                  <h2>Best Available</h2>
+                  <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                    <a-col
+                      v-for="(players, position) in groupedPlayers"
+                      :key="position"
+                      :xs="24"
+                      :sm="12"
+                      :md="8"
+                      :lg="6"
+                    >
+                      <a-card>
+                        <template #title>
+                          <span style="font-size: 18px; font-weight: bolder">{{ position }}</span>
+                        </template>
+                        <span v-for="player in players" :key="player.sleeper_id">
+                          <ul style="padding: 0; list-style: none">
+                            <li
+                              :key="player.sleeper_id"
+                              :style="getPositionTagList(player.player_position, 0.35)"
+                              style="margin-bottom: 2px; border-radius: 2px"
+                            >
+                              <span>
+                                {{ player?.full_name }} &bull;
+                                {{
+                                  player.player_value === -1
+                                    ? 'N/A'
+                                    : player.player_value?.toLocaleString()
+                                }}
+                              </span>
+                            </li>
+                          </ul>
                         </span>
-                      </div>
-                      <a-list-item
-                        v-for="asset in details"
-                        :key="asset.asset"
-                        style="padding-bottom: 5px"
-                      >
-                        <a-avatar
-                          :src="`https://sleepercdn.com/content/nfl/players/thumb/${asset.sleeper_id}.jpg`"
-                        />
-                        {{ asset.asset }} &bull; {{ asset._position }}
-                        {{ asset.value.toLocaleString() }}
-                      </a-list-item>
-                    </a-card>
-                  </a-col>
-                  <a-divider />
-                </a-row> </a-spin
-            ></a-tab-pane>
-          </a-tabs>
+                      </a-card>
+                    </a-col>
+                  </a-row>
+                </div>
+              </a-tab-pane>
+            </a-tabs>
+            <a-button
+              type="primary"
+              shape="circle"
+              class="info-button"
+              @click="showTabInfoModal = true"
+            >
+              <InfoCircleOutlined />
+            </a-button>
+          </div>
+
+          <!-- Information Modal -->
+          <a-modal
+            v-model:visible="showTabInfoModal"
+            title="League View Guide"
+            :footer="null"
+            width="600px"
+          >
+            <div class="tab-info-container">
+              <h3>Power Rankings</h3>
+              <p>
+                This tab provides an overall assessment of team strength and value across your
+                league. View visual comparisons, position group breakdowns, and see how each team
+                ranks in the league's power structure. Toggle between current values and future
+                projections.
+              </p>
+
+              <h3>Team Composition</h3>
+              <p>
+                See how each manager's roster is constructed, with players ordered by their asset
+                value. This view helps you understand the composition of your squad including draft
+                picks and overall value distribution. Perfect for evaluating roster balance and
+                identifying strengths or weaknesses.
+              </p>
+
+              <h3>Position Groups</h3>
+              <p>
+                This tab organizes all league players by position group (QB, RB, WR, TE, Picks),
+                allowing you to see which managers control the most valuable assets at each
+                position. Use this view to identify where you have positional advantages or where
+                you need to strengthen your team compared to your league-mates.
+              </p>
+
+              <h3>League Assets</h3>
+              <p>
+                View the complete ranking of all players and picks across the entire league in a
+                single list. This perspective helps identify "super teams" that control multiple
+                high-value assets and understand the overall distribution of player value across all
+                managers.
+              </p>
+
+              <h3>Waivers</h3>
+              <p>
+                Browse the best available players on waivers, organized by position. Quickly
+                identify valuable free agents you might want to add to your roster.
+              </p>
+            </div>
+          </a-modal>
         </a-spin>
       </div>
     </a-layout-content>
@@ -1849,6 +1392,8 @@
 
 <script lang="ts" setup>
 const activeKey = ref('1')
+const showProjections = ref(false)
+const showTabInfoModal = ref(false)
 import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -1861,7 +1406,12 @@ import axios from 'axios'
 
 // Platform Utils
 import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
-import { HomeOutlined, FileSearchOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import {
+  HomeOutlined,
+  FileSearchOutlined,
+  ReloadOutlined,
+  InfoCircleOutlined
+} from '@ant-design/icons-vue'
 import MeterGroup from 'primevue/metergroup'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -2082,45 +1632,6 @@ const updateScatterPlotData = (rawData) => {
   })
 }
 
-// const mergedData = computed(() => {
-//   return summaryData.value
-//     .map((summaryItem) => {
-//       const projection = projSummaryData.value.find(
-//         (projItem) => projItem.user_id === summaryItem.user_id
-//       )
-//       if (projection) {
-//         // Rename projection fields to include a prefix or suffix
-//         return {
-//           ...summaryItem,
-//           qb_projection: projection.qb_value,
-//           rb_projection: projection.rb_value,
-//           wr_projection: projection.wr_value,
-//           te_projection: projection.te_value,
-//           ...projection
-//         }
-//       }
-//       return summaryItem
-//     })
-//     .filter((item) => item && item.user_id === leagueInfo.userId) // Filter for the specific user
-// })
-
-// const radarChartData = computed(() => {
-//   if (mergedData.value.length > 0) {
-//     const user = mergedData.value[0] // Since it should only be one user's data after the filter
-//     return [
-//       { position: 'QB', metric: 'Value', value: user.qb_value },
-//       { position: 'RB', metric: 'Value', value: user.rb_value },
-//       { position: 'WR', metric: 'Value', value: user.wr_value },
-//       { position: 'TE', metric: 'Value', value: user.te_value },
-//       { position: 'QB', metric: 'Projection', value: user.qb_projection },
-//       { position: 'RB', metric: 'Projection', value: user.rb_projection },
-//       { position: 'WR', metric: 'Projection', value: user.wr_projection },
-//       { position: 'TE', metric: 'Projection', value: user.te_projection }
-//     ]
-//   }
-//   return [] // Return an empty array if no data matches
-// })
-
 const OverallScatterPlotData = computed(() => {
   const suffix = overallFilter.value === 'all' ? 'total_value' : 'starters_sum'
 
@@ -2147,19 +1658,85 @@ const OverallScatterPlotData = computed(() => {
 })
 
 function getRank(user) {
+  if (showProjections.value) {
+    const projUser = projSummaryData.value.find((p) => p.user_id === user.user_id)
+    if (projUser) {
+      return addOrdinalSuffix(
+        overallFilter.value === 'all' ? projUser.total_rank : projUser.starters_rank
+      )
+    }
+  }
   return addOrdinalSuffix(overallFilter.value === 'all' ? user.total_rank : user.starters_rank)
 }
+
+// Add a computed property for projection-sorted users
+const sortedProjUsers = computed(() => {
+  if (projSummaryData.value.length === 0 || summaryData.value.length === 0) return []
+
+  // Create a merged array with projection data and avatars from summaryData
+  return projSummaryData.value
+    .map((projUser) => {
+      const summaryUser = summaryData.value.find((s) => s.user_id === projUser.user_id)
+      return {
+        ...projUser,
+        avatar: summaryUser?.avatar || ''
+      }
+    })
+    .sort((a, b) => {
+      if (overallFilter.value === 'all') {
+        return a.total_rank - b.total_rank
+      } else {
+        return a.starters_rank - b.starters_rank
+      }
+    })
+})
+
+// Update the sortedSummaryData computed property
 const sortedSummaryData = computed(() => {
   if (summaryData.value.length === 0) return []
 
+  // If projections are being shown and projection data is available, use sorted projection data
+  if (showProjections.value && sortedProjUsers.value.length > 0) {
+    return sortedProjUsers.value
+  }
+
+  // Otherwise use regular summary data sorting
   return [...summaryData.value].sort((a, b) => {
     if (overallFilter.value === 'all') {
       return a.total_rank - b.total_rank
-    } else if (overallFilter.value === 'STARTER') {
+    } else {
       return a.starters_rank - b.starters_rank
     }
   })
 })
+
+// Update the handleViewToggle function to ensure we resort on toggle
+const handleViewToggle = (checked) => {
+  // If true, show projections data
+  if (checked) {
+    // Make sure projection data is loaded
+    if (projSummaryData.value.length === 0 || projDetailData.value.length === 0) {
+      fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid)
+    }
+
+    // If a user is selected, find the equivalent in projection data
+    if (selectedUser.value) {
+      const projUser = sortedProjUsers.value.find((p) => p.user_id === selectedUser.value.user_id)
+      if (projUser) {
+        // Keep the selection but update to projection data
+        selectedUser.value = projUser
+      }
+    }
+  } else {
+    // Going back to regular view, update selection if needed
+    if (selectedUser.value) {
+      const regularUser = summaryData.value.find((s) => s.user_id === selectedUser.value.user_id)
+      if (regularUser) {
+        selectedUser.value = regularUser
+      }
+    }
+  }
+}
 
 watch(overallFilter, () => {
   // Assuming you have a way to call fetchSummaryData or just update the relevant parts
@@ -2609,96 +2186,6 @@ const projColumns = computed(() => {
   ]
   return baseProjColumns
 })
-
-// const projColumns: Column[] = [
-//   {
-//     title: '',
-//     dataIndex: 'display_name',
-//     key: 'display_name',
-//     align: 'left',
-//     width: 1
-//   },
-
-//   {
-//     title: 'Overall',
-//     dataIndex: 'total_rank_display',
-//     key: 'total_rank_display',
-//     align: 'center',
-//     slots: { customRender: 'totalValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.total_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.total_rank - b.total_rank
-//     }
-//   },
-//   {
-//     title: 'Starters',
-//     dataIndex: 'starters_rank_display',
-//     key: 'starter_rank_display',
-//     align: 'center',
-//     slots: { customRender: 'totalValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.starters_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.starters_rank - b.starters_rank
-//     }
-//   },
-//   {
-//     title: 'QB',
-//     dataIndex: 'qb_rank_display',
-//     key: 'qb_rank',
-//     align: 'center',
-//     slots: { customRender: 'qbValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.qb_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.qb_rank - b.qb_rank
-//     }
-//   },
-//   {
-//     title: 'RB',
-//     dataIndex: 'rb_rank_display',
-//     key: 'rb_rank',
-//     align: 'center',
-//     slots: { customRender: 'rbValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.rb_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.rb_rank - b.rb_rank
-//     }
-//   },
-//   {
-//     title: 'WR',
-//     dataIndex: 'wr_rank_display',
-//     key: 'wr_rank',
-//     align: 'center',
-//     slots: { customRender: 'wrValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.wr_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.wr_rank - b.wr_rank
-//     }
-//   },
-//   {
-//     title: 'TE',
-//     dataIndex: 'te_rank_display',
-//     key: 'te_rank',
-//     align: 'center',
-//     slots: { customRender: 'teValueTooltip' },
-//     customCell: (record: any) => ({
-//       style: getCellStyle(record.te_rank)
-//     }),
-//     sorter: {
-//       compare: (a, b) => a.te_rank - b.te_rank
-//     }
-//   }
-//   // Add more columns as needed
-// ]
 
 onMounted(() => {
   const leagueId = route.params.leagueId as string
@@ -3695,5 +3182,183 @@ h4 {
   border-radius: 5px;
   padding: 5px;
   margin: 10px 0;
+}
+
+/* Add modern card styling */
+.modern-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.modern-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.viz-container {
+  border: none;
+  padding: 10px;
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color, #333);
+}
+
+/* Make sure toggle switch is prominent */
+.ant-switch {
+  transform: scale(1.2);
+  margin: 0 auto;
+}
+
+/* Add these styles at the end of the style section */
+.managers-card {
+  margin-bottom: 20px;
+  background-color: var(--background-color, #fff);
+}
+
+.managers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.manager-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.manager-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.current-user {
+  border: 2px solid gold;
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.manager-avatar {
+  position: relative;
+  margin-right: 10px;
+}
+
+.manager-rank {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: rgb(70, 70, 70);
+  color: white;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.manager-details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.manager-name {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manager-stats {
+  font-size: 12px;
+  color: #666;
+}
+
+.selected-manager {
+  background-color: rgba(24, 144, 255, 0.1);
+  border: 2px solid #1890ff;
+}
+
+.position-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.position-badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 10px;
+  color: white;
+}
+
+.qb-badge {
+  background-color: rgba(39, 125, 161, 0.8);
+}
+
+.rb-badge {
+  background-color: rgba(144, 190, 109, 0.8);
+}
+
+.wr-badge {
+  background-color: rgba(67, 170, 139, 0.8);
+}
+
+.te-badge {
+  background-color: rgba(249, 132, 74, 0.8);
+}
+
+/* Make sure toggle switch has some margin */
+.ant-switch {
+  transform: scale(1.2);
+  margin: 0 10px;
+}
+
+/* Add these styles at the end of the style section */
+.tab-header-container {
+  position: relative;
+}
+
+.info-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+.tab-info-container h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: var(--text-color, #1890ff);
+}
+
+.tab-info-container p {
+  margin-bottom: 16px;
+  line-height: 1.5;
 }
 </style>
