@@ -324,7 +324,7 @@
 
           <div class="balancing-players-container">
             <div
-              v-for="player in closestBalancingPlayers.slice(0, 6)"
+              v-for="player in displayedBalancingPlayers"
               :key="player.player_full_name"
               class="balancing-player-card"
             >
@@ -361,7 +361,9 @@
           </div>
 
           <div class="view-more" v-if="closestBalancingPlayers.length > 6">
-            <a-button type="link">View More Players</a-button>
+            <a-button type="link" @click="toggleShowAllBalancingPlayers">
+              {{ showAllBalancingPlayers ? 'View Less Players' : 'View More Players' }}
+            </a-button>
           </div>
         </a-card>
       </div>
@@ -439,6 +441,7 @@ const tepCheck = ref(false)
 const dropDownValue1 = ref('12')
 const open = ref<boolean>(false)
 let bpv_value: number | null = null // Ensure this line is present at the top level of <script setup>
+const showAllBalancingPlayers = ref(false) // New state variable
 
 // interfaces
 interface TeamA {
@@ -949,6 +952,18 @@ const closestBalancingPlayers = computed(() => {
 
   return closestPlayers
 })
+
+const displayedBalancingPlayers = computed(() => {
+  if (showAllBalancingPlayers.value) {
+    return closestBalancingPlayers.value
+  } else {
+    return closestBalancingPlayers.value.slice(0, 6)
+  }
+})
+
+const toggleShowAllBalancingPlayers = () => {
+  showAllBalancingPlayers.value = !showAllBalancingPlayers.value
+}
 
 const aFavored = computed(() => {
   return (
