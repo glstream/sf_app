@@ -633,45 +633,49 @@
                     lg="{6}"
                     style="min-width: 300px; max-width: 315px"
                   >
-                    <div style="border: 1px solid lightgray; border-radius: 5px; margin: 10px">
-                      <h4 style="padding: 5px 5px">
+                    <div class="team-card">
+                      <div class="team-card-header">
                         <img
                           class="manager-logos"
                           :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
                           alt="League Logo"
                         />
-                        {{ manager.display_name }} &bull;
-
-                        {{ overallFilter === 'all' ? 'Overall' : 'Starters' }}
-                        {{
-                          addOrdinalSuffix(
-                            overallFilter === 'all' ? manager.total_rank : manager.starters_rank
-                          )
-                        }}
-                        <a-tag>
+                        <div class="team-card-title">
+                          <span class="manager-name">{{ manager.display_name }}</span>
+                          <span class="team-rank">
+                            &bull; {{ overallFilter === 'all' ? 'Overall' : 'Starters' }}
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? manager.total_rank : manager.starters_rank
+                              )
+                            }}
+                          </span>
+                        </div>
+                        <a-tag class="team-value">
                           {{
                             (overallFilter === 'all'
                               ? manager.total_value
                               : manager.starters_sum || 0
                             ).toLocaleString()
-                          }}</a-tag
-                        >
-                      </h4>
-                      <ul style="padding: 0; list-style-type: none">
+                          }}
+                        </a-tag>
+                      </div>
+                      <ul
+                        class="team-assets-list"
+                        :class="{ expanded: expandedTeams[manager.user_id] }"
+                      >
                         <li
-                          v-for="(player, index) in getPlayers(manager.user_id)"
+                          v-for="(player, index) in getPlayers(manager.user_id).slice(
+                            0,
+                            expandedTeams[manager.user_id] ? getPlayers(manager.user_id).length : 10
+                          )"
+                          :key="player.sleeper_id"
                           :style="getPositionTagList(player.player_position, 0.35)"
-                          style="
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                            border-radius: 2px;
-                            margin: 2px;
-                          "
+                          class="team-asset-item"
                         >
-                          <span style="margin-right: 2px"> {{ index + 1 }}.</span>
-                          <span style="margin-right: 5px">{{ player.full_name }}</span>
-                          <span style="margin-right: 5px">{{ player.team }}</span>
+                          <span class="asset-index">{{ index + 1 }}.</span>
+                          <span class="asset-name">{{ player.full_name }}</span>
+                          <span class="asset-team">{{ player.team }}</span>
                           <a-tag :style="getPositionTagList(player.player_position)">{{
                             player.player_position
                           }}</a-tag>
@@ -684,6 +688,11 @@
                           </span>
                         </li>
                       </ul>
+                      <div v-if="getPlayers(manager.user_id).length > 10" class="expand-toggle">
+                        <a @click="toggleExpand(manager.user_id)">
+                          {{ expandedTeams[manager.user_id] ? 'Show Less' : 'Show More' }}
+                        </a>
+                      </div>
                     </div>
                   </a-col>
                 </a-row>
@@ -953,24 +962,25 @@
                   </div>
                 </div>
 
-                <a-row style="justify-content: center" :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                <a-row style="justify-content: center" :gutter="[8, 16]">
                   <a-col
                     v-for="(players, position) in playersByPosition"
                     :key="position"
-                    xs="{24}"
-                    sm="{12}"
-                    md="{8}"
-                    lg="{6}"
-                    style="min-width: 260px; max-width: 400px"
+                    :xs="24"
+                    :sm="12"
+                    :md="8"
+                    :lg="4"
+                    :xl="4"
+                    style="min-width: 220px"
                   >
-                    <div>
-                      <h3>{{ position }}</h3>
-                      <ul style="padding: 0; list-style: none">
+                    <div class="position-group-container">
+                      <h3 class="position-group-title">{{ position }}</h3>
+                      <ul class="position-player-list">
                         <li
                           v-for="(player, index) in players"
                           :key="player.sleeper_id"
                           :style="getPositionTagList(player.player_position, 0.45)"
-                          style="border-radius: 2px; margin: 2px"
+                          class="position-player-item"
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
                           }"
@@ -980,6 +990,7 @@
                               'dimmed-text':
                                 clickedManager !== '' && clickedManager !== player.display_name
                             }"
+                            class="player-name"
                           >
                             {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
                             <span
@@ -988,7 +999,7 @@
                               >{{ player?.age }}yrs</span
                             >
                           </span>
-                          <span style="float: right"
+                          <span class="player-value-display"
                             >{{
                               player.player_value === -1
                                 ? 'N/A'
@@ -2829,11 +2840,19 @@ const progressBarWidth = computed(() => {
   } else {
     // Scale percentage from 20% to 100%
     const scaledValue =
-      ((actualValue.value - min) / (max - min)) * (100 - visualStartPercentage) +
+      ((actualValue.value - min) / (max - visualStartPercentage)) * (100 - visualStartPercentage) +
       visualStartPercentage
     return `${scaledValue.toFixed(2)}%`
   }
 })
+
+// Add this reactive state for expanded cards
+const expandedTeams = reactive({})
+
+// Toggle function for expand/collapse
+function toggleExpand(userId: string) {
+  expandedTeams[userId] = !expandedTeams[userId]
+}
 </script>
 
 <style scoped>
@@ -3360,5 +3379,158 @@ h4 {
 .tab-info-container p {
   margin-bottom: 16px;
   line-height: 1.5;
+}
+
+/* --- Team Card Redesign for Team Composition Tab --- */
+.team-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin: 10px 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 10px 12px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  transition: box-shadow 0.2s;
+}
+.team-card:hover {
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.1);
+}
+.team-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.team-card-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.manager-name {
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team-rank {
+  font-size: 12px;
+  color: #888;
+}
+.team-value {
+  margin-left: auto;
+  font-size: 13px;
+  background: #f0f5ff;
+  color: #1890ff;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.team-assets-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  max-height: 340px;
+  overflow: hidden;
+}
+
+.team-assets-list.expanded {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px; /* Add some padding for the scrollbar */
+}
+
+.team-asset-item {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  margin: 2px 0;
+  padding: 2px 0 2px 4px;
+  font-size: 13px;
+  gap: 4px;
+}
+.expand-toggle {
+  text-align: center;
+  margin-top: 4px;
+}
+.expand-toggle a {
+  color: #1890ff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.expand-toggle a:hover {
+  color: #40a9ff;
+}
+/* --- End Team Card Redesign --- */
+
+/* Update position group styling for more compact display */
+.position-group-container {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 16px;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.position-group-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: center;
+  font-weight: 600;
+}
+
+.position-player-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  overflow-y: auto;
+  max-height: 450px;
+}
+
+.position-player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.player-name {
+  flex: 1;
+  white-space: normal;
+  overflow-wrap: break-word;
+  padding-right: 4px;
+}
+
+.player-value-display {
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .position-player-list {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 992px) {
+  .position-player-item {
+    font-size: 11px;
+  }
 }
 </style>
