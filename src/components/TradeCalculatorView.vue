@@ -78,7 +78,10 @@
                   class="team-value"
                   :class="{ 'value-favorable': aFavoredTrade, 'value-balanced': isFairTrade }"
                 >
-                  <span v-if="selectedPlayers1.length > 0">{{ totalValue1.toLocaleString() }}</span>
+                  <!-- Round the header value -->
+                  <span v-if="selectedPlayers1.length > 0">{{
+                    Math.round(totalValueSideA).toLocaleString()
+                  }}</span>
                 </div>
               </div>
             </template>
@@ -137,12 +140,12 @@
                 </a-card>
               </div>
 
-              <!-- Value Adjustment Card -->
-              <div v-if="addAdjustmentA" class="adjustment-card">
+              <!-- Value Adjustment Card: Shows bonus added by calculation -->
+              <div v-if="showAdjustmentA" class="adjustment-card">
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
-                    <span>Value Adjustment</span>
-                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceA) }}</span>
+                    <span>Value Modifier</span>
+                    <span class="player-value">+{{ Math.round(adjustmentValueA) }}</span>
                   </div>
                 </a-card>
               </div>
@@ -153,49 +156,61 @@
                 {{ selectedPlayers1.length }} Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
               </div>
               <div class="total-value-display">
+                <!-- Display the final calculated value -->
                 Total:
-                <strong>{{
-                  addAdjustmentA
-                    ? Math.round(totalValue1 + fuzzedValueDifferenceA).toLocaleString()
-                    : totalValue1.toLocaleString()
-                }}</strong>
+                <strong>{{ Math.round(totalValueSideA).toLocaleString() }}</strong>
               </div>
             </div>
           </a-card>
 
-          <!-- Trade Evaluation -->
+          <!-- Trade Evaluation & Visualizer -->
           <div class="trade-evaluation">
+            <TradeBalanceVisualizer
+              :valueA="totalValueSideA"
+              :valueB="totalValueSideB"
+              :isFair="isFairTrade"
+              class="balance-visualizer-spacing"
+            />
+
             <a-card
-              v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0"
               :class="{
-                'evaluation-balanced': isFairTrade,
+                'evaluation-balanced':
+                  isFairTrade && (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
                 'evaluation-favors-a': aFavoredTrade,
-                'evaluation-favors-b': bFavoredTrade
+                'evaluation-favors-b': bFavoredTrade,
+                'evaluation-placeholder':
+                  selectedPlayers1.length === 0 && selectedPlayers2.length === 0
               }"
             >
-              <template v-if="isFairTrade">
-                <CheckCircleFilled class="eval-icon" />
-                <div class="eval-message">Balanced Trade</div>
-              </template>
+              <template v-if="selectedPlayers1.length > 0 || selectedPlayers2.length > 0">
+                <template v-if="isFairTrade">
+                  <CheckCircleFilled class="eval-icon" />
+                  <div class="eval-message">Balanced Trade</div>
+                </template>
 
-              <template v-else-if="aFavoredTrade">
-                <div class="eval-heading">Favors Team A</div>
-                <div class="eval-message">
-                  Team B needs
-                  <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
-                  value
-                </div>
-                <ArrowLeftOutlined class="direction-arrow" />
-              </template>
+                <template v-else-if="aFavoredTrade">
+                  <div class="eval-heading">Favors Team A</div>
+                  <div class="eval-message">
+                    Team B needs
+                    <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
+                    value
+                  </div>
+                  <ArrowLeftOutlined class="direction-arrow" />
+                </template>
 
-              <template v-else-if="bFavoredTrade">
-                <div class="eval-heading">Favors Team B</div>
-                <div class="eval-message">
-                  Team A needs
-                  <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
-                  value
-                </div>
-                <ArrowRightOutlined class="direction-arrow" />
+                <template v-else-if="bFavoredTrade">
+                  <div class="eval-heading">Favors Team B</div>
+                  <div class="eval-message">
+                    Team A needs
+                    <strong>{{ Math.round(balancingPlayerValue).toLocaleString() }}</strong> more
+                    value
+                  </div>
+                  <ArrowRightOutlined class="direction-arrow" />
+                </template>
+              </template>
+              <template v-else>
+                <!-- Placeholder Content -->
+                <div class="eval-placeholder-content">Add assets to evaluate the trade</div>
               </template>
             </a-card>
           </div>
@@ -209,7 +224,10 @@
                   class="team-value"
                   :class="{ 'value-favorable': bFavoredTrade, 'value-balanced': isFairTrade }"
                 >
-                  <span v-if="selectedPlayers2.length > 0">{{ totalValue2.toLocaleString() }}</span>
+                  <!-- Round the header value -->
+                  <span v-if="selectedPlayers2.length > 0">{{
+                    Math.round(totalValueSideB).toLocaleString()
+                  }}</span>
                 </div>
               </div>
             </template>
@@ -268,12 +286,12 @@
                 </a-card>
               </div>
 
-              <!-- Value Adjustment Card -->
-              <div v-if="showCardB" class="adjustment-card">
+              <!-- Value Adjustment Card: Shows bonus added by calculation -->
+              <div v-if="showAdjustmentB" class="adjustment-card">
                 <a-card size="small" :bordered="true" class="va-card">
                   <div class="card-content">
-                    <span>Value Adjustment</span>
-                    <span class="player-value">+{{ Math.round(fuzzedValueDifferenceB) }}</span>
+                    <span>Value Modifier</span>
+                    <span class="player-value">+{{ Math.round(adjustmentValueB) }}</span>
                   </div>
                 </a-card>
               </div>
@@ -284,12 +302,9 @@
                 {{ selectedPlayers2.length }} Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
               </div>
               <div class="total-value-display">
+                <!-- Display the final calculated value -->
                 Total:
-                <strong>{{
-                  showCardB
-                    ? Math.round(totalValue2 + fuzzedValueDifferenceB).toLocaleString()
-                    : totalValue2.toLocaleString()
-                }}</strong>
+                <strong>{{ Math.round(totalValueSideB).toLocaleString() }}</strong>
               </div>
             </div>
           </a-card>
@@ -397,6 +412,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import TradeBalanceVisualizer from '@/components/TradeBalanceVisualizer.vue' // Import the new component
 
 //  Custom Utils
 
@@ -441,6 +457,7 @@ const rankType = ref('dynasty')
 const tepCheck = ref(false)
 const dropDownValue1 = ref('12')
 const open = ref<boolean>(false)
+let bpv_value: number | null = null // Ensure this line is present at the top level of <script setup>
 
 // interfaces
 interface TeamA {
@@ -482,26 +499,35 @@ const calculateIndex = (value) => {
 }
 
 const dropDownHandleChange = (value: string) => {
-  // Convert the selected value to an integer and multiply by 25 to get the index
   const index = calculateIndex(value)
+  const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value' // Determine the correct key
 
-  if (ranksData.value && index < ranksData.value.length) {
-    bpv_value = ranksData.value[index].sf_value // Adjust 'sf_value' as per your data structure
-    // console.log(`BPV recalculated to: ${bpv_value}`)
+  if (ranksData.value && ranksData.value.length > index && index >= 0) {
+    const playerAtBPVIndex = ranksData.value[index]
+    // Check if player exists and has the required numeric value property
+    if (playerAtBPVIndex && typeof playerAtBPVIndex[valueKey] === 'number') {
+      bpv_value = playerAtBPVIndex[valueKey]
+      console.log(
+        `BPV updated on dropdown change to: ${bpv_value} using key ${valueKey} at index ${index}`
+      )
+    } else {
+      console.warn(
+        `Player at BPV index ${index} missing or has invalid value for key ${valueKey} on dropdown change. BPV not updated.`
+      )
+      bpv_value = null // Reset if data is invalid or missing
+    }
   } else {
-    console.warn('Calculated index is out of bounds of the ranks data array')
-    bpv_value = null // Handle the case where the index is not valid
+    console.warn(
+      'Calculated index is out of bounds of the ranks data array on dropdown change. BPV not updated.'
+    )
+    bpv_value = null // Reset if index is out of bounds
   }
 
-  clearCalculator()
+  // Decided against clearing calculator on BPV change, but recalculations will happen reactively.
+  // clearCalculator()
 }
 
-const sources = [
-  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo }
-  // { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
-  // { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  // { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
-]
+const sources = [{ key: 'sf', name: 'FantasyNavigator', logo: fnLogo }]
 
 const selectedSource = ref(sources[0])
 
@@ -518,12 +544,6 @@ const filteredSources = computed(() => {
   }
   return sources
 })
-// watch(rankType, (newVal, oldVal) => {
-//   console.log(`Rank type changed from ${oldVal} to ${newVal}`)
-//   if (newVal !== oldVal) {
-//     clearCalculator()
-//   }
-// })
 
 const tweetPlayers = () => {
   const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
@@ -569,7 +589,6 @@ const handleOk = (e: MouseEvent) => {
 }
 async function onCheckTepChange(event: Event): Promise<void> {
   const checked = (event.target as HTMLInputElement).checked
-  // console.log('TEP checked:', checked)
 
   ranksData.value.forEach((player) => {
     if (player._position === 'TE') {
@@ -590,62 +609,87 @@ function consistentHash(value) {
   for (let i = 0; i < stringVal.length; i++) {
     const char = stringVal.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
+    hash = hash & hash
   }
-  return (hash % 1000) / 1000 // Normalize to 0-1
+  return (hash % 1000) / 1000
 }
 
-// Fuzzing function that uses the hash for consistency
 function fuzzValue(value) {
   const minFuzz = 0.02
   const maxFuzz = 0.05
   const fuzzFactor = consistentHash(value) * (maxFuzz - minFuzz) + minFuzz
   return value + value * fuzzFactor * (consistentHash(value) > 0.5 ? 1 : -1)
 }
-// Original values
-const valueDifferenceA = computed(() => totalValue2.value - totalValue1.value)
-const valueDifferenceB = computed(() => totalValue1.value - totalValue2.value)
 
-// Fuzzed values for UI display
+const valueDifferenceA = computed(() => totalValueSideB.value - totalValueSideA.value) // Difference between final calculated values
+const valueDifferenceB = computed(() => totalValueSideA.value - totalValueSideB.value) // Difference between final calculated values
+
 const fuzzedValueDifferenceA = computed(() => fuzzValue(valueDifferenceA.value))
 const fuzzedValueDifferenceB = computed(() => fuzzValue(valueDifferenceB.value))
 
-const addAdjustmentA = computed(() => {
-  return (
-    tradeAnalysis.value.percentageDifference <= percentThreshold.value &&
-    valueDifferenceA.value > 0 &&
-    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
-  )
-})
-
-const showCardB = computed(() => {
-  return (
-    tradeAnalysis.value.percentageDifference <= percentThreshold.value &&
-    valueDifferenceB.value > 0 &&
-    (selectedPlayers1.value.length > 1 || selectedPlayers2.value.length > 1)
-  )
-})
-
-const totalValue1 = computed(() => {
+// Raw sum of values for Team A (before calculation logic)
+const rawTotalValue1 = computed(() => {
   return selectedPlayers1.value.reduce((sum, player) => {
     const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
     return sum + (player[valueKey] || 0)
   }, 0)
 })
 
-const totalValue2 = computed(() => {
+// Raw sum of values for Team B (before calculation logic)
+const rawTotalValue2 = computed(() => {
   return selectedPlayers2.value.reduce((sum, player) => {
-    return sum + (state.checked1 ? player.sf_value : player.one_qb_value)
+    const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
+    return sum + (player[valueKey] || 0)
   }, 0)
+})
+
+// Calculated adjustment amount for Team A
+const adjustmentValueA = computed(() => {
+  return selectedPlayers1.value.length > 0 ? totalValueSideA.value - rawTotalValue1.value : 0
+})
+
+// Calculated adjustment amount for Team B
+const adjustmentValueB = computed(() => {
+  return selectedPlayers2.value.length > 0 ? totalValueSideB.value - rawTotalValue2.value : 0
+})
+
+// Show adjustment card for Team A if it has fewer assets than B AND a positive adjustment
+const showAdjustmentA = computed(() => {
+  const numA = selectedPlayers1.value.length
+  const numB = selectedPlayers2.value.length
+  // Show only if A has strictly fewer assets than B, both have assets, and A has a positive adjustment
+  return numA > 0 && numB > 0 && numA < numB && adjustmentValueA.value > 0.1
+})
+
+// Show adjustment card for Team B if it has fewer assets than A AND a positive adjustment
+const showAdjustmentB = computed(() => {
+  const numA = selectedPlayers1.value.length
+  const numB = selectedPlayers2.value.length
+  // Show only if B has strictly fewer assets than A, both have assets, and B has a positive adjustment
+  return numA > 0 && numB > 0 && numB < numA && adjustmentValueB.value > 0.1
+})
+
+const totalValueSideA = computed(() => {
+  const playerValues = selectedPlayers1.value.map((player) =>
+    state.checked1 ? player.sf_value : player.one_qb_value
+  )
+  return calculateTradeValue(playerValues)
+})
+
+const totalValueSideB = computed(() => {
+  const playerValues = selectedPlayers2.value.map((player) =>
+    state.checked1 ? player.sf_value : player.one_qb_value
+  )
+  return calculateTradeValue(playerValues)
 })
 
 const searchPlayer1 = (searchText: string) => {
   const filteredData = ranksData.value
     .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
     .map((item) => ({
-      label: `${item.player_full_name} - ${item._position}`, // display name
-      value: item.player_id, // unique identifier
-      data: item // keep the full player data
+      label: `${item.player_full_name} - ${item._position}`,
+      value: item.player_id,
+      data: item
     }))
 
   options1.value = filteredData
@@ -655,9 +699,9 @@ const searchPlayer2 = (searchText: string) => {
   const filteredData = ranksData.value
     .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
     .map((item) => ({
-      label: `${item.player_full_name} - ${item._position}`, // display name
-      value: item.player_id, // unique identifier
-      data: item // keep the full player data
+      label: `${item.player_full_name} - ${item._position}`,
+      value: item.player_id,
+      data: item
     }))
 
   options2.value = filteredData
@@ -718,81 +762,83 @@ const addPlayerToTrade = (player) => {
   const sideToAdd =
     totalValueSideA.value <= totalValueSideB.value ? selectedPlayers1 : selectedPlayers2
 
-  // Add the player to the appropriate list if they're not already included
-  const existingPlayer = sideToAdd.value.find((p) => p.player_full_name === player.player_full_name)
-  if (!existingPlayer) {
+  const isPick = player.player_full_name.match(/\b(2024|2025|2026)\b/)
+  const existingPlayer = sideToAdd.value.find(
+    (p) => !isPick && p.player_full_name === player.player_full_name
+  )
+
+  if (!existingPlayer || isPick) {
     sideToAdd.value.push(player)
+  } else {
+    message.warning(`${player.player_full_name} is already on that side.`)
   }
 }
 
-const totalValueSideA = computed(() => {
-  const playerValues = selectedPlayers1.value.map((player) => {
-    // Convert the values to integers using parseInt or the unary plus operator (+)
-    const value = state.checked1 ? parseInt(player.sf_value, 10) : parseInt(player.one_qb_value, 10)
-    return value
-  })
+function calculateTradeValue(rawPlayerValues: number[], BPV = bpv_value): number {
+  // Check BPV validity *first*
+  if (BPV === null || !isFinite(BPV) || BPV <= 0) {
+    return 0 // Return 0 immediately if BPV is invalid
+  }
 
-  // Sort the values after making sure they are integers
-  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
-
-  // Calculate the trade value with the new function
-  return calculateTradeValue(sortedPlayerValues) // Assuming you might want to use the sorted values
-})
-
-const totalValueSideB = computed(() => {
-  // Extract the relevant player values based on the current switch state
-  const playerValues = selectedPlayers2.value.map((player) =>
-    state.checked1 ? player.sf_value : player.one_qb_value
-  )
-  // Calculate the trade value with the new function
-  return calculateTradeValue(playerValues) // You can adjust k if needed
-})
-
-// const k_value = 1.005
-// const bpv_value = 35
-let bpv_value: number | null = null
-
-function calculateTradeValue(playerValues, BPV = bpv_value) {
-  // Validate input
+  // Proceed with existing checks and logic if BPV is valid
   if (
-    !Array.isArray(playerValues) ||
-    playerValues.some((value) => typeof value !== 'number' || !isFinite(value))
+    !Array.isArray(rawPlayerValues) ||
+    rawPlayerValues.some((value) => typeof value !== 'number' || !isFinite(value))
   ) {
-    console.error('Invalid input: playerValues must be an array of finite numbers.')
     return 0
   }
 
-  const sortedPlayerValues = [...playerValues].sort((a, b) => b - a)
+  if (rawPlayerValues.length === 0) {
+    return 0
+  }
 
-  const tradeValue = sortedPlayerValues.reduce((total, value) => {
-    // Dynamic k value based on player value
-    let k
-    if (value >= BPV * 1.5) {
-      k = 1.02 // Top tier
-    } else if (value >= BPV * 1.2) {
-      k = 1.01 // High mid tier
-    } else if (value >= BPV) {
-      k = 1.0 // Mid tier
-    } else {
-      k = 0.9 // Lower tier
+  const sortedPlayerValues = [...rawPlayerValues].sort((a, b) => b - a)
+  const topAssetValue = sortedPlayerValues[0]
+
+  const eliteThreshold = BPV * 2.0
+  const highEndThreshold = BPV * 1.2
+  const starterThreshold = BPV * 0.8
+
+  let adjustedTotalValue = 0
+
+  sortedPlayerValues.forEach((value) => {
+    let multiplier = 0.85
+
+    if (value >= eliteThreshold) {
+      multiplier = 1.15
+    } else if (value >= highEndThreshold) {
+      multiplier = 1.05
+    } else if (value >= starterThreshold) {
+      multiplier = 0.95
     }
 
-    const powerCurveValue = Math.pow(value, k)
+    adjustedTotalValue += value * multiplier
+  })
 
-    const DRSValue = BPV + Math.pow((powerCurveValue - BPV) / Math.max(1, BPV), 2) * BPV
+  if (sortedPlayerValues.length > 1) {
+    if (topAssetValue >= eliteThreshold) {
+      adjustedTotalValue += topAssetValue * 0.05
+    } else if (topAssetValue < starterThreshold) {
+      adjustedTotalValue *= 0.95
+    }
+  }
 
-    const adjustedValue = Math.max(0, DRSValue)
-    return total + adjustedValue
-  }, 0)
-
-  return tradeValue
+  return Math.max(0, adjustedTotalValue)
 }
 
 const tradeAnalysis = computed(() => {
-  const valueA = findTeamValue(totalValueSideA.value)
-  const valueB = findTeamValue(totalValueSideB.value)
-  const averageValue = (valueA + valueB) / 2
+  const valueA = totalValueSideA.value
+  const valueB = totalValueSideB.value
 
+  if (valueA === 0 && valueB === 0) {
+    return {
+      percentageDifference: 0,
+      valueA: 0,
+      valueB: 0
+    }
+  }
+
+  const averageValue = (valueA + valueB) / 2
   if (averageValue === 0) {
     return {
       percentageDifference: 0,
@@ -805,136 +851,93 @@ const tradeAnalysis = computed(() => {
   const percentageDiff = (difference / averageValue) * 100
 
   return {
-    percentageDifference: parseFloat(percentageDiff.toFixed(2)), // Ensure it's a number with two decimal places
+    percentageDifference: parseFloat(percentageDiff.toFixed(2)),
     valueA: valueA,
     valueB: valueB
   }
 })
 
 function findBalancingPlayerValue(
-  totalValueSideA: number,
-  totalValueSideB: number,
+  currentValueSideA: number,
+  currentValueSideB: number,
   BPV: number
 ): number {
-  const targetValue = Math.max(totalValueSideA, totalValueSideB)
-  let difference = Math.abs(totalValueSideA - totalValueSideB)
+  // Check BPV validity *first*
+  if (BPV === null || !isFinite(BPV) || BPV <= 0) {
+    return 0 // Return 0 immediately if BPV is invalid
+  }
 
-  // If the trade is already even, or the difference is very small, return 0
-  if (difference < 0.01) {
+  const targetValue = Math.max(currentValueSideA, currentValueSideB)
+  const deficitSideValue = Math.min(currentValueSideA, currentValueSideB)
+  let valueDifference = targetValue - deficitSideValue
+
+  if (valueDifference < 0.01) {
     return 0
   }
 
-  let estimateValue = difference
-  let estimatedTradeValue = 0
-  let iterations = 0
-  let adjustment = difference / 2
+  let estimatedRawValue = valueDifference
+  let low = 0
+  let high = estimatedRawValue * 5
 
-  while (iterations < 100) {
-    // Limit iterations to prevent infinite loops
-    estimatedTradeValue = calculateTradeValue([estimateValue])
+  for (let i = 0; i < 50; i++) {
+    let mid = (low + high) / 2
+    let calculatedValueOfAddedPlayer = calculateTradeValue([mid], BPV)
+    let newDeficitSideValue = deficitSideValue + calculatedValueOfAddedPlayer
 
-    const currentDifference = Math.abs(
-      (totalValueSideA < totalValueSideB
-        ? totalValueSideA + estimatedTradeValue
-        : totalValueSideB + estimatedTradeValue) - targetValue
-    )
-
-    if (currentDifference <= 0.01) {
-      // If the estimated trade value is within an acceptable range, break the loop
+    if (Math.abs(newDeficitSideValue - targetValue) < 0.1) {
+      estimatedRawValue = mid
       break
-    } else if (
-      (totalValueSideA < totalValueSideB && totalValueSideA + estimatedTradeValue < targetValue) ||
-      (totalValueSideB < totalValueSideA && totalValueSideB + estimatedTradeValue < targetValue)
-    ) {
-      // If the estimated total is less than the target, increase the estimate
-      estimateValue += adjustment
+    } else if (newDeficitSideValue < targetValue) {
+      low = mid
     } else {
-      // If the estimated total is greater than the target, decrease the estimate
-      estimateValue -= adjustment
+      high = mid
     }
-
-    // Decrease the adjustment each time to hone in on the correct value
-    adjustment /= 2
-    iterations++
+    estimatedRawValue = mid
   }
 
-  // Return the estimated player value that would balance the trade
-  return estimateValue
+  return Math.max(0, estimatedRawValue)
 }
 
 const balancingPlayerValue = computed(() => {
-  console.log('starting bvp')
   const valueA = totalValueSideA.value
   const valueB = totalValueSideB.value
-  const BPV = bpv_value // The baseline player value for the DRS formula
+  const BPV = bpv_value
 
-  // Notice we're no longer passing k, as it is now managed inside the calculateTradeValue function
+  if (BPV === null || !isFinite(BPV) || BPV <= 0) {
+    return 0
+  }
+
   return findBalancingPlayerValue(valueA, valueB, BPV)
 })
 
-function findTeamValue(totalValueSide: number): number {
-  // Define the target value or some logic to determine what the adjusted value should be
-  const targetValue = totalValueSide // This might need more logic based on your requirements
-
-  let estimateValue = totalValueSide // Start with the current total value
-  let estimatedTradeValue = 0
-  let iterations = 0
-  let adjustment = estimateValue / 2 // Initial adjustment
-
-  while (iterations < 100) {
-    estimatedTradeValue = calculateTradeValue([estimateValue])
-    const currentDifference = Math.abs(estimatedTradeValue - targetValue)
-
-    if (currentDifference <= 0.01) {
-      break
-    } else if (estimatedTradeValue < targetValue) {
-      estimateValue += adjustment
-    } else {
-      estimateValue -= adjustment
-    }
-
-    adjustment /= 2
-    iterations++
-  }
-
-  return estimateValue
-}
-
 function findClosestPlayers(
-  balancingValue,
+  balancingRawValue,
   playersData,
   valueKey,
   selectedPlayers1,
   selectedPlayers2
 ) {
-  // Create a combined array of selected player names for exclusion
   const selectedPlayerNames = [
     ...selectedPlayers1.map((player) => player.player_full_name),
     ...selectedPlayers2.map((player) => player.player_full_name)
   ]
 
-  // Find the highest value among the selected players
   const highestSelectedValue = Math.max(
     ...selectedPlayers1.map((player) => player[valueKey]),
     ...selectedPlayers2.map((player) => player[valueKey])
   )
 
-  // Determine the value limit based on balancingValue
-  const valueLimit = balancingValue !== 0 ? balancingValue : highestSelectedValue
+  const valueLimit = balancingRawValue !== 0 ? balancingRawValue : highestSelectedValue
 
-  // Filter the playersData to exclude already selected players and
-  // ensure the player's value is less than or equal to the valueLimit
   const filteredPlayersData = playersData.filter(
     (player) =>
       !selectedPlayerNames.includes(player.player_full_name) && player[valueKey] <= valueLimit
   )
 
-  // Sort the remaining players by the absolute difference from the balancing value
   const sortedPlayers = filteredPlayersData.sort(
-    (a, b) => Math.abs(a[valueKey] - balancingValue) - Math.abs(b[valueKey] - balancingValue)
+    (a, b) => Math.abs(a[valueKey] - balancingRawValue) - Math.abs(b[valueKey] - balancingRawValue)
   )
 
-  // Get the closest players based on the balancing value
   const closestPlayers = sortedPlayers.slice(0, 20)
 
   return closestPlayers
@@ -945,24 +948,22 @@ const closestBalancingPlayers = computed(() => {
     return []
   }
 
-  const balancingValue = balancingPlayerValue.value
-  if (balancingValue === 0) {
+  const balancingRawValue = balancingPlayerValue.value
+  if (balancingRawValue === 0) {
     return []
   }
 
   const playersData = ranksData.value
   const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
 
-  // Get the closest players first
   let closestPlayers = findClosestPlayers(
-    balancingValue,
+    balancingRawValue,
     playersData,
     valueKey,
     selectedPlayers1.value,
     selectedPlayers2.value
   )
 
-  // Then sort them in descending order based on their value
   closestPlayers.sort((a, b) => b[valueKey] - a[valueKey])
 
   return closestPlayers
@@ -1000,7 +1001,6 @@ const tradeStatus = computed(() => {
     }
   }
 
-  // Use the computed percentageDifference from tradeAnalysis
   const percentageDifference = tradeAnalysis.value.percentageDifference
 
   if (percentageDifference <= percentThreshold.value) {
@@ -1013,7 +1013,7 @@ const tradeStatus = computed(() => {
     }
   }
 
-  const balancingValue = Math.round(balancingPlayerValue.value) // Round the balancing value to the nearest whole number
+  const balancingValue = Math.round(balancingPlayerValue.value)
   if (totalValueSideA.value > totalValueSideB.value) {
     return {
       message: `Team A favored; add ~${balancingValue.toLocaleString()} to balance.`,
@@ -1045,22 +1045,26 @@ const isFairTrade = computed(() => tradeStatus.value.isFair)
 const aFavoredTrade = computed(() => tradeStatus.value.aFavored)
 const bFavoredTrade = computed(() => tradeStatus.value.bFavored)
 
-function valueState(teamValue, compareToValue, percentThreshold) {
+function valueState(calculatedTeamValue, calculatedCompareToValue, percentThreshold) {
   const percDiff = tradeAnalysis.value.percentageDifference
 
-  if (percDiff < percentThreshold) {
+  if (percDiff <= percentThreshold) {
     return 'fair'
-  } else if (teamValue < compareToValue) {
+  } else if (calculatedTeamValue < calculatedCompareToValue) {
     return 'behind'
-  } else if (teamValue > compareToValue) {
+  } else if (calculatedTeamValue > calculatedCompareToValue) {
     return 'ahead'
   } else {
     return 'none'
   }
 }
 
-const teamAState = computed(() => valueState(totalValue1.value, totalValue2.value))
-const teamBState = computed(() => valueState(totalValue2.value, totalValue1.value))
+const teamAState = computed(() =>
+  valueState(totalValueSideA.value, totalValueSideB.value, percentThreshold.value)
+)
+const teamBState = computed(() =>
+  valueState(totalValueSideB.value, totalValueSideA.value, percentThreshold.value)
+)
 const state = reactive({
   checked1: true,
   checked2: true
@@ -1069,7 +1073,6 @@ const state = reactive({
 async function fetchRanks(platform: string, rankType: string) {
   isLoading.value = true
   tepCheck.value = false
-  ranksData.value = []
 
   try {
     const response = await axios.get(`${apiUrl}/trade_calculator`, {
@@ -1082,32 +1085,40 @@ async function fetchRanks(platform: string, rankType: string) {
     ranksData.value = response.data
 
     options1.value = ranksData.value.map((player) => ({
-      label: `${player.player_full_name} - ${player._position}`, // display name with value
+      label: `${player.player_full_name} - ${player._position}`,
       value: player.player_id,
       data: player
     }))
 
-    options2.value = ranksData.value.map((player) => ({
-      label: `${player.player_full_name} - ${player._position}`, // display name with value
-      value: player.player_id,
-      data: player
-    }))
+    options2.value = [...options1.value]
 
-    // Usage in your function or method
     const index = calculateIndex(dropDownValue1.value)
-
-    if (ranksData.value.length > 0) {
-      bpv_value = ranksData.value[index].sf_value
+    if (ranksData.value && ranksData.value.length > index && index >= 0) {
+      const playerAtBPVIndex = ranksData.value[index]
+      const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
+      if (playerAtBPVIndex && typeof playerAtBPVIndex[valueKey] === 'number') {
+        bpv_value = playerAtBPVIndex[valueKey]
+        console.log(`BPV recalculated to: ${bpv_value} using key ${valueKey} at index ${index}`)
+      } else {
+        console.warn(
+          `Player at BPV index ${index} missing or has invalid value for key ${valueKey}. BPV not updated.`
+        )
+      }
     } else {
-      console.warn('No data available to set bpv_value')
-      bpv_value = null // Or set a default value that makes sense in your context
+      console.warn(
+        `Calculated index ${index} is out of bounds or ranksData is empty. BPV not updated.`
+      )
+      bpv_value = null
     }
   } catch (error) {
     console.error('There was an error pulling values...', error)
+    ranksData.value = []
+    bpv_value = null
   } finally {
     isLoading.value = false
   }
 }
+
 onMounted(() => {
   fetchRanks(platform.value, rankType.value)
 })
@@ -1122,7 +1133,6 @@ watch(
 
 watch(ranksData, () => {
   selectedPlayers1.value = selectedPlayers1.value.map((selectedPlayer) => {
-    // Find the updated player data in the fetched ranks
     const updatedPlayer = ranksData.value.find(
       (player) => player.player_full_name === selectedPlayer.player_full_name
     )
@@ -1135,20 +1145,41 @@ watch(ranksData, () => {
     const updatedPlayer = ranksData.value.find(
       (player) => player.player_full_name === selectedPlayer.player_full_name
     )
-    return updatedPlayer || selectedPlayer // Return the updated player or the original if not found
+    return updatedPlayer || selectedPlayer
   })
 })
+
+watch(
+  () => state.checked1,
+  () => {
+    const index = calculateIndex(dropDownValue1.value)
+    if (ranksData.value && ranksData.value.length > index && index >= 0) {
+      const playerAtBPVIndex = ranksData.value[index]
+      const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
+      if (playerAtBPVIndex && typeof playerAtBPVIndex[valueKey] === 'number') {
+        bpv_value = playerAtBPVIndex[valueKey]
+        console.log(`BPV updated on format switch to: ${bpv_value} using key ${valueKey}`)
+      } else {
+        console.warn(
+          `Player at BPV index ${index} missing or has invalid value for key ${valueKey} on format switch. BPV not updated.`
+        )
+      }
+    } else {
+      console.warn(`Index ${index} out of bounds on format switch. BPV not updated.`)
+      bpv_value = null
+    }
+  }
+)
 
 const handleMenuClick: MenuProps['onClick'] = (e) => {
   platform.value = e.key
   try {
     clearCalculator()
     clearCalcMemory()
-    fetchRanks(platform.value, rankType.value) // Ensure fetchRanks is awaited if it's asynchronous
+    fetchRanks(platform.value, rankType.value)
     selectedSource.value = sources.find((source) => source.key === platform.value) || sources[0]
   } catch {
     console.log('error loading leagues')
-  } finally {
   }
 }
 
@@ -1288,7 +1319,8 @@ function getCardPositionColor(position: string): string {
 /* Trade Teams */
 .trade-teams {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* Default to single column for mobile */
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -1296,6 +1328,9 @@ function getCardPositionColor(position: string): string {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   height: fit-content;
+  min-height: 350px; /* Add minimum height */
+  display: flex; /* Use flexbox for better height management */
+  flex-direction: column; /* Stack content vertically */
 }
 
 .team-header {
@@ -1336,7 +1371,8 @@ function getCardPositionColor(position: string): string {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 120px;
+  min-height: 150px; /* Increased min-height slightly */
+  flex-grow: 1; /* Allow container to grow */
 }
 
 /* Player Cards - New Style */
@@ -1453,6 +1489,30 @@ function getCardPositionColor(position: string): string {
   align-items: center;
 }
 
+/* Balancing Players Suggestions Card */
+.balancing-players-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.balancing-title {
+  display: flex;
+  align-items: center;
+}
+
+.balancing-title h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.balancing-players-container {
+  display: grid; /* Use grid layout */
+  gap: 16px; /* Add gap between cards */
+  /* Default to 1 column for mobile (implicitly or explicitly) */
+  grid-template-columns: 1fr;
+}
+
 /* Responsive Design adjustments for the new card design */
 @media (max-width: 767px) {
   .player-name {
@@ -1467,84 +1527,100 @@ function getCardPositionColor(position: string): string {
     font-size: 14px;
     padding: 2px 6px;
   }
+
+  .balancing-players-container {
+    /* Already defaults to 1 column, but can be explicit */
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 576px) {
   .player-name {
     max-width: 120px;
   }
+
+  .responsive-padding {
+    padding: 0 12px;
+  }
+
+  .page-title h1 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .clear-button-container {
+    justify-content: center;
+    margin-top: 16px;
+  }
 }
 
-/* Trade Evaluation */
-.trade-evaluation {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Add rule for medium screens if needed, e.g., 2 columns */
+@media (min-width: 768px) and (max-width: 991px) {
+  .balancing-players-container {
+    grid-template-columns: repeat(2, 1fr); /* Example: 2 columns for tablets */
+  }
 }
 
-.evaluation-balanced,
-.evaluation-favors-a,
-.evaluation-favors-b {
-  width: 100%;
-  text-align: center;
-  border-radius: 8px;
-  padding: 16px;
+@media (min-width: 992px) {
+  /* Styles for screens >= 992px */
+  .trade-teams {
+    /* Change to 2 columns */
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trade-evaluation {
+    grid-column: 1 / -1; /* Span both columns */
+    order: 3; /* Ensure it comes after Team A (1) and Team B (2) */
+    margin-top: 16px; /* Add space above */
+    margin-bottom: 0; /* Remove bottom margin if set previously */
+    /* Optional: Limit max-width if desired */
+    /* max-width: 600px; */
+    /* justify-self: center; */ /* Center if max-width is used */
+  }
+
+  .team-card:nth-of-type(1) {
+    /* Team A */
+    order: 1; /* Explicitly set order */
+  }
+
+  .team-card:nth-of-type(2) {
+    /* Team B */
+    order: 2; /* Ensure Team B is second */
+  }
 }
 
-.evaluation-balanced {
-  background-color: rgba(82, 196, 26, 0.1);
-  border-color: #52c41a;
+@media (min-width: 992px) and (max-width: 1199px) {
+  .balancing-players-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.evaluation-favors-a,
-.evaluation-favors-b {
-  background-color: rgba(245, 34, 45, 0.05);
-  border-color: #f5222d;
+@media (min-width: 1200px) {
+  .balancing-players-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.eval-icon {
-  font-size: 24px;
-  color: #52c41a;
-  margin-bottom: 8px;
-}
+@media (max-width: 991px) {
+  /* Styles for screens < 992px */
+  .trade-teams {
+    /* Already 1fr by default */
+    grid-template-columns: 1fr;
+  }
 
-.eval-heading {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
+  .trade-evaluation {
+    order: 2; /* Place evaluation between Team A and Team B */
+    margin: 16px 0; /* Add vertical margin */
+  }
 
-.eval-message {
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.direction-arrow {
-  font-size: 20px;
-  color: #f5222d;
-}
-
-/* Balancing Players */
-.balancing-players-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.balancing-title {
-  display: flex;
-  align-items: center;
-}
-
-.balancing-title h3 {
-  font-size: 16px;
-  margin: 0;
-}
-
-.balancing-players-container {
-  display: grid;
-  /* Adjusted to ensure only 3 cards per row on larger screens */
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 12px;
+  /* Ensure Team B comes after evaluation */
+  .team-card:nth-of-type(2) {
+    /* Selects Team B card */
+    order: 3;
+  }
 }
 
 .view-more {
@@ -1552,13 +1628,102 @@ function getCardPositionColor(position: string): string {
   margin-top: 16px;
 }
 
+/* Trade Evaluation */
+.evaluation-balanced,
+.evaluation-favors-a,
+.evaluation-favors-b,
+.evaluation-placeholder {
+  width: 100%;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  height: 110px; /* Use fixed height */
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column; /* Stack content vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  box-sizing: border-box; /* Include padding in height calculation */
+  overflow: hidden; /* Prevent content overflow */
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease; /* Add transitions */
+}
+
+.evaluation-balanced {
+  background-color: rgba(82, 196, 26, 0.1); /* Light green background */
+  border: 1px solid rgba(82, 196, 26, 0.3); /* Subtle green border */
+  color: #389e0d; /* Darker green text */
+}
+
+/* Specific styles for placeholder */
+.evaluation-placeholder {
+  background-color: #f0f2f5; /* Neutral background */
+  border: 1px solid #d9d9d9; /* Neutral border */
+  color: #8c8c8c; /* Muted text color */
+}
+
+.eval-placeholder-content {
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Specific styles for favored states */
+.evaluation-favors-a,
+.evaluation-favors-b {
+  background-color: rgba(245, 34, 45, 0.05); /* Light red background */
+  border: 1px solid rgba(245, 34, 45, 0.2); /* Subtle red border */
+  color: #cf1322; /* Darker red text */
+}
+
+.eval-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #52c41a; /* Explicitly set icon color to green for balanced */
+}
+
+.evaluation-balanced .eval-message {
+  color: #389e0d; /* Ensure message text is green for balanced */
+  font-weight: 600;
+}
+
+.eval-heading {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: inherit; /* Inherit color from parent card */
+}
+
+.eval-message {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: inherit; /* Inherit color from parent card */
+}
+
+.eval-message strong {
+  color: inherit; /* Ensure strong text inherits color */
+}
+
+.direction-arrow {
+  font-size: 20px;
+  margin-top: 4px; /* Add a little space above arrow */
+  color: #f5222d; /* Red arrow for favored states */
+}
+
 /* Responsive Design */
 @media (max-width: 991px) {
   .trade-teams {
+    /* Revert to single column layout on smaller screens */
     grid-template-columns: 1fr;
   }
 
   .trade-evaluation {
+    order: 2; /* Place evaluation between Team A and Team B */
+    margin: 16px 0; /* Add vertical margin */
+  }
+
+  /* Ensure Team B comes after evaluation */
+  .team-card:nth-of-type(2) {
+    /* Selects Team B card */
     order: 3;
   }
 }
@@ -1576,13 +1741,13 @@ function getCardPositionColor(position: string): string {
   }
 
   .balancing-players-container {
-    grid-template-columns: 1fr; /* Just one column on mobile */
+    grid-template-columns: 1fr;
   }
 
   .balancing-player-name {
     font-size: 14px;
-    padding-right: 40px; /* Make space for the add icon */
-    max-width: calc(100% - 80px); /* Prevent overlap with value */
+    padding-right: 40px;
+    max-width: calc(100% - 80px);
   }
 
   .player-info {
@@ -1602,40 +1767,8 @@ function getCardPositionColor(position: string): string {
     right: 8px;
   }
 
-  /* Make badges more visible on mobile */
   :deep(.ant-ribbon) {
-    top: 6px; /* Adjust position for mobile */
-  }
-}
-
-@media (max-width: 576px) {
-  .responsive-padding {
-    padding: 0 12px;
-  }
-
-  .page-title h1 {
-    font-size: 24px;
-  }
-
-  .subtitle {
-    font-size: 14px;
-  }
-
-  .clear-button-container {
-    justify-content: center;
-    margin-top: 16px;
-  }
-}
-
-@media (min-width: 992px) and (max-width: 1199px) {
-  .balancing-players-container {
-    grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns on most desktops */
-  }
-}
-
-@media (min-width: 1200px) {
-  .balancing-players-container {
-    grid-template-columns: repeat(3, 1fr); /* Force exactly 3 columns on larger screens too */
+    top: 6px;
   }
 }
 </style>
