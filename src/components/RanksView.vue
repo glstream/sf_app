@@ -4,10 +4,9 @@
     <AppHeader />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '48px' }">
-      <!-- Page Title -->
+      <!-- Add Title Here -->
       <div class="page-title">
         <h1>Fantasy Football Rankings</h1>
-        <p class="subtitle">Compare player values across different sources and formats</p>
       </div>
 
       <!-- Controls section -->
@@ -116,9 +115,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMeta } from '@/composables/useMeta' // Import useMeta
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -135,61 +133,6 @@ import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
-
-// SEO Metadata
-useMeta({
-  title: 'Fantasy Football Rankings | Dynasty & Redraft Player Values',
-  description:
-    'View and compare fantasy football rankings for dynasty and redraft leagues. Get player values from FantasyNavigator, KeepTradeCut, DynastyProcess, and FantasyCalc.',
-  meta: [
-    {
-      name: 'keywords',
-      content:
-        'fantasy football rankings, dynasty rankings, redraft rankings, player values, superflex rankings, fantasy football values'
-    },
-    {
-      property: 'og:title',
-      content: 'Fantasy Football Rankings | Dynasty & Redraft Player Values'
-    },
-    {
-      property: 'og:description',
-      content:
-        'Comprehensive fantasy football rankings for dynasty and redraft. Filter by position, format (Superflex/1QB), and source.'
-    },
-    { property: 'og:type', content: 'website' },
-    {
-      property: 'og:image',
-      content: new URL('@/assets/site/power_ranks.png', import.meta.url).href
-    }, // Adjust image if needed
-    { name: 'twitter:card', content: 'summary_large_image' },
-    { name: 'twitter:title', content: 'Fantasy Football Rankings | Dynasty & Redraft' },
-    {
-      name: 'twitter:description',
-      content: 'Explore up-to-date fantasy football rankings and player values.'
-    }
-  ]
-})
-
-// Add structured data for rich results (Dataset for rankings)
-const structuredData = computed(() => ({
-  '@context': 'https://schema.org',
-  '@type': 'Dataset',
-  name: `Fantasy Football Rankings - ${selectedSource.value.name} (${rankType.value === 'dynasty' ? 'Dynasty' : 'Redraft'}, ${state.checked1 ? 'Superflex' : 'OneQB'})`,
-  description: `Fantasy football player rankings and values from ${selectedSource.value.name} for ${rankType.value} leagues (${state.checked1 ? 'Superflex' : 'OneQB'}). Filterable by position.`,
-  keywords: [
-    'fantasy football',
-    'rankings',
-    'player values',
-    rankType.value,
-    state.checked1 ? 'superflex' : '1qb',
-    selectedSource.value.name
-  ],
-  creator: {
-    '@type': 'Organization',
-    name: 'Fantasy Navigator' // Replace if you have a specific organization name
-  },
-  license: 'https://www.fantasynavigator.com/terms' // Replace with your actual license/terms URL if available
-}))
 
 const platform = ref('sf')
 const ranksData = ref([{}])
@@ -245,29 +188,6 @@ const state = reactive({
 
 onMounted(() => {
   fetchRanks(platform.value)
-
-  // Add structured data script to head
-  const script = document.createElement('script')
-  script.type = 'application/ld+json'
-  script.textContent = JSON.stringify(structuredData.value)
-  script.setAttribute('data-seo-script', 'true')
-  document.head.appendChild(script)
-})
-
-onUnmounted(() => {
-  // Clean up structured data script
-  const script = document.querySelector('script[data-seo-script="true"]')
-  if (script && script.parentNode) {
-    script.parentNode.removeChild(script)
-  }
-})
-
-watch([selectedSource, rankType, () => state.checked1], () => {
-  // Update structured data when settings change
-  const script = document.querySelector('script[data-seo-script="true"]')
-  if (script) {
-    script.textContent = JSON.stringify(structuredData.value)
-  }
 })
 
 watchEffect(() => {
@@ -453,10 +373,10 @@ function handlePageChange(page) {
   margin: 0; /* Align to left instead of center */
 }
 
-/* Page Title Styles */
+/* Add Page Title Style */
 .page-title {
   text-align: center;
-  margin-bottom: 24px;
+  margin: 24px 0;
 }
 
 .page-title h1 {
@@ -464,11 +384,6 @@ function handlePageChange(page) {
   font-weight: 700;
   margin-bottom: 8px;
   color: #2d3142; /* Adjust color as needed */
-}
-
-.subtitle {
-  color: #5c5f6b; /* Adjust color as needed */
-  font-size: 16px;
 }
 
 .rank-logos {
@@ -770,6 +685,11 @@ function handlePageChange(page) {
   .cell-team,
   .cell-age {
     font-size: 0.75rem;
+  }
+
+  /* Add responsive style for title */
+  .page-title h1 {
+    font-size: 24px;
   }
 }
 </style>
