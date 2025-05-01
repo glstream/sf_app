@@ -290,6 +290,21 @@
           </a-card>
         </div>
 
+        <!-- Trade Controls Card (New) -->
+        <a-card class="trade-controls-card">
+          <a-row :gutter="[16, 16]" align="middle">
+            <a-col :xs="24" :sm="16" :md="18">
+              <div class="slider-container">
+                <div class="slider-label">Acceptable Trade Variance: {{ percentThreshold }}%</div>
+                <a-slider v-model:value="percentThreshold" :min="1" :max="25" :step="1" />
+              </div>
+            </a-col>
+            <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
+              <a-button @click="clearCalculator" danger block>Clear Calculator</a-button>
+            </a-col>
+          </a-row>
+        </a-card>
+
         <!-- Balancing Players Suggestions -->
         <a-card
           v-if="
@@ -348,21 +363,6 @@
           <div class="view-more" v-if="closestBalancingPlayers.length > 6">
             <a-button type="link">View More Players</a-button>
           </div>
-        </a-card>
-
-        <!-- Options Panel -->
-        <a-card class="options-card">
-          <a-row>
-            <a-col :xs="24" :sm="16" :md="16">
-              <div class="slider-container">
-                <div class="slider-label">Acceptable Trade Variance: {{ percentThreshold }}%</div>
-                <a-slider v-model:value="percentThreshold" :min="1" :max="25" :step="1" />
-              </div>
-            </a-col>
-            <a-col :xs="24" :sm="8" :md="8" class="clear-button-container">
-              <a-button @click="clearCalculator" danger>Clear Calculator</a-button>
-            </a-col>
-          </a-row>
         </a-card>
       </div>
 
@@ -1587,6 +1587,35 @@ function getCardPositionColor(position: string): string {
   gap: 16px; /* Add gap between cards */
   /* Default to 1 column for mobile (implicitly or explicitly) */
   grid-template-columns: 1fr;
+}
+
+/* Trade Controls Card (New) */
+.trade-controls-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-label {
+  font-size: 14px;
+  color: #5c5f6b;
+  font-weight: 500;
+}
+
+.clear-button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right on larger screens */
+}
+
+@media (max-width: 576px) {
+  .clear-button-container {
+    justify-content: center; /* Center button on small screens */
+  }
 }
 
 /* Responsive Design adjustments for the new card design */
