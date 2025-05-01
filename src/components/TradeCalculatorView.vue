@@ -73,7 +73,7 @@
           <a-card class="team-card" :bordered="false">
             <template #title>
               <div class="team-header">
-                <h2>Team A</h2>
+                <h2>Team B</h2>
                 <div
                   class="team-value"
                   :class="{ 'value-favorable': aFavoredTrade, 'value-balanced': isFairTrade }"
@@ -219,7 +219,7 @@
           <a-card class="team-card" :bordered="false">
             <template #title>
               <div class="team-header">
-                <h2>Team B</h2>
+                <h2>Team A</h2>
                 <div
                   class="team-value"
                   :class="{ 'value-favorable': bFavoredTrade, 'value-balanced': isFairTrade }"
