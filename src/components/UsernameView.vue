@@ -6,10 +6,10 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">Fantasy Navigator</h1>
+        <h1 class="hero-title">League Dashboard</h1>
         <p class="hero-subtitle">
-          The ultimate toolkit for Dynasty and Redraft fantasy football. Instantly analyze your
-          Sleeper leagues, discover trade opportunities, and dominate your competition.
+          Enter your Sleeper username to analyze your leagues, discover trade opportunities, and
+          optimize your roster.
         </p>
         <div class="hero-form">
           <a-form
@@ -130,7 +130,7 @@
             </template>
             <a-card-meta title="Manager League Summary">
               <template #description>
-                Compare your leagues roster across all rankings sources with custom rankimgs built
+                Compare your leagues roster across all rankings sources with custom rankings built
                 for your league settings.
               </template>
             </a-card-meta>

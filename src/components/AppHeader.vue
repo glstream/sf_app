@@ -1,12 +1,52 @@
 <template>
-  <a-row align="middle">
-    <a-col flex="auto">
-      <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" />
-    </a-col>
-  </a-row>
+  <div class="header-container">
+    <a-layout-header class="header">
+      <a-row align="middle" class="header-row">
+        <a-col :xs="4" :sm="4" :md="5" :lg="5">
+          <router-link to="/" class="logo-link">
+            <img :src="logoImg" alt="Logo" class="logo" />
+          </router-link>
+        </a-col>
+        <a-col :xs="20" :sm="20" :md="19" :lg="19">
+          <div class="menu-container">
+            <!-- Desktop Menu -->
+            <a-menu
+              v-model:selectedKeys="activeKey"
+              mode="horizontal"
+              :items="items"
+              class="desktop-menu"
+            />
+
+            <!-- Mobile Menu Button -->
+            <a-button @click="mobileMenuVisible = !mobileMenuVisible" class="mobile-menu-button">
+              <MenuOutlined />
+            </a-button>
+          </div>
+        </a-col>
+      </a-row>
+    </a-layout-header>
+
+    <!-- Mobile Menu Drawer -->
+    <a-drawer
+      v-model:visible="mobileMenuVisible"
+      placement="right"
+      :width="250"
+      :closable="true"
+      @close="mobileMenuVisible = false"
+    >
+      <a-menu
+        v-model:selectedKeys="activeKey"
+        mode="inline"
+        :items="mobileItems"
+        @click="handleMenuClick"
+      />
+    </a-drawer>
+  </div>
 </template>
+
 <script lang="ts" setup>
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, watch, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import logoImg from '@/assets/logo5.png'
 
 import { useUserStore } from '@/stores/userStore'
@@ -14,17 +54,44 @@ import { message, MenuProps } from 'ant-design-vue'
 import {
   HomeOutlined,
   CalculatorOutlined,
-  SettingOutlined,
   AppstoreOutlined,
   OrderedListOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  MenuOutlined
 } from '@ant-design/icons-vue'
 
-import { useLeaguesStore } from '@/stores/leaguesStore' // Importing the leagues store
+import { useLeaguesStore } from '@/stores/leaguesStore'
 
-const leaguesStore = useLeaguesStore() // Use the leagues store
-
+const leaguesStore = useLeaguesStore()
 const store = useUserStore()
+const router = useRouter()
+const route = useRoute()
+
+const mobileMenuVisible = ref(false)
+const activeKey = ref<string[]>([])
+
+// Set active menu item based on current route
+onMounted(() => {
+  updateActiveKey()
+})
+
+watch(
+  () => route.path,
+  () => {
+    updateActiveKey()
+  }
+)
+
+function updateActiveKey() {
+  const path = route.path
+  if (path === '/') activeKey.value = ['home']
+  else if (path.includes('/tradecalculator')) activeKey.value = ['tradeCalculator']
+  else if (path.includes('/leagues')) activeKey.value = ['leagues']
+  else if (path.includes('/ranks')) activeKey.value = ['ranks']
+  else if (path.includes('/about')) activeKey.value = ['about']
+  else if (path.includes('/league/')) activeKey.value = ['leagues']
+}
+
 const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
 
 function groupLeaguesByType(leagues) {
@@ -38,62 +105,204 @@ function groupLeaguesByType(leagues) {
   }, {})
 }
 
-const current = ref<string[]>(['mail'])
-const leagueGroups = computed(() => {
-  const grouped = groupLeaguesByType(leaguesStore.leagues)
-  return Object.keys(grouped).map((leagueType) => ({
-    key: `group-${leagueType}`,
-    label: leagueType,
-    children: grouped[leagueType].map((league) => ({
-      key: league.league_id,
-      label: h(
-        'a',
-        {
-          href: `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
-        },
-        league.league_name
-      )
-    }))
-  }))
-})
+function handleMenuClick(e) {
+  // Close mobile menu after clicking
+  mobileMenuVisible.value = false
+}
+
+// Replace the createRouterLink function with one that works correctly
+const createRouterLink = (to, label) => {
+  return () => h('span', { onClick: () => router.push(to) }, label)
+}
 
 const items = ref<MenuProps['items']>([
   {
     key: 'home',
     icon: () => h(HomeOutlined),
-    label: h('a', { href: '/' }, 'Home'),
-    title: 'Home'
+    label: 'Home',
+    title: 'Home',
+    onClick: () => router.push('/')
   },
   {
     key: 'tradeCalculator',
     icon: () => h(CalculatorOutlined),
-    label: h('a', { href: '/tradecalculator' }, 'Trade Calculator'),
-    title: 'Trade Calculator'
+    label: 'Trade Calculator',
+    title: 'Trade Calculator',
+    onClick: () => router.push('/tradecalculator')
   },
   {
-    key: 'Leagues',
+    key: 'leagues',
     icon: () => h(AppstoreOutlined),
-    label: h('a', { href: leaguesUrl.value }, 'Leagues'),
+    label: 'Leagues',
     title: 'Leagues',
-    children: leagueGroups.value
+    children: computed(() => {
+      const grouped = groupLeaguesByType(leaguesStore.leagues)
+      return Object.keys(grouped).map((leagueType) => ({
+        key: `group-${leagueType}`,
+        label: leagueType,
+        children: grouped[leagueType].map((league) => ({
+          key: league.league_id,
+          label: league.league_name,
+          onClick: () =>
+            router.push(
+              `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
+            )
+        }))
+      }))
+    })
   },
   {
     key: 'ranks',
     icon: () => h(OrderedListOutlined),
-    label: h('a', { href: '/ranks' }, 'Rankings'),
-    title: 'Rankings'
+    label: 'Rankings',
+    title: 'Rankings',
+    onClick: () => router.push('/ranks')
   },
   {
     key: 'about',
     icon: () => h(QuestionCircleOutlined),
-    label: h('a', { href: '/about' }, 'About'),
-    title: 'About'
+    label: 'About',
+    title: 'About',
+    onClick: () => router.push('/about')
   }
 ])
+
+// Similarly update the mobile items
+const mobileItems = computed(() => {
+  const baseItems = [
+    {
+      key: 'home',
+      icon: () => h(HomeOutlined),
+      label: 'Home',
+      title: 'Home',
+      onClick: () => router.push('/')
+    },
+    {
+      key: 'tradeCalculator',
+      icon: () => h(CalculatorOutlined),
+      label: 'Trade Calculator',
+      title: 'Trade Calculator',
+      onClick: () => router.push('/tradecalculator')
+    },
+    {
+      key: 'ranks',
+      icon: () => h(OrderedListOutlined),
+      label: 'Rankings',
+      title: 'Rankings',
+      onClick: () => router.push('/ranks')
+    },
+    {
+      key: 'about',
+      icon: () => h(QuestionCircleOutlined),
+      label: 'About',
+      title: 'About',
+      onClick: () => router.push('/about')
+    }
+  ]
+
+  // Add leagues section if user has leagues
+  if (leaguesStore.leagues && leaguesStore.leagues.length > 0) {
+    baseItems.push({
+      key: 'leagues',
+      icon: () => h(AppstoreOutlined),
+      label: 'Leagues',
+      title: 'Leagues',
+      onClick: () => {
+        if (store.userName && store.leagueYear && store.guid) {
+          router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+        }
+      }
+    })
+
+    // Add each league as a separate menu item in mobile view
+    leaguesStore.leagues.forEach((league) => {
+      baseItems.push({
+        key: `league-${league.league_id}`,
+        label: `- ${league.league_name}`,
+        title: league.league_name,
+        class: 'mobile-league-item',
+        onClick: () =>
+          router.push(
+            `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
+          )
+      })
+    })
+  }
+
+  return baseItems
+})
 </script>
+
 <style scoped>
-.transparent-bg {
-  background-color: transparent !important;
-  height: 50px;
+.header-container {
+  position: relative;
+}
+
+.header {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 0 20px;
+  height: 64px;
+  line-height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-row {
+  height: 100%;
+}
+
+.logo-link {
+  display: inline-block;
+  height: 40px;
+}
+
+.logo {
+  height: 40px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.menu-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.desktop-menu {
+  border-bottom: none;
+}
+
+.mobile-menu-button {
+  display: none;
+  margin-left: auto;
+}
+
+.mobile-league-item {
+  padding-left: 24px;
+  font-size: 0.9em;
+  opacity: 0.85;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .header {
+    padding: 0 12px;
+    height: 56px;
+    line-height: 56px;
+  }
+
+  .logo {
+    height: 32px;
+  }
 }
 </style>

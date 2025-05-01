@@ -551,11 +551,13 @@ const getCurrentYear = async () => {
   height: 30px;
   border-radius: 7px;
   border: 1px solid gray;
+  object-fit: cover; /* Ensures the logo fits well */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 @media (max-width: 440px) {
   .responsive-padding {
-    padding: 0 10px; /* Larger padding for larger screens */
+    padding: 0 12px; /* Slightly more padding */
   }
 }
 
@@ -577,20 +579,27 @@ const getCurrentYear = async () => {
 
 .leagues-container {
   border: 1px solid rgb(39, 125, 161);
-  border-radius: 5px;
+  border-radius: 8px; /* Slightly rounder corners */
   margin-top: 15px;
-  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Default subtle shadow */
+  overflow: hidden; /* Ensures the rounded corners apply to children */
 }
 
 .leagues-container:hover {
-  border-color: #43aa8b; /* Darker border on hover */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Optional: Add shadow for better visual effect */
+  border-color: #43aa8b;
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
+
 .leagues-stats-container {
   border-radius: 5px;
-  margin-top: 15px;
-  margin: 5px 5px;
+  margin: 5px 5px 10px; /* Added bottom margin */
+  background-color: rgba(249, 249, 250, 0.7); /* Very subtle background */
+  padding: 5px;
 }
+
 .gutter-box {
   padding: 8px 5px;
 }
@@ -599,63 +608,121 @@ const getCurrentYear = async () => {
   padding: 8px 5px;
   padding-right: 45px;
 }
+
 .gutter-box-header {
-  padding: 8px 5px;
+  padding: 12px 10px; /* More padding */
+  background: linear-gradient(to right, rgba(39, 125, 161, 0.1), transparent); /* Subtle gradient */
+  border-bottom: 1px solid rgba(39, 125, 161, 0.2); /* Subtle bottom border */
+  display: flex;
+  align-items: center;
 }
+
 .gutter-box-detail {
   padding: 8px 5px;
   display: flex;
   justify-content: center;
 }
+
 .standard-tag {
-  border: 1px solid gray;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  background-color: #f5f5f5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .gutter-box-stats {
-  padding: 1px 1px;
+  padding: 3px 2px; /* Slightly more padding */
   display: flex;
   justify-content: center;
 }
 
 .gutter-box-stats-header {
-  padding: 1px 10px;
+  padding: 3px 10px;
   font-size: 13px;
+  font-weight: 500; /* Medium weight */
+  color: #555; /* Darker text for headers */
 }
+
 .gutter-box-stats-top {
   padding: 1px 10px;
   font-size: 1em;
   display: flex;
   justify-content: center;
 }
+
 .gutter-box-stats-top-header {
-  padding: 1px 10px;
-  font-size: 1em;
+  padding: 8px 10px; /* More top/bottom padding */
+  font-size: 1.05em;
+  font-weight: 600;
+  color: #333;
   display: flex;
   justify-content: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Subtle separator */
+  margin-bottom: 5px;
 }
+
 .rank-logos {
   width: 24px;
   height: 20px;
   vertical-align: middle;
   border-radius: 3px;
+  margin-right: 3px; /* Small spacing after logo */
 }
+
 .max-width-container {
-  max-width: 360px;
-  margin: auto; /* Center the div */
+  max-width: 400px; /* Slightly wider for better spacing */
   width: 100%;
-  margin: 10px 10px;
+  margin: 15px 10px; /* More top/bottom margin */
 }
+
 .no-leagues-card {
-  padding: 20px;
+  padding: 30px;
   text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 25px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-size: 1.1em;
+  color: #666;
 }
+
 .gutter-box-refresh {
   display: flex;
   justify-content: right;
   margin-right: 5px;
   align-items: baseline;
+}
+
+/* New styles for better appearance */
+a-tag {
+  margin-bottom: 3px; /* Spacing between tags when they wrap */
+  transition: all 0.2s ease;
+}
+
+a-tag:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.a-breadcrumb {
+  margin-bottom: 15px; /* Add space after breadcrumb */
+}
+
+/* Animation for league container appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.leagues-container {
+  animation: fadeIn 0.4s ease-out;
 }
 </style>

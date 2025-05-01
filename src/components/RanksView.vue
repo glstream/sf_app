@@ -95,7 +95,6 @@
             <div class="cell cell-value">{{ asset.player_value.toLocaleString() }}</div>
           </div>
         </div>
-
         <div class="pagination-container">
           <a-pagination
             :current="currentPage"
@@ -424,7 +423,7 @@ function handlePageChange(page) {
   border: 1px solid #eaeaea;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   background: white;
-  max-width: 100%; /* Allow table to expand on desktop */
+  max-width: 100%;
 }
 
 .rankings-header {
@@ -446,10 +445,14 @@ function handlePageChange(page) {
   align-items: center;
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
+  margin-bottom: 6px; /* Add space between rows */
+  background: white;
+  border-radius: 4px;
 }
 
 .rankings-row:last-child {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 .rankings-row:hover {
@@ -591,28 +594,59 @@ function handlePageChange(page) {
 @media (max-width: 767px) {
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 40px 70px minmax(150px, 1fr) 70px 50px 80px;
-    font-size: 0.9rem;
-    padding: 8px 4px;
+    grid-template-columns: 24px 36px minmax(60px, 1fr) 34px 24px 54px;
+    font-size: 0.85rem;
+    padding: 2px 1px;
+  }
+
+  .rankings-row {
+    margin-bottom: 4px; /* Slightly less space on mobile */
+    border-radius: 4px;
   }
 
   .cell {
-    padding: 0 4px;
+    padding: 0 1px;
+    font-size: 0.75rem;
+  }
+
+  .cell-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-align: right;
+    min-width: 48px;
+    max-width: 54px;
+    overflow: visible;
   }
 
   .player-container {
-    gap: 8px;
+    gap: 2px;
   }
 
   .position-tag {
-    padding: 2px 6px;
-    font-size: 0.75rem;
+    padding: 0 2px;
+    font-size: 0.65rem;
   }
 
   .tier-indicator {
-    font-size: 0.75rem;
-    padding: 2px 4px;
-    max-width: 50px;
+    font-size: 0.65rem;
+    padding: 0 2px;
+    max-width: 32px;
+  }
+}
+
+/* For very small screens, further shrink columns */
+@media (max-width: 400px) {
+  .rankings-header,
+  .rankings-row {
+    grid-template-columns: 18px 26px minmax(40px, 1fr) 24px 16px 38px;
+    font-size: 0.7rem;
+    padding: 2px 0;
+  }
+  .cell-value {
+    min-width: 36px;
+    max-width: 38px;
+    font-size: 0.7rem;
   }
 }
 
