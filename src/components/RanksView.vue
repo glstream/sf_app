@@ -14,21 +14,6 @@
 
       <!-- Controls section -->
       <div class="ranks-controls">
-        <div class="ranks-source-selector">
-          <a-dropdown-button :loading="isLoading">
-            <img class="rank-logos" :src="selectedSource.logo" alt="Source logo" />
-            {{ selectedSource.name }}
-            <template #overlay>
-              <a-menu @click="handleMenuClick">
-                <a-menu-item v-for="source in filteredSources" :key="source.key">
-                  <img class="rank-logos" :src="source.logo" />
-                  {{ source.name }}
-                </a-menu-item>
-              </a-menu>
-            </template>
-          </a-dropdown-button>
-        </div>
-
         <div class="ranks-toggle-section">
           <div class="setting-item">
             <a-switch
@@ -46,6 +31,17 @@
               v-model:checked="state.checked2"
               checked-children="Dynasty"
               un-checked-children="Redraft"
+            />
+          </div>
+          <!-- Added Rookie switch with label -->
+          <div class="setting-item">
+            <label for="rookie-switch" class="switch-label">Rookies:</label>
+            <a-switch
+              id="rookie-switch"
+              v-model:checked="checkState.showRookiesOnly"
+              checked-children="Only"
+              un-checked-children=""
+              size="medium"
             />
           </div>
         </div>
@@ -119,7 +115,6 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
-import { useRoute } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -127,17 +122,13 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 // 3rd Party imports
 import axios from 'axios'
-import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
+import { message, Spin, Column, Empty } from 'ant-design-vue'
 import { HomeOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 // Source image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
-import ktcLogo from '@/assets/sourceLogos/ktc.png'
-import dpLogo from '@/assets/sourceLogos/dp.png'
-import fcLogo from '@/assets/sourceLogos/fc.png'
 
-const platform = ref('sf')
 const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
@@ -149,7 +140,8 @@ const plainOptions = ['QB', 'RB', 'WR', 'TE', 'PICK']
 const checkState = reactive({
   indeterminate: true,
   checkAll: false,
-  checkedList: ['QB', 'RB', 'WR', 'TE', 'PICK']
+  checkedList: ['QB', 'RB', 'WR', 'TE', 'PICK'],
+  showRookiesOnly: false
 })
 
 const onCheckAllChange = (e: any) => {
@@ -166,31 +158,13 @@ watch(
   }
 )
 
-const sources = [
-  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
-  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
-  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  { key: 'fc', name: 'FantasyCalc', logo: fcLogo }
-]
-
-const selectedSource = ref(sources[0])
-
-const filteredSources = computed(() => {
-  if (rankType.value !== 'dynasty') {
-    return sources.filter(
-      (source) => source.key === 'fc' || source.key === 'ktc' || source.key === 'sf'
-    )
-  }
-  return sources
-})
-
 const state = reactive({
   checked1: true,
   checked2: true
 })
 
 onMounted(() => {
-  fetchRanks(platform.value)
+  fetchRanks()
 })
 
 watchEffect(() => {
@@ -199,21 +173,18 @@ watchEffect(() => {
 
 const filteredData = computed(() => {
   const filtered = ranksData.value.filter((item) => {
-    // Maintain existing conditions based on rank type and roster type
     const rankTypeCondition = state.checked2
       ? item.rank_type === 'dynasty'
       : item.rank_type === 'redraft'
     const rosterTypeCondition = state.checked1
       ? item.roster_type === 'sf_value'
       : item.roster_type === 'one_qb_value'
-
-    // New condition for QB visibility based on checkedList
     const positionCondition = checkState.checkedList.includes(item._position)
+    const rookieCondition = !checkState.showRookiesOnly || item.is_rookie === 'true'
 
-    return rankTypeCondition && rosterTypeCondition && positionCondition
+    return rankTypeCondition && rosterTypeCondition && positionCondition && rookieCondition
   })
 
-  // Group and sort logic remains unchanged
   const grouped = filtered.reduce((acc, item) => {
     acc[item._position] = acc[item._position] || []
     acc[item._position].push(item)
@@ -232,17 +203,6 @@ const filteredData = computed(() => {
     .sort((a, b) => b.player_value - a.player_value)
 })
 
-const handleMenuClick: MenuProps['onClick'] = (e) => {
-  const platform = e.key
-  try {
-    fetchRanks(platform)
-    selectedSource.value = sources.find((source) => source.key === platform) || sources[0]
-  } catch {
-    console.log('error loading leagues')
-  } finally {
-    console.log('league ranks pull complete')
-  }
-}
 function getPositionTag(position) {
   switch (position) {
     case 'QB':
@@ -280,7 +240,6 @@ function getPositionTag(position) {
   }
 }
 
-// Tier logic: adjusted with your preferred thresholds
 function getTierClass(value: number) {
   if (value >= 8000) return 'tier-elite'
   if (value >= 5000) return 'tier-1'
@@ -299,13 +258,13 @@ function getTierLabel(value: number) {
   return 'Waiver'
 }
 
-async function fetchRanks(platform: string) {
+async function fetchRanks() {
   isLoading.value = true
   const apiUrl = import.meta.env.VITE_API_URL
   try {
     const response = await axios.get(`${apiUrl}/ranks`, {
       params: {
-        platform
+        platform: 'sf'
       }
     })
     console.log('Pulling Player Values...')
@@ -318,70 +277,55 @@ async function fetchRanks(platform: string) {
 }
 
 function downloadData() {
-  // Ensuring data to download is actually the paginated data
-  const dataToDownload = filteredData.value // Now correctly points to paginated data
+  const dataToDownload = filteredData.value
 
   let csvContent = 'data:text/csv;charset=utf-8,'
 
-  // Assuming each data entry is an object, we take headers from the first entry if available
   if (dataToDownload.length > 0) {
-    const headers = Object.keys(dataToDownload[0]).join(',') // Adjust this if you have specific headers
+    const headers = Object.keys(dataToDownload[0]).join(',')
     csvContent += headers + '\r\n'
 
-    // Add the data rows
     dataToDownload.forEach((row) => {
       const rowData = Object.values(row)
-        .map((field) => `"${field}"`)
+        .map((field) => `"${String(field).replace(/"/g, '""')}"`)
         .join(',')
       csvContent += rowData + '\r\n'
     })
   }
 
-  // Create a link and trigger the download
   const encodedUri = encodeURI(csvContent)
   const link = document.createElement('a')
-
-  // Assuming selectedSource.value.name is defined and provides a meaningful name
-  const fileName = `${selectedSource.value.name.replace(/\s+/g, '_')}_ranks_data.csv`
+  const fileName = `FantasyNavigator_ranks_data.csv`
 
   link.setAttribute('href', encodedUri)
   link.setAttribute('download', fileName)
-  document.body.appendChild(link) // Required for FF
+  document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
 }
 
-// Computed property to get the current page's data
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * perPage.value
   const end = start + perPage.value
   return filteredData.value.slice(start, end)
 })
 
-const checkedFilteredData = computed(() => {
-  return ranksData.value.filter((rank) => checkState.checkedList.includes(rank.position))
-})
-
-// Method to handle page change
 function handlePageChange(page) {
   currentPage.value = page
 }
 </script>
 
 <style scoped>
-/* General layout */
-
 .layout {
   min-height: 100vh;
   background-color: #f5f7fa;
 }
 .responsive-padding {
   padding: 0 16px;
-  max-width: 1400px; /* Adjust this value as needed */
-  margin: 0 auto; /* Center the container */
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* Add Page Title Style */
 .page-title {
   text-align: center;
   margin: 24px 0;
@@ -391,7 +335,7 @@ function handlePageChange(page) {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #2d3142; /* Adjust color as needed */
+  color: #2d3142;
 }
 
 .rank-logos {
@@ -402,7 +346,6 @@ function handlePageChange(page) {
   margin-right: 5px;
 }
 
-/* Controls styling */
 .ranks-controls {
   display: flex;
   flex-direction: column;
@@ -414,34 +357,35 @@ function handlePageChange(page) {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.ranks-source-selector {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .ranks-toggle-section {
   display: flex;
-  gap: 12px;
+  gap: 16px; /* Increased gap slightly */
   flex-wrap: wrap;
+  align-items: center; /* Align items vertically */
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Add gap between label and switch */
+}
+
+.switch-label {
+  font-weight: 500;
+  color: #4b5563; /* Adjust color as needed */
 }
 
 .ranks-filter-section {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 12px; /* Adjusted gap */
 }
 
 .download-btn {
   margin-left: auto;
 }
 
-.setting-item {
-  display: flex;
-  align-items: center;
-}
-
-/* Table styling */
 .rankings-table {
   width: 100%;
   border-radius: 12px;
@@ -454,7 +398,7 @@ function handlePageChange(page) {
 
 .rankings-header {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px; /* Wider columns for desktop */
+  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
   padding: 12px 8px;
   font-weight: 600;
   color: #1f2937;
@@ -466,12 +410,12 @@ function handlePageChange(page) {
 
 .rankings-row {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px; /* Match header columns */
+  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
   padding: 10px 8px;
   align-items: center;
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
-  margin-bottom: 6px; /* Add space between rows */
+  margin-bottom: 6px;
   background: white;
   border-radius: 4px;
 }
@@ -514,7 +458,6 @@ function handlePageChange(page) {
   color: #6b7280;
 }
 
-/* Player cell styling */
 .player-container {
   display: flex;
   align-items: center;
@@ -542,7 +485,6 @@ function handlePageChange(page) {
   opacity: 0.85;
 }
 
-/* Tier styling */
 .tier-indicator {
   font-size: 0.8rem;
   font-weight: 600;
@@ -603,7 +545,6 @@ function handlePageChange(page) {
   margin-bottom: 32px;
 }
 
-/* Responsive adjustments */
 @media (min-width: 1400px) {
   .responsive-padding {
     padding: 0 32px;
@@ -629,7 +570,7 @@ function handlePageChange(page) {
   }
 
   .rankings-row {
-    margin-bottom: 4px; /* Slightly less space on mobile */
+    margin-bottom: 4px;
     border-radius: 4px;
   }
 
@@ -664,7 +605,6 @@ function handlePageChange(page) {
   }
 }
 
-/* For very small screens, further shrink columns */
 @media (max-width: 400px) {
   .rankings-header,
   .rankings-row {
@@ -698,7 +638,6 @@ function handlePageChange(page) {
     font-size: 0.75rem;
   }
 
-  /* Add responsive style for title */
   .page-title h1 {
     font-size: 24px;
   }
