@@ -50,7 +50,7 @@
           </div>
 
           <div class="action-buttons">
-            <a-dropdown-button type="primary" size="middle">
+            <a-dropdown-button type="default" size="middle">
               Share
               <template #overlay>
                 <a-menu @click="handleShareClick">
@@ -165,7 +165,9 @@
 
             <div class="team-summary">
               <div class="asset-count">
-                {{ selectedPlayers1.length }} Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
+                <span style="font-weight: bold">{{ selectedPlayers1.length }}</span> Asset{{
+                  selectedPlayers1.length !== 1 ? 's' : ''
+                }}
               </div>
               <div class="total-value-display">
                 <!-- Display the final calculated value -->
@@ -279,7 +281,9 @@
 
             <div class="team-summary">
               <div class="asset-count">
-                {{ selectedPlayers2.length }} Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
+                <span style="font-weight: bold">{{ selectedPlayers2.length }}</span> Asset{{
+                  selectedPlayers2.length !== 1 ? 's' : ''
+                }}
               </div>
               <div class="total-value-display">
                 <!-- Display the final calculated value -->
@@ -289,21 +293,6 @@
             </div>
           </a-card>
         </div>
-
-        <!-- Trade Controls Card (New) -->
-        <a-card class="trade-controls-card">
-          <a-row :gutter="[16, 16]" align="middle">
-            <a-col :xs="24" :sm="16" :md="18">
-              <div class="slider-container">
-                <div class="slider-label">Acceptable Trade Variance: {{ percentThreshold }}%</div>
-                <a-slider v-model:value="percentThreshold" :min="1" :max="25" :step="1" />
-              </div>
-            </a-col>
-            <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
-              <a-button @click="clearCalculator" danger block>Clear Calculator</a-button>
-            </a-col>
-          </a-row>
-        </a-card>
 
         <!-- Balancing Players Suggestions -->
         <a-card
@@ -365,6 +354,21 @@
               {{ showAllBalancingPlayers ? 'View Less Players' : 'View More Players' }}
             </a-button>
           </div>
+        </a-card>
+
+        <!-- Trade Controls Card (Moved) -->
+        <a-card class="trade-controls-card">
+          <a-row :gutter="[16, 16]" align="middle">
+            <a-col :xs="24" :sm="16" :md="18">
+              <div class="slider-container">
+                <div class="slider-label">Acceptable Trade Variance: {{ percentThreshold }}%</div>
+                <a-slider v-model:value="percentThreshold" :min="1" :max="25" :step="1" />
+              </div>
+            </a-col>
+            <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
+              <a-button @click="clearCalculator" danger block>Clear Calculator</a-button>
+            </a-col>
+          </a-row>
         </a-card>
       </div>
 

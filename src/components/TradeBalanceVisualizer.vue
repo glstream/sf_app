@@ -45,7 +45,28 @@
       @mouseenter="isHovered = true"
       @mouseleave="isHovered = false"
     >
+      <!-- Empty state visualization within the existing bar structure -->
       <div
+        v-if="totalValue === 0"
+        class="balance-bar empty-state"
+        title="Add players to evaluate trade"
+      >
+        <div class="bar-segment team-a" style="width: 50%">
+          <span class="team-label">Team A</span>
+          <span class="direction-arrow side-arrow">←</span>
+          <span class="direction-arrow up-arrow">↑</span>
+        </div>
+        <div class="bar-segment team-b" style="width: 50%">
+          <span class="direction-arrow side-arrow">→</span>
+          <span class="direction-arrow up-arrow">↓</span>
+          <span class="team-label">Team B</span>
+        </div>
+        <div class="midpoint-marker"></div>
+      </div>
+
+      <!-- Actual balance bar when there are values -->
+      <div
+        v-else
         class="balance-bar"
         :class="{ 'is-fair': isFair, 'is-hovered': isHovered }"
         :title="`Team A: ${Math.round(valueA)} | Team B: ${Math.round(valueB)}`"
@@ -314,6 +335,45 @@ const teamBPercentage = computed(() => {
   animation: fadeIn 0.2s ease-out;
   position: relative;
   z-index: 1;
+}
+
+/* Styling for empty state elements */
+.balance-bar.empty-state {
+  background-color: #f5f5f5;
+  cursor: default;
+}
+
+.empty-state .team-a {
+  background: linear-gradient(to right, #ffcccc, #ffd6d6);
+  opacity: 0.7;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.empty-state .team-b {
+  background: linear-gradient(to right, #d6e4ff, #bfd4ff);
+  opacity: 0.7;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.team-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #595959;
+}
+
+.direction-arrow {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.empty-state .team-a .direction-arrow {
+  color: #ff7875;
+}
+
+.empty-state .team-b .direction-arrow {
+  color: #1890ff;
 }
 
 @keyframes pulse {
