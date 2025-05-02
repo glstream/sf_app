@@ -172,7 +172,9 @@
               <div class="total-value-display">
                 <!-- Display the final calculated value -->
                 Total:
-                <strong>{{ Math.round(totalValueSideA).toLocaleString() }}</strong>
+                <span style="font-weight: bold">{{
+                  Math.round(totalValueSideA).toLocaleString()
+                }}</span>
               </div>
             </div>
           </a-card>
@@ -288,7 +290,9 @@
               <div class="total-value-display">
                 <!-- Display the final calculated value -->
                 Total:
-                <strong>{{ Math.round(totalValueSideB).toLocaleString() }}</strong>
+                <span style="font-weight: bold">{{
+                  Math.round(totalValueSideB).toLocaleString()
+                }}</span>
               </div>
             </div>
           </a-card>
@@ -672,27 +676,89 @@ const totalValueSideB = computed(() => {
 })
 
 const searchPlayer1 = (searchText: string) => {
-  const filteredData = ranksData.value
-    .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
-    .map((item) => ({
-      label: `${item.player_full_name} - ${item._position}`,
-      value: item.player_id,
-      data: item
-    }))
+  if (!searchText || searchText.trim().length === 0) {
+    options1.value = []
+    return
+  }
 
-  options1.value = filteredData
+  // Get filtered players that match the search text
+  const matchingPlayers = ranksData.value.filter((item) =>
+    item.player_full_name.toLowerCase().includes(searchText.toLowerCase())
+  )
+
+  // Create a Map to ensure unique player selection options
+  // using a composite key of player name + team/position to differentiate same-named players
+  const uniquePlayerMap = new Map()
+
+  matchingPlayers.forEach((player) => {
+    const uniqueKey = `${player.player_id}`
+
+    // Create a more descriptive label that includes age and team if available
+    const teamInfo = player.team ? ` - ${player.team}` : ''
+    const ageInfo = player.age ? ` (Age: ${player.age})` : ''
+    const positionInfo = player._position || ''
+
+    const label = `${player.player_full_name} - ${positionInfo}${teamInfo}${ageInfo}`
+
+    uniquePlayerMap.set(uniqueKey, {
+      label: label,
+      value: player.player_id,
+      data: player
+    })
+  })
+
+  // Convert Map values to array
+  options1.value = Array.from(uniquePlayerMap.values())
+
+  // Sort options alphabetically by player name for easier browsing
+  options1.value.sort((a, b) => {
+    const aName = a.data.player_full_name
+    const bName = b.data.player_full_name
+    return aName.localeCompare(bName)
+  })
 }
 
 const searchPlayer2 = (searchText: string) => {
-  const filteredData = ranksData.value
-    .filter((item) => item.player_full_name.toLowerCase().includes(searchText.toLowerCase()))
-    .map((item) => ({
-      label: `${item.player_full_name} - ${item._position}`,
-      value: item.player_id,
-      data: item
-    }))
+  if (!searchText || searchText.trim().length === 0) {
+    options2.value = []
+    return
+  }
 
-  options2.value = filteredData
+  // Get filtered players that match the search text
+  const matchingPlayers = ranksData.value.filter((item) =>
+    item.player_full_name.toLowerCase().includes(searchText.toLowerCase())
+  )
+
+  // Create a Map to ensure unique player selection options
+  // using a composite key of player name + team/position to differentiate same-named players
+  const uniquePlayerMap = new Map()
+
+  matchingPlayers.forEach((player) => {
+    const uniqueKey = `${player.player_id}`
+
+    // Create a more descriptive label that includes age and team if available
+    const teamInfo = player.team ? ` - ${player.team}` : ''
+    const ageInfo = player.age ? ` (Age: ${player.age})` : ''
+    const positionInfo = player._position || ''
+
+    const label = `${player.player_full_name} - ${positionInfo}${teamInfo}${ageInfo}`
+
+    uniquePlayerMap.set(uniqueKey, {
+      label: label,
+      value: player.player_id,
+      data: player
+    })
+  })
+
+  // Convert Map values to array
+  options2.value = Array.from(uniquePlayerMap.values())
+
+  // Sort options alphabetically by player name for easier browsing
+  options2.value.sort((a, b) => {
+    const aName = a.data.player_full_name
+    const bName = b.data.player_full_name
+    return aName.localeCompare(bName)
+  })
 }
 
 const selectPlayer1 = (playerId: string) => {
@@ -1303,7 +1369,7 @@ function getCardPositionColor(position: string): string {
 
 .responsive-padding {
   padding: 0 16px;
-  max-width: 1200px;
+  max-width: 1400px; /* Increased from 1200px to 1400px for wider desktop view */
   margin: 0 auto;
 }
 
@@ -1699,21 +1765,44 @@ function getCardPositionColor(position: string): string {
   .team-card:nth-of-type(1) {
     /* Team A - position on the left */
     grid-area: teamA;
+    min-width: 420px; /* Increased from default to ensure wider cards */
   }
 
   .trade-evaluation {
     /* Evaluation in the middle */
     grid-area: evaluation;
-    margin: 0 16px; /* Add horizontal margin */
-    min-width: 250px; /* Ensure minimum width for visualizer */
-    display: flex; /* Align visualizer */
-    align-items: center; /* Center visualizer vertically */
-    justify-content: center; /* Center visualizer horizontally */
+    margin: 0 24px; /* Increased horizontal margin */
+    min-width: 280px; /* Increased from 250px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .team-card:nth-of-type(2) {
     /* Team B - position on the right */
     grid-area: teamB;
+    min-width: 420px; /* Increased from default to ensure wider cards */
+  }
+}
+
+/* Add new styles for extra large screens */
+@media (min-width: 1400px) {
+  .responsive-padding {
+    padding: 0 24px; /* More padding on very wide screens */
+  }
+
+  .team-card:nth-of-type(1),
+  .team-card:nth-of-type(2) {
+    min-width: 480px; /* Even wider on very large screens */
+  }
+
+  .trade-evaluation {
+    min-width: 300px; /* Wider evaluation section on large screens */
+  }
+
+  /* Increase player name max width on large screens */
+  .player-name {
+    max-width: 240px;
   }
 }
 
@@ -1744,50 +1833,6 @@ function getCardPositionColor(position: string): string {
 
   .team-card:nth-of-type(2) {
     grid-area: teamB;
-  }
-}
-
-@media (max-width: 767px) {
-  .settings-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .balancing-players-container {
-    grid-template-columns: 1fr;
-  }
-
-  .balancing-player-name {
-    font-size: 14px;
-    padding-right: 40px;
-    max-width: calc(100% - 80px);
-  }
-
-  .player-info {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .player-details {
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 4px;
-  }
-
-  .remove-player {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-  }
-
-  :deep(.ant-ribbon) {
-    top: 6px;
   }
 }
 
