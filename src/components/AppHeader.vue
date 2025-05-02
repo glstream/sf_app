@@ -120,23 +120,34 @@ const items = ref<MenuProps['items']>([
     onClick: () => router.push('/tradecalculator')
   },
   {
-    key: 'leagues',
-    icon: () => h(AppstoreOutlined),
-    label: 'Leagues',
-    title: 'Leagues',
-    onClick: () => {
-      if (store.userName && store.leagueYear && store.guid) {
-        router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
-      }
-    }
-  },
-  {
     key: 'ranks',
     icon: () => h(OrderedListOutlined),
     label: 'Rankings',
     title: 'Rankings',
     onClick: () => router.push('/ranks')
   },
+  {
+    key: 'leagues',
+    icon: () => h(AppstoreOutlined),
+    label: 'Leagues',
+    title: 'Leagues',
+    onClick: () => {
+      if (
+        leaguesStore.leagues &&
+        leaguesStore.leagues.length > 0 &&
+        store.userName &&
+        store.leagueYear &&
+        store.guid
+      ) {
+        router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+      } else {
+        // Redirect to username page if no leagues are loaded
+        router.push('/username')
+      }
+      // If neither condition is met (e.g., not logged in), do nothing or handle as needed
+    }
+  },
+
   {
     key: 'about',
     icon: () => h(QuestionCircleOutlined),
@@ -171,6 +182,27 @@ const mobileItems = computed(() => {
       onClick: () => router.push('/ranks')
     },
     {
+      key: 'leagues',
+      icon: () => h(AppstoreOutlined),
+      label: 'Leagues',
+      title: 'Leagues',
+      onClick: () => {
+        if (
+          leaguesStore.leagues &&
+          leaguesStore.leagues.length > 0 &&
+          store.userName &&
+          store.leagueYear &&
+          store.guid
+        ) {
+          router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+        } else {
+          // Redirect to username page if no leagues are loaded
+          router.push('/username')
+        }
+        // If neither condition is met (e.g., not logged in), do nothing or handle as needed
+      }
+    },
+    {
       key: 'about',
       icon: () => h(QuestionCircleOutlined),
       label: 'About',
@@ -178,22 +210,6 @@ const mobileItems = computed(() => {
       onClick: () => router.push('/about')
     }
   ]
-
-  // Add leagues section if user has leagues
-  if (leaguesStore.leagues && leaguesStore.leagues.length > 0) {
-    baseItems.push({
-      key: 'leagues',
-      icon: () => h(AppstoreOutlined),
-      label: 'Leagues',
-      title: 'Leagues',
-      onClick: () => {
-        if (store.userName && store.leagueYear && store.guid) {
-          router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
-        }
-      }
-    })
-  }
-
   return baseItems
 })
 </script>

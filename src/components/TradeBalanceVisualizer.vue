@@ -1,51 +1,38 @@
 <template>
   <div class="trade-balance-visualizer">
-    <!-- Top Labels - Modified for Balancing Value and Arrow -->
     <div class="balance-labels top-labels">
-      <!-- Team A Favored (B needs value) -->
       <span class="label-container" v-if="!isFair && valueA > valueB">
         <span class="label-favored label-a-favored">
           <span class="favor-icon side-arrow left-arrow">←</span>
-          <!-- Points to A -->
           <span class="favor-icon up-arrow">↑</span>
-          <!-- Points up from A -->
           Team A Favored
         </span>
         <span class="label-needs label-b-needs">
           <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
           <span class="favor-icon side-arrow right-arrow">→</span>
-          <!-- Points to B -->
           <span class="favor-icon up-arrow">↓</span>
-          <!-- Points down to B -->
         </span>
       </span>
 
-      <!-- Team B Favored (A needs value) -->
       <span class="label-container" v-if="!isFair && valueB > valueA">
         <span class="label-needs label-a-needs">
           <span class="favor-icon side-arrow left-arrow">←</span>
-          <!-- Points to A -->
           <span class="favor-icon up-arrow">↑</span>
-          <!-- Points up to A on mobile -->
           <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
         </span>
         <span class="label-favored label-b-favored">
           Team B Favored
           <span class="favor-icon side-arrow right-arrow">→</span>
-          <!-- Points to B -->
           <span class="favor-icon up-arrow">↓</span>
-          <!-- Points down from B -->
         </span>
       </span>
     </div>
 
-    <!-- Balance Bar -->
     <div
       class="balance-bar-container"
       @mouseenter="isHovered = true"
       @mouseleave="isHovered = false"
     >
-      <!-- Empty state visualization within the existing bar structure -->
       <div
         v-if="totalValue === 0"
         class="balance-bar empty-state"
@@ -64,25 +51,33 @@
         <div class="midpoint-marker"></div>
       </div>
 
-      <!-- Actual balance bar when there are values -->
       <div
         v-else
         class="balance-bar"
         :class="{ 'is-fair': isFair, 'is-hovered': isHovered }"
         :title="`Team A: ${Math.round(valueA)} | Team B: ${Math.round(valueB)}`"
       >
+        <div
+          v-if="totalValue > 0 && acceptableVarianceZoneWidth > 0"
+          class="variance-zone"
+          :style="varianceZoneStyle"
+          title="Acceptable variance range"
+        ></div>
         <div class="bar-segment team-a" :style="{ width: teamAPercentage + '%' }">
-          <span class="value-badge" v-if="isHovered">{{ Math.round(valueA) }}</span>
+          <span class="value-badge" v-if="isHovered && totalValue > 0">{{
+            Math.round(valueA)
+          }}</span>
         </div>
         <div class="bar-segment team-b" :style="{ width: teamBPercentage + '%' }">
-          <span class="value-badge" v-if="isHovered">{{ Math.round(valueB) }}</span>
+          <span class="value-badge" v-if="isHovered && totalValue > 0">{{
+            Math.round(valueB)
+          }}</span>
         </div>
         <div v-if="isFair" class="fair-indicator"></div>
         <div v-if="!isFair" class="midpoint-marker"></div>
       </div>
     </div>
 
-    <!-- Bottom Label (Balanced) -->
     <div class="balance-labels bottom-label" v-if="isFair">
       <span class="label-fair"><span class="balance-icon">⚖️</span> Balanced Trade</span>
     </div>
@@ -96,8 +91,9 @@ const props = defineProps<{
   valueA: number
   valueB: number
   isFair: boolean
-  balancingValue: number // Add the new prop
-  showDifference?: boolean
+  balancingValue: number
+  showDifference?: boolean // Optional prop, not currently used in template but kept
+  acceptableVariance: number // The acceptable variance *value* (e.g., 1000 points)
 }>()
 
 const isHovered = ref(false)
@@ -113,6 +109,35 @@ const teamBPercentage = computed(() => {
   if (totalValue.value === 0) return 50 // Default to 50/50 if no value
   return (props.valueB / totalValue.value) * 100
 })
+
+// *** START: Variance Zone Calculations ***
+// Calculate the width of the acceptable variance zone as a percentage of the total bar width.
+// The variance represents the acceptable difference from the *midpoint* in absolute value.
+// So, the zone covers 'variance' points to the left and 'variance' points to the right.
+const acceptableVarianceZoneWidth = computed(() => {
+  if (!props.acceptableVariance || totalValue.value === 0) {
+    return 0 // No zone if no variance defined or total value is zero
+  }
+  // The total width in terms of value covered by the zone is twice the variance
+  const zoneValueWidth = props.acceptableVariance * 2
+  // Calculate the percentage width relative to the total trade value
+  const percentageWidth = (zoneValueWidth / totalValue.value) * 100
+  // Ensure the width doesn't exceed 100%
+  return Math.min(percentageWidth, 100)
+})
+
+// Calculate the inline style for positioning and sizing the variance zone.
+// It should be centered around the 50% midpoint of the bar.
+const varianceZoneStyle = computed(() => {
+  const width = acceptableVarianceZoneWidth.value
+  // Calculate the left offset: start at 50% and move left by half the zone's width
+  const left = 50 - width / 2
+  return {
+    width: `${width}%`,
+    left: `${left}%`
+  }
+})
+// *** END: Variance Zone Calculations ***
 </script>
 
 <style scoped>
@@ -213,9 +238,9 @@ const teamBPercentage = computed(() => {
   width: 100%;
   height: 16px;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: hidden; /* Keep overflow hidden */
   background-color: #f0f0f0;
-  position: relative;
+  position: relative; /* Changed to relative for positioning children */
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease-in-out;
 }
@@ -230,10 +255,11 @@ const teamBPercentage = computed(() => {
 .bar-segment {
   height: 100%;
   transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  position: relative;
+  position: relative; /* Keep relative */
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 0; /* Ensure segments are behind the variance zone if needed */
 }
 
 .team-a {
@@ -268,6 +294,7 @@ const teamBPercentage = computed(() => {
   border-radius: 1.5px;
   box-shadow: 0 0 6px rgba(82, 196, 26, 0.7);
   animation: pulse 1.5s infinite alternate;
+  z-index: 3; /* Ensure fair indicator is on top */
 }
 
 .midpoint-marker {
@@ -278,6 +305,7 @@ const teamBPercentage = computed(() => {
   width: 1px;
   background-color: rgba(0, 0, 0, 0.15);
   transform: translateX(-50%);
+  z-index: 2; /* Above variance zone, below fair indicator */
 }
 
 .label-fair {
@@ -333,8 +361,8 @@ const teamBPercentage = computed(() => {
   font-weight: bold;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease-out;
-  position: relative;
-  z-index: 1;
+  position: relative; /* Ensure it's not absolutely positioned by default */
+  z-index: 2; /* Above variance zone */
 }
 
 /* Styling for empty state elements */
