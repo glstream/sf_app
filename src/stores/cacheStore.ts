@@ -14,6 +14,9 @@ interface CacheState {
 
 // Cache duration in milliseconds (7 days)
 const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000
+// Define a version for the cache structure or application
+const CACHE_VERSION = '1.0.0' // Increment this version when cache structure changes or needs invalidation
+const STORAGE_VERSION_KEY = 'cacheVersion'
 
 export const useCacheStore = defineStore('cache', () => {
   // State: a map of cache keys to cache entries
@@ -57,6 +60,7 @@ export const useCacheStore = defineStore('cache', () => {
 
   function clearAll() {
     cache.value = {}
+    console.log('Cache cleared completely.')
   }
 
   // Clear expired entries
@@ -68,6 +72,38 @@ export const useCacheStore = defineStore('cache', () => {
       }
     })
   }
+
+  // Initialization logic
+  function initializeCache() {
+    try {
+      const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY)
+
+      if (storedVersion !== CACHE_VERSION) {
+        console.log(
+          `Cache version mismatch (stored: ${storedVersion}, current: ${CACHE_VERSION}). Clearing cache.`
+        )
+        clearAll()
+        localStorage.setItem(STORAGE_VERSION_KEY, CACHE_VERSION)
+      } else {
+        // Versions match, just clear expired items
+        clearExpired()
+        console.log('Cache version matches. Cleared expired entries.')
+      }
+    } catch (error) {
+      console.error('Failed to initialize cache:', error)
+      // Fallback: clear everything if error occurs during version check
+      clearAll()
+      // Attempt to set version again if possible
+      try {
+        localStorage.setItem(STORAGE_VERSION_KEY, CACHE_VERSION)
+      } catch (setError) {
+        console.error('Failed to set cache version after error:', setError)
+      }
+    }
+  }
+
+  // Run initialization logic when the store is created
+  initializeCache()
 
   return {
     cache,

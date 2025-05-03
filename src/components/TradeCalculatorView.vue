@@ -1370,7 +1370,7 @@ function getCardPositionColor(position: string): string {
 
 .responsive-padding {
   padding: 0 16px;
-  max-width: 1400px; /* Increased from 1200px to 1400px for wider desktop view */
+  max-width: 1200px; /* Reduced from 1400px */
   margin: 0 auto;
 }
 
@@ -1766,14 +1766,14 @@ function getCardPositionColor(position: string): string {
   .team-card:nth-of-type(1) {
     /* Team A - position on the left */
     grid-area: teamA;
-    min-width: 420px; /* Increased from default to ensure wider cards */
+    min-width: 400px; /* Reduced from 420px */
   }
 
   .trade-evaluation {
     /* Evaluation in the middle */
     grid-area: evaluation;
-    margin: 0 24px; /* Increased horizontal margin */
-    min-width: 280px; /* Increased from 250px */
+    margin: 0 20px; /* Slightly reduced horizontal margin */
+    min-width: 280px; /* Kept the same */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1782,28 +1782,7 @@ function getCardPositionColor(position: string): string {
   .team-card:nth-of-type(2) {
     /* Team B - position on the right */
     grid-area: teamB;
-    min-width: 420px; /* Increased from default to ensure wider cards */
-  }
-}
-
-/* Add new styles for extra large screens */
-@media (min-width: 1400px) {
-  .responsive-padding {
-    padding: 0 24px; /* More padding on very wide screens */
-  }
-
-  .team-card:nth-of-type(1),
-  .team-card:nth-of-type(2) {
-    min-width: 480px; /* Even wider on very large screens */
-  }
-
-  .trade-evaluation {
-    min-width: 300px; /* Wider evaluation section on large screens */
-  }
-
-  /* Increase player name max width on large screens */
-  .player-name {
-    max-width: 240px;
+    min-width: 400px; /* Reduced from 420px */
   }
 }
 

@@ -322,7 +322,7 @@ function handlePageChange(page) {
 }
 .responsive-padding {
   padding: 0 16px;
-  max-width: 1400px;
+  max-width: 1600px; /* Increased from 1400px */
   margin: 0 auto;
 }
 
@@ -398,8 +398,9 @@ function handlePageChange(page) {
 
 .rankings-header {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
-  padding: 12px 8px;
+  /* Adjusted grid columns for wider layout */
+  grid-template-columns: 60px 100px minmax(350px, 3fr) 120px 100px 140px;
+  padding: 14px 10px; /* Slightly increased padding */
   font-weight: 600;
   color: #1f2937;
   background: #f1f5f9;
@@ -410,8 +411,9 @@ function handlePageChange(page) {
 
 .rankings-row {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
-  padding: 10px 8px;
+  /* Adjusted grid columns for wider layout */
+  grid-template-columns: 60px 100px minmax(350px, 3fr) 120px 100px 140px;
+  padding: 12px 10px; /* Slightly increased padding */
   align-items: center;
   border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
@@ -547,13 +549,24 @@ function handlePageChange(page) {
 
 @media (min-width: 1400px) {
   .responsive-padding {
-    padding: 0 32px;
+    padding: 0 32px; /* Keep padding */
+  }
+  /* Adjust grid for very large screens if needed, otherwise it inherits from base */
+  .rankings-header,
+  .rankings-row {
+    /* Example: Further increase player column */
+    grid-template-columns: 60px 100px minmax(400px, 3fr) 120px 100px 140px;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1399px) {
   .responsive-padding {
-    padding: 0 24px;
+    padding: 0 24px; /* Keep padding */
+  }
+  /* Adjust grid for medium-large screens */
+  .rankings-header,
+  .rankings-row {
+    grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px; /* Revert to previous medium size */
   }
 }
 
@@ -564,64 +577,47 @@ function handlePageChange(page) {
 
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 24px 36px minmax(60px, 1fr) 34px 24px 54px;
+    /* Keep mobile layout as is or adjust slightly if needed */
+    grid-template-columns: 30px 60px minmax(150px, 1fr) 60px 50px 80px; /* Adjusted mobile layout */
     font-size: 0.85rem;
-    padding: 2px 1px;
+    padding: 8px 4px; /* Adjusted padding */
   }
 
-  .rankings-row {
-    margin-bottom: 4px;
-    border-radius: 4px;
-  }
-
+  /* ... rest of mobile styles ... */
   .cell {
-    padding: 0 1px;
-    font-size: 0.75rem;
+    padding: 0 4px; /* Adjusted padding */
+    font-size: 0.8rem; /* Adjusted font size */
   }
 
   .cell-value {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #1e3a8a;
-    text-align: right;
-    min-width: 48px;
-    max-width: 54px;
-    overflow: visible;
+    font-size: 0.85rem; /* Adjusted font size */
+    /* ... other cell-value styles ... */
   }
 
   .player-container {
-    gap: 2px;
+    gap: 6px; /* Adjusted gap */
   }
 
   .position-tag {
-    padding: 0 2px;
-    font-size: 0.65rem;
+    padding: 2px 6px; /* Adjusted padding */
+    font-size: 0.75rem; /* Adjusted font size */
   }
 
   .tier-indicator {
-    font-size: 0.65rem;
-    padding: 0 2px;
-    max-width: 32px;
+    font-size: 0.7rem; /* Adjusted font size */
+    padding: 1px 4px; /* Adjusted padding */
+    max-width: 50px; /* Adjusted max-width */
   }
 }
 
-@media (max-width: 400px) {
-  .rankings-header,
-  .rankings-row {
-    grid-template-columns: 18px 26px minmax(40px, 1fr) 24px 16px 38px;
-    font-size: 0.7rem;
-    padding: 2px 0;
-  }
-  .cell-value {
-    min-width: 36px;
-    max-width: 38px;
-    font-size: 0.7rem;
-  }
-}
-
+/* Remove or adjust the specific max-width media queries if they conflict */
+/* @media (max-width: 400px) { ... } */
+/* @media (max-width: 575px) { ... } */
+/* Keep the 575px breakpoint if needed for specific small screen adjustments */
 @media (max-width: 575px) {
   .rankings-header,
   .rankings-row {
+    /* Further adjust for very small screens */
     grid-template-columns: 30px 55px minmax(120px, 1fr) 50px 40px 70px;
     font-size: 0.8rem;
     padding: 6px 2px;
