@@ -134,12 +134,12 @@ const rankType = ref('dynasty')
 const currentPage = ref(1)
 const perPage = ref(75)
 
-const plainOptions = ['QB', 'RB', 'WR', 'TE', 'PICK']
+const plainOptions = ['QB', 'RB', 'WR', 'TE']
 
 const checkState = reactive({
   indeterminate: true,
   checkAll: false,
-  checkedList: ['QB', 'RB', 'WR', 'TE', 'PICK'],
+  checkedList: ['QB', 'RB', 'WR', 'TE'],
   showRookiesOnly: false
 })
 
