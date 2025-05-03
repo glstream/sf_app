@@ -12,8 +12,8 @@ interface CacheState {
   [key: string]: CacheEntry
 }
 
-// Cache duration in milliseconds (7 days)
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000
+// Cache duration in milliseconds (1 day)
+const CACHE_DURATION = 1 * 24 * 60 * 60 * 1000
 // Define a version for the cache structure or application
 const CACHE_VERSION = '1.0.0' // Increment this version when cache structure changes or needs invalidation
 const STORAGE_VERSION_KEY = 'cacheVersion'
