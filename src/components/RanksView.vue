@@ -387,11 +387,9 @@ function handlePageChange(page) {
 
 .rankings-table {
   width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #eaeaea;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  background: white;
+  border-radius: 12px; /* Keep radius if desired */
+  overflow: hidden; /* Keep overflow */
+  background: transparent; /* Make container transparent */
   max-width: 100%;
 }
 
@@ -412,20 +410,15 @@ function handlePageChange(page) {
   grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
   padding: 10px 8px;
   align-items: center;
-  border-bottom: 1px solid #f0f0f0;
   transition: background-color 0.2s;
-  margin-bottom: 6px;
-  background: white;
-  border-radius: 4px;
+  margin-bottom: 8px; /* Increased margin slightly for spacing */
+  background: white; /* Keep row background white */
+  border-radius: 6px; /* Slightly increased radius */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); /* Add shadow to rows */
 }
 
 .rankings-row:last-child {
-  border-bottom: none;
   margin-bottom: 0;
-}
-
-.rankings-row:hover {
-  background-color: #f9fafb;
 }
 
 .cell {
