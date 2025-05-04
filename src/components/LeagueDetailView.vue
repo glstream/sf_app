@@ -308,9 +308,7 @@
                                 v-for="player in (showProjections
                                   ? getPlayersProj(record.user_id)
                                   : getPlayers(record.user_id)
-                                )
-                                  .filter((p) => p.player_position === position)
-                                  .sort((a, b) => b.player_value - a.player_value)"
+                                ).filter((p) => p.player_position === position)"
                                 :key="player.sleeper_id"
                                 class="player-card"
                                 :style="getPositionTagList(player.player_position, 0.25)"
@@ -1249,6 +1247,56 @@ import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
 import { sleep } from '../utils/delay'
 
+// --- START: Added Pick Sorting Logic ---
+
+// Helper function to sort draft picks by Year, then Round/Tier/Pick#
+function sortPicks(picks) {
+  const roundOrder = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, '5th': 5 } // Extend if needed
+  const tierOrder = { Early: 1, Mid: 2, Late: 3 }
+
+  // Use spread operator [...] to create a shallow copy before sorting
+  return [...picks].sort((a, b) => {
+    const nameA = a.full_name || ''
+    const nameB = b.full_name || ''
+
+    // 1. Sort by Year
+    const yearA = parseInt(nameA.substring(0, 4)) || 9999 // Default high if parsing fails
+    const yearB = parseInt(nameB.substring(0, 4)) || 9999
+    if (yearA !== yearB) return yearA - yearB
+
+    // 2. Sort by Round (e.g., "1st", "2nd")
+    const roundMatchA = nameA.match(/(\d+)(st|nd|rd|th)/)
+    const roundMatchB = nameB.match(/(\d+)(st|nd|rd|th)/)
+    const roundNumA = roundMatchA ? parseInt(roundMatchA[1]) : 99 // Default high if no match
+    const roundNumB = roundMatchB ? parseInt(roundMatchB[1]) : 99
+    if (roundNumA !== roundNumB) return roundNumA - roundNumB
+
+    // 3. Sort by Tier (e.g., "Early", "Mid", "Late") - Handles 'YYYY Tier Round' format
+    const tierMatchA = nameA.match(/(Early|Mid|Late)/)
+    const tierMatchB = nameB.match(/(Early|Mid|Late)/)
+    const tierValA = tierMatchA ? tierOrder[tierMatchA[1]] : 2 // Default Mid if no tier
+    const tierValB = tierMatchB ? tierOrder[tierMatchB[1]] : 2
+    if (tierValA !== tierValB) return tierValA - tierValB
+
+    // 4. Sort by Pick Number (e.g., 1.05 vs 1.10) - Handles 'YYYY Round.Pick' format
+    const pickNumMatchA = nameA.match(/(\d+)\.(\d+)/)
+    const pickNumMatchB = nameB.match(/(\d+)\.(\d+)/)
+    // Use round * 100 + pick for correct numerical comparison (e.g., 1.10 > 1.05)
+    const pickValA = pickNumMatchA
+      ? parseInt(pickNumMatchA[1]) * 100 + parseInt(pickNumMatchA[2])
+      : 9999
+    const pickValB = pickNumMatchB
+      ? parseInt(pickNumMatchB[1]) * 100 + parseInt(pickNumMatchB[2])
+      : 9999
+    if (pickValA !== pickValB) return pickValA - pickValB
+
+    // 5. Fallback to original value sort (descending) if all else is equal
+    return b.player_value - a.player_value
+  })
+}
+
+// --- END: Added Pick Sorting Logic ---
+
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
 import ktcLogo from '@/assets/sourceLogos/ktc.png'
@@ -2124,10 +2172,54 @@ function getPositionTagList(position, opacity = 0.15) {
   }
 }
 
-// Compute chunks of 50 players
+// --- START: Modified getPlayers and getPlayersProj ---
+
+const getPlayers = (userId) => {
+  const userAssets = filteredData.value.filter((item) => item.user_id === userId)
+  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
+  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
+
+  // Sort players by value descending
+  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
+  // Sort picks using the custom logic
+  const sortedPicks = sortPicks(picks)
+
+  // Combine: Players first, then picks sorted by year/round
+  return [...sortedPlayers, ...sortedPicks]
+}
+
+const getPlayersProj = (userId) => {
+  const userAssets = filteredProjData.value.filter((item) => item.user_id === userId)
+  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
+  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
+
+  // Sort players by value descending
+  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
+  // Sort picks using the custom logic
+  const sortedPicks = sortPicks(picks)
+
+  // Combine: Players first, then picks sorted by year/round
+  return [...sortedPlayers, ...sortedPicks]
+}
+
+// --- END: Modified getPlayers and getPlayersProj ---
+
+// Compute chunks of 50 players based on the new sorted list
+const sortedFilteredData = computed(() => {
+  const players = filteredData.value.filter((a) => a.player_position !== 'PICKS')
+  const picks = filteredData.value.filter((a) => a.player_position === 'PICKS')
+
+  // Ensure players are sorted by value descending
+  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
+  // Sort picks using the custom logic
+  const sortedPicks = sortPicks(picks)
+
+  return [...sortedPlayers, ...sortedPicks]
+})
+
 const playerChunks = computed(() => {
   const size = 50
-  return filteredData.value.reduce((acc, val, i) => {
+  return sortedFilteredData.value.reduce((acc, val, i) => {
     let idx = Math.floor(i / size)
     let page = acc[idx] || (acc[idx] = [])
     page.push(val)
@@ -2135,15 +2227,46 @@ const playerChunks = computed(() => {
   }, [])
 })
 
-const getPlayers = (userId) => {
-  const interimData = filteredData.value.filter((item) => item.user_id === userId)
-  return interimData
-}
+// --- START: Modified playersByPosition ---
 
-const getPlayersProj = (userId) => {
-  const interimProjData = filteredProjData.value.filter((item) => item.user_id === userId)
-  return interimProjData
-}
+const playersByPosition = computed(() => {
+  const order = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  const groups = {}
+  order.forEach((position) => {
+    groups[position] = []
+  })
+
+  // Group players first using the overall value-sorted list
+  filteredData.value.forEach((player) => {
+    if (groups.hasOwnProperty(player.player_position)) {
+      groups[player.player_position].push(player)
+    }
+  })
+
+  // Now, sort within each group
+  order.forEach((position) => {
+    if (groups[position]) {
+      // Check if group exists (might be empty)
+      if (position === 'PICKS') {
+        // Apply custom sort for picks
+        groups[position] = sortPicks(groups[position])
+      } else {
+        // Ensure players are sorted by value descending (might be redundant if filteredData is pre-sorted)
+        groups[position].sort((a, b) => b.player_value - a.player_value)
+      }
+      // Filter out empty groups after potential sorting
+      if (groups[position].length === 0) {
+        delete groups[position]
+      }
+    } else {
+      delete groups[position] // Remove placeholder if it remained empty
+    }
+  })
+
+  return groups
+})
+
+// --- END: Modified playersByPosition ---
 
 const insertLeagueDetials = async (values: any) => {
   // Clear specific cache entries for this league to ensure fresh data
@@ -2657,31 +2780,6 @@ function avatarStyle(user) {
     border: selectedUserId.value === user.user_id ? '2px solid red' : 'none'
   }
 }
-const playersByPosition = computed(() => {
-  const order = ['QB', 'RB', 'WR', 'TE', 'PICKS'] // Define the order of positions
-  const groups = {}
-
-  // Initialize the groups object with keys in the desired order
-  order.forEach((position) => {
-    groups[position] = []
-  })
-
-  // Populate the groups object with players
-  filteredData.value.forEach((player) => {
-    if (groups.hasOwnProperty(player.player_position)) {
-      groups[player.player_position].push(player)
-    }
-  })
-
-  // Filter out any positions that end up being empty to prevent empty categories
-  order.forEach((position) => {
-    if (groups[position].length === 0) {
-      delete groups[position]
-    }
-  })
-
-  return groups
-})
 
 const visualStartPercentage = 20
 const max = 100
