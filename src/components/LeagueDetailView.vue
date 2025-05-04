@@ -313,9 +313,38 @@
                                 class="player-card"
                                 :style="getPositionTagList(player.player_position, 0.25)"
                                 :class="{
+                                  // Only apply indicators for non-PICKS
                                   'high-value-asset':
+                                    player.player_position !== 'PICKS' &&
                                     player.player_value >=
-                                    (positionValueThresholds[player.player_position] || Infinity)
+                                      (showProjections
+                                        ? projectionValueThresholds[player.player_position] ||
+                                          Infinity
+                                        : overallValueThresholds[player.player_position] ||
+                                          Infinity),
+                                  'low-value-asset':
+                                    player.player_position !== 'PICKS' &&
+                                    player.player_value > 0 &&
+                                    player.player_value <=
+                                      (showProjections
+                                        ? projectionLowValueThresholds[player.player_position] ||
+                                          -Infinity
+                                        : overallLowValueThresholds[player.player_position] ||
+                                          -Infinity),
+                                  'mid-value-asset':
+                                    player.player_position !== 'PICKS' &&
+                                    player.player_value >
+                                      (showProjections
+                                        ? projectionLowValueThresholds[player.player_position] ||
+                                          -Infinity
+                                        : overallLowValueThresholds[player.player_position] ||
+                                          -Infinity) &&
+                                    player.player_value <
+                                      (showProjections
+                                        ? projectionValueThresholds[player.player_position] ||
+                                          Infinity
+                                        : overallValueThresholds[player.player_position] ||
+                                          Infinity)
                                 }"
                               >
                                 <div class="player-info">
@@ -1302,15 +1331,46 @@ function sortPicks(picks) {
 
 // --- END: Added Pick Sorting Logic ---
 
-// --- START: Added Position Value Thresholds ---
-const positionValueThresholds = {
-  QB: 7000,
-  RB: 5500,
-  WR: 6000,
-  TE: 2200,
-  PICKS: 4000 // Example threshold for picks
+// --- START: Dynamic Percentile Threshold Calculation ---
+
+// Helper function to calculate percentile
+const calculatePercentileThresholds = (data, percentile = 75) => {
+  if (!data || data.length === 0) return {}
+
+  const thresholds = {}
+  const positions = ['QB', 'RB', 'WR', 'TE'] // Exclude PICKS for thresholds
+
+  positions.forEach((pos) => {
+    const positionValues = data
+      .filter((p) => p.player_position === pos && p.player_value > 0)
+      .map((p) => p.player_value)
+      .sort((a, b) => a - b)
+
+    if (positionValues.length > 0) {
+      const index = Math.ceil((percentile / 100) * positionValues.length) - 1
+      thresholds[pos] = positionValues[Math.max(0, index)]
+    } else {
+      thresholds[pos] = Infinity
+    }
+  })
+  return thresholds
 }
-// --- END: Added Position Value Thresholds ---
+
+// High value = 85th percentile, Low value = 15th percentile
+const overallValueThresholds = computed(() => {
+  return calculatePercentileThresholds(detailData.value, 85)
+})
+const projectionValueThresholds = computed(() => {
+  return calculatePercentileThresholds(projDetailData.value, 85)
+})
+const overallLowValueThresholds = computed(() => {
+  return calculatePercentileThresholds(detailData.value, 15)
+})
+const projectionLowValueThresholds = computed(() => {
+  return calculatePercentileThresholds(projDetailData.value, 15)
+})
+
+// --- END: Dynamic Percentile Threshold Calculation ---
 
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
@@ -2155,26 +2215,22 @@ function getPositionTagList(position, opacity = 0.15) {
     case 'QB':
       return {
         background: `rgba(39, 125, 161, ${opacity})`,
-        'border-color': `rgb(39, 125, 161)`,
-        border: `1px solid rgba(39, 125, 161, ${opacity})`
+        'border-color': `rgb(39, 125, 161)`
       }
     case 'RB':
       return {
         background: `rgba(144, 190, 109, ${opacity})`,
-        'border-color': `rgb(144, 190, 109)`,
-        border: `1px solid rgba(144, 190, 109, ${opacity})`
+        'border-color': `rgb(144, 190, 109)`
       }
     case 'WR':
       return {
         background: `rgba(67, 170, 139, ${opacity})`,
-        'border-color': `rgb(67, 170, 139)`,
-        border: `1px solid rgba(67, 170, 139, ${opacity})`
+        'border-color': `rgb(67, 170, 139)`
       }
     case 'TE':
       return {
         background: `rgba(249, 132, 74, ${opacity})`,
-        'border-color': `rgb(249, 132, 74)`,
-        border: `1px solid rgba(249, 132, 74, ${opacity})`
+        'border-color': `rgb(249, 132, 74)`
       }
     case 'PICKS':
       return {
@@ -3660,20 +3716,52 @@ h4 {
 
 /* Style for highlighting high-value assets */
 .high-value-asset {
-  padding-left: 12px; /* Add padding to make space for the indicator */
+  padding-left: 12px;
 }
-
 .high-value-asset::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 5px; /* Width of the gold tab */
-  background-color: gold; /* Color of the tab */
-  border-top-left-radius: 4px; /* Match card's border-radius */
-  border-bottom-left-radius: 4px; /* Match card's border-radius */
+  width: 5px;
+  background-color: gold;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
+
+/* Style for highlighting low-value assets */
+.low-value-asset {
+  padding-left: 12px;
+}
+.low-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: #e74d3cdd;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+/* --- ADD: Style for highlighting mid-value assets --- */
+.mid-value-asset {
+  padding-left: 12px;
+}
+.mid-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: #bdbdbd;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+/* --- END: Style for highlighting mid-value assets --- */
 
 /* Highlighted row for current user */
 .highlighted-row {
@@ -3884,4 +3972,38 @@ h4 {
   border-top-left-radius: 4px; /* Match card's border-radius */
   border-bottom-left-radius: 4px; /* Match card's border-radius */
 }
+
+/* --- ADD: Style for highlighting low-value assets --- */
+.low-value-asset {
+  padding-left: 12px; /* Add padding to make space for the indicator */
+}
+
+.low-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px; /* Width of the red tab */
+  background-color: #e74c3c; /* Red color */
+  border-top-left-radius: 4px; /* Match card's border-radius */
+  border-bottom-left-radius: 4px; /* Match card's border-radius */
+}
+
+/* --- ADD: Style for highlighting mid-value assets --- */
+.mid-value-asset {
+  padding-left: 12px;
+}
+.mid-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background-color: #bdbdbd;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+/* --- END: Style for highlighting mid-value assets --- */
 </style>
