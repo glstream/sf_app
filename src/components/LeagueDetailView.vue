@@ -1304,7 +1304,7 @@ function sortPicks(picks) {
 
 // --- START: Added Position Value Thresholds ---
 const positionValueThresholds = {
-  QB: 7500,
+  QB: 7000,
   RB: 5500,
   WR: 6000,
   TE: 2200,
