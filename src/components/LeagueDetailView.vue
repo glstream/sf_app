@@ -312,6 +312,11 @@
                                 :key="player.sleeper_id"
                                 class="player-card"
                                 :style="getPositionTagList(player.player_position, 0.25)"
+                                :class="{
+                                  'high-value-asset':
+                                    player.player_value >=
+                                    (positionValueThresholds[player.player_position] || Infinity)
+                                }"
                               >
                                 <div class="player-info">
                                   <div class="player-name-team">
@@ -1296,6 +1301,16 @@ function sortPicks(picks) {
 }
 
 // --- END: Added Pick Sorting Logic ---
+
+// --- START: Added Position Value Thresholds ---
+const positionValueThresholds = {
+  QB: 7500,
+  RB: 5500,
+  WR: 6000,
+  TE: 2200,
+  PICKS: 4000 // Example threshold for picks
+}
+// --- END: Added Position Value Thresholds ---
 
 // Sourec image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
@@ -3593,6 +3608,8 @@ h4 {
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
+  position: relative; /* Needed for the ::before pseudo-element */
+  overflow: hidden; /* Ensure the ::before doesn't overflow the rounded corners */
 }
 
 .player-card:hover {
@@ -3639,6 +3656,23 @@ h4 {
 .player-value {
   font-weight: 600;
   font-size: 12px;
+}
+
+/* Style for highlighting high-value assets */
+.high-value-asset {
+  padding-left: 12px; /* Add padding to make space for the indicator */
+}
+
+.high-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px; /* Width of the gold tab */
+  background-color: gold; /* Color of the tab */
+  border-top-left-radius: 4px; /* Match card's border-radius */
+  border-bottom-left-radius: 4px; /* Match card's border-radius */
 }
 
 /* Highlighted row for current user */
@@ -3833,4 +3867,21 @@ h4 {
   }
 }
 /* End of Data Controls Card Styling */
+
+/* Style for highlighting high-value assets */
+.high-value-asset {
+  padding-left: 12px; /* Add padding to make space for the indicator */
+}
+
+.high-value-asset::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px; /* Width of the gold tab */
+  background-color: gold; /* Color of the tab */
+  border-top-left-radius: 4px; /* Match card's border-radius */
+  border-bottom-left-radius: 4px; /* Match card's border-radius */
+}
 </style>
