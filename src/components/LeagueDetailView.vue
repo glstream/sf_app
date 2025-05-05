@@ -106,7 +106,6 @@
                       <template #overlay>
                         <a-menu @click="handleMenuClick">
                           <a-menu-item v-for="source in filteredSources" :key="source.key">
-                            <UserOutlined />
                             <img
                               style="padding-right: 5px"
                               class="rank-logos"
@@ -2415,6 +2414,8 @@ const insertLeagueDetials = async (values: any) => {
   summaryIsLoading.value = true
   console.log('trying insert rosters')
 
+  const cacheBuster = Date.now().toString() // Generate cache buster timestamp
+
   try {
     const response = await axios.post(`${apiUrl}/roster`, {
       league_id: leagueInfo.leagueId,
@@ -2429,53 +2430,69 @@ const insertLeagueDetials = async (values: any) => {
   } finally {
     isLoading.value = false // Update loading state
 
+    // Pass cacheBuster to subsequent fetch calls
     fetchSummaryData(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
       leagueInfo.rankType,
       leagueInfo.guid,
-      leagueInfo.rosterType
+      leagueInfo.rosterType,
+      leagueInfo.leagueType, // Ensure leagueType is passed if needed
+      cacheBuster
     )
     fetchDetailData(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
       leagueInfo.rankType,
       leagueInfo.guid,
-      leagueInfo.rosterType
+      leagueInfo.rosterType,
+      cacheBuster
     )
     fetchBaData(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
       leagueInfo.rankType,
       leagueInfo.guid,
-      leagueInfo.rosterType
+      leagueInfo.rosterType,
+      cacheBuster
     )
     fetchTrades(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
       leagueInfo.rosterType,
       leagueInfo.leagueYear,
-      leagueInfo.rankType
+      leagueInfo.rankType,
+      cacheBuster
     )
-    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid)
+    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster)
   }
 }
 
-async function fetchProjectionData(leagueId: string, projectionSource: string, guid: string) {
+async function fetchProjectionData(
+  leagueId: string,
+  projectionSource: string,
+  guid: string,
+  cacheBuster?: string // Add cacheBuster parameter
+) {
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 2000 // Delay in milliseconds
+
+  const params: any = {
+    league_id: leagueId,
+    projection_source: projectionSource,
+    guid: guid
+  }
+  if (cacheBuster) {
+    params._cb = cacheBuster // Add _cb if provided
+  }
 
   while (retryCount < maxRetries) {
     try {
       console.log('Fetching projection data...')
       const [summaryResponse, detailResponse] = await Promise.all([
-        axios.get(`${apiUrl}/contender_league_summary`, {
-          params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
-        }),
-        axios.get(`${apiUrl}/contender_league_detail`, {
-          params: { league_id: leagueId, projection_source: projectionSource, guid: guid }
-        })
+        axios.get(`${apiUrl}/contender_league_summary`, { params }), // Use updated params
+        axios.get(`${apiUrl}/contender_league_detail`, { params }) // Use updated params
       ])
 
       updateProjectionData(summaryResponse.data) // Assuming this function processes and updates some state or UI
@@ -2525,15 +2542,16 @@ async function fetchSummaryData(
   rankType: string,
   guid: string,
   rosterType: string,
-  leagueType: string // Assuming this is defined somewhere as it's used in your params
+  leagueType: string, // Assuming this is defined somewhere as it's used in your params
+  cacheBuster?: string // Add cacheBuster parameter
 ) {
   summaryIsLoading.value = true
 
   // Create a unique cache key based on parameters
   const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
 
-  // Check if we have valid cached data
-  if (cacheStore.has(cacheKey)) {
+  // If a cache buster is provided, bypass the cache check
+  if (!cacheBuster && cacheStore.has(cacheKey)) {
     console.log('Using cached summary data')
     const cachedData = cacheStore.get(cacheKey)
     summaryData.value = cachedData
@@ -2548,19 +2566,22 @@ async function fetchSummaryData(
   const maxRetries = 3
   const retryDelay = 500 // Delay in milliseconds
 
+  const params: any = {
+    league_id: leagueId,
+    platform: platform,
+    rank_type: rankType,
+    guid: guid,
+    roster_type: rosterType,
+    league_type: leagueType
+  }
+  if (cacheBuster) {
+    params._cb = cacheBuster // Add _cb if provided
+  }
+
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${apiUrl}/league_summary`, {
-          params: {
-            league_id: leagueId,
-            platform: platform,
-            rank_type: rankType,
-            guid: guid,
-            roster_type: rosterType,
-            league_type: leagueType
-          }
-        })
+        const response = await axios.get(`${apiUrl}/league_summary`, { params }) // Use updated params
 
         const rawData = response.data
 
@@ -2628,15 +2649,16 @@ async function fetchBaData(
   platform: string,
   rankType: string,
   guid: string,
-  rosterType: string
+  rosterType: string,
+  cacheBuster?: string // Add cacheBuster parameter
 ) {
   baIsLoading.value = true // Assuming you have a reactive variable to track loading state
 
   // Create a unique cache key based on parameters
   const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
-  // Check if we have valid cached data
-  if (cacheStore.has(cacheKey)) {
+  // If a cache buster is provided, bypass the cache check
+  if (!cacheBuster && cacheStore.has(cacheKey)) {
     console.log('Using cached best available data')
     bestAvailableData.value = cacheStore.get(cacheKey)
     baIsLoading.value = false
@@ -2647,17 +2669,20 @@ async function fetchBaData(
   const maxRetries = 3
   const retryDelay = 500 // Delay in milliseconds
 
+  const params: any = {
+    league_id: leagueId,
+    platform: platform,
+    rank_type: rankType,
+    guid: guid,
+    roster_type: rosterType
+  }
+  if (cacheBuster) {
+    params._cb = cacheBuster // Add _cb if provided
+  }
+
   while (retryCount < maxRetries) {
     try {
-      const response = await axios.get(`${apiUrl}/best_available`, {
-        params: {
-          league_id: leagueId,
-          platform: platform,
-          rank_type: rankType,
-          guid: guid,
-          roster_type: rosterType
-        }
-      })
+      const response = await axios.get(`${apiUrl}/best_available`, { params }) // Use updated params
 
       // Store in cache before assigning to reactive variable
       cacheStore.set(cacheKey, response.data)
@@ -2685,34 +2710,30 @@ async function fetchTrades(
   platform: string,
   rosterType: string,
   leagueYear: string,
-  rankType: string
+  rankType: string,
+  cacheBuster?: string // Add cacheBuster parameter
 ) {
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500 // Delay in milliseconds
 
+  const params: any = {
+    league_id: leagueId,
+    platform: platform,
+    roster_type: rosterType,
+    league_year: leagueYear,
+    rank_type: rankType
+  }
+  if (cacheBuster) {
+    params._cb = cacheBuster // Add _cb if provided
+  }
+
   while (retryCount < maxRetries) {
     try {
       console.log('Pulling trades')
       const [summaryResponse, detailResponse] = await Promise.all([
-        axios.get(`${apiUrl}/trades_summary`, {
-          params: {
-            league_id: leagueId,
-            platform: platform,
-            roster_type: rosterType,
-            league_year: leagueYear,
-            rank_type: rankType
-          }
-        }),
-        axios.get(`${apiUrl}/trades_detail`, {
-          params: {
-            league_id: leagueId,
-            platform: platform,
-            roster_type: rosterType,
-            league_year: leagueYear,
-            rank_type: rankType
-          }
-        })
+        axios.get(`${apiUrl}/trades_summary`, { params }), // Use updated params
+        axios.get(`${apiUrl}/trades_detail`, { params }) // Use updated params
       ])
 
       tradesSummaryData.value = summaryResponse.data
@@ -2850,15 +2871,16 @@ async function fetchDetailData(
   platform: string,
   rankType: string,
   guid: string,
-  rosterType: string
+  rosterType: string,
+  cacheBuster?: string // Add cacheBuster parameter
 ) {
   detailIsLoading.value = true
 
   // Create a unique cache key based on parameters
   const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
-  // Check if we have valid cached data
-  if (cacheStore.has(cacheKey)) {
+  // If a cache buster is provided, bypass the cache check
+  if (!cacheBuster && cacheStore.has(cacheKey)) {
     console.log('Using cached detail data')
     detailData.value = cacheStore.get(cacheKey)
     detailIsLoading.value = false
@@ -2869,17 +2891,20 @@ async function fetchDetailData(
   const maxRetries = 3
   const retryDelay = 500 // delay in milliseconds
 
+  const params: any = {
+    league_id: leagueId,
+    platform: platform,
+    rank_type: rankType,
+    guid: guid,
+    roster_type: rosterType
+  }
+  if (cacheBuster) {
+    params._cb = cacheBuster // Add _cb if provided
+  }
+
   while (retryCount < maxRetries) {
     try {
-      const response = await axios.get(`${apiUrl}/league_detail`, {
-        params: {
-          league_id: leagueId,
-          platform: platform,
-          rank_type: rankType,
-          guid: guid,
-          roster_type: rosterType
-        }
-      })
+      const response = await axios.get(`${apiUrl}/league_detail`, { params }) // Use updated params
 
       // Store in cache before assigning to reactive variable
       cacheStore.set(cacheKey, response.data)
@@ -3035,7 +3060,7 @@ table {
   max-width: 1000px;
 }
 
-.ant-table-tbody {
+.at-table-tbody {
   padding: 2px 2px;
 }
 .legend {
