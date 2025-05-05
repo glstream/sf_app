@@ -78,6 +78,7 @@
             :key="asset._rownum"
             class="rankings-row"
             :class="getTierClass(asset.player_value)"
+            @click="showPlayerModal(asset)"
           >
             <div class="cell cell-rank">{{ (currentPage - 1) * perPage + index + 1 }}</div>
             <div class="cell cell-tier">
@@ -107,6 +108,49 @@
           ></a-pagination>
         </div>
       </a-spin>
+
+      <!-- Player Detail Modal -->
+      <a-modal
+        v-model:open="isPlayerModalVisible"
+        :title="selectedPlayer?.player_full_name || 'Player Details'"
+        @ok="handlePlayerModalOk"
+        :footer="null"
+        width="400px"
+      >
+        <div v-if="selectedPlayer" class="player-modal-content">
+          <div class="player-modal-header">
+            <div class="player-image-placeholder">
+              <!-- Placeholder for player image -->
+              <UserOutlined style="font-size: 48px; color: #ccc" />
+            </div>
+            <div class="player-modal-info">
+              <h2>{{ selectedPlayer.player_full_name }}</h2>
+              <p>
+                <a-tag :style="getPositionTag(selectedPlayer._position)">{{
+                  selectedPlayer._position
+                }}</a-tag>
+                <span v-if="selectedPlayer.team"> &bull; {{ selectedPlayer.team }}</span>
+                <span v-if="selectedPlayer.age"> &bull; {{ selectedPlayer.age }} yrs</span>
+              </p>
+            </div>
+          </div>
+          <div class="player-modal-details">
+            <p>
+              <strong>Value:</strong>
+              {{
+                selectedPlayer.player_value === -1
+                  ? 'N/A'
+                  : selectedPlayer.player_value?.toLocaleString()
+              }}
+            </p>
+            <p><strong>Rank:</strong> {{ selectedPlayer._rownum }}</p>
+            <p><strong>Pos Rank:</strong> {{ selectedPlayer.pos_ranked }}</p>
+          </div>
+        </div>
+        <div v-else>
+          <p>Loading player details...</p>
+        </div>
+      </a-modal>
     </a-layout-content>
     <AppFooter />
   </a-layout>
@@ -122,7 +166,7 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 // 3rd Party imports
 import axios from 'axios'
 import { message, Spin, Column, Empty } from 'ant-design-vue'
-import { HomeOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, DownloadOutlined, UserOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 // Source image imports
@@ -312,6 +356,20 @@ const paginatedData = computed(() => {
 function handlePageChange(page) {
   currentPage.value = page
 }
+
+// Modal State
+const isPlayerModalVisible = ref(false)
+const selectedPlayer = ref(null)
+
+// Modal Functions
+const showPlayerModal = (player) => {
+  selectedPlayer.value = player
+  isPlayerModalVisible.value = true
+}
+
+const handlePlayerModalOk = () => {
+  isPlayerModalVisible.value = false
+}
 </script>
 
 <style scoped>
@@ -415,6 +473,7 @@ function handlePageChange(page) {
   background: white; /* Keep row background white */
   border-radius: 6px; /* Slightly increased radius */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); /* Add shadow to rows */
+  cursor: pointer; /* Add cursor pointer */
 }
 
 .rankings-row:last-child {
@@ -535,6 +594,51 @@ function handlePageChange(page) {
   justify-content: center;
   margin-top: 20px;
   margin-bottom: 32px;
+}
+
+/* Styles for Player Modal */
+.player-modal-content {
+  padding: 10px;
+}
+
+.player-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.player-image-placeholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+}
+
+.player-modal-info h2 {
+  margin-bottom: 4px;
+  font-size: 1.3em;
+}
+
+.player-modal-info p {
+  margin: 0;
+  color: #555;
+}
+
+.player-modal-details p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.player-modal-details strong {
+  margin-right: 5px;
+  color: #333;
 }
 
 @media (min-width: 1400px) {

@@ -346,6 +346,11 @@
                                         : overallValueThresholds[player.player_position] ||
                                           Infinity)
                                 }"
+                                @click="
+                                  player.player_position !== 'PICKS'
+                                    ? showPlayerModal(player)
+                                    : null
+                                "
                               >
                                 <div class="player-info">
                                   <div class="player-name-team">
@@ -502,6 +507,9 @@
                           :key="player.sleeper_id"
                           :style="getPositionTagList(player.player_position, 0.35)"
                           class="team-asset-item"
+                          @click="
+                            player.player_position !== 'PICKS' ? showPlayerModal(player) : null
+                          "
                         >
                           <span class="asset-index">{{ index + 1 }}.</span>
                           <span class="asset-name">{{ player.full_name }}</span>
@@ -814,6 +822,9 @@
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
                           }"
+                          @click="
+                            player.player_position !== 'PICKS' ? showPlayerModal(player) : null
+                          "
                         >
                           <span
                             :class="{
@@ -1105,6 +1116,9 @@
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
                           }"
+                          @click="
+                            player.player_position !== 'PICKS' ? showPlayerModal(player) : null
+                          "
                         >
                           <span
                             :class="{
@@ -1149,6 +1163,9 @@
                               :key="player.sleeper_id"
                               :style="getPositionTagList(player.player_position, 0.35)"
                               style="margin-bottom: 2px; border-radius: 2px"
+                              @click="
+                                player.player_position !== 'PICKS' ? showPlayerModal(player) : null
+                              "
                             >
                               <span>
                                 {{ player?.full_name }} &bull;
@@ -1224,6 +1241,47 @@
               </p>
             </div>
           </a-modal>
+
+          <!-- Player Detail Modal -->
+          <a-modal
+            v-model:open="isPlayerModalVisible"
+            :title="selectedPlayer?.full_name || 'Player Details'"
+            @ok="handlePlayerModalOk"
+            :footer="null"
+            width="400px"
+          >
+            <div v-if="selectedPlayer" class="player-modal-content">
+              <div class="player-modal-header">
+                <div class="player-image-placeholder">
+                  <UserOutlined style="font-size: 48px; color: #ccc" />
+                </div>
+                <div class="player-modal-info">
+                  <h2>{{ selectedPlayer.full_name }}</h2>
+                  <p>
+                    <a-tag :style="getPositionTagList(selectedPlayer.player_position)">{{
+                      selectedPlayer.player_position
+                    }}</a-tag>
+                    <span v-if="selectedPlayer.team"> &bull; {{ selectedPlayer.team }}</span>
+                    <span v-if="selectedPlayer.age"> &bull; {{ selectedPlayer.age }} yrs</span>
+                  </p>
+                </div>
+              </div>
+              <div class="player-modal-details">
+                <p>
+                  <strong>Value:</strong>
+                  {{
+                    selectedPlayer.player_value === -1
+                      ? 'N/A'
+                      : selectedPlayer.player_value?.toLocaleString()
+                  }}
+                </p>
+                <p><strong>Manager:</strong> {{ selectedPlayer.display_name }}</p>
+              </div>
+            </div>
+            <div v-else>
+              <p>Loading player details...</p>
+            </div>
+          </a-modal>
         </a-spin>
       </div>
     </a-layout-content>
@@ -1235,6 +1293,9 @@
 const activeKey = ref('1')
 const showProjections = ref(false)
 const showTabInfoModal = ref(false)
+const isPlayerModalVisible = ref(false)
+const selectedPlayer = ref(null)
+
 import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -1251,7 +1312,8 @@ import {
   HomeOutlined,
   FileSearchOutlined,
   ReloadOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
+  UserOutlined
 } from '@ant-design/icons-vue'
 import MeterGroup from 'primevue/metergroup'
 import TabView from 'primevue/tabview'
@@ -2709,8 +2771,8 @@ const leagueOwnerData = computed(() => {
     picks_max_value: picksMaxValue,
     qb_max_starter_value: qbStarterMaxValue,
     rb_max_starter_value: rbStarterMaxValue,
-    wr_max_starter_value: wrStarterMaxValue,
-    te_max_starter_value: teStarterMaxValue
+    wr_max_starter_value: wrMaxStarterMaxValue,
+    te_max_starter_value: teMaxStarterMaxValue
   }
 })
 
@@ -2877,6 +2939,17 @@ const expandedTeams = reactive({})
 function toggleExpand(userId: string) {
   expandedTeams[userId] = !expandedTeams[userId]
 }
+
+// --- START: Added Player Modal Logic ---
+const showPlayerModal = (player) => {
+  selectedPlayer.value = player
+  isPlayerModalVisible.value = true
+}
+
+const handlePlayerModalOk = () => {
+  isPlayerModalVisible.value = false
+}
+// --- END: Added Player Modal Logic ---
 </script>
 
 <style scoped>
@@ -3161,6 +3234,12 @@ li {
   gap: 0.5rem;
 }
 
+.gutter-box-stats {
+  padding: 5px 1px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
 .gutter-box-stats {
   padding: 5px 1px;
   display: flex;
@@ -3468,6 +3547,7 @@ h4 {
   padding: 2px 0 2px 4px;
   font-size: 13px;
   gap: 4px;
+  cursor: pointer; /* Make the whole item indicate clickability */
 }
 .expand-toggle {
   text-align: center;
@@ -3524,6 +3604,7 @@ h4 {
   border-radius: 4px;
   margin: 2px 0;
   font-size: 12px;
+  cursor: pointer; /* Make the whole item indicate clickability */
 }
 
 .player-name {
@@ -3666,6 +3747,7 @@ h4 {
   transition: transform 0.2s ease;
   position: relative; /* Needed for the ::before pseudo-element */
   overflow: hidden; /* Ensure the ::before doesn't overflow the rounded corners */
+  cursor: pointer; /* Make the whole card indicate clickability */
 }
 
 .player-card:hover {
@@ -4006,4 +4088,62 @@ h4 {
   border-bottom-left-radius: 4px;
 }
 /* --- END: Style for highlighting mid-value assets --- */
+
+/* ADDED: Styles for clickable player name */
+.clickable-player-name {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(24, 144, 255, 0.5); /* Optional: subtle underline */
+  transition: color 0.2s;
+}
+
+.clickable-player-name:hover {
+  color: #1890ff; /* Ant Design primary blue */
+  text-decoration-color: #1890ff;
+}
+
+/* ADDED: Styles for Player Modal */
+.player-modal-content {
+  padding: 10px;
+}
+
+.player-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.player-image-placeholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+}
+
+.player-modal-info h2 {
+  margin-bottom: 4px;
+  font-size: 1.3em;
+}
+
+.player-modal-info p {
+  margin: 0;
+  color: #555;
+}
+
+.player-modal-details p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.player-modal-details strong {
+  margin-right: 5px;
+  color: #333;
+}
 </style>
