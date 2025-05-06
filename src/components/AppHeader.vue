@@ -94,70 +94,103 @@ function updateActiveKey() {
 
 const leaguesUrl = computed(() => `/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
 
+function groupLeaguesByType(leagues) {
+  return leagues.reduce((acc, league) => {
+    const type = league.league_type || 'Other'
+    if (!acc[type]) {
+      acc[type] = []
+    }
+    acc[type].push(league)
+    return acc
+  }, {})
+}
+
 function handleMenuClick(e) {
-  // Close mobile menu after clicking
   mobileMenuVisible.value = false
 }
 
-// Replace the createRouterLink function with one that works correctly
 const createRouterLink = (to, label) => {
   return () => h('span', { onClick: () => router.push(to) }, label)
 }
 
-const items = ref<MenuProps['items']>([
-  {
-    key: 'home',
-    icon: () => h(HomeOutlined),
-    label: 'Home',
-    title: 'Home',
-    onClick: () => router.push('/')
-  },
-  {
-    key: 'tradeCalculator',
-    icon: () => h(CalculatorOutlined),
-    label: 'Trade Calculator',
-    title: 'Trade Calculator',
-    onClick: () => router.push('/tradecalculator')
-  },
-  {
-    key: 'ranks',
-    icon: () => h(OrderedListOutlined),
-    label: 'Rankings',
-    title: 'Rankings',
-    onClick: () => router.push('/ranks')
-  },
-  {
-    key: 'leagues',
-    icon: () => h(AppstoreOutlined),
-    label: 'Leagues',
-    title: 'Leagues',
-    onClick: () => {
-      if (
-        leaguesStore.leagues &&
-        leaguesStore.leagues.length > 0 &&
-        store.userName &&
-        store.leagueYear &&
-        store.guid
-      ) {
-        router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
-      } else {
-        // Redirect to username page if no leagues are loaded
-        router.push('/username')
-      }
-      // If neither condition is met (e.g., not logged in), do nothing or handle as needed
+// --- Desktop Menu Items with Grouped Leagues Dropdown ---
+const items = computed(() => {
+  const baseItems = [
+    {
+      key: 'home',
+      icon: () => h(HomeOutlined),
+      label: 'Home',
+      title: 'Home',
+      onClick: () => router.push('/')
+    },
+    // Leagues dropdown grouped by type
+    leaguesStore.leagues && leaguesStore.leagues.length > 0
+      ? {
+          key: 'leagues',
+          icon: () => h(AppstoreOutlined),
+          label: 'Leagues',
+          title: 'Leagues',
+          children: Object.entries(groupLeaguesByType(leaguesStore.leagues)).map(
+            ([leagueType, leagues]) => ({
+              key: `group-${leagueType}`,
+              label: leagueType,
+              children: leagues.map((league) => ({
+                key: league.league_id,
+                label: league.league_name,
+                onClick: () =>
+                  router.push(
+                    `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
+                  )
+              }))
+            })
+          )
+        }
+      : {
+          key: 'leagues',
+          icon: () => h(AppstoreOutlined),
+          label: 'Leagues',
+          title: 'Leagues',
+          onClick: () => {
+            if (
+              leaguesStore.leagues &&
+              leaguesStore.leagues.length > 0 &&
+              store.userName &&
+              store.leagueYear &&
+              store.guid
+            ) {
+              router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+            } else {
+              router.push('/username')
+            }
+          }
+        },
+    {
+      key: 'tradeCalculator',
+      icon: () => h(CalculatorOutlined),
+      label: 'Trade Calculator',
+      title: 'Trade Calculator',
+      onClick: () => router.push('/tradecalculator')
+    },
+    {
+      key: 'ranks',
+      icon: () => h(OrderedListOutlined),
+      label: 'Rankings',
+      title: 'Rankings',
+      onClick: () => router.push('/ranks')
+    },
+
+    {
+      key: 'about',
+      icon: () => h(QuestionCircleOutlined),
+      label: 'About',
+      title: 'About',
+      onClick: () => router.push('/about')
     }
-  },
+  ]
+  return baseItems
+})
 
-  {
-    key: 'about',
-    icon: () => h(QuestionCircleOutlined),
-    label: 'About',
-    title: 'About',
-    onClick: () => router.push('/about')
-  }
-])
-
-// Similarly update the mobile items
+// --- Mobile Menu Items: Leagues grouped by type ---
 const mobileItems = computed(() => {
   const baseItems = [
     {
@@ -182,27 +215,6 @@ const mobileItems = computed(() => {
       onClick: () => router.push('/ranks')
     },
     {
-      key: 'leagues',
-      icon: () => h(AppstoreOutlined),
-      label: 'Leagues',
-      title: 'Leagues',
-      onClick: () => {
-        if (
-          leaguesStore.leagues &&
-          leaguesStore.leagues.length > 0 &&
-          store.userName &&
-          store.leagueYear &&
-          store.guid
-        ) {
-          router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
-        } else {
-          // Redirect to username page if no leagues are loaded
-          router.push('/username')
-        }
-        // If neither condition is met (e.g., not logged in), do nothing or handle as needed
-      }
-    },
-    {
       key: 'about',
       icon: () => h(QuestionCircleOutlined),
       label: 'About',
@@ -210,6 +222,55 @@ const mobileItems = computed(() => {
       onClick: () => router.push('/about')
     }
   ]
+
+  if (leaguesStore.leagues && leaguesStore.leagues.length > 0) {
+    baseItems.push({
+      key: 'leagues-overview',
+      icon: () => h(AppstoreOutlined),
+      label: 'All Leagues',
+      title: 'All Leagues',
+      onClick: () => {
+        if (store.userName && store.leagueYear && store.guid) {
+          router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+        } else {
+          router.push('/username')
+        }
+      }
+    })
+
+    const grouped = groupLeaguesByType(leaguesStore.leagues)
+    Object.entries(grouped).forEach(([leagueType, leagues]) => {
+      baseItems.push({
+        key: `type-label-${leagueType}`,
+        label: leagueType,
+        class: 'mobile-league-type-label',
+        disabled: true,
+        title: leagueType
+      })
+
+      leagues.forEach((league) => {
+        baseItems.push({
+          key: `league-${league.league_id}`,
+          label: league.league_name,
+          title: league.league_name,
+          class: 'mobile-league-item',
+          onClick: () =>
+            router.push(
+              `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
+            )
+        })
+      })
+    })
+  } else {
+    baseItems.push({
+      key: 'leagues-fallback',
+      icon: () => h(AppstoreOutlined),
+      label: 'Leagues',
+      title: 'Leagues',
+      onClick: () => router.push('/username')
+    })
+  }
+
   return baseItems
 })
 </script>
@@ -260,8 +321,17 @@ const mobileItems = computed(() => {
   margin-left: auto;
 }
 
+.mobile-league-type-label {
+  padding-left: 16px !important;
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.85);
+  margin-top: 8px;
+  font-size: 0.95em;
+  opacity: 1;
+}
+
 .mobile-league-item {
-  padding-left: 24px;
+  padding-left: 24px !important;
   font-size: 0.9em;
   opacity: 0.85;
 }
