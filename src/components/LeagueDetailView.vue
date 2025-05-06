@@ -217,169 +217,409 @@
                 <h2 style="text-align: center; margin-top: 30px">
                   {{ showProjections ? 'Projections' : 'Ranks' }} Heat Map
                 </h2>
-                <div class="table-section" style="flex: 2">
-                  <a-table
-                    :columns="showProjections ? projColumns : columns"
-                    :dataSource="showProjections ? projSummaryData : summaryData"
-                    :pagination="false"
-                    row-key="user_id"
-                    :expand-column-width="100"
-                    style="width: 100%; max-width: 1150px"
-                    :scroll="{ x: '1150px' }"
-                    :rowClassName="
-                      (record) => (record.user_id === leagueInfo.userId ? 'highlighted-row' : '')
-                    "
-                  >
-                    <!-- Customized expandable row -->
-                    <template #expandedRowRender="{ record }">
-                      <div class="expanded-row-content">
-                        <!-- Position Summary Section -->
-                        <div class="position-summary">
-                          <div
-                            v-for="position in [
-                              'QB',
-                              'RB',
-                              'WR',
-                              'TE',
-                              overallFilter === 'all' && !showProjections ? 'PICKS' : null
-                            ].filter(Boolean)"
-                            :key="position"
-                            class="position-summary-item"
-                            :class="`position-${position.toLowerCase()}`"
-                          >
-                            <div class="position-header">
-                              <span class="position-name">{{ position }}</span>
-                              <a-tag
-                                :style="
-                                  getCellStyle(
-                                    overallFilter === 'all'
-                                      ? record[`${position.toLowerCase()}_rank`]
-                                      : record[`${position.toLowerCase()}_starter_rank`]
-                                  )
-                                "
-                                class="position-rank"
-                              >
-                                {{
-                                  addOrdinalSuffix(
-                                    overallFilter === 'all'
-                                      ? record[`${position.toLowerCase()}_rank`]
-                                      : record[`${position.toLowerCase()}_starter_rank`]
-                                  )
-                                }}
-                              </a-tag>
-                            </div>
-                            <div class="position-stats">
-                              <span class="age-label">Avg Age:</span>
-                              <span class="age-value">{{
-                                position === 'PICKS'
-                                  ? '--'
-                                  : overallFilter === 'all'
-                                    ? record[`${position.toLowerCase()}_average_age`]
-                                    : record[`${position.toLowerCase()}_starter_average_age`]
-                              }}</span>
-                              <span class="value-label">Total:</span>
-                              <span class="value-amount">{{
-                                (overallFilter === 'all'
-                                  ? record[`${position.toLowerCase()}_sum`]
-                                  : record[`${position.toLowerCase()}_starter_sum`] || 0
-                                ).toLocaleString()
-                              }}</span>
+                <!-- Desktop Heatmap Table -->
+                <div class="heatmap-desktop-view">
+                  <div class="table-section" style="flex: 2">
+                    <a-table
+                      :columns="showProjections ? projColumns : columns"
+                      :dataSource="showProjections ? projSummaryData : summaryData"
+                      :pagination="false"
+                      row-key="user_id"
+                      :expand-column-width="100"
+                      style="width: 100%; max-width: 1150px"
+                      :scroll="{ x: '1150px' }"
+                      :rowClassName="
+                        (record) => (record.user_id === leagueInfo.userId ? 'highlighted-row' : '')
+                      "
+                    >
+                      <!-- Customized expandable row -->
+                      <template #expandedRowRender="{ record }">
+                        <div class="expanded-row-content">
+                          <!-- Position Summary Section -->
+                          <div class="position-summary">
+                            <div
+                              v-for="position in [
+                                'QB',
+                                'RB',
+                                'WR',
+                                'TE',
+                                overallFilter === 'all' && !showProjections ? 'PICKS' : null
+                              ].filter(Boolean)"
+                              :key="position"
+                              class="position-summary-item"
+                              :class="`position-${position.toLowerCase()}`"
+                            >
+                              <div class="position-header">
+                                <span class="position-name">{{ position }}</span>
+                                <a-tag
+                                  :style="
+                                    getCellStyle(
+                                      overallFilter === 'all'
+                                        ? record[`${position.toLowerCase()}_rank`]
+                                        : record[`${position.toLowerCase()}_starter_rank`]
+                                    )
+                                  "
+                                  class="position-rank"
+                                >
+                                  {{
+                                    addOrdinalSuffix(
+                                      overallFilter === 'all'
+                                        ? record[`${position.toLowerCase()}_rank`]
+                                        : record[`${position.toLowerCase()}_starter_rank`]
+                                    )
+                                  }}
+                                </a-tag>
+                              </div>
+                              <div class="position-stats">
+                                <span class="age-label">Avg Age:</span>
+                                <span class="age-value">{{
+                                  position === 'PICKS'
+                                    ? '--'
+                                    : overallFilter === 'all'
+                                      ? record[`${position.toLowerCase()}_average_age`]
+                                      : record[`${position.toLowerCase()}_starter_average_age`]
+                                }}</span>
+                                <span class="value-label">Total:</span>
+                                <span class="value-amount">{{
+                                  (overallFilter === 'all'
+                                    ? record[`${position.toLowerCase()}_sum`]
+                                    : record[`${position.toLowerCase()}_starter_sum`] || 0
+                                  ).toLocaleString()
+                                }}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <!-- Position Players Grid -->
-                        <div class="players-grid">
-                          <div
-                            v-for="position in [
-                              'QB',
-                              'RB',
-                              'WR',
-                              'TE',
-                              overallFilter === 'all' && !showProjections ? 'PICKS' : null
-                            ].filter(Boolean)"
-                            :key="`players-${position}`"
-                            class="position-players-column"
-                            :data-position="position"
-                          >
-                            <div class="players-list">
-                              <div
-                                v-for="player in (showProjections
-                                  ? getPlayersProj(record.user_id)
-                                  : getPlayers(record.user_id)
-                                ).filter((p) => p.player_position === position)"
-                                :key="player.sleeper_id"
-                                class="player-card"
-                                :style="getPositionTagList(player.player_position, 0.25)"
-                                :class="{
-                                  // Only apply indicators for non-PICKS
-                                  'high-value-asset':
-                                    player.player_position !== 'PICKS' &&
-                                    player.player_value >=
-                                      (showProjections
-                                        ? projectionValueThresholds[player.player_position] ||
-                                          Infinity
-                                        : overallValueThresholds[player.player_position] ||
-                                          Infinity),
-                                  'low-value-asset':
-                                    player.player_position !== 'PICKS' &&
-                                    player.player_value > 0 &&
-                                    player.player_value <=
-                                      (showProjections
-                                        ? projectionLowValueThresholds[player.player_position] ||
-                                          -Infinity
-                                        : overallLowValueThresholds[player.player_position] ||
-                                          -Infinity),
-                                  'mid-value-asset':
-                                    player.player_position !== 'PICKS' &&
-                                    player.player_value >
-                                      (showProjections
-                                        ? projectionLowValueThresholds[player.player_position] ||
-                                          -Infinity
-                                        : overallLowValueThresholds[player.player_position] ||
-                                          -Infinity) &&
-                                    player.player_value <
-                                      (showProjections
-                                        ? projectionValueThresholds[player.player_position] ||
-                                          Infinity
-                                        : overallValueThresholds[player.player_position] ||
-                                          Infinity)
-                                }"
-                                @click="
-                                  player.player_position !== 'PICKS'
-                                    ? showPlayerModal(player)
-                                    : null
-                                "
-                              >
-                                <div class="player-info">
-                                  <div class="player-name-team">
-                                    <span class="player-name">{{ player?.full_name }}</span>
-                                    <span
-                                      v-if="player.player_position !== 'PICKS'"
-                                      class="player-team"
-                                      >{{ player?.team }}</span
-                                    >
-                                  </div>
-                                  <div class="player-meta">
-                                    <span
-                                      v-if="player.player_position !== 'PICKS'"
-                                      class="player-age"
-                                      >{{ player?.age }}y</span
-                                    >
-                                    <span class="player-value">{{
-                                      player.player_value === -1
-                                        ? 'N/A'
-                                        : player.player_value?.toLocaleString()
-                                    }}</span>
+                          <!-- Position Players Grid -->
+                          <div class="players-grid">
+                            <div
+                              v-for="position in [
+                                'QB',
+                                'RB',
+                                'WR',
+                                'TE',
+                                overallFilter === 'all' && !showProjections ? 'PICKS' : null
+                              ].filter(Boolean)"
+                              :key="`players-${position}`"
+                              class="position-players-column"
+                              :data-position="position"
+                            >
+                              <div class="players-list">
+                                <div
+                                  v-for="player in (showProjections
+                                    ? getPlayersProj(record.user_id)
+                                    : getPlayers(record.user_id)
+                                  ).filter((p) => p.player_position === position)"
+                                  :key="player.sleeper_id"
+                                  class="player-card"
+                                  :style="getPositionTagList(player.player_position, 0.25)"
+                                  :class="{
+                                    // Only apply indicators for non-PICKS
+                                    'high-value-asset':
+                                      player.player_position !== 'PICKS' &&
+                                      player.player_value >=
+                                        (showProjections
+                                          ? projectionValueThresholds[player.player_position] ||
+                                            Infinity
+                                          : overallValueThresholds[player.player_position] ||
+                                            Infinity),
+                                    'low-value-asset':
+                                      player.player_position !== 'PICKS' &&
+                                      player.player_value > 0 &&
+                                      player.player_value <=
+                                        (showProjections
+                                          ? projectionLowValueThresholds[player.player_position] ||
+                                            -Infinity
+                                          : overallLowValueThresholds[player.player_position] ||
+                                            -Infinity),
+                                    'mid-value-asset':
+                                      player.player_position !== 'PICKS' &&
+                                      player.player_value >
+                                        (showProjections
+                                          ? projectionLowValueThresholds[player.player_position] ||
+                                            -Infinity
+                                          : overallLowValueThresholds[player.player_position] ||
+                                            -Infinity) &&
+                                      player.player_value <
+                                        (showProjections
+                                          ? projectionValueThresholds[player.player_position] ||
+                                            Infinity
+                                          : overallValueThresholds[player.player_position] ||
+                                            Infinity)
+                                  }"
+                                  @click="
+                                    player.player_position !== 'PICKS'
+                                      ? showPlayerModal(player)
+                                      : null
+                                  "
+                                >
+                                  <div class="player-info">
+                                    <div class="player-name-team">
+                                      <span class="player-name">{{ player?.full_name }}</span>
+                                      <span
+                                        v-if="player.player_position !== 'PICKS'"
+                                        class="player-team"
+                                        >{{ player?.team }}</span
+                                      >
+                                    </div>
+                                    <div class="player-meta">
+                                      <span
+                                        v-if="player.player_position !== 'PICKS'"
+                                        class="player-age"
+                                        >{{ player?.age }}y</span
+                                      >
+                                      <span class="player-value">{{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
+                      </template>
+                    </a-table>
+                  </div>
+                </div>
+
+                <!-- Mobile Heatmap List -->
+                <div class="heatmap-mobile-view">
+                  <div
+                    v-for="user in sortedSummaryData"
+                    :key="user.user_id"
+                    class="manager-card-mobile"
+                    :class="{ 'highlighted-row': user.user_id === leagueInfo.userId }"
+                    @click="toggleMobileManagerExpand(user.user_id)"
+                  >
+                    <div class="manager-card-mobile-header">
+                      <span class="manager-name-mobile">{{ user.display_name }}</span>
+                      <div class="manager-rank-value-mobile">
+                        <a-tag
+                          :style="
+                            getCellStyle(
+                              showProjections
+                                ? overallFilter === 'all'
+                                  ? Number(user.total_rank)
+                                  : Number(user.starters_rank)
+                                : overallFilter === 'all'
+                                  ? Number(user.total_rank)
+                                  : Number(user.starters_rank)
+                            )
+                          "
+                        >
+                          {{
+                            addOrdinalSuffix(
+                              showProjections
+                                ? overallFilter === 'all'
+                                  ? user.total_rank
+                                  : user.starters_rank
+                                : overallFilter === 'all'
+                                  ? user.total_rank
+                                  : user.starters_rank
+                            )
+                          }}
+                        </a-tag>
+                        <span class="manager-value-mobile">{{
+                          (showProjections
+                            ? overallFilter === 'all'
+                              ? user.total_value || 0
+                              : user.starters_sum || 0
+                            : overallFilter === 'all'
+                              ? user.total_value || 0
+                              : user.starters_sum || 0
+                          ).toLocaleString()
+                        }}</span>
                       </div>
-                    </template>
-                  </a-table>
+                    </div>
+
+                    <div
+                      v-if="expandedMobileManagers[user.user_id]"
+                      class="manager-card-mobile-details-reused"
+                    >
+                      <!-- Reusing desktop expanded row content, 'record' is replaced with 'user' -->
+                      <div class="expanded-row-content">
+                        <!-- Position Summary Section -->
+                        <div class="position-summary">
+                          <div
+                            v-for="position in (showProjections
+                              ? ['QB', 'RB', 'WR', 'TE']
+                              : ['QB', 'RB', 'WR', 'TE', 'PICKS']
+                            ).filter(Boolean)"
+                            :key="position"
+                            class="position-summary-item"
+                            :class="{
+                              'position-qb': position === 'QB',
+                              'position-rb': position === 'RB',
+                              'position-wr': position === 'WR',
+                              'position-te': position === 'TE',
+                              'position-picks': position === 'PICKS',
+                              'active-position-summary':
+                                expandedMobileManagerPosition[user.user_id] === position
+                            }"
+                            @click.stop="toggleMobileManagerPositionExpand(user.user_id, position)"
+                          >
+                            <div class="position-header">
+                              <span class="position-name">{{ positionTitles[position] }}</span>
+                              <a-tag
+                                class="position-rank"
+                                :style="
+                                  getCellStyle(
+                                    showProjections
+                                      ? overallFilter === 'all'
+                                        ? Number(user[`${position.toLowerCase()}_rank`])
+                                        : Number(user[`${position.toLowerCase()}_starter_rank`])
+                                      : overallFilter === 'all'
+                                        ? Number(user[`${position.toLowerCase()}_rank`])
+                                        : Number(user[`${position.toLowerCase()}_starter_rank`])
+                                  )
+                                "
+                                v-if="
+                                  !(position === 'PICKS' && overallFilter !== 'all') &&
+                                  user[`${position.toLowerCase()}_rank`] !== undefined
+                                "
+                              >
+                                {{
+                                  addOrdinalSuffix(
+                                    showProjections
+                                      ? overallFilter === 'all'
+                                        ? user[`${position.toLowerCase()}_rank`]
+                                        : user[`${position.toLowerCase()}_starter_rank`]
+                                      : overallFilter === 'all'
+                                        ? user[`${position.toLowerCase()}_rank`]
+                                        : user[`${position.toLowerCase()}_starter_rank`]
+                                  )
+                                }}
+                              </a-tag>
+                              <a-tag v-else-if="position === 'PICKS' && overallFilter !== 'all'">
+                                --
+                              </a-tag>
+                            </div>
+                            <div class="position-stats">
+                              <template
+                                v-if="
+                                  !(position === 'PICKS' && overallFilter !== 'all') &&
+                                  user[`${position.toLowerCase()}_sum`] !== undefined
+                                "
+                              >
+                                <span class="value-label">Value:</span>
+                                <span class="value-amount">{{
+                                  (showProjections
+                                    ? overallFilter === 'all'
+                                      ? user[`${position.toLowerCase()}_sum`]
+                                      : user[`${position.toLowerCase()}_starter_sum`]
+                                    : overallFilter === 'all'
+                                      ? user[`${position.toLowerCase()}_sum`]
+                                      : user[`${position.toLowerCase()}_starter_sum`] || 0
+                                  ).toLocaleString()
+                                }}</span>
+                                <template v-if="position !== 'PICKS'">
+                                  <span class="age-label">Avg Age:</span>
+                                  <span class="age-value"
+                                    >{{
+                                      (showProjections
+                                        ? overallFilter === 'all'
+                                          ? user[`${position.toLowerCase()}_average_age`]
+                                          : user[`${position.toLowerCase()}_starter_average_age`]
+                                        : overallFilter === 'all'
+                                          ? user[`${position.toLowerCase()}_average_age`]
+                                          : user[`${position.toLowerCase()}_starter_average_age`] ||
+                                            0
+                                      ).toFixed(1)
+                                    }}
+                                    yrs</span
+                                  >
+                                </template>
+                              </template>
+                              <template v-else>
+                                <span class="value-label">Value:</span>
+                                <span class="value-amount">--</span>
+                                <template v-if="position !== 'PICKS'">
+                                  <span class="age-label">Avg Age:</span>
+                                  <span class="age-value">-- yrs</span>
+                                </template>
+                              </template>
+                            </div>
+                            <!-- Player list for this specific position, shown if this position is expanded -->
+                            <div
+                              v-if="expandedMobileManagerPosition[user.user_id] === position"
+                              class="nested-players-container"
+                            >
+                              <div class="players-list">
+                                <div
+                                  v-for="player in getPlayersForMobilePosition(
+                                    user.user_id,
+                                    position
+                                  )"
+                                  :key="player.sleeper_id"
+                                  class="player-card"
+                                  :class="{
+                                    'high-value-asset':
+                                      player.player_value >
+                                      (showProjections
+                                        ? projectionValueThresholds[player.player_position]
+                                        : overallValueThresholds[player.player_position]),
+                                    'low-value-asset':
+                                      player.player_value > 0 &&
+                                      player.player_value <
+                                        (showProjections
+                                          ? projectionLowValueThresholds[player.player_position]
+                                          : overallLowValueThresholds[player.player_position]),
+                                    'mid-value-asset':
+                                      player.player_value > 0 &&
+                                      player.player_value >=
+                                        (showProjections
+                                          ? projectionLowValueThresholds[player.player_position]
+                                          : overallLowValueThresholds[player.player_position]) &&
+                                      player.player_value <=
+                                        (showProjections
+                                          ? projectionValueThresholds[player.player_position]
+                                          : overallValueThresholds[player.player_position])
+                                  }"
+                                  @click.stop="
+                                    player.player_position !== 'PICKS'
+                                      ? showPlayerModal(player)
+                                      : null
+                                  "
+                                >
+                                  <div class="player-info">
+                                    <div class="player-name-team">
+                                      <span class="player-name">{{ player.full_name }}</span>
+                                      <span class="player-team" v-if="player.team">{{
+                                        player.team
+                                      }}</span>
+                                    </div>
+                                    <div class="player-meta">
+                                      <span class="player-value">{{
+                                        player.player_value === -1
+                                          ? 'N/A'
+                                          : player.player_value?.toLocaleString()
+                                      }}</span>
+                                      <span
+                                        class="player-age"
+                                        v-if="player.age && player.player_position !== 'PICKS'"
+                                        >{{ player.age }} yrs</span
+                                      >
+                                    </div>
+                                  </div>
+                                </div>
+                                <div
+                                  v-if="
+                                    getPlayersForMobilePosition(user.user_id, position).length === 0
+                                  "
+                                  class="no-players-notice"
+                                >
+                                  No assets in this category.
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </a-tab-pane>
 
@@ -1294,6 +1534,8 @@ const showProjections = ref(false)
 const showTabInfoModal = ref(false)
 const isPlayerModalVisible = ref(false)
 const selectedPlayer = ref(null)
+const expandedMobileManagers = ref({})
+const expandedMobileManagerPosition = ref({}) // New state for expanded position within a manager card
 
 import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -2793,7 +3035,7 @@ const leagueOwnerData = computed(() => {
     qb_max_starter_value: qbStarterMaxValue,
     rb_max_starter_value: rbStarterMaxValue,
     wr_max_starter_value: wrMaxStarterMaxValue,
-    te_max_starter_value: teMaxStarterMaxValue
+    te_max_starter_max_value: teStarterMaxValue
   }
 })
 
@@ -2975,6 +3217,28 @@ const handlePlayerModalOk = () => {
   isPlayerModalVisible.value = false
 }
 // --- END: Added Player Modal Logic ---
+
+const toggleMobileManagerExpand = (userId: string) => {
+  expandedMobileManagers.value[userId] = !expandedMobileManagers.value[userId]
+  // If collapsing the manager card, also clear any expanded position for that manager
+  if (!expandedMobileManagers.value[userId]) {
+    expandedMobileManagerPosition.value[userId] = null
+  }
+}
+
+const toggleMobileManagerPositionExpand = (userId: string, position: string) => {
+  if (expandedMobileManagerPosition.value[userId] === position) {
+    expandedMobileManagerPosition.value[userId] = null // Collapse if same position clicked
+  } else {
+    expandedMobileManagerPosition.value[userId] = position // Expand new position
+  }
+}
+
+// Helper to get players for a specific position for the mobile view, respecting filters
+const getPlayersForMobilePosition = (userId, position) => {
+  const allPlayersForUser = showProjections.value ? getPlayersProj(userId) : getPlayers(userId)
+  return allPlayersForUser.filter((p) => p.player_position === position)
+}
 </script>
 
 <style scoped>
@@ -3875,7 +4139,9 @@ h4 {
   background-color: rgba(24, 144, 255, 0.05);
 }
 
-.highlighted-row td {
+.highlighted-row td,
+.manager-card-mobile.highlighted-row {
+  /* Apply to mobile card too */
   font-weight: 600;
 }
 
@@ -4170,5 +4436,121 @@ h4 {
 .player-modal-details strong {
   margin-right: 5px;
   color: #333;
+}
+
+/* ADDED: Styles for Mobile Heatmap View */
+.heatmap-mobile-view {
+  display: none; /* Hidden by default */
+}
+
+.manager-card-mobile {
+  background-color: var(--card-background-color, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  margin-bottom: 16px; /* Increased spacing between cards */
+  padding: 12px 16px; /* Adjusted padding */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.manager-card-mobile:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.manager-card-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer; /* Indicate the header is clickable to expand/collapse */
+}
+
+.manager-card-mobile.highlighted-row {
+  border-left: 4px solid #1890ff; /* Prominent highlight for current user */
+}
+
+.manager-name-mobile {
+  font-weight: 600;
+  font-size: 1.05em; /* Slightly adjusted font size */
+  color: var(--text-color, #333);
+}
+
+.manager-rank-value-mobile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manager-rank-value-mobile .ant-tag {
+  font-size: 0.9em; /* Adjust tag size */
+}
+
+.manager-value-mobile {
+  font-size: 0.95em; /* Adjust value font size */
+  font-weight: 500;
+  color: var(--text-color-secondary, #555);
+}
+
+.manager-card-mobile-details-reused {
+  margin-top: 12px;
+  padding-top: 12px; /* Add padding if not handled by expanded-row-content */
+  border-top: 1px solid #f0f0f0; /* Separator for details section */
+}
+
+/* Add styles for clickable position summary items and active state */
+.position-summary-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.position-summary-item:hover {
+  background-color: rgba(0, 0, 0, 0.03); /* Light hover effect */
+}
+
+.position-summary-item.active-position-summary {
+  background-color: rgba(24, 144, 255, 0.08);
+  border-radius: 4px;
+}
+
+.nested-players-container {
+  margin-top: 12px; /* Space between position stats and player list */
+  padding-top: 12px;
+  border-top: 1px dashed #e0e0e0; /* Softer separator line */
+}
+
+.nested-players-container .players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Spacing between player cards */
+}
+
+.nested-players-container .player-card {
+  /* Styles for player cards within the nested list are inherited, 
+     but you can add specific overrides if needed */
+  background-color: var(
+    --background-color-secondary,
+    #f9f9f9
+  ); /* Slightly different bg for nested players */
+}
+
+.no-players-notice {
+  padding: 10px 8px;
+  text-align: center;
+  color: #888; /* Slightly darker for better readability */
+  font-style: italic;
+  font-size: 0.9em;
+  background-color: var(--background-color-tertiary, #f5f5f5);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+/* Media query for mobile heatmap */
+@media (max-width: 768px) {
+  /* Adjust breakpoint as needed */
+  .heatmap-desktop-view {
+    display: none;
+  }
+  .heatmap-mobile-view {
+    display: block;
+  }
 }
 </style>
