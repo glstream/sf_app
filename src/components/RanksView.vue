@@ -508,7 +508,24 @@ const renderPlayerValueChart = () => {
     },
     smooth: true,
     height: 180,
-    autoFit: true
+    autoFit: true,
+    point: {
+      size: 4, // <-- Make points larger (default is 4)
+      shape: 'circle',
+      style: {
+        fill: '#43AA8B',
+        stroke: '#8F9192',
+        lineWidth: 1,
+        shadowColor: '#277DA1',
+        shadowBlur: 4
+      }
+    },
+    lineStyle: {
+      stroke: '#277DA1',
+      lineWidth: 2,
+      shadowColor: '#277DA1',
+      shadowBlur: 2
+    }
   })
 
   try {
