@@ -135,16 +135,35 @@
             </div>
           </div>
           <div class="player-modal-details">
-            <p>
-              <strong>Value:</strong>
-              {{
-                selectedPlayer.player_value === -1
-                  ? 'N/A'
-                  : selectedPlayer.player_value?.toLocaleString()
-              }}
-            </p>
-            <p><strong>Rank:</strong> {{ selectedPlayer._rownum }}</p>
-            <p><strong>Pos Rank:</strong> {{ selectedPlayer.pos_ranked }}</p>
+            <a-descriptions bordered :column="1" size="small">
+              <a-descriptions-item label="Value">
+                {{
+                  selectedPlayer.player_value === -1
+                    ? 'N/A'
+                    : selectedPlayer.player_value?.toLocaleString()
+                }}
+              </a-descriptions-item>
+              <a-descriptions-item label="Overall Rank">
+                {{ selectedPlayer._rownum }}
+              </a-descriptions-item>
+              <a-descriptions-item label="Positional Rank">
+                {{ selectedPlayer.pos_ranked }}
+              </a-descriptions-item>
+            </a-descriptions>
+          </div>
+
+          <!-- Player Value Chart Section -->
+          <div class="player-modal-chart">
+            <h3>Value History</h3>
+            <a-spin :spinning="isChartLoading">
+              <div id="player-value-chart-container" style="height: 200px; margin-top: 16px">
+                <!-- Chart will be rendered here -->
+                <a-empty
+                  v-if="!isChartLoading && (!playerValueHistory || playerValueHistory.length === 0)"
+                  description="No value history available"
+                />
+              </div>
+            </a-spin>
           </div>
         </div>
         <div v-else>
@@ -157,7 +176,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch, nextTick } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -165,9 +184,10 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 // 3rd Party imports
 import axios from 'axios'
-import { message, Spin, Column, Empty } from 'ant-design-vue'
+import { message, Spin, Column, Empty, Descriptions, DescriptionsItem } from 'ant-design-vue' // Added Descriptions, DescriptionsItem
 import { HomeOutlined, DownloadOutlined, UserOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
+import { Line } from '@antv/g2plot'
 
 // Source image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
@@ -360,15 +380,155 @@ function handlePageChange(page) {
 // Modal State
 const isPlayerModalVisible = ref(false)
 const selectedPlayer = ref(null)
+const playerValueHistory = ref([])
+const isChartLoading = ref(false)
+let chartInstance: Line | null = null
 
 // Modal Functions
-const showPlayerModal = (player) => {
+const showPlayerModal = async (player) => {
   selectedPlayer.value = player
   isPlayerModalVisible.value = true
+  isChartLoading.value = true
+  playerValueHistory.value = []
+
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+
+  if (!player.ktc_player_id) {
+    console.error('Player KTC ID is missing for:', player.player_full_name)
+    message.error('Cannot load value history: Player ID missing.')
+    isChartLoading.value = false
+    await nextTick()
+    const container = document.getElementById('player-value-chart-container')
+    if (container) container.innerHTML = ''
+    return
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL
+  // Determine rank_type based on the switch state
+  const currentRankType = state.checked2 ? 'dynasty' : 'redraft'
+  try {
+    console.log(
+      `Fetching value history for player ID: ${player.ktc_player_id} with rank_type=${currentRankType}`
+    )
+    const response = await axios.get(`${apiUrl}/player_values`, {
+      params: {
+        player_id: player.ktc_player_id,
+        rank_type: currentRankType // Use dynamic rank_type
+      }
+    })
+
+    if (response.data && Array.isArray(response.data)) {
+      playerValueHistory.value = response.data
+      console.log(`Fetched ${response.data.length} history points.`)
+    } else {
+      console.warn('Received unexpected data format for player value history:', response.data)
+      playerValueHistory.value = []
+    }
+
+    await nextTick()
+    renderPlayerValueChart()
+  } catch (error) {
+    console.error('Error fetching player value history:', error)
+    message.error('Could not load player value history.')
+    playerValueHistory.value = []
+    await nextTick()
+    renderPlayerValueChart()
+  } finally {
+    isChartLoading.value = false
+  }
+}
+
+const renderPlayerValueChart = () => {
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+  const container = document.getElementById('player-value-chart-container')
+  if (!container || !playerValueHistory.value || playerValueHistory.value.length === 0) {
+    console.log('Chart container not found or no data.')
+    if (container) container.innerHTML = ''
+    return
+  }
+
+  const valueField = state.checked1 ? 'superflex_player_value' : 'one_qb_player_value'
+
+  const formattedData = playerValueHistory.value
+    .map((item) => ({
+      date: item.value_date,
+      value: item[valueField]
+    }))
+    .filter((item) => item.value != null)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  if (formattedData.length === 0) {
+    console.log('No valid data points to plot after formatting.')
+    if (container) container.innerHTML = ''
+    return
+  }
+
+  const values = formattedData.map((item) => item.value)
+  let minValue = Math.min(...values)
+  let maxValue = Math.max(...values)
+
+  const range = maxValue - minValue
+  const padding = range === 0 ? maxValue * 0.05 : range * 0.05
+  minValue = Math.max(0, minValue - padding)
+  maxValue = maxValue + padding
+
+  console.log('Formatted data for chart:', formattedData)
+  console.log(`Calculated Y-Axis Min: ${minValue}, Max: ${maxValue}`)
+
+  chartInstance = new Line(container, {
+    data: formattedData,
+    padding: 'auto',
+    xField: 'date',
+    yField: 'value',
+    xAxis: {
+      type: 'time',
+      tickCount: 5,
+      title: { text: '', style: { fontSize: 10 } }
+    },
+    yAxis: {
+      title: { text: '', style: { fontSize: 10 } },
+      label: {
+        formatter: (v) => `${Number(v).toLocaleString()}`
+      },
+      min: minValue,
+      max: maxValue,
+      nice: false
+    },
+    tooltip: {
+      showCrosshairs: true,
+      shared: true,
+      title: (data) => (data[0]?.date ? new Date(data[0].date).toLocaleDateString() : 'Date'),
+      formatter: (datum) => ({ name: 'Value', value: datum.value.toLocaleString() })
+    },
+    smooth: true,
+    height: 180,
+    autoFit: true
+  })
+
+  try {
+    chartInstance.render()
+    console.log('Chart rendered successfully.')
+  } catch (error) {
+    console.error('Error rendering chart:', error)
+    if (container) container.innerHTML = ''
+    message.error('Failed to render player value chart.')
+  }
 }
 
 const handlePlayerModalOk = () => {
   isPlayerModalVisible.value = false
+  if (chartInstance) {
+    chartInstance.destroy()
+    chartInstance = null
+  }
+  playerValueHistory.value = []
+  selectedPlayer.value = null
 }
 </script>
 
@@ -478,6 +638,10 @@ const handlePlayerModalOk = () => {
 
 .rankings-row:last-child {
   margin-bottom: 0;
+}
+
+.rankings-row:hover {
+  background-color: #f0f5ff; /* Optional: Add hover effect */
 }
 
 .cell {
@@ -631,14 +795,37 @@ const handlePlayerModalOk = () => {
   color: #555;
 }
 
-.player-modal-details p {
-  margin-bottom: 8px;
-  font-size: 14px;
+.player-modal-details {
+  margin-top: 16px; /* Add some space above the descriptions */
 }
 
-.player-modal-details strong {
-  margin-right: 5px;
+.player-modal-details .ant-descriptions-item-label {
+  font-weight: 600; /* Make labels bold */
+}
+
+.player-modal-chart {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.player-modal-chart h3 {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
   color: #333;
+}
+
+#player-value-chart-container .ant-spin-nested-loading {
+  height: 100%;
+}
+#player-value-chart-container .ant-spin-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#player-value-chart-container .ant-empty {
 }
 
 @media (min-width: 1400px) {
@@ -698,6 +885,15 @@ const handlePlayerModalOk = () => {
     font-size: 0.65rem;
     padding: 0 2px;
     max-width: 32px;
+  }
+
+  .player-modal-chart {
+    margin-top: 16px;
+    padding-top: 12px;
+  }
+
+  #player-value-chart-container {
+    height: 180px;
   }
 }
 
