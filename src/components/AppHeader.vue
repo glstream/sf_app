@@ -113,6 +113,22 @@ const createRouterLink = (to, label) => {
   return () => h('span', { onClick: () => router.push(to) }, label)
 }
 
+// Add this new function to handle league navigation
+function navigateToLeague(league) {
+  const leagueUrl = `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
+
+  // If we're already on a league page, use router.replace instead of push to ensure full reload
+  if (route.path.includes('/league/')) {
+    // Force a reload of the page after navigation
+    router.replace(leagueUrl).then(() => {
+      window.location.reload()
+    })
+  } else {
+    // Normal navigation if not coming from another league page
+    router.push(leagueUrl)
+  }
+}
+
 // --- Desktop Menu Items with Grouped Leagues Dropdown ---
 const items = computed(() => {
   const baseItems = [
@@ -130,6 +146,14 @@ const items = computed(() => {
           icon: () => h(AppstoreOutlined),
           label: 'Leagues',
           title: 'Leagues',
+          // Add onClick handler to navigate to leagues summary page when clicking the main item
+          onClick: () => {
+            if (store.userName && store.leagueYear && store.guid) {
+              router.push(`/leagues/${store.leagueYear}/${store.userName}/${store.guid}`)
+            } else {
+              router.push('/username')
+            }
+          },
           children: Object.entries(groupLeaguesByType(leaguesStore.leagues)).map(
             ([leagueType, leagues]) => ({
               key: `group-${leagueType}`,
@@ -137,10 +161,7 @@ const items = computed(() => {
               children: leagues.map((league) => ({
                 key: league.league_id,
                 label: league.league_name,
-                onClick: () =>
-                  router.push(
-                    `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
-                  )
+                onClick: () => navigateToLeague(league)
               }))
             })
           )
@@ -254,10 +275,8 @@ const mobileItems = computed(() => {
           label: league.league_name,
           title: league.league_name,
           class: 'mobile-league-item',
-          onClick: () =>
-            router.push(
-              `/league/${league.league_id}/sf/${league.league_type}/${league.guid}/${league.league_year}/${league.user_name}/${league.league_name}/${league.roster_type}/${league.user_id}/${league.avatar}/${league.starter_cnt}/${league.total_rosters}`
-            )
+          // Update mobile menu items to use the same navigation function
+          onClick: () => navigateToLeague(league)
         })
       })
     })
