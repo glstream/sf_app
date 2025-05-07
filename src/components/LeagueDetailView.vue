@@ -3034,8 +3034,8 @@ const leagueOwnerData = computed(() => {
     picks_max_value: picksMaxValue,
     qb_max_starter_value: qbStarterMaxValue,
     rb_max_starter_value: rbStarterMaxValue,
-    wr_max_starter_value: wrMaxStarterMaxValue,
-    te_max_starter_max_value: teStarterMaxValue
+    wr_max_starter_value: wrStarterMaxValue,
+    te_max_starter_value: teStarterMaxValue
   }
 })
 
