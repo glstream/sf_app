@@ -112,6 +112,7 @@
       <!-- Player Detail Modal -->
       <a-modal
         v-model:open="isPlayerModalVisible"
+        :title="selectedPlayer?.player_full_name || 'Player Details'"
         @ok="handlePlayerModalOk"
         :footer="null"
         width="400px"

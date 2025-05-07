@@ -215,7 +215,7 @@
                 </a-row>
 
                 <h2 style="text-align: center; margin-top: 30px">
-                  {{ showProjections ? 'Projections' : 'Ranks' }} Heat Map
+                  {{ showProjections ? 'Projections' : 'Rankings' }} Heat Map
                 </h2>
                 <!-- Desktop Heatmap Table -->
                 <div class="heatmap-desktop-view">
@@ -387,6 +387,13 @@
 
                 <!-- Mobile Heatmap List -->
                 <div class="heatmap-mobile-view">
+                  <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                    <a-col class="gutter-row" :span="8"></a-col>
+                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Overall</a-col>
+                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Starters</a-col>
+                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Bench</a-col>
+                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Picks</a-col>
+                  </a-row>
                   <div
                     v-for="user in sortedSummaryData"
                     :key="user.user_id"
@@ -394,47 +401,89 @@
                     :class="{ 'highlighted-row': user.user_id === leagueInfo.userId }"
                     @click="toggleMobileManagerExpand(user.user_id)"
                   >
-                    <div class="manager-card-mobile-header">
-                      <span class="manager-name-mobile">{{ user.display_name }}</span>
-                      <div class="manager-rank-value-mobile">
-                        <a-tag
-                          :style="
-                            getCellStyle(
-                              showProjections
-                                ? overallFilter === 'all'
-                                  ? Number(user.total_rank)
-                                  : Number(user.starters_rank)
-                                : overallFilter === 'all'
-                                  ? Number(user.total_rank)
-                                  : Number(user.starters_rank)
-                            )
-                          "
-                        >
-                          {{
-                            addOrdinalSuffix(
-                              showProjections
-                                ? overallFilter === 'all'
-                                  ? user.total_rank
-                                  : user.starters_rank
-                                : overallFilter === 'all'
-                                  ? user.total_rank
-                                  : user.starters_rank
-                            )
-                          }}
-                        </a-tag>
-                        <span class="manager-value-mobile">{{
-                          (showProjections
-                            ? overallFilter === 'all'
-                              ? user.total_value || 0
-                              : user.starters_sum || 0
-                            : overallFilter === 'all'
-                              ? user.total_value || 0
-                              : user.starters_sum || 0
-                          ).toLocaleString()
-                        }}</span>
-                      </div>
+                    <!-- Manager Info: Avatar and Name -->
+                    <div
+                      class="manager-info-line-mobile"
+                      style="display: flex; align-items: center; margin-bottom: 8px"
+                    >
+                      <a-avatar
+                        :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                        :size="24"
+                        style="margin-right: 8px"
+                      />
+                      <span class="manager-name-mobile" style="font-weight: bold">{{
+                        user.display_name
+                      }}</span>
                     </div>
 
+                    <!-- Stats Row -->
+                    <a-row :gutter="{ xs: 2, sm: 8 }" class="manager-stats-grid-mobile">
+                      <a-col class="gutter-row" :span="8">
+                        <a-tag style="font-size: 1.1em">
+                          {{
+                            (
+                              (showProjections
+                                ? overallFilter === 'all'
+                                  ? user.total_value
+                                  : user.starters_sum
+                                : overallFilter === 'all'
+                                  ? user.total_value
+                                  : user.starters_sum) || 0
+                            ).toLocaleString()
+                          }}
+
+                          {{ showProjections ? ' pts' : '' }}</a-tag
+                        >
+                      </a-col>
+                      <a-col class="gutter-row" :span="4">
+                        <div class="gutter-box-stats">
+                          <a-tag
+                            :style="
+                              getCellStyle(
+                                Number(
+                                  overallFilter === 'all' ? user.total_rank : user.starters_rank
+                                )
+                              )
+                            "
+                          >
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all' ? user.total_rank : user.starters_rank
+                              )
+                            }}
+                          </a-tag>
+                        </div></a-col
+                      >
+                      <a-col class="gutter-row" :span="4">
+                        <div class="gutter-box-stats">
+                          <a-tag :style="getCellStyle(Number(user.starters_rank))">
+                            {{ addOrdinalSuffix(user.starters_rank) }}
+                          </a-tag>
+                        </div></a-col
+                      >
+                      <a-col class="gutter-row" :span="4">
+                        <div class="gutter-box-stats">
+                          <a-tag
+                            v-if="overallFilter === 'all'"
+                            :style="getCellStyle(Number(user.bench_rank))"
+                          >
+                            {{ addOrdinalSuffix(user.bench_rank) }}
+                          </a-tag>
+                          <a-tag v-else>--</a-tag>
+                        </div></a-col
+                      >
+                      <a-col class="gutter-row" :span="4">
+                        <div class="gutter-box-stats">
+                          <a-tag
+                            v-if="overallFilter === 'all' && !showProjections"
+                            :style="getCellStyle(Number(user.picks_rank))"
+                          >
+                            {{ addOrdinalSuffix(user.picks_rank) }}
+                          </a-tag>
+                          <a-tag v-else>--</a-tag>
+                        </div></a-col
+                      ></a-row
+                    >
                     <div
                       v-if="expandedMobileManagers[user.user_id]"
                       class="manager-card-mobile-details-reused"
@@ -504,7 +553,9 @@
                                   user[`${position.toLowerCase()}_sum`] !== undefined
                                 "
                               >
-                                <span class="value-label">Value:</span>
+                                <span class="value-label"
+                                  >{{ showProjections ? 'Projections' : 'Value' }}:</span
+                                >
                                 <span class="value-amount">{{
                                   (showProjections
                                     ? overallFilter === 'all'
@@ -527,7 +578,7 @@
                                           ? user[`${position.toLowerCase()}_average_age`]
                                           : user[`${position.toLowerCase()}_starter_average_age`] ||
                                             0
-                                      ).toFixed(1)
+                                      ).toFixed(0)
                                     }}
                                     yrs</span
                                   >
@@ -4469,8 +4520,8 @@ h4 {
 }
 
 .manager-name-mobile {
-  font-weight: 600;
-  font-size: 1.05em; /* Slightly adjusted font size */
+  font-weight: 900;
+  font-size: 1.25em; /* Slightly adjusted font size */
   color: var(--text-color, #333);
 }
 
@@ -4485,8 +4536,8 @@ h4 {
 }
 
 .manager-value-mobile {
-  font-size: 0.95em; /* Adjust value font size */
-  font-weight: 500;
+  font-size: 1.05em; /* Adjust value font size */
+  font-weight: 1000;
   color: var(--text-color-secondary, #555);
 }
 
