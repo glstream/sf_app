@@ -541,7 +541,7 @@ const getCurrentYear = async () => {
 /* Additional styles for layout */
 .layout {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--color-background-soft); /* Use theme variable */
 }
 .table-section {
   display: flex;
@@ -551,7 +551,7 @@ const getCurrentYear = async () => {
   width: 30px;
   height: 30px;
   border-radius: 7px;
-  border: 1px solid gray;
+  border: 1px solid var(--color-border); /* Use theme variable */
   object-fit: cover; /* Ensures the logo fits well */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
@@ -579,17 +579,17 @@ const getCurrentYear = async () => {
 }
 
 .leagues-container {
-  border: 1px solid rgb(39, 125, 161);
+  border: 1px solid var(--ant-primary-color, rgb(39, 125, 161)); /* Use Ant Design primary or fallback */
   border-radius: 8px; /* Slightly rounder corners */
   margin-top: 15px;
   transition: all 0.3s ease;
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+  background-color: var(--color-background); /* Use theme variable */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Default subtle shadow */
   overflow: hidden; /* Ensures the rounded corners apply to children */
 }
 
 .leagues-container:hover {
-  border-color: #43aa8b;
+  border-color: #43aa8b; /* This color could also be a theme variable if desired */
   transform: translateY(-2px); /* Slight lift effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
@@ -597,7 +597,7 @@ const getCurrentYear = async () => {
 .leagues-stats-container {
   border-radius: 5px;
   margin: 5px 5px 10px; /* Added bottom margin */
-  background-color: rgba(249, 249, 250, 0.7); /* Very subtle background */
+  background-color: var(--color-background-soft); /* Use theme variable */
   padding: 5px;
 }
 
@@ -612,8 +612,12 @@ const getCurrentYear = async () => {
 
 .gutter-box-header {
   padding: 12px 10px; /* More padding */
-  background: linear-gradient(to right, rgba(39, 125, 161, 0.1), transparent); /* Subtle gradient */
-  border-bottom: 1px solid rgba(39, 125, 161, 0.2); /* Subtle bottom border */
+  background: linear-gradient(
+    to right,
+    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1),
+    transparent
+  ); /* Use Ant Design primary with alpha or fallback */
+  border-bottom: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.2); /* Use Ant Design primary with alpha or fallback */
   display: flex;
   align-items: center;
 }
@@ -625,10 +629,10 @@ const getCurrentYear = async () => {
 }
 
 .standard-tag {
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border); /* Use theme variable */
   border-radius: 4px;
   padding: 2px 8px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-mute); /* Use theme variable */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -642,7 +646,7 @@ const getCurrentYear = async () => {
   padding: 3px 10px;
   font-size: 13px;
   font-weight: 500; /* Medium weight */
-  color: #555; /* Darker text for headers */
+  color: var(--color-text); /* Use theme variable */
 }
 
 .gutter-box-stats-top {
@@ -656,10 +660,10 @@ const getCurrentYear = async () => {
   padding: 8px 10px; /* More top/bottom padding */
   font-size: 1.05em;
   font-weight: 600;
-  color: #333;
+  color: var(--color-heading); /* Use theme variable */
   display: flex;
   justify-content: left;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Subtle separator */
+  border-bottom: 1px solid var(--color-border); /* Use theme variable */
   margin-bottom: 5px;
 }
 
@@ -680,13 +684,13 @@ const getCurrentYear = async () => {
 .no-leagues-card {
   padding: 30px;
   text-align: center;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border); /* Use theme variable */
   border-radius: 8px;
   margin-top: 25px;
-  background-color: #f9f9f9;
+  background-color: var(--color-background-soft); /* Use theme variable */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   font-size: 1.1em;
-  color: #666;
+  color: var(--color-text); /* Use theme variable */
 }
 
 .gutter-box-refresh {

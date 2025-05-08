@@ -1365,7 +1365,7 @@ function getCardPositionColor(position: string): string {
 /* General Layout */
 .layout {
   min-height: 100vh;
-  background: linear-gradient(125deg, #f5f7fa 0%, #e3f0ff 100%);
+  background: var(--color-background-soft); /* Use theme variable */
 }
 
 .responsive-padding {

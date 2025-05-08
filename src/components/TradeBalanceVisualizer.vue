@@ -239,7 +239,7 @@ const varianceZoneStyle = computed(() => {
   height: 16px;
   border-radius: 8px;
   overflow: hidden; /* Keep overflow hidden */
-  background-color: #f0f0f0;
+  background-color: var(--color-background-mute); /* Use theme variable */
   position: relative; /* Changed to relative for positioning children */
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease-in-out;

@@ -6,9 +6,7 @@
       <div class="about-container">
         <div class="about-header">
           <h1 class="title">About Fantasy Navigator</h1>
-          <p class="subtitle">
-            The premier tool for fantasy football analytics and decision-making
-          </p>
+          <p class="subtitle">The premie tool for fantasy football analytics and decision-making</p>
         </div>
 
         <div class="feature-grid">
