@@ -2671,7 +2671,7 @@ function getPositionTagList(position: string, opacity = 0.6) {
   return {
     background: `${color}, ${opacity})`,
     'border-color': color,
-    border: `1px solid ${color}, ${opacity + 0.02})` // Slightly more opaque border
+    border: `1px solid ${color}, ${opacity + 0.2})` // Slightly more opaque border
   }
 }
 
