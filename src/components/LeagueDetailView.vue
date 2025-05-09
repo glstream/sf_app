@@ -4,6 +4,7 @@
     <theme-toggle-button />
 
     <a-layout-content class="responsive-padding" :style="{ marginTop: '12px' }">
+      <!-- Breadcrumbs -->
       <a-breadcrumb style="margin: 16px 0">
         <a-breadcrumb-item
           ><a href="/"><home-outlined /></a
@@ -12,7 +13,9 @@
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
-      <div style="">
+
+      <div>
+        <!-- League Header Info -->
         <div class="">
           <div class="">
             <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -40,9 +43,9 @@
             <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
               <a-col :span="16">
                 <div class="gutter-box-buttons">
-                  <a-tag color="cyan" size="large" style="">{{ selectedSource.name }}</a-tag>
-                  <a-tag style="">{{ leagueInfo.rosterType }}</a-tag>
-                  <a-tag style="">{{ leagueInfo.rankType }}</a-tag>
+                  <a-tag color="cyan" size="large">{{ selectedSource.name }}</a-tag>
+                  <a-tag>{{ leagueInfo.rosterType }}</a-tag>
+                  <a-tag>{{ leagueInfo.rankType }}</a-tag>
                 </div>
               </a-col>
               <a-col :span="8">
@@ -54,7 +57,7 @@
               </a-col>
             </a-row>
 
-            <!-- New Data Controls Card -->
+            <!-- Data Controls Card -->
             <a-card class="data-controls-card" :bordered="false">
               <a-row :gutter="[16, 16]" align="middle">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
@@ -119,17 +122,18 @@
                 </a-col>
               </a-row>
             </a-card>
-            <!-- End New Data Controls Card -->
+            <!-- End Data Controls Card -->
           </div>
         </div>
 
         <a-spin tip="Loading..." :spinning="summaryIsLoading">
           <div class="tab-header-container">
             <a-tabs v-model:activeKey="activeKey">
+              <!-- Power Rankings Tab -->
               <a-tab-pane key="1" tab="Power Rankings">
                 <h2 class="tab-sub-header">Power Ranks</h2>
 
-                <!-- Redesigned League Managers section -->
+                <!-- League Managers Grid -->
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                   <a-col :span="24">
                     <a-card :bordered="false" class="managers-card">
@@ -174,6 +178,7 @@
                   </a-col>
                 </a-row>
 
+                <!-- Charts Row -->
                 <a-row gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
                   <a-col :xs="24" :sm="24" :md="12" :lg="11" :xl="11">
                     <a-card :bordered="false" class="modern-card">
@@ -214,25 +219,27 @@
                   </a-col>
                 </a-row>
 
-                <h2 style="text-align: center; margin-top: 30px">
+                <!-- Heatmap Title -->
+                <h2 class="text-center-margin-top-30">
                   {{ showProjections ? 'Projections' : 'Rankings' }} Heat Map
                 </h2>
+
                 <!-- Desktop Heatmap Table -->
                 <div class="heatmap-desktop-view">
-                  <div class="table-section" style="flex: 2">
+                  <div class="table-section heatmap-table-container">
                     <a-table
                       :columns="showProjections ? projColumns : columns"
                       :dataSource="showProjections ? projSummaryData : summaryData"
                       :pagination="false"
                       row-key="user_id"
                       :expand-column-width="100"
-                      style="width: 100%; max-width: 1150px"
+                      class="full-width-table"
                       :scroll="{ x: '1150px' }"
                       :rowClassName="
                         (record) => (record.user_id === leagueInfo.userId ? 'highlighted-row' : '')
                       "
                     >
-                      <!-- Customized expandable row -->
+                      <!-- Expanded Row Content for Desktop -->
                       <template #expandedRowRender="{ record }">
                         <div class="expanded-row-content">
                           <!-- Position Summary Section -->
@@ -312,9 +319,8 @@
                                   ).filter((p) => p.player_position === position)"
                                   :key="player.sleeper_id"
                                   class="player-card"
-                                  :style="getPositionTagList(player.player_position, 0.25)"
+                                  :style="getPositionTagList(player.player_position, 0.15)"
                                   :class="{
-                                    // Only apply indicators for non-PICKS
                                     'high-value-asset':
                                       player.player_position !== 'PICKS' &&
                                       player.player_value >=
@@ -387,12 +393,13 @@
 
                 <!-- Mobile Heatmap List -->
                 <div class="heatmap-mobile-view">
+                  <!-- ... existing mobile heatmap header ... -->
                   <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                     <a-col class="gutter-row" :span="8"></a-col>
-                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Overall</a-col>
-                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Starters</a-col>
-                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Bench</a-col>
-                    <a-col class="gutter-row" style="font-weight: bold" :span="4">Picks</a-col>
+                    <a-col class="gutter-row font-bold" :span="4">Overall</a-col>
+                    <a-col class="gutter-row font-bold" :span="4">Starters</a-col>
+                    <a-col class="gutter-row font-bold" :span="4">Bench</a-col>
+                    <a-col class="gutter-row font-bold" :span="4">Picks</a-col>
                   </a-row>
                   <div
                     v-for="user in sortedSummaryData"
@@ -402,24 +409,19 @@
                     @click="toggleMobileManagerExpand(user.user_id)"
                   >
                     <!-- Manager Info: Avatar and Name -->
-                    <div
-                      class="manager-info-line-mobile"
-                      style="display: flex; align-items: center; margin-bottom: 8px"
-                    >
+                    <div class="manager-info-line-mobile">
                       <a-avatar
                         :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
                         :size="24"
-                        style="margin-right: 8px"
+                        class="margin-right-8"
                       />
-                      <span class="manager-name-mobile" style="font-weight: bold">{{
-                        user.display_name
-                      }}</span>
+                      <span class="manager-name-mobile font-bold">{{ user.display_name }}</span>
                     </div>
 
                     <!-- Stats Row -->
                     <a-row :gutter="{ xs: 2, sm: 8 }" class="manager-stats-grid-mobile">
                       <a-col class="gutter-row" :span="8">
-                        <a-tag style="font-size: 1.1em">
+                        <a-tag class="font-size-1-1em">
                           {{
                             (
                               (showProjections
@@ -431,7 +433,6 @@
                                   : user.starters_sum) || 0
                             ).toLocaleString()
                           }}
-
                           {{ showProjections ? ' pts' : '' }}</a-tag
                         >
                       </a-col>
@@ -484,6 +485,7 @@
                         </div></a-col
                       ></a-row
                     >
+                    <!-- Expanded Details for Mobile -->
                     <div
                       v-if="expandedMobileManagers[user.user_id]"
                       class="manager-card-mobile-details-reused"
@@ -593,7 +595,7 @@
                                 </template>
                               </template>
                             </div>
-                            <!-- Player list for this specific position, shown if this position is expanded -->
+                            <!-- Player list for this specific position (Mobile) -->
                             <div
                               v-if="expandedMobileManagerPosition[user.user_id] === position"
                               class="nested-players-container"
@@ -606,6 +608,7 @@
                                   )"
                                   :key="player.sleeper_id"
                                   class="player-card"
+                                  :style="getPositionTagList(player.player_position, 0.15)"
                                   :class="{
                                     'high-value-asset':
                                       player.player_value >
@@ -674,8 +677,9 @@
                 </div>
               </a-tab-pane>
 
-              <!-- Renamed tab from ROSTERS to TEAM COMPOSITION -->
+              <!-- Team Composition Tab -->
               <a-tab-pane key="2" tab="Team Composition">
+                <!-- ... existing Team Composition tab content ... -->
                 <h2 class="tab-sub-header">Team Roster Breakdown</h2>
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                   <a-col :span="24">
@@ -756,7 +760,7 @@
                     sm="{12}"
                     md="{8}"
                     lg="{6}"
-                    style="min-width: 300px; max-width: 315px"
+                    class="team-card-column"
                   >
                     <div class="team-card">
                       <div class="team-card-header">
@@ -795,7 +799,7 @@
                             expandedTeams[manager.user_id] ? getPlayers(manager.user_id).length : 10
                           )"
                           :key="player.sleeper_id"
-                          :style="getPositionTagList(player.player_position, 0.35)"
+                          :style="getPositionTagList(player.player_position, 0.2)"
                           class="team-asset-item"
                           @click="
                             player.player_position !== 'PICKS' ? showPlayerModal(player) : null
@@ -826,8 +830,9 @@
                 </a-row>
               </a-tab-pane>
 
-              <!-- Renamed tab from POSITIONS to POSITION GROUPS -->
+              <!-- Position Groups Tab -->
               <a-tab-pane key="3" tab="Position Groups">
+                <!-- ... existing Position Groups tab content ... -->
                 <h2 class="tab-sub-header">Rankings by Position</h2>
 
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -910,25 +915,24 @@
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
                             :size="24"
-                            style="border: 2px solid rgb(39, 125, 161)"
-                            class="avatar"
+                            class="avatar-bordered"
                           />
                         </div>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">QB</span>
+                        <span class="font-bold">QB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">RB</span>
+                        <span class="font-bold">RB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">WR</span>
+                        <span class="font-bold">WR</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">TE</span>
+                        <span class="font-bold">TE</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">Picks</span>
+                        <span class="font-bold">Picks</span>
                       </a-col>
                     </a-row>
                     <a-row>
@@ -1028,27 +1032,23 @@
                     <a-row>
                       <a-col :span="9">
                         <div class="gutter-box">
-                          <a-avatar
-                            :size="24"
-                            style="border: 2px solid rgb(39, 125, 161)"
-                            class="avatar"
-                          />
+                          <a-avatar :size="24" class="avatar-bordered" />
                         </div>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">QB</span>
+                        <span class="font-bold">QB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">RB</span>
+                        <span class="font-bold">RB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">WR</span>
+                        <span class="font-bold">WR</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">TE</span>
+                        <span class="font-bold">TE</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">Picks</span>
+                        <span class="font-bold">Picks</span>
                       </a-col>
                     </a-row>
                     <a-row>
@@ -1066,31 +1066,28 @@
 
                 <div class="legend">
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                    <span class="legend-color legend-qb"></span>
                     <span class="legend-text">QB</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                    <span class="legend-color legend-rb"></span>
                     <span class="legend-text">RB</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                    <span class="legend-color legend-wr"></span>
                     <span class="legend-text">WR</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                    <span class="legend-color legend-te"></span>
                     <span class="legend-text">TE</span>
                   </div>
                   <div class="legend-item">
-                    <span
-                      class="legend-color"
-                      style="background-color: rgba(70, 70, 70, 0.7)"
-                    ></span>
+                    <span class="legend-color legend-picks"></span>
                     <span class="legend-text">Picks</span>
                   </div>
                 </div>
 
-                <a-row style="justify-content: center" :gutter="[8, 16]">
+                <a-row class="justify-center-row" :gutter="[8, 16]">
                   <a-col
                     v-for="(players, position) in playersByPosition"
                     :key="position"
@@ -1099,7 +1096,7 @@
                     :md="8"
                     :lg="4"
                     :xl="4"
-                    style="min-width: 220px"
+                    class="position-group-col"
                   >
                     <div class="position-group-container">
                       <h3 class="position-group-title">{{ position }}</h3>
@@ -1107,7 +1104,7 @@
                         <li
                           v-for="(player, index) in players"
                           :key="player.sleeper_id"
-                          :style="getPositionTagList(player.player_position, 0.45)"
+                          :style="getPositionTagList(player.player_position, 0.2)"
                           class="position-player-item"
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
@@ -1126,7 +1123,7 @@
                             {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
                             <span
                               v-if="player.player_position.toLowerCase() !== 'picks'"
-                              style="font-size: 11px"
+                              class="font-size-11"
                               >{{ player?.age }}yrs</span
                             >
                           </span>
@@ -1144,8 +1141,9 @@
                 </a-row>
               </a-tab-pane>
 
-              <!-- Renamed tab from PLAYERS to LEAGUE ASSETS -->
+              <!-- League Assets Tab -->
               <a-tab-pane key="4" tab="League Assets">
+                <!-- ... existing League Assets tab content ... -->
                 <h2 class="tab-sub-header">All Assets in League</h2>
 
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -1202,25 +1200,24 @@
                           <a-avatar
                             :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
                             :size="24"
-                            style="border: 2px solid rgb(39, 125, 161)"
-                            class="avatar"
+                            class="avatar-bordered"
                           />
                         </div>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">QB</span>
+                        <span class="font-bold">QB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">RB</span>
+                        <span class="font-bold">RB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">WR</span>
+                        <span class="font-bold">WR</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">TE</span>
+                        <span class="font-bold">TE</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">Picks</span>
+                        <span class="font-bold">Picks</span>
                       </a-col>
                     </a-row>
                     <a-row>
@@ -1320,27 +1317,23 @@
                     <a-row>
                       <a-col :span="9">
                         <div class="gutter-box">
-                          <a-avatar
-                            :size="24"
-                            style="border: 2px solid rgb(39, 125, 161)"
-                            class="avatar"
-                          />
+                          <a-avatar :size="24" class="avatar-bordered" />
                         </div>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">QB</span>
+                        <span class="font-bold">QB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">RB</span>
+                        <span class="font-bold">RB</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">WR</span>
+                        <span class="font-bold">WR</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">TE</span>
+                        <span class="font-bold">TE</span>
                       </a-col>
                       <a-col class="gutter-box-stats" :span="3">
-                        <span style="font-weight: bold">Picks</span>
+                        <span class="font-bold">Picks</span>
                       </a-col>
                     </a-row>
                     <a-row>
@@ -1357,26 +1350,23 @@
                 </div>
                 <div class="legend">
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(39, 125, 161)"></span>
+                    <span class="legend-color legend-qb"></span>
                     <span class="legend-text">QB</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(144, 190, 109)"></span>
+                    <span class="legend-color legend-rb"></span>
                     <span class="legend-text">RB</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(67, 170, 139)"></span>
+                    <span class="legend-color legend-wr"></span>
                     <span class="legend-text">WR</span>
                   </div>
                   <div class="legend-item">
-                    <span class="legend-color" style="background-color: rgb(249, 132, 74)"></span>
+                    <span class="legend-color legend-te"></span>
                     <span class="legend-text">TE</span>
                   </div>
                   <div class="legend-item">
-                    <span
-                      class="legend-color"
-                      style="background-color: rgba(70, 70, 70, 0.7)"
-                    ></span>
+                    <span class="legend-color legend-picks"></span>
                     <span class="legend-text">Picks</span>
                   </div>
                 </div>
@@ -1389,20 +1379,13 @@
                     :md="8"
                     :lg="6"
                   >
-                    <div
-                      style="
-                        border: 1px solid lightgray;
-                        border-radius: 5px;
-                        margin: 5px;
-                        padding: 5px;
-                      "
-                    >
-                      <ul style="padding: 0">
+                    <div class="player-chunk-container">
+                      <ul class="no-padding-ul">
                         <li
                           v-for="(player, index) in chunk"
                           :key="player.sleeper_id"
-                          :style="getPositionTagList(player.player_position, 0.35)"
-                          style="border-radius: 2px; margin: 2px"
+                          :style="getPositionTagList(player.player_position, 0.2)"
+                          class="player-chunk-item"
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
                           }"
@@ -1431,6 +1414,7 @@
                 </a-row>
               </a-tab-pane>
 
+              <!-- Waivers Tab -->
               <a-tab-pane key="5" tab="Waivers">
                 <div>
                   <h2>Best Available</h2>
@@ -1445,14 +1429,14 @@
                     >
                       <a-card>
                         <template #title>
-                          <span style="font-size: 18px; font-weight: bolder">{{ position }}</span>
+                          <span class="font-size-18 font-bolder">{{ position }}</span>
                         </template>
                         <span v-for="player in players" :key="player.sleeper_id">
-                          <ul style="padding: 0; list-style: none">
+                          <ul class="no-padding-ul no-list-style">
                             <li
                               :key="player.sleeper_id"
-                              :style="getPositionTagList(player.player_position, 0.35)"
-                              style="margin-bottom: 2px; border-radius: 2px"
+                              :style="getPositionTagList(player.player_position, 0.2)"
+                              class="waiver-player-item"
                               @click="
                                 player.player_position !== 'PICKS' ? showPlayerModal(player) : null
                               "
@@ -1474,6 +1458,7 @@
                 </div>
               </a-tab-pane>
             </a-tabs>
+            <!-- Info Button for Tab Guide -->
             <a-button
               type="primary"
               shape="circle"
@@ -1484,13 +1469,14 @@
             </a-button>
           </div>
 
-          <!-- Information Modal -->
+          <!-- Information Modal (Tab Guide) -->
           <a-modal
             v-model:visible="showTabInfoModal"
             title="League View Guide"
             :footer="null"
             width="600px"
           >
+            <!-- ... existing info modal content ... -->
             <div class="tab-info-container">
               <h3>Power Rankings</h3>
               <p>
@@ -1540,6 +1526,7 @@
             :footer="null"
             width="400px"
           >
+            <!-- ... existing player detail modal content ... -->
             <div v-if="selectedPlayer" class="player-modal-content">
               <div class="player-modal-header">
                 <div class="player-image-placeholder">
@@ -1580,64 +1567,395 @@
 </template>
 
 <script lang="ts" setup>
-const activeKey = ref('1')
-const showProjections = ref(false)
-const showTabInfoModal = ref(false)
-const isPlayerModalVisible = ref(false)
-const selectedPlayer = ref(null)
-const expandedMobileManagers = ref({})
-const expandedMobileManagerPosition = ref({}) // New state for expanded position within a manager card
-
-import { ref, reactive, onMounted, computed, watchEffect, watch, onUnmounted } from 'vue'
+// Vue Core and Router
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+// Local Components
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
-
-// 3rd Party imports
-import axios from 'axios'
-
-// Platform Utils
-import { message, Spin, Column, Empty, MenuProps } from 'ant-design-vue'
-import {
-  HomeOutlined,
-  FileSearchOutlined,
-  ReloadOutlined,
-  InfoCircleOutlined,
-  UserOutlined
-} from '@ant-design/icons-vue'
-import MeterGroup from 'primevue/metergroup'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
-import Chart from 'primevue/chart'
-import 'primeicons/primeicons.css'
-import ProgressBar from 'primevue/progressbar'
 import BarChart from '@/components/BarChart.vue'
 import ProjectionBarChart from '@/components/ProjectionBarChart.vue'
 import ProjectionPercentColumn from '@/components/ProjectionPercentColumn.vue'
-import ScatterPlot from '@/components/ScatterPlot.vue'
-import RadarChart from '@/components/RadarChart.vue'
 import OverallScatterPlot from '@/components/OverallScatterPlot.vue'
 
+// Third-Party Libraries
+import axios from 'axios'
+import { message, Empty, MenuProps } from 'ant-design-vue' // Assuming 'Column' type was from here or a local definition
+import 'primeicons/primeicons.css'
+
+// Stores
 import { useCacheStore } from '@/stores/cacheStore'
 
-const cacheStore = useCacheStore()
-
-const bchartData = ref([])
-const scatterPlotData = ref([])
-const projectionBarChartData = ref([])
-const projectionPercentColumnData = ref([])
-// const radarChartData = ref([])
-
-// Custom Utils
+// Utilities
 import { addOrdinalSuffix } from '../utils/suffix'
 import { getCellStyle } from '../utils/dynamicColorTable'
 import { sleep } from '../utils/delay'
 
-// --- START: Added Pick Sorting Logic ---
+// Asset Imports (Logos)
+import fnLogo from '@/assets/sourceLogos/fn.png'
+import ktcLogo from '@/assets/sourceLogos/ktc.png'
+import dpLogo from '@/assets/sourceLogos/dp.png'
+import fcLogo from '@/assets/sourceLogos/fc.png'
+import ddLogo from '@/assets/sourceLogos/dd.svg'
 
-// Helper function to sort draft picks by Year, then Round/Tier/Pick#
+// --- Constants ---
+const API_URL = import.meta.env.VITE_API_URL
+const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE // For Ant Design Empty component
+
+// --- Router and Cache Store Initialization ---
+const route = useRoute()
+const router = useRouter()
+const cacheStore = useCacheStore()
+
+// --- Component State ---
+
+// UI State
+const activeKey = ref('1') // Active tab key
+const showProjections = ref(false) // Toggle between overall and projection views
+const showTabInfoModal = ref(false) // Visibility for the league view guide modal
+const isPlayerModalVisible = ref(false) // Visibility for the player detail modal
+const expandedMobileManagers = ref({}) // Tracks expanded managers in mobile view
+const expandedMobileManagerPosition = ref({}) // Tracks expanded positions within a mobile manager card
+const expandedTeams = reactive({}) // Tracks expanded teams in Team Composition tab
+const isLoading = ref(false) // General loading state for initial roster load
+const summaryIsLoading = ref(false) // Loading state for summary data
+const detailIsLoading = ref(false) // Loading state for detail data
+const isProjectionLoading = ref(false) // Loading state for projection data
+const baIsLoading = ref(false) // Loading state for best available data
+// const isTradesLoading = ref(false); // Trades loading state (currently not used to control a spinner)
+const clickedManager = ref('') // Tracks clicked manager for highlighting in Position Groups/League Assets
+
+// Data Filters & Selected Options
+const overallFilter = ref('all') // Player filter: 'all' or 'STARTER'
+const value1 = ref('espn') // Selected projection source (e.g., 'espn', 'cbs')
+const selectedPlayer = ref(null) // Holds data for the player modal
+const selectedUser = ref(null) // Holds data for the selected manager in certain tabs
+// const selectedUserId = ref(null); // Tracks selected user ID (seems redundant if selectedUser is used)
+
+// League Information (from route params)
+const leagueInfo = reactive({
+  leagueName: route.params.leagueName as string,
+  leagueId: route.params.leagueId as string,
+  userName: route.params.userName as string,
+  leagueYear: route.params.leagueYear as string,
+  guid: route.params.guid as string,
+  rankType: route.params.rankType as string,
+  platform: route.params.platform as string,
+  userId: route.params.userId as string,
+  rosterType: route.params.rosterType as string,
+  avatar: route.params.avatar as string,
+  leagueType: route.params.leagueType as string,
+  apiSource: route.params.platform as string // Initial API source for rankings
+  // These seem to be for navigation to league summary, ensure they are correctly typed if used elsewhere
+  // leagueStarters: route.params.leagueStarters as string,
+  // leagueSize: route.params.leagueSize as string,
+})
+
+// Data Holders
+const summaryData = ref<any[]>([])
+const detailData = ref<any[]>([{}])
+const projDetailData = ref<any[]>([{}])
+const projSummaryData = ref<any[]>([{}])
+const tradesDetailData = ref<any[]>([{}])
+const tradesSummaryData = ref<any[]>([{}])
+const bestAvailableData = ref<any[]>([{}])
+
+// Chart Data
+const bchartData = ref<any[]>([])
+const scatterPlotData = ref<any[]>([]) // Note: This was previously scatterPlotData, check if OverallScatterPlotData is the intended one
+const projectionBarChartData = ref<any[]>([])
+const projectionPercentColumnData = ref<any[]>([])
+
+// --- Computed Properties ---
+
+// URL for navigating back to leagues list
+const leaguesUrl = computed(
+  () => `/leagues/${leagueInfo.leagueYear}/${leagueInfo.userName}/${leagueInfo.guid}`
+)
+
+// Filtered player data based on 'overallFilter' (All Players vs. Starters)
+const filteredData = computed(() => {
+  if (overallFilter.value === 'all') {
+    return detailData.value
+  }
+  return detailData.value.filter((item) => item.fantasy_designation === overallFilter.value)
+})
+
+// Filtered projection player data
+const filteredProjData = computed(() => {
+  if (overallFilter.value === 'all') {
+    return projDetailData.value
+  }
+  return projDetailData.value.filter((item) => item.fantasy_designation === overallFilter.value)
+})
+
+// Dynamic percentile thresholds for identifying high/low value assets
+const overallValueThresholds = computed(() => calculatePercentileThresholds(detailData.value, 85))
+const projectionValueThresholds = computed(() =>
+  calculatePercentileThresholds(projDetailData.value, 85)
+)
+const overallLowValueThresholds = computed(() =>
+  calculatePercentileThresholds(detailData.value, 15)
+)
+const projectionLowValueThresholds = computed(() =>
+  calculatePercentileThresholds(projDetailData.value, 15)
+)
+
+// Data for Overall Scatter Plot (Team Tiers)
+const OverallScatterPlotData = computed(() => {
+  const valueField = overallFilter.value === 'all' ? 'total_value' : 'starters_sum'
+  return summaryData.value
+    .map((summaryItem) => {
+      const projectionItem = projSummaryData.value.find(
+        (projItem) => projItem.user_id === summaryItem.user_id
+      )
+      return projectionItem
+        ? {
+            Manager: summaryItem.display_name,
+            Value: summaryItem[valueField],
+            Projection: projectionItem[valueField]
+          }
+        : null
+    })
+    .filter((item) => item !== null)
+})
+
+// Sorted summary data for manager lists, respects showProjections and overallFilter
+const sortedSummaryData = computed(() => {
+  if (showProjections.value && projSummaryData.value.length > 0) {
+    // Sort by projection ranks
+    return [...projSummaryData.value].sort((a, b) =>
+      overallFilter.value === 'all'
+        ? a.total_rank - b.total_rank
+        : a.starters_rank - b.starters_rank
+    )
+  }
+  if (summaryData.value.length > 0) {
+    // Sort by overall ranks
+    return [...summaryData.value].sort((a, b) =>
+      overallFilter.value === 'all'
+        ? a.total_rank - b.total_rank
+        : a.starters_rank - b.starters_rank
+    )
+  }
+  return []
+})
+
+// Available ranking sources
+const sources = [
+  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
+  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
+  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
+  { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
+  { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
+]
+const selectedSource = ref(sources.find((s) => s.key === leagueInfo.platform) || sources[0])
+
+// Filtered sources based on league type (Dynasty vs. Redraft)
+const filteredSources = computed(() => {
+  if (leagueInfo.rankType !== 'Dynasty') {
+    return sources.filter((s) => ['fc', 'ktc', 'sf'].includes(s.key))
+  }
+  return sources
+})
+
+// Helper function to generate common table columns for positions
+const createPositionColumnsConfig = (filterValue: string) => {
+  const positions = ['QB', 'RB', 'WR', 'TE']
+  return positions.map((position) => {
+    const dataKey =
+      filterValue === 'all'
+        ? `${position.toLowerCase()}_rank`
+        : `${position.toLowerCase()}_starter_rank`
+    return {
+      title: position,
+      dataIndex: dataKey,
+      key: `${position.toLowerCase()}_rank`, // Key can be consistent
+      align: 'center',
+      customRender: ({ record }) => `${addOrdinalSuffix(record[dataKey])}`,
+      sorter: (a, b) => a[dataKey] - b[dataKey],
+      customCell: (record) => ({ style: getCellStyle(record[dataKey]) })
+    }
+  })
+}
+
+// Columns for the main data table (Overall/Rankings)
+const columns = computed(() => {
+  const base = [
+    { title: '', dataIndex: 'display_name', key: 'display_name', align: 'left', width: 1 },
+    {
+      title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
+      dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
+      key: 'overall_rank',
+      align: 'center',
+      customRender: ({ record }) =>
+        `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
+      sorter: (a, b) =>
+        overallFilter.value === 'all'
+          ? a.total_rank - b.total_rank
+          : a.starters_rank - b.starters_rank,
+      customCell: (record) => ({
+        style: getCellStyle(
+          overallFilter.value === 'all' ? record.total_rank : record.starters_rank
+        )
+      })
+    },
+    ...createPositionColumnsConfig(overallFilter.value)
+  ]
+  if (overallFilter.value === 'all') {
+    base.push(
+      {
+        title: 'Picks',
+        dataIndex: 'picks_rank',
+        key: 'picks_rank',
+        align: 'center',
+        customRender: ({ record }) => `${addOrdinalSuffix(record.picks_rank)}`,
+        sorter: (a, b) => a.picks_rank - b.picks_rank,
+        customCell: (record) => ({ style: getCellStyle(record.picks_rank) })
+      },
+      {
+        title: 'Bench',
+        dataIndex: 'bench_rank',
+        key: 'bench_rank',
+        align: 'center',
+        customRender: ({ record }) => `${addOrdinalSuffix(record.bench_rank)}`,
+        sorter: (a, b) => a.bench_rank - b.bench_rank,
+        customCell: (record) => ({ style: getCellStyle(record.bench_rank) })
+      }
+    )
+  }
+  return base
+})
+
+// Columns for the projection data table
+const projColumns = computed(() => [
+  { title: '', dataIndex: 'display_name', key: 'display_name', align: 'left', width: 1 },
+  {
+    title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
+    dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
+    key: 'overall_rank_proj', // Different key for projections
+    align: 'center',
+    customRender: ({ record }) =>
+      `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
+    sorter: (a, b) =>
+      overallFilter.value === 'all'
+        ? a.total_rank - b.total_rank
+        : a.starters_rank - b.starters_rank,
+    customCell: (record) => ({
+      style: getCellStyle(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)
+    })
+  },
+  ...createPositionColumnsConfig(overallFilter.value)
+  // Projections typically don't include Picks/Bench ranks in this summary table format
+])
+
+// Player data sorted for "League Assets" tab, chunked for display
+const sortedFilteredData = computed(() => {
+  const players = filteredData.value.filter((a) => a.player_position !== 'PICKS')
+  const picks = filteredData.value.filter((a) => a.player_position === 'PICKS')
+  const sortedPlayers = [...players].sort((a, b) => b.player_value - a.player_value)
+  const sortedPicks = sortPicks(picks) // Uses the detailed sortPicks function
+  return [...sortedPlayers, ...sortedPicks]
+})
+
+const playerChunks = computed(() => {
+  const size = 50
+  return sortedFilteredData.value.reduce((acc, val, i) => {
+    const idx = Math.floor(i / size)
+    acc[idx] = acc[idx] || []
+    acc[idx].push(val)
+    return acc
+  }, [] as any[][])
+})
+
+// Players grouped by position for "Position Groups" tab
+const playersByPosition = computed(() => {
+  const order = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  const groups = {}
+  order.forEach((pos) => (groups[pos] = []))
+
+  filteredData.value.forEach((player) => {
+    if (groups[player.player_position]) {
+      groups[player.player_position].push(player)
+    }
+  })
+
+  order.forEach((pos) => {
+    if (groups[pos]) {
+      if (pos === 'PICKS') {
+        groups[pos] = sortPicks(groups[pos])
+      } else {
+        groups[pos].sort((a, b) => b.player_value - a.player_value)
+      }
+      if (groups[pos].length === 0) delete groups[pos]
+    } else {
+      delete groups[pos]
+    }
+  })
+  return groups
+})
+
+// Grouped best available players for "Waivers" tab
+const groupedPlayers = computed(() => {
+  return bestAvailableData.value.reduce((acc, player) => {
+    acc[player.player_position] = acc[player.player_position] || []
+    acc[player.player_position].push(player)
+    return acc
+  }, {})
+})
+
+// --- Watchers ---
+
+// React to changes in the overall player filter (All vs. Starters)
+watch(overallFilter, () => {
+  if (summaryData.value.length) {
+    updateBchartData(summaryData.value)
+    // updateScatterPlotData(summaryData.value); // This seems to be for a different scatter plot
+  }
+  if (projSummaryData.value.length) {
+    // Ensure projSummaryData is used for projection charts
+    updateProjectionData(projSummaryData.value)
+  }
+  // If a user is selected, re-evaluate based on the new filter
+  if (selectedUser.value) {
+    const currentDataArray = showProjections.value ? projSummaryData.value : summaryData.value
+    const updatedSelectedUser = currentDataArray.find(
+      (u) => u.user_id === selectedUser.value.user_id
+    )
+    if (updatedSelectedUser) {
+      selectedUser.value = updatedSelectedUser
+    }
+  }
+})
+
+// --- Lifecycle Hooks ---
+
+onMounted(() => {
+  // Initial data load when component is mounted
+  if (
+    leagueInfo.leagueId &&
+    leagueInfo.platform &&
+    leagueInfo.rankType &&
+    leagueInfo.guid &&
+    leagueInfo.userId
+  ) {
+    insertLeagueDetials() // Passing no argument, will use leagueInfo from reactive state
+  }
+})
+
+// --- Core Logic & Data Fetching ---
+
+/**
+ * Sorts an array of draft pick objects.
+ * Picks are sorted primarily by year, then by round number, then by tier (Early, Mid, Late),
+ * then by specific pick number (e.g., 1.05), and finally by player_value descending as a fallback.
+ * @param {Array} picks - Array of pick objects, each expected to have 'full_name' and 'player_value'.
+ * @returns {Array} - A new array with sorted picks.
+ */
+// --- START: Added Pick Sorting Logic ---
+// ...existing code...
 function sortPicks(picks) {
   const roundOrder = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, '5th': 5 } // Extend if needed
   const tierOrder = { Early: 1, Mid: 2, Late: 3 }
@@ -1682,12 +2000,16 @@ function sortPicks(picks) {
     return b.player_value - a.player_value
   })
 }
-
 // --- END: Added Pick Sorting Logic ---
 
+/**
+ * Calculates percentile thresholds for player values by position.
+ * @param {Array} data - Array of player objects.
+ * @param {number} percentile - The percentile to calculate (e.g., 85 for 85th percentile).
+ * @returns {Object} - An object with positions as keys and threshold values.
+ */
 // --- START: Dynamic Percentile Threshold Calculation ---
-
-// Helper function to calculate percentile
+// ...existing code...
 const calculatePercentileThresholds = (data, percentile = 75) => {
   if (!data || data.length === 0) return {}
 
@@ -1709,995 +2031,18 @@ const calculatePercentileThresholds = (data, percentile = 75) => {
   })
   return thresholds
 }
-
-// High value = 85th percentile, Low value = 15th percentile
-const overallValueThresholds = computed(() => {
-  return calculatePercentileThresholds(detailData.value, 85)
-})
-const projectionValueThresholds = computed(() => {
-  return calculatePercentileThresholds(projDetailData.value, 85)
-})
-const overallLowValueThresholds = computed(() => {
-  return calculatePercentileThresholds(detailData.value, 15)
-})
-const projectionLowValueThresholds = computed(() => {
-  return calculatePercentileThresholds(projDetailData.value, 15)
-})
-
 // --- END: Dynamic Percentile Threshold Calculation ---
 
-// Sourec image imports
-import fnLogo from '@/assets/sourceLogos/fn.png'
-import ktcLogo from '@/assets/sourceLogos/ktc.png'
-import dpLogo from '@/assets/sourceLogos/dp.png'
-import fcLogo from '@/assets/sourceLogos/fc.png'
-import ddLogo from '@/assets/sourceLogos/dd.svg'
-
-const route = useRoute()
-const router = useRouter()
-
-const leagueName = route.params.leagueName
-const leagueYear = route.params.leagueYear
-const leagueId = route.params.leagueId
-const userName = route.params.userName
-const guid = route.params.guid
-const platform = route.params.platform
-const rankType = route.params.rankType
-const userId = route.params.userId
-const rosterType = route.params.rosterType
-const avatar = route.params.avatar
-const leagueType = route.params.leagueType
-const apiSource = route.params.platform
-const leagueStarters = route.params.leagueStarters
-const leagueSize = route.params.leagueSize
-
-const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE
-const apiUrl = import.meta.env.VITE_API_URL
-
-// league information
-const leagueInfo = reactive({
-  leagueName: leagueName as string,
-  leagueId: leagueId as string,
-  userName: userName,
-  leagueYear: leagueYear,
-  guid: guid as string,
-  rankType: rankType as string,
-  platform: platform as string,
-  userId: userId as string,
-  rosterType: rosterType as string,
-  avatar: avatar as string,
-  leagueType: leagueType as string,
-  apiSource: apiSource as string
-})
-
-const summaryData = ref([])
-const detailData = ref([{}])
-const projDetailData = ref([{}])
-const projSummaryData = ref([{}])
-const tradesDetailData = ref([{}])
-const tradesSummaryData = ref([{}])
-const bestAvailableData = ref([{}])
-const selectedUser = ref(null)
-const selectedUserId = ref(null)
-
-const leaguesUrl = `/leagues/${leagueYear}/${userName}/${guid}`
-
-const isLoading = ref(false)
-const baIsLoading = ref(false)
-const summaryIsLoading = ref(false)
-const detailIsLoading = ref(false)
-const isProjectionLoading = ref(false)
-const isTradesLoading = ref(false)
-const clickedManager = ref('')
-
-const value1 = ref('espn')
-const overallFilter = ref('all')
-
-const filteredData = computed(() => {
-  if (overallFilter.value === 'all') {
-    return detailData.value
-  } else {
-    return detailData.value.filter((item) => {
-      return item.fantasy_designation === overallFilter.value
-    })
-  }
-})
-
-const filteredProjData = computed(() => {
-  if (overallFilter.value === 'all') {
-    return projDetailData.value
-  } else {
-    return projDetailData.value.filter((item) => {
-      return item.fantasy_designation === overallFilter.value
-    })
-  }
-})
-
-const updateBchartData = (rawData) => {
-  bchartData.value = rawData.flatMap((item) => {
-    // Start with an array containing all positions except 'Picks'
-    const data = [
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.qb_sum : item.qb_starter_sum,
-        position: 'QB',
-        rank: overallFilter.value === 'all' ? item.qb_rank : item.qb_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.rb_sum : item.rb_starter_sum,
-        position: 'RB',
-        rank: overallFilter.value === 'all' ? item.rb_rank : item.rb_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.wr_sum : item.wr_starter_sum,
-        position: 'WR',
-        rank: overallFilter.value === 'all' ? item.wr_rank : item.wr_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.te_sum : item.te_starter_sum,
-        position: 'TE',
-        rank: overallFilter.value === 'all' ? item.te_rank : item.te_starter_rank
-      }
-    ]
-
-    // Add 'Picks' only if overallFilter is set to 'all'
-    if (overallFilter.value === 'all') {
-      data.push({
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: item.picks_sum,
-        position: 'Picks',
-        rank: item.picks_rank
-      })
-    }
-
-    return data
-  })
-}
-
-const updateProjectionData = (rawData) => {
-  projectionBarChartData.value = rawData.flatMap((item) => {
-    const data = [
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.qb_sum : item.qb_starter_sum,
-        position: 'QB',
-        rank: overallFilter.value === 'all' ? item.qb_rank : item.qb_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.rb_sum : item.rb_starter_sum,
-        position: 'RB',
-        rank: overallFilter.value === 'all' ? item.rb_rank : item.rb_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.wr_sum : item.wr_starter_sum,
-        position: 'WR',
-        rank: overallFilter.value === 'all' ? item.wr_rank : item.wr_starter_rank
-      },
-      {
-        display_name:
-          item.display_name.length > 8 ? item.display_name.slice(0, 8) + '...' : item.display_name,
-        value: overallFilter.value === 'all' ? item.te_sum : item.te_starter_sum,
-        position: 'TE',
-        rank: overallFilter.value === 'all' ? item.te_rank : item.te_starter_rank
-      }
-    ]
-
-    return data
-  })
-}
-
-const updateScatterPlotData = (rawData) => {
-  scatterPlotData.value = rawData.flatMap((item) => {
-    // Define the positions that will be included in the scatter plot
-    const positions = ['QB', 'RB', 'WR', 'TE']
-
-    // Map over each position to create a data entry for the scatter plot
-    const data = positions.map((position) => {
-      // Define the suffix for properties based on the overallFilter
-      const suffix = overallFilter.value === 'all' ? '' : '_starter'
-
-      return {
-        Manager: item.display_name,
-        Value: item[`${position.toLowerCase()}${suffix}_average_value`], // Total value of the position
-        Age: item[`${position.toLowerCase()}${suffix}_average_age`], // Conditionally use starter or regular average age
-        position: position,
-        rank: item[`${position.toLowerCase()}${suffix}_rank`] // Use rank based on the filter
-      }
-    })
-
-    return data
-  })
-}
-
-const OverallScatterPlotData = computed(() => {
-  const suffix = overallFilter.value === 'all' ? 'total_value' : 'starters_sum'
-
-  const mergedData = summaryData.value
-    .map((summaryItem) => {
-      const projection = projSummaryData.value.find(
-        (projItem) => projItem.user_id === summaryItem.user_id
-      )
-      return projection
-        ? {
-            display_name: summaryItem.display_name,
-            summaryValue: summaryItem[suffix],
-            projValue: projection[suffix]
-          }
-        : null
-    })
-    .filter((item) => item !== null)
-
-  return mergedData.map((item) => ({
-    Value: item.summaryValue,
-    Projection: item.projValue,
-    Manager: item.display_name
-  }))
-})
-
-function getRank(user) {
-  if (showProjections.value) {
-    const projUser = projSummaryData.value.find((p) => p.user_id === user.user_id)
-    if (projUser) {
-      return addOrdinalSuffix(
-        overallFilter.value === 'all' ? projUser.total_rank : projUser.starters_rank
-      )
-    }
-  }
-  return addOrdinalSuffix(overallFilter.value === 'all' ? user.total_rank : user.starters_rank)
-}
-
-// Add a computed property for projection-sorted users
-const sortedProjUsers = computed(() => {
-  if (projSummaryData.value.length === 0 || summaryData.value.length === 0) return []
-
-  // Create a merged array with projection data and avatars from summaryData
-  return projSummaryData.value
-    .map((projUser) => {
-      const summaryUser = summaryData.value.find((s) => s.user_id === projUser.user_id)
-      return {
-        ...projUser,
-        avatar: summaryUser?.avatar || ''
-      }
-    })
-    .sort((a, b) => {
-      if (overallFilter.value === 'all') {
-        return a.total_rank - b.total_rank
-      } else {
-        return a.starters_rank - b.starters_rank
-      }
-    })
-})
-
-// Update the sortedSummaryData computed property
-const sortedSummaryData = computed(() => {
-  if (summaryData.value.length === 0) return []
-
-  // If projections are being shown and projection data is available, use sorted projection data
-  if (showProjections.value && sortedProjUsers.value.length > 0) {
-    return sortedProjUsers.value
-  }
-
-  // Otherwise use regular summary data sorting
-  return [...summaryData.value].sort((a, b) => {
-    if (overallFilter.value === 'all') {
-      return a.total_rank - b.total_rank
-    } else {
-      return a.starters_rank - b.starters_rank
-    }
-  })
-})
-
-// Update the handleViewToggle function to ensure we resort on toggle
-const handleViewToggle = (checked) => {
-  // If true, show projections data
-  if (checked) {
-    // Make sure projection data is loaded
-    if (projSummaryData.value.length === 0 || projDetailData.value.length === 0) {
-      fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid)
-    }
-
-    // If a user is selected, find the equivalent in projection data
-    if (selectedUser.value) {
-      const projUser = sortedProjUsers.value.find((p) => p.user_id === selectedUser.value.user_id)
-      if (projUser) {
-        // Keep the selection but update to projection data
-        selectedUser.value = projUser
-      }
-    }
-  } else {
-    // Going back to regular view, update selection if needed
-    if (selectedUser.value) {
-      const regularUser = summaryData.value.find((s) => s.user_id === selectedUser.value.user_id)
-      if (regularUser) {
-        selectedUser.value = regularUser
-      }
-    }
-  }
-}
-
-watch(overallFilter, () => {
-  // Assuming you have a way to call fetchSummaryData or just update the relevant parts
-  if (summaryData.value.length) {
-    updateBchartData(summaryData.value)
-    updateScatterPlotData(summaryData.value)
-  }
-  if (summaryData.value.length) {
-    updateProjectionData(projSummaryData.value)
-  }
-})
-
-const sources = [
-  { key: 'sf', name: 'FantasyNavigator', logo: fnLogo },
-  { key: 'ktc', name: 'KeepTradeCut', logo: ktcLogo },
-  { key: 'dp', name: 'DynastyProcess', logo: dpLogo },
-  { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
-  { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
-]
-const source = ref(platform)
-const selectedSource = ref(sources.find((source) => source.key === platform) || sources[0])
-
-const filteredSources = computed(() => {
-  if (leagueInfo.rankType !== 'Dynasty') {
-    return sources.filter(
-      (source) => source.key === 'fc' || source.key === 'ktc' || source.key === 'sf'
-    )
-  }
-  return sources
-})
-
-const props = defineProps({
-  detailData: Array
-})
-
-const handleMenuClick: MenuProps['onClick'] = (e) => {
-  const leagueId = leagueInfo.leagueId
-  const leagueYear = leagueInfo.leagueYear
-  const platform = e.key
-  try {
-    fetchSummaryData(leagueId, platform, rankType, guid, rosterType)
-    fetchDetailData(leagueId, platform, rankType, guid, rosterType)
-    fetchBaData(leagueId, platform, rankType, guid, rosterType)
-    fetchTrades(leagueId, platform, rosterType, leagueYear, rankType)
-    selectedSource.value = sources.find((source) => source.key === platform) || sources[0]
-  } catch {
-    console.log('error loading leagues')
-  } finally {
-    console.log('league ranks pull complete')
-  }
-}
-
-const handleProjChange = async (projectionSource: any) => {
-  isProjectionLoading.value = true
-  try {
-    const [summaryResponse, detailResponse] = await Promise.all([
-      axios.get(`${apiUrl}/contender_league_summary`, {
-        params: {
-          league_id: leagueId,
-          projection_source: projectionSource,
-          guid: guid
-        }
-      }),
-      axios.get(`${apiUrl}/contender_league_detail`, {
-        params: {
-          league_id: leagueId,
-          projection_source: projectionSource,
-          guid: guid
-        }
-      })
-    ])
-    const projectionDetailData = detailResponse.data
-    projDetailData.value = projectionDetailData
-
-    projSummaryData.value = summaryResponse.data.map((item) => {
-      return {
-        ...item,
-        total_rank_display: addOrdinalSuffix(item.total_rank),
-        starters_rank_display: addOrdinalSuffix(item.starters_rank),
-        qb_rank_display: addOrdinalSuffix(item.qb_rank),
-        rb_rank_display: addOrdinalSuffix(item.rb_rank),
-        wr_rank_display: addOrdinalSuffix(item.wr_rank),
-        te_rank_display: addOrdinalSuffix(item.te_rank)
-      }
-    })
-
-    const rawData = summaryResponse.data
-    updateProjectionData(rawData)
-    projDetailData.value = detailResponse.data
-
-    projSummaryData.value = summaryResponse.data.map((item) => {
-      return {
-        ...item,
-        total_rank_display: addOrdinalSuffix(item.total_rank),
-        starters_rank_display: addOrdinalSuffix(item.starters_rank),
-        qb_rank_display: addOrdinalSuffix(item.qb_rank),
-        rb_rank_display: addOrdinalSuffix(item.rb_rank),
-        wr_rank_display: addOrdinalSuffix(item.wr_rank),
-        te_rank_display: addOrdinalSuffix(item.te_rank)
-      }
-    })
-
-    projectionPercentColumnData.value = summaryResponse.data.map((item) => {
-      return {
-        display_name: item.display_name,
-        starters_sum: item.starters_sum, // Ensure this data is provided by your API
-        bench_sum: item.bench_sum // Ensure this data is provided by your API
-      }
-    })
-  } catch (error) {
-    console.error('Error calling internal API:', error)
-  } finally {
-    isProjectionLoading.value = false
-  }
-}
-
-const positionTitles = {
-  QB: 'Quarterbacks',
-  RB: 'Runningbacks',
-  WR: 'Wide Receivers',
-  TE: 'Tight Ends',
-  PICKS: 'Picks'
-}
-
-function formatGaugeData(record) {
-  // Assuming overallFilter is a reactive ref and accessible here
-  const overallFilterValue = overallFilter.value
-  const isAll = overallFilterValue === 'all'
-  console.log('overallFilterValue', overallFilterValue)
-
-  // Make sure to define or fetch the total value if it's not provided in the record
-  const totalValue = record.total_value // Assuming total_value is defined on the record for 'all'
-  const starterValue = record.starters_sum // Assuming starters_value is defined on the record for 'starters'
-
-  return [
-    {
-      label: `QB: ${isAll ? record.qb_sum.toLocaleString() : record.qb_starters_sum.toLocaleString()}`,
-      color: 'rgb(39, 125, 161)',
-      value: isAll
-        ? (record.qb_sum / totalValue) * 100
-        : (record.qb_starter_sum / starterValue) * 100
-    },
-    {
-      label: `RB: ${isAll ? record.rb_sum.toLocaleString() : record.rb_starters_sum.toLocaleString()}`,
-      color: 'rgb(144, 190, 109)',
-      value: isAll
-        ? (record.rb_sum / totalValue) * 100
-        : (record.rb_starter_sum / starterValue) * 100
-    },
-    {
-      label: `WR: ${isAll ? record.wr_sum.toLocaleString() : record.wr_startes_sum.toLocaleString()}`,
-      color: 'rgb(67, 170, 139)',
-      value: isAll
-        ? (record.wr_sum / totalValue) * 100
-        : (record.wr_starter_sum / starterValue) * 100
-    },
-    {
-      label: `TE: ${isAll ? record.te_sum.toLocaleString() : record.te_starters_sum.toLocaleString()}`,
-      color: 'rgb(249, 132, 74)',
-      value: isAll
-        ? (record.te_sum / totalValue) * 100
-        : (record.te_starter_sum / starterValue) * 100
-    },
-    // Include the Picks data only when viewing 'all'
-    ...(isAll
-      ? [
-          {
-            label: `Picks: ${record.picks_sum.toLocaleString()}`,
-            color: 'rgba(189, 195, 199, 0.6)',
-            value: (record.picks_value / totalValue) * 100
-          }
-        ]
-      : [])
-  ]
-}
-
-const starterColumns: Column[] = [
-  {
-    title: '',
-    dataIndex: 'display_name',
-    key: 'display_name',
-    align: 'left'
-  },
-  {
-    title: 'Starters',
-    dataIndex: 'starters_rank_display',
-    key: 'starters_rank_display',
-    align: 'center',
-    width: 100,
-    slots: { customRender: 'starterValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.starters_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.starters_rank - b.starters_rank
-    }
-  },
-
-  {
-    title: 'QB',
-    dataIndex: 'qb_starter_rank_display',
-    key: 'qb_starter_rank',
-    align: 'center',
-    width: 100,
-    slots: { customRender: 'qbStarterValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.qb_starter_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.qb_starter_rank - b.qb_starter_rank
-    }
-  },
-  {
-    title: 'RB',
-    dataIndex: 'rb_starter_rank_display',
-    key: 'rb_starter_rank',
-    align: 'center',
-    width: 100,
-    slots: { customRender: 'rbStarterValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.rb_starter_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.rb_starter_rank - b.rb_starter_rank
-    }
-  },
-  {
-    title: 'WR',
-    dataIndex: 'wr_starter_rank_display',
-    key: 'wr_starter_rank',
-    align: 'center',
-    width: 100,
-    slots: { customRender: 'wrStarterValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.wr_starter_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.wr_starter_rank - b.wr_starter_rank
-    }
-  },
-  {
-    title: 'TE',
-    dataIndex: 'te_starter_rank_display',
-    key: 'te_starter_rank',
-    align: 'center',
-    width: 100,
-    slots: { customRender: 'teStarterValueTooltip' },
-    customCell: (record: any) => ({
-      style: getCellStyle(record.te_starter_rank)
-    }),
-    sorter: {
-      compare: (a, b) => a.te_starter_rank - b.te_starter_rank
-    }
-  }
-]
-const tradeColumns: Column[] = [
-  {
-    title: '',
-    dataIndex: 'display_name',
-    key: 'display_name'
-  },
-  {
-    title: 'Trades Cnt',
-    dataIndex: 'trades_cnt',
-    key: 'trades_cnt',
-    align: 'center',
-    sorter: {
-      compare: (a, b) => a.trades_cnt - b.trades_cnt
-    }
-  },
-  {
-    title: 'Added',
-    dataIndex: 'total_add',
-    key: 'total_add',
-    sorter: {
-      compare: (a, b) => a.total_add - b.total_add
-    }
-  },
-  {
-    title: 'Lost',
-    dataIndex: 'total_drop',
-    key: 'total_drop',
-    sorter: {
-      compare: (a, b) => a.total_drop - b.total_drop
-    }
-  },
-  {
-    title: 'Net',
-    dataIndex: 'total_diff',
-    key: 'total_diff',
-    sorter: {
-      compare: (a, b) => a.total_diff - b.total_diff
-    }
-  }
-]
-const columns = computed(() => {
-  // Define base columns common to all views
-  let baseColumns = [
-    {
-      title: '',
-      dataIndex: 'display_name',
-      key: 'display_name',
-      align: 'left',
-      width: 1
-    },
-    {
-      title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
-      dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
-      key: 'overall_rank',
-      align: 'center',
-      customRender: ({ record }) =>
-        `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
-      sorter: (a, b) =>
-        overallFilter.value === 'all'
-          ? a.total_rank - b.total_rank
-          : a.starters_rank - b.starters_rank,
-      customCell: (record) => ({
-        style: getCellStyle(
-          overallFilter.value === 'all' ? record.total_rank : record.starters_rank
-        )
-      })
-    },
-    // Map over positions, skipping Picks and Bench when not 'all'
-    ...['QB', 'RB', 'WR', 'TE'].map((position) => ({
-      title: position,
-      dataIndex:
-        overallFilter.value === 'all'
-          ? `${position.toLowerCase()}_rank`
-          : `${position.toLowerCase()}_starter_rank`,
-      key: `${position.toLowerCase()}_rank`,
-      align: 'center',
-      customRender: ({ record }) =>
-        `${addOrdinalSuffix(record[overallFilter.value === 'all' ? `${position.toLowerCase()}_rank` : `${position.toLowerCase()}_starter_rank`])}`,
-      sorter: (a, b) =>
-        a[
-          overallFilter.value === 'all'
-            ? `${position.toLowerCase()}_rank`
-            : `${position.toLowerCase()}_starter_rank`
-        ] -
-        b[
-          overallFilter.value === 'all'
-            ? `${position.toLowerCase()}_rank`
-            : `${position.toLowerCase()}_starter_rank`
-        ],
-      customCell: (record) => ({
-        style: getCellStyle(
-          record[
-            overallFilter.value === 'all'
-              ? `${position.toLowerCase()}_rank`
-              : `${position.toLowerCase()}_starter_rank`
-          ]
-        )
-      })
-    }))
-  ]
-
-  // Add Picks and Bench only if 'all'
-  if (overallFilter.value === 'all') {
-    baseColumns = baseColumns.concat([
-      {
-        title: 'Picks',
-        dataIndex: 'picks_rank',
-        key: 'picks_rank',
-        align: 'center',
-        customRender: ({ record }) => `${addOrdinalSuffix(record.picks_rank)}`,
-        sorter: (a, b) => a.picks_rank - b.picks_rank,
-        customCell: (record) => ({
-          style: getCellStyle(record.picks_rank)
-        })
-      },
-      {
-        title: 'Bench',
-        dataIndex: 'bench_rank',
-        key: 'bench_rank',
-        align: 'center',
-        customRender: ({ record }) => `${addOrdinalSuffix(record.bench_rank)}`,
-        sorter: (a, b) => a.bench_rank - b.bench_rank,
-        customCell: (record) => ({
-          style: getCellStyle(record.bench_rank)
-        })
-      }
-    ])
-  }
-
-  return baseColumns
-})
-
-const projColumns = computed(() => {
-  // Define base columns common to all views
-  let baseProjColumns = [
-    {
-      title: '',
-      dataIndex: 'display_name',
-      key: 'display_name',
-      align: 'left',
-      width: 1
-    },
-    {
-      title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
-      dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
-      key: 'overall_rank',
-      align: 'center',
-      customRender: ({ record }) =>
-        `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
-      sorter: (a, b) =>
-        overallFilter.value === 'all'
-          ? a.total_rank - b.total_rank
-          : a.starters_rank - b.starters_rank,
-      customCell: (record) => ({
-        style: getCellStyle(
-          overallFilter.value === 'all' ? record.total_rank : record.starters_rank
-        )
-      })
-    },
-    // Map over positions, skipping Picks and Bench when not 'all'
-    ...['QB', 'RB', 'WR', 'TE'].map((position) => ({
-      title: position,
-      dataIndex:
-        overallFilter.value === 'all'
-          ? `${position.toLowerCase()}_rank`
-          : `${position.toLowerCase()}_starter_rank`,
-      key: `${position.toLowerCase()}_rank`,
-      align: 'center',
-      customRender: ({ record }) =>
-        `${addOrdinalSuffix(record[overallFilter.value === 'all' ? `${position.toLowerCase()}_rank` : `${position.toLowerCase()}_starter_rank`])}`,
-      sorter: (a, b) =>
-        a[
-          overallFilter.value === 'all'
-            ? `${position.toLowerCase()}_rank`
-            : `${position.toLowerCase()}_starter_rank`
-        ] -
-        b[
-          overallFilter.value === 'all'
-            ? `${position.toLowerCase()}_rank`
-            : `${position.toLowerCase()}_starter_rank`
-        ],
-      customCell: (record) => ({
-        style: getCellStyle(
-          record[
-            overallFilter.value === 'all'
-              ? `${position.toLowerCase()}_rank`
-              : `${position.toLowerCase()}_starter_rank`
-          ]
-        )
-      })
-    }))
-  ]
-  return baseProjColumns
-})
-
-onMounted(() => {
-  const leagueId = route.params.leagueId as string
-  const leagueYear = route.params.leagueYear as string
-  const platform = route.params.platform as string
-  const rankType = route.params.rankType as string
-  const guid = route.params.guid as string
-  const rosterType = route.params.rosterType as string
-  const userId = route.params.userId as string
-  if (leagueId && platform && rankType && guid && userId) {
-    insertLeagueDetials()
-  }
-})
-
-function getPositionColor(position: string): string {
-  if (position === 'QB') {
-    return 'rgb(39, 125, 161)'
-  } else if (position === 'RB') {
-    return 'rgb(144, 190, 109)'
-  } else if (position === 'WR') {
-    return 'rgb(67, 170, 139)'
-  } else if (position === 'TE') {
-    return 'rgb(249, 132, 74)'
-  } else if (position.toUpperCase() === 'PICKS') {
-    return 'rgb(70, 70, 70,.625)'
-  } else {
-    return 'rgb(0, 0, 0, .00)'
-  }
-}
-
-function getHeaderColor(position: string): string {
-  if (position === 'QB') {
-    return 'rgb(39, 125, 161, .25)'
-  } else if (position === 'RB') {
-    return 'rgb(144, 190, 109, .25)'
-  } else if (position === 'WR') {
-    return 'rgb(67, 170, 139, .25)'
-  } else if (position === 'TE') {
-    return 'rgb(249, 132, 74, .25)'
-  } else if (position.toUpperCase() === 'PICKS') {
-    return 'rgb(70, 70, 70, .25)'
-  } else {
-    return 'rgb(0, 0, 0, .00)'
-  }
-}
-
-function getPositionTag(position, opacity = 0.15) {
-  switch (position) {
-    case 'QB':
-      return {
-        color: `rgb(39, 125, 161)`,
-        background: `rgba(39, 125, 161, ${opacity})`,
-        'border-color': `rgb(39, 125, 161)`,
-        border: `1px solid rgba(39, 125, 161, ${opacity})`
-      }
-    case 'RB':
-      return {
-        color: `rgb(144, 190, 109)`,
-        background: `rgba(144, 190, 109, ${opacity})`,
-        'border-color': `rgb(144, 190, 109)`,
-        border: `1px solid rgba(144, 190, 109, ${opacity})`
-      }
-    case 'WR':
-      return {
-        color: `rgb(67, 170, 139)`,
-        background: `rgba(67, 170, 139, ${opacity})`,
-        'border-color': `rgb(67, 170, 139)`,
-        border: `1px solid rgba(67, 170, 139, ${opacity})`
-      }
-    case 'TE':
-      return {
-        color: `rgb(249, 132, 74)`,
-        background: `rgba(249, 132, 74, ${opacity})`,
-        'border-color': `rgb(249, 132, 74)`,
-        border: `1px solid rgba(249, 132, 74, ${opacity})`
-      }
-    case 'PICKS':
-      return {
-        color: `rgb(143, 145, 146)`,
-        background: `rgba(143, 145, 146, ${opacity})`,
-        'border-color': `rgb(143, 145, 146)`,
-        border: `1px solid rgba(143, 145, 146, ${opacity})`
-      }
-    default:
-      return {}
-  }
-}
-
-function getPositionTagList(position, opacity = 0.15) {
-  switch (position) {
-    case 'QB':
-      return {
-        background: `rgba(39, 125, 161, ${opacity})`,
-        'border-color': `rgb(39, 125, 161)`
-      }
-    case 'RB':
-      return {
-        background: `rgba(144, 190, 109, ${opacity})`,
-        'border-color': `rgb(144, 190, 109)`
-      }
-    case 'WR':
-      return {
-        background: `rgba(67, 170, 139, ${opacity})`,
-        'border-color': `rgb(67, 170, 139)`
-      }
-    case 'TE':
-      return {
-        background: `rgba(249, 132, 74, ${opacity})`,
-        'border-color': `rgb(249, 132, 74)`
-      }
-    case 'PICKS':
-      return {
-        background: `rgba(143, 145, 146, ${opacity})`,
-        'border-color': `rgb(143, 145, 146)`,
-        border: `1px solid rgba(143, 145, 146, ${opacity})`
-      }
-    default:
-      return {}
-  }
-}
-
-// --- START: Modified getPlayers and getPlayersProj ---
-
-const getPlayers = (userId) => {
-  const userAssets = filteredData.value.filter((item) => item.user_id === userId)
-  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
-  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
-
-  // Sort players by value descending
-  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
-  // Sort picks using the custom logic
-  const sortedPicks = sortPicks(picks)
-
-  // Combine: Players first, then picks sorted by year/round
-  return [...sortedPlayers, ...sortedPicks]
-}
-
-const getPlayersProj = (userId) => {
-  const userAssets = filteredProjData.value.filter((item) => item.user_id === userId)
-  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
-  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
-
-  // Sort players by value descending
-  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
-  // Sort picks using the custom logic
-  const sortedPicks = sortPicks(picks)
-
-  // Combine: Players first, then picks sorted by year/round
-  return [...sortedPlayers, ...sortedPicks]
-}
-
-// --- END: Modified getPlayers and getPlayersProj ---
-
-// Compute chunks of 50 players based on the new sorted list
-const sortedFilteredData = computed(() => {
-  const players = filteredData.value.filter((a) => a.player_position !== 'PICKS')
-  const picks = filteredData.value.filter((a) => a.player_position === 'PICKS')
-
-  // Ensure players are sorted by value descending
-  const sortedPlayers = players.sort((a, b) => b.player_value - a.player_value)
-  // Sort picks using the custom logic
-  const sortedPicks = sortPicks(picks)
-
-  return [...sortedPlayers, ...sortedPicks]
-})
-
-const playerChunks = computed(() => {
-  const size = 50
-  return sortedFilteredData.value.reduce((acc, val, i) => {
-    let idx = Math.floor(i / size)
-    let page = acc[idx] || (acc[idx] = [])
-    page.push(val)
-    return acc
-  }, [])
-})
-
-// --- START: Modified playersByPosition ---
-
-const playersByPosition = computed(() => {
-  const order = ['QB', 'RB', 'WR', 'TE', 'PICKS']
-  const groups = {}
-  order.forEach((position) => {
-    groups[position] = []
-  })
-
-  // Group players first using the overall value-sorted list
-  filteredData.value.forEach((player) => {
-    if (groups.hasOwnProperty(player.player_position)) {
-      groups[player.player_position].push(player)
-    }
-  })
-
-  // Now, sort within each group
-  order.forEach((position) => {
-    if (groups[position]) {
-      // Check if group exists (might be empty)
-      if (position === 'PICKS') {
-        // Apply custom sort for picks
-        groups[position] = sortPicks(groups[position])
-      } else {
-        // Ensure players are sorted by value descending (might be redundant if filteredData is pre-sorted)
-        groups[position].sort((a, b) => b.player_value - a.player_value)
-      }
-      // Filter out empty groups after potential sorting
-      if (groups[position].length === 0) {
-        delete groups[position]
-      }
-    } else {
-      delete groups[position] // Remove placeholder if it remained empty
-    }
-  })
-
-  return groups
-})
-
-// --- END: Modified playersByPosition ---
-
-const insertLeagueDetials = async (values: any) => {
+/**
+ * Orchestrates the initial league data loading process.
+ * Clears relevant cache, posts roster data, then fetches all necessary league details.
+ * The 'values' parameter (leagueId) is optional; if not provided, uses leagueInfo.leagueId.
+ */
+const insertLeagueDetials = async (leagueIdParam?: string) => {
+  const currentLeagueId = leagueIdParam || leagueInfo.leagueId
   // Clear specific cache entries for this league to ensure fresh data
-  const leagueIdStr = leagueInfo.leagueId.toString()
   Object.keys(cacheStore.cache).forEach((key) => {
-    if (key.includes(leagueIdStr)) {
+    if (key.includes(currentLeagueId.toString())) {
       cacheStore.remove(key)
     }
   })
@@ -2705,32 +2050,33 @@ const insertLeagueDetials = async (values: any) => {
   isLoading.value = true
   detailIsLoading.value = true
   summaryIsLoading.value = true
-  console.log('trying insert rosters')
+  console.log('Attempting to insert/update rosters for league:', currentLeagueId)
 
   const cacheBuster = Date.now().toString() // Generate cache buster timestamp
 
   try {
-    const response = await axios.post(`${apiUrl}/roster`, {
-      league_id: leagueInfo.leagueId,
+    await axios.post(`${API_URL}/roster`, {
+      league_id: currentLeagueId,
       user_id: leagueInfo.userId,
       guid: leagueInfo.guid,
       league_year: leagueInfo.leagueYear
     })
-
-    console.log('Rosters loading...')
+    console.log('Rosters loading initiated...')
   } catch (error) {
-    console.error('Error loading rosters', error)
+    console.error('Error posting roster data:', error)
+    message.error('Failed to update rosters. Data shown might be outdated.')
   } finally {
     isLoading.value = false // Update loading state
 
-    // Pass cacheBuster to subsequent fetch calls
+    // Fetch all data components, passing the cacheBuster
+    // Use leagueInfo for consistent parameters from the reactive state
     fetchSummaryData(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType,
-      leagueInfo.leagueType, // Ensure leagueType is passed if needed
+      leagueInfo.leagueType,
       cacheBuster
     )
     fetchDetailData(
@@ -2757,689 +2103,663 @@ const insertLeagueDetials = async (values: any) => {
       leagueInfo.rankType,
       cacheBuster
     )
-    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster)
+    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster) // value1 is the projection source (e.g. 'espn')
   }
 }
 
+/**
+ * Fetches projection data (summary and detail) for the league.
+ * Includes retry logic and uses a cache buster if provided.
+ */
 async function fetchProjectionData(
   leagueId: string,
   projectionSource: string,
   guid: string,
-  cacheBuster?: string // Add cacheBuster parameter
+  cacheBuster?: string
 ) {
+  isProjectionLoading.value = true // Set loading state for projections specifically
   let retryCount = 0
   const maxRetries = 3
-  const retryDelay = 2000 // Delay in milliseconds
+  const retryDelay = 2000 // ms
 
-  const params: any = {
-    league_id: leagueId,
-    projection_source: projectionSource,
-    guid: guid
-  }
-  if (cacheBuster) {
-    params._cb = cacheBuster // Add _cb if provided
-  }
+  const params: any = { league_id: leagueId, projection_source: projectionSource, guid: guid }
+  if (cacheBuster) params._cb = cacheBuster
 
   while (retryCount < maxRetries) {
     try {
-      console.log('Fetching projection data...')
+      console.log(`Fetching projection data (Attempt ${retryCount + 1})...`)
       const [summaryResponse, detailResponse] = await Promise.all([
-        axios.get(`${apiUrl}/contender_league_summary`, { params }), // Use updated params
-        axios.get(`${apiUrl}/contender_league_detail`, { params }) // Use updated params
+        axios.get(`${API_URL}/contender_league_summary`, { params }),
+        axios.get(`${API_URL}/contender_league_detail`, { params })
       ])
 
-      updateProjectionData(summaryResponse.data) // Assuming this function processes and updates some state or UI
       projDetailData.value = detailResponse.data
+      projSummaryData.value = summaryResponse.data.map((item) => ({
+        ...item,
+        total_rank_display: addOrdinalSuffix(item.total_rank),
+        starters_rank_display: addOrdinalSuffix(item.starters_rank),
+        qb_rank_display: addOrdinalSuffix(item.qb_rank),
+        rb_rank_display: addOrdinalSuffix(item.rb_rank),
+        wr_rank_display: addOrdinalSuffix(item.wr_rank),
+        te_rank_display: addOrdinalSuffix(item.te_rank)
+      }))
 
-      projSummaryData.value = summaryResponse.data.map((item) => {
-        return {
-          ...item,
-          total_rank_display: addOrdinalSuffix(item.total_rank),
-          starters_rank_display: addOrdinalSuffix(item.starters_rank),
-          qb_rank_display: addOrdinalSuffix(item.qb_rank),
-          rb_rank_display: addOrdinalSuffix(item.rb_rank),
-          wr_rank_display: addOrdinalSuffix(item.wr_rank),
-          te_rank_display: addOrdinalSuffix(item.te_rank)
-        }
-      })
-
-      projectionPercentColumnData.value = summaryResponse.data.map((item) => {
-        return {
-          display_name: item.display_name,
-          starters_sum: item.starters_sum, // Ensure this data is provided by your API
-          bench_sum: item.bench_sum // Ensure this data is provided by your API
-        }
-      })
+      updateProjectionData(summaryResponse.data) // Update chart data
+      projectionPercentColumnData.value = summaryResponse.data.map((item) => ({
+        display_name: item.display_name,
+        starters_sum: item.starters_sum,
+        bench_sum: item.bench_sum
+      }))
 
       console.log('Projection data fetched successfully.')
-      return // Exit the function after successful fetch
+      isProjectionLoading.value = false
+      return
     } catch (error) {
       console.error('Error fetching projection data:', error)
       retryCount++
       if (retryCount < maxRetries) {
-        console.log(`Retrying... Attempt ${retryCount}`)
         await sleep(retryDelay)
       }
     }
   }
-
-  // If retries are exhausted and no successful fetch, handle the error:
   console.error('Failed to fetch projection data after retries.')
   message.error('Failed to fetch projection data. Please try again later.')
   isProjectionLoading.value = false
 }
 
+/**
+ * Fetches summary league data.
+ * Uses caching and retry logic. A cache buster bypasses the cache.
+ */
 async function fetchSummaryData(
   leagueId: string,
   platform: string,
   rankType: string,
   guid: string,
   rosterType: string,
-  leagueType: string, // Assuming this is defined somewhere as it's used in your params
-  cacheBuster?: string // Add cacheBuster parameter
+  leagueType: string,
+  cacheBuster?: string
 ) {
   summaryIsLoading.value = true
-
-  // Create a unique cache key based on parameters
   const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
 
-  // If a cache buster is provided, bypass the cache check
   if (!cacheBuster && cacheStore.has(cacheKey)) {
-    console.log('Using cached summary data')
     const cachedData = cacheStore.get(cacheKey)
     summaryData.value = cachedData
     updateBchartData(cachedData)
-    updateScatterPlotData(cachedData)
+    // updateScatterPlotData(cachedData); // Check if this is the correct scatter plot data to update
     summaryIsLoading.value = false
+    console.log('Using cached summary data.')
     return
   }
 
-  // If no cache or cache expired, fetch from API
   let retryCount = 0
   const maxRetries = 3
-  const retryDelay = 500 // Delay in milliseconds
-
+  const retryDelay = 500
   const params: any = {
     league_id: leagueId,
-    platform: platform,
+    platform,
     rank_type: rankType,
-    guid: guid,
+    guid,
     roster_type: rosterType,
     league_type: leagueType
   }
-  if (cacheBuster) {
-    params._cb = cacheBuster // Add _cb if provided
-  }
+  if (cacheBuster) params._cb = cacheBuster
 
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${apiUrl}/league_summary`, { params }) // Use updated params
-
+        const response = await axios.get(`${API_URL}/league_summary`, { params })
         const rawData = response.data
-
-        const processedData = rawData.map((item) => {
-          return {
-            ...item,
-            total_rank_display: addOrdinalSuffix(item.total_rank),
-            // other mappings...
-            picks_percent: (item.picks_sum / item.total_value) * 100
-          }
-        })
-
-        // Save to cache
+        const processedData = rawData.map((item) => ({
+          ...item,
+          total_rank_display: addOrdinalSuffix(item.total_rank),
+          // ... other mappings ...
+          picks_percent: item.total_value ? (item.picks_sum / item.total_value) * 100 : 0
+        }))
         cacheStore.set(cacheKey, processedData)
-
         summaryData.value = processedData
-        updateBchartData(rawData)
-        updateScatterPlotData(rawData)
-        break // Exit the loop on success
+        updateBchartData(rawData) // Use rawData for charts if they expect original structure
+        // updateScatterPlotData(rawData);
+        console.log('League summary data fetched successfully.')
+        break // Exit loop on success
       } catch (error) {
-        console.error('Error fetching league summary data:', error.message)
+        console.error(`Error fetching league summary (Attempt ${retryCount + 1}):`, error.message)
         retryCount++
-        if (retryCount < maxRetries) {
-          console.log(`Retrying... Attempt ${retryCount}`)
-          await sleep(retryDelay)
-        }
+        if (retryCount < maxRetries) await sleep(retryDelay)
+        else throw error // Re-throw after max retries
       }
     }
   } catch (error) {
-    console.error('Failed to fetch league summary data. Please try again later.')
+    console.error('Failed to fetch league summary data after retries.')
+    message.error('Failed to load league summary. Please try again.')
   } finally {
-    const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
-
-    if (!userSummary) {
-      console.error('No summary data found for user:', leagueInfo.userId)
-      summaryIsLoading.value = false
-      return
-    }
-
     summaryIsLoading.value = false
-
-    try {
-      const response = await axios.post(`${apiUrl}/ranks_summary`, {
-        user_id: leagueInfo.userId,
-        display_name: leagueInfo.userName,
-        league_id: leagueInfo.leagueId,
-        rank_source: platform,
-        power_rank: userSummary.total_rank,
-        starters_rank: userSummary.starters_rank,
-        bench_rank: userSummary.bench_rank,
-        picks_rank: userSummary.picks_rank
-      })
-    } catch (error) {
-      console.error('Error updating ranks summary:', error.message)
-    }
-  }
-
-  if (retryCount === maxRetries) {
-    console.error('Maximum retries reached for fetching league summary data')
-  }
-}
-
-async function fetchBaData(
-  leagueId: string,
-  platform: string,
-  rankType: string,
-  guid: string,
-  rosterType: string,
-  cacheBuster?: string // Add cacheBuster parameter
-) {
-  baIsLoading.value = true // Assuming you have a reactive variable to track loading state
-
-  // Create a unique cache key based on parameters
-  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
-
-  // If a cache buster is provided, bypass the cache check
-  if (!cacheBuster && cacheStore.has(cacheKey)) {
-    console.log('Using cached best available data')
-    bestAvailableData.value = cacheStore.get(cacheKey)
-    baIsLoading.value = false
-    return
-  }
-
-  let retryCount = 0
-  const maxRetries = 3
-  const retryDelay = 500 // Delay in milliseconds
-
-  const params: any = {
-    league_id: leagueId,
-    platform: platform,
-    rank_type: rankType,
-    guid: guid,
-    roster_type: rosterType
-  }
-  if (cacheBuster) {
-    params._cb = cacheBuster // Add _cb if provided
-  }
-
-  while (retryCount < maxRetries) {
-    try {
-      const response = await axios.get(`${apiUrl}/best_available`, { params }) // Use updated params
-
-      // Store in cache before assigning to reactive variable
-      cacheStore.set(cacheKey, response.data)
-      bestAvailableData.value = response.data
-      console.log('Best available data fetched successfully.')
-      return // Exit the function after successful fetch
-    } catch (error) {
-      console.error('There was an error fetching the best available data:', error)
-      retryCount++
-      if (retryCount < maxRetries) {
-        console.log(`Retrying... Attempt ${retryCount}`)
-        await sleep(retryDelay)
+    // Post user's rank summary (fire and forget)
+    const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
+    if (userSummary) {
+      try {
+        axios.post(`${API_URL}/ranks_summary`, {
+          user_id: leagueInfo.userId,
+          display_name: leagueInfo.userName,
+          league_id: leagueInfo.leagueId,
+          rank_source: platform,
+          power_rank: userSummary.total_rank,
+          starters_rank: userSummary.starters_rank,
+          bench_rank: userSummary.bench_rank,
+          picks_rank: userSummary.picks_rank
+        })
+      } catch (e) {
+        console.error('Error posting ranks summary:', e.message)
       }
     }
   }
-
-  // If retries are exhausted and no successful fetch, handle the error:
-  console.error('Failed to fetch best available data after retries.')
-  message.error('Failed to fetch best available data. Please try again later.')
-  baIsLoading.value = false // Ensure loading is turned off
 }
 
-async function fetchTrades(
-  leagueId: string,
-  platform: string,
-  rosterType: string,
-  leagueYear: string,
-  rankType: string,
-  cacheBuster?: string // Add cacheBuster parameter
-) {
-  let retryCount = 0
-  const maxRetries = 3
-  const retryDelay = 500 // Delay in milliseconds
-
-  const params: any = {
-    league_id: leagueId,
-    platform: platform,
-    roster_type: rosterType,
-    league_year: leagueYear,
-    rank_type: rankType
-  }
-  if (cacheBuster) {
-    params._cb = cacheBuster // Add _cb if provided
-  }
-
-  while (retryCount < maxRetries) {
-    try {
-      console.log('Pulling trades')
-      const [summaryResponse, detailResponse] = await Promise.all([
-        axios.get(`${apiUrl}/trades_summary`, { params }), // Use updated params
-        axios.get(`${apiUrl}/trades_detail`, { params }) // Use updated params
-      ])
-
-      tradesSummaryData.value = summaryResponse.data
-      tradesDetailData.value = detailResponse.data
-      console.log('Trade data fetched successfully.')
-      return // Exit the function after successful fetch
-    } catch (error) {
-      console.error('There was an error fetching the trades data:', error)
-      retryCount++
-      if (retryCount < maxRetries) {
-        console.log(`Retrying... Attempt ${retryCount}`)
-        await sleep(retryDelay)
-      }
-    }
-  }
-
-  // If retries are exhausted and no successful fetch, handle the error:
-  console.error('Failed to fetch trade data after retries.')
-  message.error('Failed to fetch trade data. Please try again later.')
-}
-
-const leagueOwnerData = computed(() => {
-  const ownerData = summaryData.value
-    .map(({ total_value, ...rest }) => rest)
-    .find((item) => item.user_id === userId)
-  const leagueSize = summaryData.value.reduce((max, item) => Math.max(max, item.total_rank), 0)
-  const qbMaxValue = summaryData.value.reduce((max, item) => Math.max(max, item.qb_sum), 0)
-  const rbMaxValue = summaryData.value.reduce((max, item) => Math.max(max, item.rb_sum), 0)
-  const wrMaxValue = summaryData.value.reduce((max, item) => Math.max(max, item.wr_sum), 0)
-  const teMaxValue = summaryData.value.reduce((max, item) => Math.max(max, item.te_sum), 0)
-  const picksMaxValue = summaryData.value.reduce((max, item) => Math.max(max, item.picks_sum), 0)
-  const qbStarterMaxValue = summaryData.value.reduce(
-    (max, item) => Math.max(max, item.qb_starter_sum),
-    0
-  )
-  const rbStarterMaxValue = summaryData.value.reduce(
-    (max, item) => Math.max(max, item.rb_starter_sum),
-    0
-  )
-  const wrStarterMaxValue = summaryData.value.reduce(
-    (max, item) => Math.max(max, item.wr_starter_sum),
-    0
-  )
-  const teStarterMaxValue = summaryData.value.reduce(
-    (max, item) => Math.max(max, item.te_starter_sum),
-    0
-  )
-
-  return {
-    ...ownerData,
-    league_size: leagueSize,
-    qb_max_value: qbMaxValue,
-    rb_max_value: rbMaxValue,
-    wr_max_value: wrMaxValue,
-    te_max_value: teMaxValue,
-    picks_max_value: picksMaxValue,
-    qb_max_starter_value: qbStarterMaxValue,
-    rb_max_starter_value: rbStarterMaxValue,
-    wr_max_starter_value: wrStarterMaxValue,
-    te_max_starter_value: teStarterMaxValue
-  }
-})
-
-const getLeagueSummary = async (values: any) => {
-  try {
-    console.log('attempt get league summary')
-
-    const url = `/leaguesummary/${encodeURIComponent(userName)}/${encodeURIComponent(userId)}/${encodeURIComponent(leagueId)}/${encodeURIComponent(leagueName)}/${encodeURIComponent(leagueYear)}/${encodeURIComponent(leagueStarters)}/${encodeURIComponent(leagueSize)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(guid)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(avatar)}/${encodeURIComponent(rankType)}`
-
-    router.push(url)
-  } catch (error) {
-    console.error('Failed to load league details:', error)
-  } finally {
-    console.log('complete')
-  }
-}
-
-const chartOptions = computed(() => {
-  return {
-    responsive: false,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: true,
-        labels: {
-          font: {
-            size: 12
-          }
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const dataPoint = context.raw
-            return `${dataPoint.label} Age:${dataPoint.x} Value:${dataPoint.y}`
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        min: 20,
-        max: 40,
-        ticks: {
-          font: {
-            size: 10
-          }
-        }
-      },
-      y: {
-        min: 0,
-        max: 9999,
-        ticks: {
-          font: {
-            size: 10
-          }
-        }
-      }
-    }
-  }
-})
-
-const groupedPlayers = computed(() => {
-  return bestAvailableData.value.reduce((acc, player) => {
-    if (!acc[player.player_position]) {
-      acc[player.player_position] = []
-    }
-    acc[player.player_position].push(player)
-    return acc
-  }, {})
-})
-
+/**
+ * Fetches detailed league data (individual player assets).
+ * Uses caching and retry logic.
+ */
 async function fetchDetailData(
   leagueId: string,
   platform: string,
   rankType: string,
   guid: string,
   rosterType: string,
-  cacheBuster?: string // Add cacheBuster parameter
+  cacheBuster?: string
 ) {
   detailIsLoading.value = true
-
-  // Create a unique cache key based on parameters
   const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
-  // If a cache buster is provided, bypass the cache check
   if (!cacheBuster && cacheStore.has(cacheKey)) {
-    console.log('Using cached detail data')
     detailData.value = cacheStore.get(cacheKey)
     detailIsLoading.value = false
+    console.log('Using cached detail data.')
     return
   }
 
   let retryCount = 0
   const maxRetries = 3
-  const retryDelay = 500 // delay in milliseconds
-
+  const retryDelay = 500
   const params: any = {
     league_id: leagueId,
-    platform: platform,
+    platform,
     rank_type: rankType,
-    guid: guid,
+    guid,
     roster_type: rosterType
   }
-  if (cacheBuster) {
-    params._cb = cacheBuster // Add _cb if provided
-  }
+  if (cacheBuster) params._cb = cacheBuster
 
-  while (retryCount < maxRetries) {
-    try {
-      const response = await axios.get(`${apiUrl}/league_detail`, { params }) // Use updated params
-
-      // Store in cache before assigning to reactive variable
-      cacheStore.set(cacheKey, response.data)
-      detailData.value = response.data
-      break
-    } catch (error) {
-      console.error('Error fetching league detail data:', error.message)
-      retryCount++
-      if (retryCount < maxRetries) {
-        console.log(`Retrying... Attempt ${retryCount}`)
-        await sleep(retryDelay)
-      } else {
-        message.error('Failed to fetch league detail data. Please try again later.')
+  try {
+    while (retryCount < maxRetries) {
+      try {
+        const response = await axios.get(`${API_URL}/league_detail`, { params })
+        cacheStore.set(cacheKey, response.data)
+        detailData.value = response.data
+        console.log('League detail data fetched successfully.')
+        break // Exit loop
+      } catch (error) {
+        console.error(`Error fetching league detail (Attempt ${retryCount + 1}):`, error.message)
+        retryCount++
+        if (retryCount < maxRetries) await sleep(retryDelay)
+        else throw error
       }
     }
+  } catch (error) {
+    console.error('Failed to fetch league detail data after retries.')
+    message.error('Failed to load league asset details. Please try again.')
+  } finally {
+    detailIsLoading.value = false
   }
-  detailIsLoading.value = false
 }
 
-function handleUserClick(user) {
+/**
+ * Fetches best available players (waivers).
+ * Uses caching and retry logic.
+ */
+async function fetchBaData(
+  leagueId: string,
+  platform: string,
+  rankType: string,
+  guid: string,
+  rosterType: string,
+  cacheBuster?: string
+) {
+  baIsLoading.value = true
+  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+
+  if (!cacheBuster && cacheStore.has(cacheKey)) {
+    bestAvailableData.value = cacheStore.get(cacheKey)
+    baIsLoading.value = false
+    console.log('Using cached best available data.')
+    return
+  }
+
+  let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500
+  const params: any = {
+    league_id: leagueId,
+    platform,
+    rank_type: rankType,
+    guid,
+    roster_type: rosterType
+  }
+  if (cacheBuster) params._cb = cacheBuster
+
+  try {
+    while (retryCount < maxRetries) {
+      try {
+        const response = await axios.get(`${API_URL}/best_available`, { params })
+        cacheStore.set(cacheKey, response.data)
+        bestAvailableData.value = response.data
+        console.log('Best available data fetched successfully.')
+        break // Exit loop
+      } catch (error) {
+        console.error(`Error fetching best available (Attempt ${retryCount + 1}):`, error.message)
+        retryCount++
+        if (retryCount < maxRetries) await sleep(retryDelay)
+        else throw error
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch best available data after retries.')
+    message.error('Failed to load best available players. Please try again.')
+  } finally {
+    baIsLoading.value = false
+  }
+}
+
+/**
+ * Fetches trades data (summary and detail).
+ * Includes retry logic. Cache buster can be used.
+ */
+async function fetchTrades(
+  leagueId: string,
+  platformApi: string,
+  rosterType: string,
+  leagueYear: string,
+  rankType: string,
+  cacheBuster?: string
+) {
+  // isTradesLoading.value = true; // Consider adding a loading state if UI feedback is needed
+  let retryCount = 0
+  const maxRetries = 3
+  const retryDelay = 500
+  const params: any = {
+    league_id: leagueId,
+    platform: platformApi,
+    roster_type: rosterType,
+    league_year: leagueYear,
+    rank_type: rankType
+  }
+  if (cacheBuster) params._cb = cacheBuster
+
+  try {
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Fetching trades data (Attempt ${retryCount + 1})...`)
+        const [summaryResponse, detailResponse] = await Promise.all([
+          axios.get(`${API_URL}/trades_summary`, { params }),
+          axios.get(`${API_URL}/trades_detail`, { params })
+        ])
+        tradesSummaryData.value = summaryResponse.data
+        tradesDetailData.value = detailResponse.data
+        console.log('Trade data fetched successfully.')
+        // isTradesLoading.value = false;
+        return // Exit function
+      } catch (error) {
+        console.error('Error fetching trades data:', error)
+        retryCount++
+        if (retryCount < maxRetries) await sleep(retryDelay)
+        else throw error // Re-throw after max retries
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch trade data after retries.')
+    message.error('Failed to load trade data. Please try again.')
+    // isTradesLoading.value = false;
+  }
+}
+
+// --- Event Handlers ---
+
+/**
+ * Handles selection of a new ranking source from the dropdown.
+ * Fetches new summary, detail, BA, and trades data for the selected source.
+ */
+const handleMenuClick: MenuProps['onClick'] = (e) => {
+  const newPlatform = e.key as string
+  selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
+  leagueInfo.apiSource = newPlatform // Update current API source
+
+  // Clear cache for the new platform to ensure fresh data if not using cache buster logic here
+  // Or rely on insertLeagueDetials to handle cache busting if it's called.
+  // For simplicity, directly call fetch methods with the new platform.
+  // A full cache invalidation and re-fetch via insertLeagueDetials might be more robust
+  // if changing source implies a full data refresh.
+  // However, current insertLeagueDetials is tied to initial load/refresh button.
+  // So, direct calls here:
+  const cacheBuster = Date.now().toString() // Force refresh for new source
+  fetchSummaryData(
+    leagueInfo.leagueId,
+    newPlatform,
+    leagueInfo.rankType,
+    leagueInfo.guid,
+    leagueInfo.rosterType,
+    leagueInfo.leagueType,
+    cacheBuster
+  )
+  fetchDetailData(
+    leagueInfo.leagueId,
+    newPlatform,
+    leagueInfo.rankType,
+    leagueInfo.guid,
+    leagueInfo.rosterType,
+    cacheBuster
+  )
+  fetchBaData(
+    leagueInfo.leagueId,
+    newPlatform,
+    leagueInfo.rankType,
+    leagueInfo.guid,
+    leagueInfo.rosterType,
+    cacheBuster
+  )
+  fetchTrades(
+    leagueInfo.leagueId,
+    newPlatform,
+    leagueInfo.rosterType,
+    leagueInfo.leagueYear,
+    leagueInfo.rankType,
+    cacheBuster
+  )
+
+  message.success(`Ranking source changed to ${selectedSource.value.name}`)
+}
+
+/**
+ * Handles change in projection source selection.
+ * Fetches new projection data.
+ */
+const handleProjChange = async (projectionSource: string) => {
+  fetchProjectionData(leagueInfo.leagueId, projectionSource, leagueInfo.guid, Date.now().toString())
+}
+
+/**
+ * Handles toggling between Overall and Projections view.
+ * Fetches projection data if not already loaded. Updates selected user if any.
+ */
+const handleViewToggle = (checked: boolean) => {
+  showProjections.value = checked // Explicitly set, though v-model does this
+  if (checked) {
+    // Switched to Projections
+    if (projSummaryData.value.length === 0 || projDetailData.value.length === 0) {
+      fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, Date.now().toString())
+    }
+    if (selectedUser.value) {
+      const projUser = projSummaryData.value.find((p) => p.user_id === selectedUser.value.user_id)
+      if (projUser) selectedUser.value = projUser
+    }
+  } else {
+    // Switched to Overall
+    if (selectedUser.value) {
+      const overallUser = summaryData.value.find((s) => s.user_id === selectedUser.value.user_id)
+      if (overallUser) selectedUser.value = overallUser
+    }
+  }
+}
+
+/**
+ * Handles clicking on a user/manager.
+ * Toggles selection or sets the clicked user as selected.
+ */
+function handleUserClick(user: any) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
   if (selectedUser.value && selectedUser.value.user_id === user.user_id) {
-    selectedUser.value = null
+    selectedUser.value = null // Deselect if already selected
   } else {
-    selectedUser.value = user // Set the selectedUser to the clicked user
+    selectedUser.value = user // Select the new user
   }
 }
 
-function avatarStyle(user) {
-  return {
-    border: selectedUserId.value === user.user_id ? '2px solid red' : 'none'
+/**
+ * Navigates to the league summary page.
+ */
+const getLeagueSummary = async () => {
+  try {
+    // Ensure all params for league summary route are available and correctly encoded
+    const {
+      userName,
+      userId,
+      leagueId,
+      leagueName,
+      leagueYear,
+      rosterType,
+      guid,
+      avatar,
+      rankType
+    } = leagueInfo
+    // const leagueStarters = route.params.leagueStarters as string; // Or from leagueInfo if stored
+    // const leagueSize = route.params.leagueSize as string; // Or from leagueInfo if stored
+
+    // Example: If leagueStarters and leagueSize are not in leagueInfo, fetch from route or define defaults
+    const leagueStarters = route.params.leagueStarters || '0'
+    const leagueSize = route.params.leagueSize || '0'
+
+    const url = `/leaguesummary/${encodeURIComponent(userName)}/${encodeURIComponent(userId)}/${encodeURIComponent(leagueId)}/${encodeURIComponent(leagueName)}/${encodeURIComponent(leagueYear)}/${encodeURIComponent(leagueStarters.toString())}/${encodeURIComponent(leagueSize.toString())}/${encodeURIComponent(rosterType)}/${encodeURIComponent(guid)}/${encodeURIComponent(rosterType)}/${encodeURIComponent(avatar)}/${encodeURIComponent(rankType)}`
+    router.push(url)
+  } catch (error) {
+    console.error('Failed to navigate to league summary:', error)
+    message.error('Could not open league summary.')
   }
 }
 
-const visualStartPercentage = 20
-const max = 100
-const min = max - visualStartPercentage // Actual value that corresponds to 20% visually
-const actualValue = ref(70) // Change this as needed
-const progressBarWidth = computed(() => {
-  if (actualValue.value < min) {
-    return `${visualStartPercentage}%` // Start at 20%
-  } else if (actualValue.value > max) {
-    return '100%' // Max out at 100%
-  } else {
-    // Scale percentage from 20% to 100%
-    const scaledValue =
-      ((actualValue.value - min) / (max - visualStartPercentage)) * (100 - visualStartPercentage) +
-      visualStartPercentage
-    return `${scaledValue.toFixed(2)}%`
-  }
-})
-
-// Add this reactive state for expanded cards
-const expandedTeams = reactive({})
-
-// Toggle function for expand/collapse
-function toggleExpand(userId: string) {
-  expandedTeams[userId] = !expandedTeams[userId]
-}
-
-// --- START: Added Player Modal Logic ---
-const showPlayerModal = (player) => {
+// Player Modal Handlers
+const showPlayerModal = (player: any) => {
   selectedPlayer.value = player
   isPlayerModalVisible.value = true
 }
-
 const handlePlayerModalOk = () => {
   isPlayerModalVisible.value = false
 }
-// --- END: Added Player Modal Logic ---
 
+// Expand/Collapse Handlers for UI elements
+function toggleExpand(userId: string) {
+  expandedTeams[userId] = !expandedTeams[userId]
+}
 const toggleMobileManagerExpand = (userId: string) => {
   expandedMobileManagers.value[userId] = !expandedMobileManagers.value[userId]
-  // If collapsing the manager card, also clear any expanded position for that manager
   if (!expandedMobileManagers.value[userId]) {
-    expandedMobileManagerPosition.value[userId] = null
+    expandedMobileManagerPosition.value[userId] = null // Collapse position if manager is collapsed
   }
 }
-
 const toggleMobileManagerPositionExpand = (userId: string, position: string) => {
-  if (expandedMobileManagerPosition.value[userId] === position) {
-    expandedMobileManagerPosition.value[userId] = null // Collapse if same position clicked
-  } else {
-    expandedMobileManagerPosition.value[userId] = position // Expand new position
-  }
+  expandedMobileManagerPosition.value[userId] =
+    expandedMobileManagerPosition.value[userId] === position ? null : position
 }
 
-// Helper to get players for a specific position for the mobile view, respecting filters
-const getPlayersForMobilePosition = (userId, position) => {
+// --- Utility Functions & Data Transformations ---
+
+// Chart data update functions
+const updateBchartData = (rawData: any[]) => {
+  bchartData.value = rawData.flatMap((item) => {
+    const displayName =
+      item.display_name.length > 8 ? `${item.display_name.slice(0, 8)}...` : item.display_name
+    const positions = ['qb', 'rb', 'wr', 'te']
+    const data = positions.map((pos) => ({
+      display_name: displayName,
+      value: overallFilter.value === 'all' ? item[`${pos}_sum`] : item[`${pos}_starter_sum`],
+      position: pos.toUpperCase(),
+      rank: overallFilter.value === 'all' ? item[`${pos}_rank`] : item[`${pos}_starter_rank`]
+    }))
+    if (overallFilter.value === 'all' && item.picks_sum !== undefined) {
+      // Check if picks_sum exists
+      data.push({
+        display_name: displayName,
+        value: item.picks_sum,
+        position: 'Picks',
+        rank: item.picks_rank
+      })
+    }
+    return data
+  })
+}
+
+const updateProjectionData = (rawData: any[]) => {
+  projectionBarChartData.value = rawData.flatMap((item) => {
+    const displayName =
+      item.display_name.length > 8 ? `${item.display_name.slice(0, 8)}...` : item.display_name
+    const positions = ['qb', 'rb', 'wr', 'te'] // Projections usually don't include picks in this chart
+    return positions.map((pos) => ({
+      display_name: displayName,
+      value: overallFilter.value === 'all' ? item[`${pos}_sum`] : item[`${pos}_starter_sum`],
+      position: pos.toUpperCase(),
+      rank: overallFilter.value === 'all' ? item[`${pos}_rank`] : item[`${pos}_starter_rank`]
+    }))
+  })
+}
+
+// Get rank string (e.g., "1st") for a user based on current view (overall/projection) and filter
+function getRank(user: any): string {
+  let rankValue
+  if (showProjections.value) {
+    const projUser = projSummaryData.value.find((p) => p.user_id === user.user_id)
+    if (projUser) {
+      rankValue = overallFilter.value === 'all' ? projUser.total_rank : projUser.starters_rank
+    }
+  } else {
+    rankValue = overallFilter.value === 'all' ? user.total_rank : user.starters_rank
+  }
+  return rankValue !== undefined ? addOrdinalSuffix(rankValue) : '--'
+}
+
+// Get players for a user, sorted (players by value, then picks by custom logic)
+const getPlayers = (userId: string) => {
+  const userAssets = filteredData.value.filter((item) => item.user_id === userId)
+  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
+  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
+  return [...[...players].sort((a, b) => b.player_value - a.player_value), ...sortPicks(picks)]
+}
+
+const getPlayersProj = (userId: string) => {
+  const userAssets = filteredProjData.value.filter((item) => item.user_id === userId)
+  const players = userAssets.filter((a) => a.player_position !== 'PICKS')
+  const picks = userAssets.filter((a) => a.player_position === 'PICKS') // Proj data might not have picks
+  return [
+    ...[...players].sort((a, b) => b.player_value - a.player_value),
+    ...(picks.length > 0 ? sortPicks(picks) : []) // Handle if no picks in proj data
+  ]
+}
+
+// Get players for a specific position for mobile view, respecting filters and projection view
+const getPlayersForMobilePosition = (userId: string, position: string) => {
   const allPlayersForUser = showProjections.value ? getPlayersProj(userId) : getPlayers(userId)
   return allPlayersForUser.filter((p) => p.player_position === position)
+}
+
+// Styling utility for position tags
+function getPositionTagList(position: string, opacity = 0.6) {
+  const colors = {
+    QB: 'rgb(39, 125, 161',
+    RB: 'rgb(144, 190, 109',
+    WR: 'rgb(67, 170, 139',
+    TE: 'rgb(249, 132, 74',
+    PICKS: 'rgb(70, 70, 70'
+  }
+  const color = colors[position] || 'rgb(0,0,0)' // Default color
+  return {
+    background: `${color}, ${opacity})`,
+    'border-color': color,
+    border: `1px solid ${color}, ${opacity + 0.02})` // Slightly more opaque border
+  }
+}
+
+// Titles for position groups
+const positionTitles = {
+  QB: 'Quarterbacks',
+  RB: 'Running Backs',
+  WR: 'Wide Receivers',
+  TE: 'Tight Ends',
+  PICKS: 'Draft Picks'
 }
 </script>
 
 <style scoped>
+/* General Layout */
 .layout {
   min-height: 100vh;
-}
-table {
-  border-collapse: collapse;
-}
-.league-info-container {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  background: #fff;
-}
-.ant-table-tbody > tr {
-  border-bottom: 1px solid white;
-}
-
-.ant-table-tbody > tr > td {
-  color: white;
-}
-
-.ant-table-thead > tr > th {
-  color: white;
-  border-bottom: 2px solid white;
-}
-.user-progress {
-  margin-bottom: 20px;
-  width: 350px;
-  height: 50px;
-  transform: scale(0.8);
-  transform-origin: top left;
-  margin: 10px;
-}
-
-.progress-container {
-  position: relative;
-}
-.median-line {
-  bottom: 200;
-  width: 20px;
-  background-color: red;
-}
-.overlay-progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  margin-bottom: 10px;
-}
-
-.overlay-progress-overall {
-  position: absolute;
-  width: 85%;
-}
-.badge-label {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, 0%);
-  background-color: rgb(70, 70, 70);
-  color: white;
-  padding: 0 4px;
-  border-radius: 10px;
-}
-
-.progress-container {
-  margin: 0 auto;
-}
-.progress-bars-section-mv {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.progress-bar-group-mv {
-  margin: 0 auto;
-}
-
-.progress-container-mv {
-  max-width: 1000px;
-}
-
-.at-table-tbody {
-  padding: 2px 2px;
-}
-.legend {
-  display: flex;
-  align-items: center;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-right: 10px; /* Adjust space between legend items */
-}
-
-.legend-color {
-  width: 15px;
-  height: 15px;
-  border-radius: 25%;
-  margin-right: 5px;
-}
-
-.legend-text {
-  font-size: 14px;
-}
-.table-section {
-  display: flex;
-  justify-content: center;
-}
-
-.chart-container {
-  position: relative;
-  margin: auto;
-  max-width: 1100px;
-}
-
-.title-container {
-  flex-grow: 1;
-}
-
-.controls-container {
-  display: flex;
-  gap: 10px;
-}
-
-@media (max-width: 768px) {
-  .header-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .controls-container {
-    flex-direction: column;
-    width: 100%;
-  }
 }
 .responsive-padding {
   padding: 0 10px;
 }
-
 @media (min-width: 440px) {
   .responsive-padding {
-    padding: 0 100px;
+    padding: 0 100px; /* Consider using variables or more granular steps */
   }
 }
+.text-center-margin-top-30 {
+  /* For h2 heatmap title */
+  text-align: center;
+  margin-top: 30px;
+}
+.font-bold {
+  font-weight: bold;
+}
+.margin-right-8 {
+  margin-right: 8px;
+}
+.font-size-1-1em {
+  font-size: 1.1em;
+}
+.font-size-18 {
+  font-size: 18px;
+}
+.font-bolder {
+  font-weight: bolder;
+}
+.justify-center-row {
+  justify-content: center;
+}
+.position-group-col {
+  min-width: 220px;
+}
+.avatar-bordered {
+  border: 2px solid rgb(39, 125, 161);
+}
+.player-chunk-container {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  margin: 5px;
+  padding: 5px;
+}
+.no-padding-ul {
+  padding: 0;
+}
+.player-chunk-item {
+  border-radius: 2px;
+  margin: 2px;
+}
+.no-list-style {
+  list-style: none;
+}
+.waiver-player-item {
+  margin-bottom: 2px;
+  border-radius: 2px;
+}
+.team-card-column {
+  min-width: 300px;
+  max-width: 315px;
+}
+.heatmap-table-container {
+  width: 100%;
+  max-width: 1150px;
+}
+.full-width-table {
+  width: 100%;
+}
 
+/* League Header & Info */
 .league-logo {
   width: 38px;
   height: 38px;
@@ -3447,69 +2767,12 @@ table {
   border: 1px solid gray;
   margin-right: 10px;
 }
-
 .league-title {
   display: flex;
   align-items: center;
   justify-content: left;
   flex-wrap: wrap;
-  text-align: center;
-}
-.rank-logos {
-  width: 24px;
-  height: 20px;
-  vertical-align: middle;
-  border-radius: 3px;
-}
-.manager-logos {
-  width: 328x;
-  height: 28px;
-  vertical-align: middle;
-  border-radius: 50%;
-  border: 1px solid gray;
-}
-.avatar-traded-asset {
-  width: 38px;
-  height: 32px;
-  flex: 0 0 38px;
-  border-radius: 50%;
-  background-color: transparent;
-  border: 2px solid rgb(39, 125, 161);
-}
-
-.load-league-button {
-  max-width: 300px;
-}
-.no-bullets li {
-  list-style-type: none;
-}
-.highlighted {
-  background-color: #f0f2f5;
-  border: 1px solid red !important;
-  font-weight: bold;
-}
-
-.lighter {
-  color: #aaa !important;
-  opacity: 0.7;
-}
-.avatar {
-  transition: transform 0.2s;
-}
-
-.avatar:hover {
-  transform: scale(1.4);
-}
-li {
-  list-style-type: none;
-}
-.dimmed-text {
-  color: #aaa !important;
-}
-.gutter-box-dropdown {
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: left;
+  /* text-align: center; Removed as justify-content: left is used */
 }
 .gutter-box-buttons {
   display: flex;
@@ -3523,168 +2786,99 @@ li {
   justify-content: right;
   align-items: baseline;
 }
-.ant-card .ant-card-body {
-  padding: 8px !important; /* Reducing padding and using !important to ensure override */
+
+/* Data Controls Card */
+/* ... existing .data-controls-card styles ... */
+.data-controls-card {
+  margin-bottom: 24px;
+  background-color: var(--background-color-secondary, #f9f9f9);
+  border: 1px solid var(--border-color, #e8e8e8);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.position-card h3 {
-  color: #333;
-}
-.position-card ul {
-  padding-left: 20px;
-}
-.position-card li {
-  list-style-type: none;
-}
-.position-card {
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.data-controls-card .ant-card-body {
+  padding: 20px 24px !important;
 }
 
-/* Optional: Add media queries for finer control */
-@media (max-width: 600px) {
-  .position-card {
-    padding: 10px;
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+}
+
+.control-label {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-color-secondary, #555);
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+.ant-switch {
+  transform: scale(1);
+  margin: 0;
+}
+
+.ant-radio-group {
+  display: inline-flex;
+}
+
+.ant-select,
+.ant-dropdown-button .ant-btn {
+  min-width: 120px;
+}
+
+@media (max-width: 1199px) {
+  .control-group {
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .control-group:last-child {
+    margin-bottom: 0;
+  }
+  .ant-radio-group,
+  .ant-select,
+  .ant-dropdown-button {
+    width: auto;
+    max-width: 250px;
   }
 }
 
-.user-card {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 5px 4px;
+@media (min-width: 1200px) {
+  .control-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .control-label {
+    min-width: 110px;
+    text-align: right;
+    margin-right: 4px;
+  }
 }
 
-.user-info h3,
-.user-info p {
-  margin: 5px 0;
-}
-
-.placeholder {
-  text-align: center;
-  color: #666;
-}
-.gutter-box {
-  padding: 4px 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.gutter-box-stats {
-  padding: 5px 1px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-}
-.gutter-box-stats {
-  padding: 5px 1px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-}
-h4 {
-  white-space: normal; /* Allows text to wrap */
-  word-wrap: break-word; /* Ensures long words do not overflow */
-  hyphens: auto; /* Optionally add hyphenation to properly hyphenate words at line breaks */
-  overflow-wrap: break-word; /* Ensures the text breaks to prevent overflow */
-}
-.mirrored-user {
-  max-width: 500px;
-  margin: 15px 1px;
+/* Tabs & Tab Content */
+.tab-header-container {
+  position: relative;
 }
 .tab-sub-header {
   text-align: left;
   margin-bottom: 25px;
 }
-.avatar-group-container {
-  margin: 10px;
-}
-.progress-container {
-  height: 20px;
-  border-radius: 5px;
-}
-
-.progress-bar {
-  height: 100%;
-  border-radius: 5px;
-  transition: width 0.3s ease-in-out;
-}
-.chart-title {
-  text-align: center;
-  margin-bottom: 20px; /* Add some space between the title and the chart */
-}
-.avatar-container {
-  border: 1px solid #696969;
-  border-radius: 5px;
-  background-color: whte;
-  display: flex;
-  justify-content: center;
-  position: relative;
-  padding: 5px;
-}
-.avatar-title {
+.info-button {
+  /* For tab guide */
   position: absolute;
-  top: -20px; /* Adjust for overlap */
-  right: -30px; /* Position towards the right */
-  padding: 0 1px;
-  transform: translateX(-50%);
-}
-.viz-container {
-  border: 1px solid #d3d3d3;
-  border-radius: 5px;
-  padding: 5px;
-  margin: 10px 0;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
 }
 
-/* Add modern card styling */
-.modern-card {
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
-}
-
-.modern-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-}
-
-.card-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.viz-container {
-  border: none;
-  padding: 10px;
-  margin: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.chart-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-color, #333);
-}
-
-/* Make sure toggle switch is prominent */
-.ant-switch {
-  transform: scale(1.2);
-  margin: 0 auto;
-}
-
-/* Add these styles at the end of the style section */
+/* Managers Grid (used in multiple tabs) */
+/* ... existing .managers-card, .managers-grid, .manager-item styles ... */
 .managers-card {
   margin-bottom: 20px;
   background-color: var(--background-color, #fff);
@@ -3774,209 +2968,85 @@ h4 {
 }
 
 .qb-badge {
-  background-color: rgba(39, 125, 161, 0.8);
+  background-color: rgba(25, 118, 210, 0.8); /* Updated QB color */
 }
-
 .rb-badge {
   background-color: rgba(144, 190, 109, 0.8);
 }
-
 .wr-badge {
-  background-color: rgba(67, 170, 139, 0.8);
+  background-color: rgba(76, 175, 80, 0.8); /* Updated WR color */
 }
-
 .te-badge {
   background-color: rgba(249, 132, 74, 0.8);
 }
 
-/* Make sure toggle switch has some margin */
-.ant-switch {
-  transform: scale(1.2);
-  margin: 0 10px;
+/* Charts & Visualizations */
+/* ... existing .modern-card, .card-header, .viz-container, .chart-title styles ... */
+.modern-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
-/* Add these styles at the end of the style section */
-.tab-header-container {
-  position: relative;
+.modern-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-.info-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-}
-
-.tab-info-container h3 {
-  margin-top: 16px;
+.card-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 8px;
-  color: var(--text-color, #1890ff);
 }
 
-.tab-info-container p {
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-/* --- Team Card Redesign for Team Composition Tab --- */
-.team-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin: 10px 0;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 10px 12px 8px 12px;
-  display: flex;
-  flex-direction: column;
-  min-height: 180px;
-  transition: box-shadow 0.2s;
-}
-.team-card:hover {
-  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.1);
-}
-.team-card-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-.team-card-title {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.manager-name {
-  font-weight: 600;
-  font-size: 15px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.team-rank {
-  font-size: 12px;
-  color: #888;
-}
-.team-value {
-  margin-left: auto;
-  font-size: 13px;
-  background: #f0f5ff;
-  color: #1890ff;
-  border-radius: 6px;
-  padding: 2px 8px;
-}
-.team-assets-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  max-height: 340px;
-  overflow: hidden;
-}
-
-.team-assets-list.expanded {
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 5px; /* Add some padding for the scrollbar */
-}
-
-.team-asset-item {
-  display: flex;
-  align-items: center;
-  border-radius: 2px;
-  margin: 2px 0;
-  padding: 2px 0 2px 4px;
-  font-size: 13px;
-  gap: 4px;
-  cursor: pointer; /* Make the whole item indicate clickability */
-}
-.expand-toggle {
-  text-align: center;
-  margin-top: 4px;
-}
-.expand-toggle a {
-  color: #1890ff;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-.expand-toggle a:hover {
-  color: #40a9ff;
-}
-/* --- End Team Card Redesign --- */
-
-/* Update position group styling for more compact display */
-.position-group-container {
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 8px;
-  margin-bottom: 16px;
+.viz-container {
+  border: none; /* Was: border: 1px solid #d3d3d3; */
+  padding: 10px;
+  margin: 0; /* Was: margin: 10px 0; */
   height: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
-.position-group-title {
-  font-size: 16px;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #f0f0f0;
-  text-align: center;
+.chart-title {
+  font-size: 16px; /* Was implicitly styled, making it explicit */
   font-weight: 600;
+  color: var(--text-color, #333);
+  /* text-align: center; Already in .card-header */
+  /* margin-bottom: 20px; Already in .card-header */
 }
 
-.position-player-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  overflow-y: auto;
-  max-height: 450px;
-}
-
-.position-player-item {
+/* Heatmap Table (Desktop & Mobile) */
+/* ... existing .table-section, .highlighted-row styles ... */
+/* ... existing .expanded-row-content and its children (.position-summary, .players-grid, .player-card) styles ... */
+/* ... existing .high-value-asset, .low-value-asset, .mid-value-asset styles ... */
+/* ... existing .heatmap-mobile-view and its children styles ... */
+.table-section {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 5px 8px;
-  border-radius: 4px;
-  margin: 2px 0;
-  font-size: 12px;
-  cursor: pointer; /* Make the whole item indicate clickability */
+  justify-content: center;
 }
-
-.player-name {
-  flex: 1;
-  white-space: normal;
-  overflow-wrap: break-word;
-  padding-right: 4px;
+.ant-table-tbody > tr {
+  border-bottom: 1px solid white; /* Assuming dark theme context, adjust if needed */
 }
-
-.player-value-display {
-  font-weight: 500;
-  white-space: nowrap;
-  font-size: 11px;
+.ant-table-tbody > tr > td {
+  color: white; /* Assuming dark theme context */
 }
-
-/* Responsive adjustments */
-@media (max-width: 1400px) {
-  .position-player-list {
-    max-height: 300px;
-  }
+.ant-table-thead > tr > th {
+  color: white; /* Assuming dark theme context */
+  border-bottom: 2px solid white; /* Assuming dark theme context */
 }
-
-@media (max-width: 992px) {
-  .position-player-item {
-    font-size: 11px;
-  }
+.highlighted-row td,
+.manager-card-mobile.highlighted-row {
+  font-weight: 600; /* Ensure mobile highlight also gets font weight */
 }
-
-/* New Heat Map Styles */
 .expanded-row-content {
   padding: 12px 8px;
-  background-color: #fafafa;
+  background-color: #fafafa; /* Light background for expanded details */
   border-radius: 8px;
 }
 
@@ -3996,9 +3066,9 @@ h4 {
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   background-color: white;
-  max-width: 340px;
+  max-width: 340px; /* Max width for readability */
 }
-
+/* ... other position-summary-item children styles ... */
 .position-header {
   display: flex;
   justify-content: space-between;
@@ -4012,71 +3082,62 @@ h4 {
   font-weight: 600;
   font-size: 15px;
 }
-
 .position-rank {
   margin: 0;
-}
+} /* Ant tag default margins might be fine */
 
 .position-stats {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr; /* Label and value */
   gap: 4px 8px;
   font-size: 13px;
 }
-
 .age-label,
 .value-label {
   color: #777;
 }
-
 .age-value,
 .value-amount {
   font-weight: 500;
   text-align: right;
 }
-
 .value-amount {
   font-weight: 600;
-}
+} /* Emphasize value */
 
-/* Position-specific styling */
+/* Position-specific border colors */
 .position-qb {
-  border-left: 3px solid rgb(39, 125, 161);
+  border-left: 3px solid rgb(25, 118, 210); /* Updated QB color */
 }
-
 .position-rb {
   border-left: 3px solid rgb(144, 190, 109);
 }
-
 .position-wr {
-  border-left: 3px solid rgb(67, 170, 139);
+  border-left: 3px solid rgb(76, 175, 80); /* Updated WR color */
 }
-
 .position-te {
   border-left: 3px solid rgb(249, 132, 74);
 }
-
 .position-picks {
   border-left: 3px solid rgb(143, 145, 146);
 }
 
-/* Players Grid styling */
 .players-grid {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
   gap: 16px;
 }
 
 .position-players-column {
-  flex: 1;
-  min-width: 165px;
+  flex: 1; /* Each column takes equal space */
+  min-width: 165px; /* Minimum width before wrapping */
   max-width: 340px;
 }
 
 .players-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 4px; /* Space between player cards */
 }
 
 .player-card {
@@ -4084,94 +3145,61 @@ h4 {
   border-radius: 4px;
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-  position: relative; /* Needed for the ::before pseudo-element */
-  overflow: hidden; /* Ensure the ::before doesn't overflow the rounded corners */
-  cursor: pointer; /* Make the whole card indicate clickability */
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
-
 .player-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
-
+/* ... other player-card children styles ... */
 .player-info {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 }
-
 .player-name-team {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-
 .player-name {
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .player-team {
   font-size: 11px;
   opacity: 0.8;
 }
-
 .player-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   min-width: 45px;
 }
-
 .player-age {
   font-size: 10px;
   opacity: 0.7;
 }
-
 .player-value {
   font-weight: 600;
   font-size: 12px;
 }
 
-/* Style for highlighting high-value assets */
-.high-value-asset {
-  padding-left: 12px;
-}
-.high-value-asset::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background-color: gold;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-/* Style for highlighting low-value assets */
-.low-value-asset {
-  padding-left: 12px;
-}
-.low-value-asset::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background-color: #e74d3cdd;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-/* --- ADD: Style for highlighting mid-value assets --- */
+/* Asset value indicators */
+.high-value-asset,
+.low-value-asset,
 .mid-value-asset {
   padding-left: 12px;
 }
+.high-value-asset::before,
+.low-value-asset::before,
 .mid-value-asset::before {
   content: '';
   position: absolute;
@@ -4179,110 +3207,130 @@ h4 {
   top: 0;
   bottom: 0;
   width: 5px;
-  background-color: #bdbdbd;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-/* --- END: Style for highlighting mid-value assets --- */
-
-/* Highlighted row for current user */
-.highlighted-row {
-  background-color: rgba(24, 144, 255, 0.05);
+.high-value-asset::before {
+  background-color: gold;
+}
+.low-value-asset::before {
+  background-color: #e74c3c;
+} /* Was: #e74d3cdd */
+.mid-value-asset::before {
+  background-color: #bdbdbd;
 }
 
-.highlighted-row td,
-.manager-card-mobile.highlighted-row {
-  /* Apply to mobile card too */
-  font-weight: 600;
+/* Mobile Heatmap Specifics */
+.heatmap-mobile-view {
+  display: none;
+} /* Hidden by default, shown via media query */
+.manager-card-mobile {
+  background-color: var(--card-background-color, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+.manager-card-mobile:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+.manager-info-line-mobile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.manager-name-mobile {
+  /* font-weight: 900; font-size: 1.25em; */
+  color: var(--text-color, #333);
+} /* Simplified */
+.manager-stats-grid-mobile {
+  /* Ant Row used, gutter handles spacing */
+}
+.manager-card-mobile-details-reused {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.position-summary-item.active-position-summary {
+  background-color: rgba(24, 144, 255, 0.08); /* Highlight for active mobile position */
+}
+.nested-players-container {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e0e0e0;
+}
+.nested-players-container .players-list {
+  gap: 6px;
+}
+.nested-players-container .player-card {
+  background-color: var(--background-color-secondary, #f9f9f9);
+}
+.no-players-notice {
+  padding: 10px 8px;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  font-size: 0.9em;
+  background-color: var(--background-color-tertiary, #f5f5f5);
+  border-radius: 4px;
+  margin-top: 8px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
+  /* Breakpoint for mobile heatmap */
+  .heatmap-desktop-view {
+    display: none;
+  }
+  .heatmap-mobile-view {
+    display: block;
+  }
+  /* Further mobile-specific adjustments from original file */
   .position-summary {
     flex-direction: column;
     gap: 8px;
   }
-
   .position-summary-item {
     width: 100%;
   }
-
   .players-grid {
     flex-direction: column;
   }
-
   .position-players-column {
     width: 100%;
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid #eaeaea;
   }
-
   .position-players-column:last-child {
     border-bottom: none;
     margin-bottom: 0;
   }
-
-  .player-card {
-    padding: 8px 10px;
-    margin-bottom: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .player-info {
-    font-size: 14px;
-  }
-
-  .player-name {
-    font-size: 14px;
-    max-width: 160px;
-  }
-
-  .player-team {
-    font-size: 12px;
-  }
-
-  .player-meta {
-    min-width: 60px;
-  }
-
-  .player-age {
-    font-size: 12px;
-  }
-
-  .player-value {
-    font-size: 14px;
-    font-weight: 700;
-  }
 }
-
-/* Extra small screens */
 @media (max-width: 480px) {
+  /* Extra small screens */
   .expanded-row-content {
     padding: 8px 4px;
   }
-
   .player-card {
     border-radius: 6px;
     margin-bottom: 8px;
   }
-
   .player-name-team {
     width: 65%;
-  }
-
+  } /* Ensure it doesn't overflow too much */
   .player-name {
     white-space: normal;
     line-height: 1.2;
-  }
-
+  } /* Allow name to wrap */
   .position-summary-item {
     padding: 10px;
     margin-bottom: 4px;
     width: auto;
-  }
-
+  } /* Auto width for better fit */
   .players-grid::before {
+    /* "Players" title for mobile grid */
     content: 'Players';
     display: block;
     font-weight: 600;
@@ -4291,8 +3339,8 @@ h4 {
     border-bottom: 1px solid #eaeaea;
     color: #555;
   }
-
   .position-players-column::before {
+    /* Position title for mobile column */
     content: attr(data-position);
     display: block;
     font-weight: 600;
@@ -4302,153 +3350,203 @@ h4 {
   }
 }
 
-/* New Data Controls Card Styling */
-.data-controls-card {
-  margin-bottom: 24px; /* Increased margin */
-  background-color: var(--background-color-secondary, #f9f9f9); /* Subtle background */
-  border: 1px solid var(--border-color, #e8e8e8); /* Softer border */
+/* Team Composition Tab (Team Cards) */
+/* ... existing .team-card and its children styles ... */
+.team-card {
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04); /* Softer shadow */
-}
-
-.data-controls-card .ant-card-body {
-  padding: 20px 24px !important; /* Adjusted padding */
-}
-
-.control-group {
+  margin: 10px 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 10px 12px 8px 12px;
   display: flex;
-  flex-direction: column; /* Default to column for mobile */
-  align-items: flex-start; /* Align items to start */
-  gap: 6px; /* Reduced gap */
-  width: 100%;
+  flex-direction: column;
+  min-height: 180px; /* Ensure cards have a minimum height */
+  transition: box-shadow 0.2s;
 }
-
-.control-label {
-  font-weight: 500;
-  font-size: 13px; /* Slightly smaller font */
-  color: var(--text-color-secondary, #555); /* Adjusted color */
-  margin-bottom: 0; /* Remove bottom margin */
-  line-height: 1.4; /* Ensure consistent line height */
+.team-card:hover {
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.1);
 }
-
-/* Style adjustments for controls */
-.ant-switch {
-  transform: scale(1); /* Reset scale */
-  margin: 0; /* Reset margin */
+.team-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
-
-.ant-radio-group {
-  display: inline-flex; /* Use inline-flex for better alignment */
+.team-card-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-
-.ant-select,
-.ant-dropdown-button .ant-btn {
-  min-width: 120px; /* Ensure minimum width for dropdowns */
+/* .manager-name is already defined */
+.team-rank {
+  font-size: 12px;
+  color: #888;
 }
-
-/* Responsive adjustments */
-@media (max-width: 1199px) {
-  /* Adjust breakpoint for better stacking */
-  .control-group {
-    align-items: center; /* Center align on medium/small screens */
-    margin-bottom: 16px; /* Add margin between stacked items */
-  }
-  .control-group:last-child {
-    margin-bottom: 0;
-  }
-  .ant-radio-group,
-  .ant-select,
-  .ant-dropdown-button {
-    width: auto; /* Allow natural width */
-    max-width: 250px; /* Prevent excessive width */
-  }
+.team-value {
+  margin-left: auto;
+  font-size: 13px;
+  background: #f0f5ff;
+  color: #1890ff;
+  border-radius: 6px;
+  padding: 2px 8px;
 }
-
-@media (min-width: 1200px) {
-  /* Adjust breakpoint */
-  .control-group {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px; /* Slightly increased gap for row layout */
-  }
-  .control-label {
-    min-width: 110px; /* Ensure labels align nicely */
-    text-align: right; /* Right-align labels */
-    margin-right: 4px;
-  }
+.team-assets-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  max-height: 340px; /* Initial collapsed height */
+  overflow: hidden;
 }
-/* End of Data Controls Card Styling */
-
-/* Style for highlighting high-value assets */
-.high-value-asset {
-  padding-left: 12px; /* Add padding to make space for the indicator */
+.team-assets-list.expanded {
+  max-height: 400px; /* Expanded height */
+  overflow-y: auto;
+  padding-right: 5px; /* For scrollbar */
 }
-
-.high-value-asset::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px; /* Width of the gold tab */
-  background-color: gold; /* Color of the tab */
-  border-top-left-radius: 4px; /* Match card's border-radius */
-  border-bottom-left-radius: 4px; /* Match card's border-radius */
-}
-
-/* --- ADD: Style for highlighting low-value assets --- */
-.low-value-asset {
-  padding-left: 12px; /* Add padding to make space for the indicator */
-}
-
-.low-value-asset::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px; /* Width of the red tab */
-  background-color: #e74c3c; /* Red color */
-  border-top-left-radius: 4px; /* Match card's border-radius */
-  border-bottom-left-radius: 4px; /* Match card's border-radius */
-}
-
-/* --- ADD: Style for highlighting mid-value assets --- */
-.mid-value-asset {
-  padding-left: 12px;
-}
-.mid-value-asset::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background-color: #bdbdbd;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-/* --- END: Style for highlighting mid-value assets --- */
-
-/* ADDED: Styles for clickable player name */
-.clickable-player-name {
+.team-asset-item {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  margin: 2px 0;
+  padding: 2px 0 2px 4px;
+  font-size: 13px;
+  gap: 4px;
   cursor: pointer;
-  text-decoration: underline;
-  text-decoration-color: rgba(24, 144, 255, 0.5); /* Optional: subtle underline */
+}
+.asset-index {
+  /* Style for asset number */
+}
+.asset-name {
+  /* Style for asset name */
+}
+.asset-team {
+  /* Style for asset team */
+}
+/* .player-value is already defined */
+.expand-toggle {
+  text-align: center;
+  margin-top: 4px.;
+}
+.expand-toggle a {
+  color: #1890ff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
   transition: color 0.2s;
 }
-
-.clickable-player-name:hover {
-  color: #1890ff; /* Ant Design primary blue */
-  text-decoration-color: #1890ff;
+.expand-toggle a:hover {
+  color: #40a9ff;
 }
 
-/* ADDED: Styles for Player Modal */
+/* Position Groups Tab */
+/* ... existing .mirrored-user, .user-card, .gutter-box, .gutter-box-stats styles ... */
+/* ... existing .position-group-container and its children styles ... */
+.mirrored-user {
+  max-width: 500px;
+  margin: 15px 1px;
+}
+.user-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px 4px;
+}
+.gutter-box {
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.gutter-box-stats {
+  padding: 5px 1px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+h4 {
+  /* For user name in mirrored card */
+  white-space: normal;
+  word-wrap: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+.position-group-container {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 16px;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.position-group-title {
+  font-size: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: center;
+  font-weight: 600;
+}
+.position-player-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  overflow-y: auto;
+  max-height: 450px; /* Adjust as needed */
+}
+.position-player-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin: 2px 0;
+  font-size: 12px;
+  cursor: pointer;
+}
+/* .player-name is already defined */
+.player-value-display {
+  font-weight: 500;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.font-size-11 {
+  font-size: 11px;
+} /* For age in position group list */
+
+/* League Assets Tab */
+/* ... existing styles for player chunks ... */
+/* .lighter and .dimmed-text are already defined */
+.lighter {
+  color: #aaa !important;
+  opacity: 0.7;
+}
+.dimmed-text {
+  color: #aaa !important;
+}
+
+/* Waivers Tab */
+/* ... existing styles for waiver cards ... */
+
+/* Modals (Info and Player Detail) */
+/* ... existing .tab-info-container styles ... */
+/* ... existing .player-modal-content and its children styles ... */
+.tab-info-container h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: var(--text-color, #1890ff); /* Use theme color */
+}
+.tab-info-container p {
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
 .player-modal-content {
   padding: 10px;
 }
-
 .player-modal-header {
   display: flex;
   align-items: center;
@@ -4457,7 +3555,6 @@ h4 {
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
 }
-
 .player-image-placeholder {
   width: 60px;
   height: 60px;
@@ -4468,140 +3565,89 @@ h4 {
   justify-content: center;
   border: 1px solid #e0e0e0;
 }
-
 .player-modal-info h2 {
   margin-bottom: 4px;
   font-size: 1.3em;
 }
-
 .player-modal-info p {
   margin: 0;
   color: #555;
 }
-
 .player-modal-details p {
   margin-bottom: 8px;
   font-size: 14px;
 }
-
 .player-modal-details strong {
   margin-right: 5px;
   color: #333;
 }
 
-/* ADDED: Styles for Mobile Heatmap View */
-.heatmap-mobile-view {
-  display: none; /* Hidden by default */
-}
-
-.manager-card-mobile {
-  background-color: var(--card-background-color, #fff);
-  border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 8px;
-  margin-bottom: 16px; /* Increased spacing between cards */
-  padding: 12px 16px; /* Adjusted padding */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-.manager-card-mobile:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-.manager-card-mobile-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer; /* Indicate the header is clickable to expand/collapse */
-}
-
-.manager-card-mobile.highlighted-row {
-  border-left: 4px solid #1890ff; /* Prominent highlight for current user */
-}
-
-.manager-name-mobile {
-  font-weight: 900;
-  font-size: 1.25em; /* Slightly adjusted font size */
-  color: var(--text-color, #333);
-}
-
-.manager-rank-value-mobile {
+/* Legend Styles */
+.legend {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap; /* Allow legend items to wrap */
+  gap: 5px 10px; /* Spacing for wrapped items */
+  margin: 10px 0; /* Spacing around legend */
 }
-
-.manager-rank-value-mobile .ant-tag {
-  font-size: 0.9em; /* Adjust tag size */
-}
-
-.manager-value-mobile {
-  font-size: 1.05em; /* Adjust value font size */
-  font-weight: 1000;
-  color: var(--text-color-secondary, #555);
-}
-
-.manager-card-mobile-details-reused {
-  margin-top: 12px;
-  padding-top: 12px; /* Add padding if not handled by expanded-row-content */
-  border-top: 1px solid #f0f0f0; /* Separator for details section */
-}
-
-/* Add styles for clickable position summary items and active state */
-.position-summary-item {
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.position-summary-item:hover {
-  background-color: rgba(0, 0, 0, 0.03); /* Light hover effect */
-}
-
-.position-summary-item.active-position-summary {
-  background-color: rgba(24, 144, 255, 0.08);
-  border-radius: 4px;
-}
-
-.nested-players-container {
-  margin-top: 12px; /* Space between position stats and player list */
-  padding-top: 12px;
-  border-top: 1px dashed #e0e0e0; /* Softer separator line */
-}
-
-.nested-players-container .players-list {
+.legend-item {
   display: flex;
-  flex-direction: column;
-  gap: 6px; /* Spacing between player cards */
+  align-items: center;
+  margin-right: 10px;
+}
+.legend-color {
+  width: 15px;
+  height: 15px;
+  border-radius: 25%;
+  margin-right: 5px;
+}
+.legend-text {
+  font-size: 14px;
+}
+.legend-qb {
+  background-color: rgb(25, 118, 210); /* Updated QB color */
+}
+.legend-rb {
+  background-color: rgb(144, 190, 109);
+}
+.legend-wr {
+  background-color: rgb(76, 175, 80); /* Updated WR color */
+}
+.legend-te {
+  background-color: rgb(249, 132, 74);
+}
+.legend-picks {
+  background-color: rgba(70, 70, 70, 0.7);
 }
 
-.nested-players-container .player-card {
-  /* Styles for player cards within the nested list are inherited, 
-     but you can add specific overrides if needed */
-  background-color: var(
-    --background-color-secondary,
-    #f9f9f9
-  ); /* Slightly different bg for nested players */
+/* Miscellaneous & Utility Styles */
+.rank-logos {
+  /* For source logos in dropdown */
+  width: 24px;
+  height: 20px;
+  vertical-align: middle;
+  border-radius: 3px;
 }
+.manager-logos {
+  /* For manager avatars in team cards */
+  width: 28px; /* Was 328px, assuming typo */
+  height: 28px;
+  vertical-align: middle;
+  border-radius: 50%;
+  border: 1px solid gray;
+}
+li {
+  list-style-type: none;
+} /* Global reset for li if needed, or apply more specifically */
 
-.no-players-notice {
-  padding: 10px 8px;
-  text-align: center;
-  color: #888; /* Slightly darker for better readability */
-  font-style: italic;
-  font-size: 0.9em;
-  background-color: var(--background-color-tertiary, #f5f5f5);
-  border-radius: 4px;
-  margin-top: 8px;
-}
-
-/* Media query for mobile heatmap */
-@media (max-width: 768px) {
-  /* Adjust breakpoint as needed */
-  .heatmap-desktop-view {
-    display: none;
-  }
-  .heatmap-mobile-view {
-    display: block;
-  }
-}
+/* Styles from original file that might be less organized or redundant, review if needed */
+/* table { border-collapse: collapse; } */ /* Generally handled by Ant Design */
+/* .league-info-container { ... } */ /* Seems unused */
+/* .user-progress, .progress-container, .median-line, .overlay-progress, .badge-label { ... } */ /* Seem unused */
+/* .avatar-traded-asset { ... } */ /* Seems unused */
+/* .load-league-button { ... } */ /* Seems unused */
+/* .avatar:hover { transform: scale(1.4); } */ /* Generic avatar hover, ensure it applies where intended */
+/* .ant-card .ant-card-body { padding: 8px !important; } */ /* Overly broad, specific card padding is better */
+/* .position-card { ... } */ /* Seems like an old or alternative card style */
+/* .avatar-group-container, .progress-bar, .avatar-container, .avatar-title { ... } */ /* Seem unused */
 </style>
