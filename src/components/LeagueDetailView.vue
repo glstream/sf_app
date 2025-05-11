@@ -1961,7 +1961,9 @@
                         >
                           <div class="player-details-wrapper">
                             <div class="player-name-info">
-                              <div class="player-name">{{ player.player_full_name }}</div>
+                              <div class="player-name">
+                                {{ player.player_full_name }}
+                              </div>
                               <div class="player-meta">
                                 <span
                                   class="player-position"
@@ -3509,20 +3511,113 @@ function findClosestPlayersInternal(
   return sortedPlayers.slice(0, 20)
 }
 
+// NEW FUNCTION: Get all available assets from both selected managers for balancing suggestions
+const getAvailableAssetsForBalancing = () => {
+  const assets = []
+
+  // Only proceed if both managers are selected
+  if (!selectedTradeManagerA.value || !selectedTradeManagerB.value) {
+    return assets
+  }
+
+  // Get all assets from both managers
+  const allPositions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+
+  // Team A assets
+  allPositions.forEach((position) => {
+    const positionAssets = getManagerAssetsByPosition(selectedTradeManagerA.value, position)
+    assets.push(...positionAssets)
+  })
+
+  // Team B assets
+  allPositions.forEach((position) => {
+    const positionAssets = getManagerAssetsByPosition(selectedTradeManagerB.value, position)
+    assets.push(...positionAssets)
+  })
+
+  return assets
+}
+
+// Convert roster asset to trade calculator format
+const mapAssetToTradeFormat = (asset) => {
+  return {
+    player_full_name: asset.full_name,
+    player_id: asset.sleeper_id,
+    _position: asset.player_position,
+    sf_value: asset.player_value,
+    one_qb_value: Math.round(asset.player_value * 0.8), // Estimate 1QB value if not available
+    team: asset.team,
+    age: asset.age,
+    ownerId: asset.user_id, // Add the ownerId to track asset ownership
+    display_name: asset.display_name // Include manager display name for UI
+  }
+}
+
+// REPLACE the addPlayerToTrade function to respect asset ownership
+const addPlayerToTrade = (player) => {
+  // Now determine side based on ownerId instead of value comparison
+  const sideToAdd =
+    player.ownerId === selectedTradeManagerA.value ? selectedPlayers1 : selectedPlayers2
+
+  const isPick = player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+  const existingPlayer = sideToAdd.value.find(
+    (p) => !isPick && p.player_full_name === player.player_full_name
+  )
+
+  if (!existingPlayer || isPick) {
+    sideToAdd.value.push(player)
+    const teamLabel = player.ownerId === selectedTradeManagerA.value ? 'A' : 'B'
+    message.success(
+      `Added ${player.player_full_name} to Team ${teamLabel} (owner: ${player.display_name})`
+    )
+  } else {
+    message.warning(`${player.player_full_name} is already in the trade.`)
+  }
+}
+
+// Update the UI for the balance section to show ownership indicators
 const closestBalancingPlayers = computed(() => {
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) return []
   const balRawValue = balancingPlayerValue.value
   if (balRawValue === 0) return []
+
   const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
-  let closest = findClosestPlayersInternal(
-    balRawValue,
-    tradeRanksData.value,
-    valueKey,
-    selectedPlayers1.value,
-    selectedPlayers2.value
+
+  // Get assets only from the two selected managers instead of global tradeRanksData
+  const availableAssets = getAvailableAssetsForBalancing().map(mapAssetToTradeFormat)
+
+  // Filter out assets that would create duplicates
+  const selectedPlayerNames = [
+    ...selectedPlayers1.value.map((p) => p.player_full_name || p.full_name),
+    ...selectedPlayers2.value.map((p) => p.player_full_name || p.full_name)
+  ]
+
+  const filteredAssets = availableAssets.filter(
+    (asset) => !selectedPlayerNames.includes(asset.player_full_name)
   )
-  closest.sort((a, b) => b[valueKey] - a[valueKey])
-  return closest
+
+  // Find closest matching values to balance the trade
+  const highestSelectedValue = Math.max(
+    ...selectedPlayers1.value.map((p) => p[valueKey] || 0),
+    ...selectedPlayers2.value.map((p) => p[valueKey] || 0),
+    0
+  )
+
+  const valueLimit = balRawValue !== 0 ? balRawValue : highestSelectedValue
+
+  // Filter assets within value range
+  const candidateAssets = filteredAssets.filter((asset) => asset[valueKey] <= valueLimit)
+
+  // Sort by proximity to the target balancing value
+  const sortedAssets = candidateAssets.sort(
+    (a, b) => Math.abs(a[valueKey] - balRawValue) - Math.abs(b[valueKey] - balRawValue)
+  )
+
+  // Return top matches sorted by value (highest first) - all with owner info
+  const topMatches = sortedAssets.slice(0, 20)
+  topMatches.sort((a, b) => b[valueKey] - a[valueKey])
+
+  return topMatches
 })
 
 const displayedBalancingPlayers = computed(() =>
@@ -3532,17 +3627,6 @@ const displayedBalancingPlayers = computed(() =>
 )
 const toggleShowAllBalancingPlayers = () =>
   (showAllBalancingPlayers.value = !showAllBalancingPlayers.value)
-
-const addPlayerToTrade = (player) => {
-  const sideToAdd =
-    totalValueSideA.value <= totalValueSideB.value ? selectedPlayers1 : selectedPlayers2
-  const isPick = player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
-  const existingPlayer = sideToAdd.value.find(
-    (p) => !isPick && p.player_full_name === player.player_full_name
-  )
-  if (!existingPlayer || isPick) sideToAdd.value.push(player)
-  else message.warning(`${player.player_full_name} is already on that side.`)
-}
 
 const tradeStatusComputed = computed(() => {
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0)
@@ -3679,70 +3763,93 @@ const getManagerAssetsByPosition = (managerId, position) => {
   // Convert position to lowercase for PICKS comparison
   const posToCheck = position === 'PICKS' ? 'PICKS' : position
 
-  return filteredData.value
-    .filter((asset) => asset.user_id === managerId && asset.player_position === posToCheck)
+  // First get all assets for this manager and position
+  const managerAssets = filteredData.value.filter(
+    (asset) => asset.user_id === managerId && asset.player_position === posToCheck
+  )
+
+  // Then filter out assets that are already in either trade basket
+  return managerAssets
+    .filter((asset) => {
+      // For non-pick assets, use sleeper_id to check uniqueness
+      if (asset.player_position !== 'PICKS') {
+        return !isAssetInEitherTrade(asset)
+      }
+      // For picks, we need to match by full_name since picks can be duplicated
+      // But we still need to show all picks in the available list
+      return true
+    })
     .sort((a, b) => b.player_value - a.player_value)
 }
 
-// Add asset to trade
-const addAssetToTrade = (asset, team) => {
-  // Map the asset to the expected format
-  const tradableAsset = {
-    ...asset,
-    player_full_name: asset.full_name,
-    _position: asset.player_position,
-    sf_value: asset.player_value,
-    one_qb_value: asset.player_value * 0.8 // Approximation for one QB value
-  }
-
-  // Check if asset is already in the trade
-  if (team === 1) {
-    const existingIndex = selectedPlayers1.value.findIndex(
-      (p) =>
-        p.sleeper_id === asset.sleeper_id ||
-        (p.full_name === asset.full_name && p.player_position === 'PICKS')
-    )
-
-    if (existingIndex >= 0) {
-      // Remove it if already selected
-      selectedPlayers1.value.splice(existingIndex, 1)
-    } else {
-      // Add it if not selected
-      selectedPlayers1.value.push(tradableAsset)
-    }
-  } else {
-    const existingIndex = selectedPlayers2.value.findIndex(
-      (p) =>
-        p.sleeper_id === asset.sleeper_id ||
-        (p.full_name === asset.full_name && p.player_position === 'PICKS')
-    )
-
-    if (existingIndex >= 0) {
-      // Remove it if already selected
-      selectedPlayers2.value.splice(existingIndex, 1)
-    } else {
-      // Add it if not selected
-      selectedPlayers2.value.push(tradableAsset)
-    }
-  }
+// Enhanced helper function to check if an asset is in either trade basket
+const isAssetInEitherTrade = (asset) => {
+  return isAssetInTrade(asset, 1) || isAssetInTrade(asset, 2)
 }
 
 // Check if an asset is in the trade
 const isAssetInTrade = (asset, team) => {
-  if (team === 1) {
-    return selectedPlayers1.value.some(
-      (p) =>
-        p.sleeper_id === asset.sleeper_id ||
-        (p.full_name === asset.full_name && p.player_position === 'PICKS')
+  const targetArray = team === 1 ? selectedPlayers1.value : selectedPlayers2.value
+
+  // For non-pick assets, match by sleeper_id
+  if (asset.player_position !== 'PICKS') {
+    return targetArray.some((p) => p.sleeper_id === asset.sleeper_id)
+  }
+
+  // For picks, match by full name
+  return targetArray.some((p) => p.player_position === 'PICKS' && p.full_name === asset.full_name)
+}
+
+// Add asset to trade
+const addAssetToTrade = (asset, team) => {
+  try {
+    // Create a deep clone of the asset to avoid reactivity issues
+    const assetCopy = JSON.parse(
+      JSON.stringify({
+        sleeper_id: asset.sleeper_id,
+        player_full_name: asset.full_name,
+        full_name: asset.full_name,
+        team: asset.team,
+        age: asset.age,
+        player_position: asset.player_position,
+        _position: asset.player_position,
+        player_value: asset.player_value,
+        sf_value: asset.player_value,
+        one_qb_value: Math.round(asset.player_value * 0.8),
+        user_id: asset.user_id,
+        display_name: asset.display_name
+      })
     )
-  } else {
-    return selectedPlayers2.value.some(
-      (p) =>
-        p.sleeper_id === asset.sleeper_id ||
-        (p.full_name === asset.full_name && p.player_position === 'PICKS')
-    )
+
+    // Determine if this is a draft pick
+    const isPick = asset.player_position === 'PICKS'
+
+    // For non-picks, check if the asset is already in the trade
+    if (!isPick && isAssetInTrade(asset, team)) {
+      // If it exists, remove it (toggle behavior)
+      const targetArray = team === 1 ? selectedPlayers1 : selectedPlayers2
+      const existingIndex = targetArray.value.findIndex((p) => p.sleeper_id === asset.sleeper_id)
+
+      if (existingIndex >= 0) {
+        targetArray.value.splice(existingIndex, 1)
+        message.info(`Removed ${asset.full_name} from Team ${team === 1 ? 'A' : 'B'}`)
+      }
+    } else {
+      // Add the asset to the appropriate side
+      if (team === 1) {
+        selectedPlayers1.value = [...selectedPlayers1.value, assetCopy]
+      } else {
+        selectedPlayers2.value = [...selectedPlayers2.value, assetCopy]
+      }
+
+      message.success(`Added ${asset.full_name} to Team ${team === 1 ? 'A' : 'B'}`)
+    }
+  } catch (error) {
+    console.error('Error in addAssetToTrade:', error)
+    message.error('Failed to update trade assets. Please try again.')
   }
 }
+
 // ---------- TRADE CALCULATOR CODE END ----------
 </script>
 
@@ -4999,6 +5106,175 @@ li {
   font-weight: 600;
   margin-bottom: 20px;
   color: var(--text-color);
+}
+
+/* Owner Badge */
+.owner-badge {
+  margin-left: 8px;
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 1.2;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+/* Trade Position Group Enhancements */
+.trade-position-group {
+  margin-bottom: 8px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.trade-position-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.trade-position-header:hover {
+  background-color: #f0f0f0;
+}
+
+.trade-position-header-qb {
+  border-left: 4px solid rgb(39, 125, 161);
+}
+
+.trade-position-header-rb {
+  border-left: 4px solid rgb(144, 190, 109);
+}
+
+.trade-position-header-wr {
+  border-left: 4px solid rgb(67, 170, 139);
+}
+
+.trade-position-header-te {
+  border-left: 4px solid rgb(249, 132, 74);
+}
+
+.trade-position-header-picks {
+  border-left: 4px solid rgb(70, 70, 70);
+}
+
+.trade-position-title {
+  font-weight: 600;
+  flex: 1;
+}
+
+.trade-position-count {
+  font-size: 12px;
+  color: #888;
+  background: #f5f5f5;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-right: 8px;
+}
+
+.trade-position-expand-icon {
+  font-size: 12px;
+  color: #888;
+}
+
+.trade-position-assets {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: #fff;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Enhanced Trade Asset Item Styling */
+.trade-asset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.trade-asset-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.trade-asset-item.asset-in-trade {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.trade-asset-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-asset-name {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.trade-asset-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: #888;
+}
+
+.trade-asset-team {
+  color: #666;
+}
+
+.trade-asset-age {
+  color: #888;
+}
+
+.trade-asset-value {
+  font-weight: 600;
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.trade-asset-add-icon,
+.trade-asset-check-icon {
+  font-size: 16px;
+}
+
+/* Trade Assets Container */
+.trade-assets-container {
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Owner Badge */
+.owner-badge {
+  margin-left: 8px;
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 1.2;
+  border-radius: 10px;
+  vertical-align: middle;
 }
 
 /* ---------- TRADE CALCULATOR STYLES END ---------- */
