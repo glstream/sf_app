@@ -676,8 +676,8 @@
                   </div>
                 </div>
               </a-tab-pane>
-              <!-- Trade Calculator Tab -->
-              <a-tab-pane key="6" tab="Trade Calculator">
+              <!-- Trade Calculator Tab - Only visible when rankings source is sf -->
+              <a-tab-pane key="6" tab="Trade Calculator" v-if="selectedSource.key === 'sf'">
                 <h2 class="tab-sub-header">Trade Calculator</h2>
 
                 <div class="trade-calculator-container">
@@ -814,7 +814,7 @@
                             <template v-if="areAllPositionsExpanded('A')">
                               <UpOutlined /> Collapse All
                             </template>
-                            <template v-else> <DownOutlined /> Expand All </template>
+                            <template v-else> <DownOutlined /> Expand Players </template>
                           </a-button>
                           <a-button
                             type="link"
@@ -1049,7 +1049,7 @@
                             <template v-if="areAllPositionsExpanded('B')">
                               <UpOutlined /> Collapse All
                             </template>
-                            <template v-else> <DownOutlined /> Expand All </template>
+                            <template v-else> <DownOutlined /> Expand Players </template>
                           </a-button>
                           <a-button
                             type="link"
@@ -2585,6 +2585,14 @@ watch(overallFilter, () => {
   }
 })
 
+// Watch for changes in selectedSource to handle tab switching
+watch(selectedSource, (newSource) => {
+  if (activeKey.value === '6' && newSource.key !== 'sf') {
+    activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
+    message.info('Trade Calculator is only available when using FantasyNavigator rankings')
+  }
+})
+
 // --- Lifecycle Hooks ---
 
 onMounted(() => {
@@ -3297,6 +3305,8 @@ const tradeDropDownHandleChange = (value: string) => {
 async function onCheckTepChange(event: Event): Promise<void> {
   const checked = (event.target as HTMLInputElement).checked
   const factor = 1.1
+
+  // Apply TE Premium to all players in the data
   tradeRanksData.value.forEach((player) => {
     if (player._position === 'TE') {
       if (checked) {
@@ -3308,8 +3318,36 @@ async function onCheckTepChange(event: Event): Promise<void> {
       }
     }
   })
+
+  // Update selected players with the new values from tradeRanksData
+  selectedPlayers1.value = selectedPlayers1.value.map((player) => {
+    if (player._position === 'TE') {
+      // Find the updated player data and use it
+      const updatedPlayer = tradeRanksData.value.find(
+        (p) => p.player_id === player.player_id || p.player_full_name === player.player_full_name
+      )
+      return updatedPlayer || player
+    }
+    return player
+  })
+
+  selectedPlayers2.value = selectedPlayers2.value.map((player) => {
+    if (player._position === 'TE') {
+      // Find the updated player data and use it
+      const updatedPlayer = tradeRanksData.value.find(
+        (p) => p.player_id === player.player_id || p.player_full_name === player.player_full_name
+      )
+      return updatedPlayer || player
+    }
+    return player
+  })
+
+  // Force reactivity update
   selectedPlayers1.value = [...selectedPlayers1.value]
   selectedPlayers2.value = [...selectedPlayers2.value]
+
+  // Also update any balancing player suggestions that might contain TEs
+  message.success(`TE Premium ${checked ? 'enabled' : 'disabled'}`)
 }
 
 const tweetPlayers = () => {
@@ -3499,6 +3537,10 @@ const clearTradeCalculator = () => {
   Object.keys(expandedTradePositions.B).forEach((key) => {
     expandedTradePositions.B[key] = false
   })
+
+  // Keep positions visible after clearing
+  showTradePositions.A = true
+  showTradePositions.B = true
 }
 
 const tradeAnalysisComputed = computed(() => {
@@ -3680,10 +3722,32 @@ const closestBalancingPlayers = computed(() => {
   // This adds ownerId, display_name, and maps player_value to sf_value/one_qb_value.
   const availableAssetsFromLosingManager = rawAssetsFromLosingSide.map(mapAssetToTradeFormat)
 
+  // Get already traded player identifiers for filtering
+  const tradedPlayerIds = [
+    ...selectedPlayers1.value.map((p) => p.player_id || p.sleeper_id),
+    ...selectedPlayers2.value.map((p) => p.player_id || p.sleeper_id)
+  ].filter((id) => id) // Filter out undefined/null IDs
+
+  const tradedPickNames = [
+    ...selectedPlayers1.value
+      .filter((p) => !p.player_id && !p.sleeper_id)
+      .map((p) => p.player_full_name || p.full_name),
+    ...selectedPlayers2.value
+      .filter((p) => !p.player_id && !p.sleeper_id)
+      .map((p) => p.player_full_name || p.full_name)
+  ].filter((name) => name) // Filter out undefined/null names
+
   // Filter candidate assets from the losing manager's available assets.
-  // Candidates must have a positive value and be less than or equal to the raw balancing value.
+  // Candidates must:
+  // 1. Have a positive value
+  // 2. Be less than or equal to the raw balancing value
+  // 3. Not already be in the trade (by ID or by name for picks)
   const candidateAssets = availableAssetsFromLosingManager.filter(
-    (asset) => asset[valueKey] > 0 && asset[valueKey] <= balRawValue
+    (asset) =>
+      asset[valueKey] > 0 &&
+      asset[valueKey] <= balRawValue &&
+      !tradedPlayerIds.includes(asset.player_id) &&
+      !tradedPickNames.includes(asset.player_full_name)
   )
 
   // Sort candidates by how close their value is to the balRawValue.
@@ -3793,6 +3857,9 @@ watch(
 watch(activeKey, (newValue) => {
   if (newValue === '6') {
     fetchTradeRanks()
+    // Reset position visibility to ensure positions are shown by default
+    showTradePositions.A = true
+    showTradePositions.B = true
   }
 })
 
@@ -3824,6 +3891,8 @@ const onTradeManagerAChange = (userId) => {
   Object.keys(expandedTradePositions.A).forEach((key) => {
     expandedTradePositions.A[key] = false
   })
+  // Ensure positions are visible when a manager is selected
+  showTradePositions.A = true
 }
 
 const onTradeManagerBChange = (userId) => {
@@ -3835,6 +3904,8 @@ const onTradeManagerBChange = (userId) => {
   Object.keys(expandedTradePositions.B).forEach((key) => {
     expandedTradePositions.B[key] = false
   })
+  // Ensure positions are visible when a manager is selected
+  showTradePositions.B = true
 }
 
 // Position group toggle
@@ -4196,6 +4267,7 @@ const areAllPositionsExpanded = (team) => {
   padding: 5px;
 }
 
+/* Enhanced Manager Item Styling */
 .manager-item {
   display: flex;
   align-items: center;
@@ -4204,6 +4276,7 @@ const areAllPositionsExpanded = (team) => {
   border: 1px solid #e8e8e8;
   transition: all 0.3s;
   cursor: pointer;
+  position: relative;
 }
 
 .manager-item:hover {
@@ -4216,12 +4289,93 @@ const areAllPositionsExpanded = (team) => {
   background-color: rgba(255, 215, 0, 0.1);
 }
 
+.selected-manager {
+  border: 2px solid #1890ff;
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
 .manager-avatar {
+  position: relative;
   margin-right: 10px;
 }
 
 .manager-rank {
   position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background-color: #1890ff;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid white;
+}
+
+.manager-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.manager-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manager-stats {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.position-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.position-badge {
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.qb-badge {
+  background-color: rgba(39, 125, 161, 0.15);
+  color: rgb(39, 125, 161);
+}
+
+.rb-badge {
+  background-color: rgba(144, 190, 109, 0.15);
+  color: rgb(144, 190, 109);
+}
+
+.wr-badge {
+  background-color: rgba(67, 170, 139, 0.15);
+  color: rgb(67, 170, 139);
+}
+
+.te-badge {
+  background-color: rgba(249, 132, 74, 0.15);
+  color: rgb(249, 132, 74);
+}
+
+/* Manager avatar for trade selectors */
+.manager-avatar-small {
+  margin-right: 8px;
+}
+
+.manager-name-option {
+  font-size: 14px;
 }
 
 /* Charts & Visualizations */
@@ -4638,10 +4792,6 @@ const areAllPositionsExpanded = (team) => {
   flex-direction: column;
   border: 2px solid transparent;
   transition: border-color 0.4s ease;
-  position: -webkit-sticky; /* For Safari */
-  position: sticky;
-  top: 20px; /* Adjust this value based on fixed headers (e.g., app header, tab bar height) */
-  z-index: 10; /* Ensures cards stay on top of other content when sticky */
 }
 
 .team-card:hover {
@@ -4955,81 +5105,79 @@ li {
   max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.settings-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.settings-row {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.settings-group {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.format-switch {
-  margin-left: 8px;
-}
-
-.team-size-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.team-label {
-  font-size: 14px;
-  color: #5c5f6b;
-}
-
-.tep-check {
-  margin-left: 8px;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 16px;
-}
-
-.help-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.help-text {
-  font-size: 14px;
-}
-
-.social-logos {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  border-radius: 3px;
+  contain: layout style;
 }
 
 .trade-teams {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .trade-teams {
+    display: grid;
     grid-template-columns: 1fr min-content 1fr;
-    align-items: flex-start;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .trade-evaluation {
+    width: auto;
+    padding: 0 12px;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .balance-visualizer-spacing {
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 991px) {
+  .trade-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .trade-evaluation {
+    order: 1;
+    padding: 8px 0;
+    margin: 0 auto;
+    max-width: 350px;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .trade-teams {
+    display: grid;
+    grid-template-areas:
+      'teamA'
+      'evaluation'
+      'teamB';
+    grid-template-rows: auto auto auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .team-card:nth-of-type(1) {
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    grid-area: evaluation;
+    margin: 16px auto;
+    width: 100%;
+  }
+
+  .team-card:nth-of-type(2) {
+    grid-area: teamB;
   }
 }
 
@@ -5167,7 +5315,6 @@ li {
   font-weight: 700;
   color: #1890ff;
   padding: 2px 8px;
-  background-color: rgba(24, 144, 255, 0.1);
   border-radius: 12px;
   white-space: nowrap;
 }
