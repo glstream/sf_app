@@ -1862,8 +1862,10 @@
                         <div
                           v-for="(player, index) in selectedPlayers2"
                           :key="player.player_full_name + index + '_teamB'"
+                          class="player-card"
                         >
-                          <div
+                          <a-card
+                            size="small"
                             :bordered="false"
                             class="player-item"
                             :style="{
@@ -1875,7 +1877,7 @@
                                 <div class="player-name">
                                   {{ player.player_full_name || player.full_name }}
                                 </div>
-                                <div>
+                                <div class="player-meta">
                                   <span
                                     class="player-position"
                                     :style="{
@@ -1903,7 +1905,7 @@
                                 </button>
                               </div>
                             </div>
-                          </div>
+                          </a-card>
                         </div>
                         <div v-if="showAdjustmentB" class="adjustment-card">
                           <a-card size="small" :bordered="true" class="va-card">
@@ -1951,11 +1953,14 @@
                         :key="player.player_full_name + '_balancing'"
                         class="balancing-player-card"
                       >
-                        <div
+                        <a-card
+                          size="small"
+                          :bordered="false"
                           class="player-item"
                           :style="{
                             borderLeft: `4px solid ${getTradePositionColor(player._position)}`
                           }"
+                          hoverable
                           @click="addPlayerToTrade(player)"
                         >
                           <div class="player-details-wrapper">
@@ -1963,7 +1968,7 @@
                               <div class="player-name">
                                 {{ player.player_full_name }}
                               </div>
-                              <div>
+                              <div class="player-meta">
                                 <span
                                   class="player-position"
                                   :style="{ color: getTradePositionColor(player._position) }"
@@ -1982,7 +1987,7 @@
                               <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
                             </div>
                           </div>
-                        </div>
+                        </a-card>
                       </div>
                     </div>
                     <div class="view-more" v-if="closestBalancingPlayers.length > 6">
@@ -3726,6 +3731,9 @@ const expandedTradePositions = reactive({
 })
 
 const onTradeManagerAChange = (userId) => {
+  // Clear selected players for Team A when manager changes
+  selectedPlayers1.value = []
+
   selectedTradeManagerA.value = userId
   // Reset expanded position groups
   Object.keys(expandedTradePositions.A).forEach((key) => {
@@ -3734,6 +3742,9 @@ const onTradeManagerAChange = (userId) => {
 }
 
 const onTradeManagerBChange = (userId) => {
+  // Clear selected players for Team B when manager changes
+  selectedPlayers2.value = []
+
   selectedTradeManagerB.value = userId
   // Reset expanded position groups
   Object.keys(expandedTradePositions.B).forEach((key) => {
@@ -5023,20 +5034,55 @@ li {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 0;
+  padding: 0; /* Remove padding to prevent extra space */
+  width: 100%;
+  max-width: 100%;
 }
 
 .balance-visualizer-spacing {
   margin: 0 auto;
+  width: 100%;
 }
 
-@media (max-width: 767px) {
-  .trade-evaluation {
-    order: 1;
+/* Ensure proper layout in desktop view */
+@media (min-width: 992px) {
+  .trade-teams {
+    display: grid;
+    grid-template-columns: 1fr min-content 1fr;
+    gap: 8px;
+    align-items: center;
   }
+
+  .trade-evaluation {
+    width: auto;
+    padding: 0 12px;
+    align-self: center;
+  }
+
+  .balance-visualizer-spacing {
+    min-width: 280px; /* Ensure consistent width */
+  }
+}
+
+/* Improve mobile layout */
+@media (max-width: 991px) {
+  .trade-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .trade-evaluation {
+    order: 1; /* Place between Team A and Team B */
+    padding: 8px 0;
+    margin: 0 auto;
+    max-width: 350px;
+  }
+
   .team-card:nth-of-type(1) {
     order: 0;
   }
+
   .team-card:nth-of-type(2) {
     order: 2;
   }
