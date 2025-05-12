@@ -676,6 +676,587 @@
                   </div>
                 </div>
               </a-tab-pane>
+              <!-- Trade Calculator Tab -->
+              <a-tab-pane key="6" tab="Trade Calculator">
+                <h2 class="tab-sub-header">Trade Calculator</h2>
+
+                <div class="trade-calculator-container">
+                  <!-- Settings Panel -->
+                  <a-card class="settings-card">
+                    <div class="settings-row">
+                      <div class="settings-group">
+                        <a-radio-group
+                          v-model:value="tradeRankType"
+                          button-style="solid"
+                          size="middle"
+                        >
+                          <a-radio-button value="dynasty">Dynasty</a-radio-button>
+                          <a-radio-button value="redraft">Redraft</a-radio-button>
+                        </a-radio-group>
+
+                        <a-switch
+                          size="default"
+                          v-model:checked="tradeState.checked1"
+                          checked-children="Superflex"
+                          un-checked-children="OneQB"
+                          class="format-switch"
+                        />
+                      </div>
+
+                      <div class="settings-group">
+                        <div class="team-size-selector">
+                          <a-select
+                            v-model:value="tradeDropDownValue1"
+                            :options="tradeDropDownOptions1"
+                            @change="tradeDropDownHandleChange"
+                            size="middle"
+                            style="width: 70px"
+                          />
+                          <span class="team-label">Team</span>
+                        </div>
+
+                        <a-checkbox
+                          v-model:checked="tradeTepCheck"
+                          @change="onCheckTepChange"
+                          class="tep-check"
+                        >
+                          TE Premium
+                        </a-checkbox>
+                      </div>
+                    </div>
+
+                    <div class="action-buttons">
+                      <a-dropdown-button type="default" size="middle">
+                        Share
+                        <template #overlay>
+                          <a-menu @click="handleTradeShareClick">
+                            <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                              <img class="social-logos" :src="source.logo" />
+                              <span style="margin-left: 8px">{{ source.name }}</span>
+                            </a-menu-item>
+                          </a-menu>
+                        </template>
+                        <template #icon><ShareAltOutlined /></template>
+                      </a-dropdown-button>
+
+                      <a-button type="text" @click="showTradeModal" class="help-button">
+                        <QuestionCircleOutlined />
+                        <span class="help-text">How it works</span>
+                      </a-button>
+                    </div>
+                  </a-card>
+
+                  <!-- Trade Teams Section -->
+                  <div class="trade-teams">
+                    <!-- Team A -->
+                    <a-card
+                      class="team-card"
+                      :bordered="false"
+                      :class="{
+                        'card-outline-balanced':
+                          isFairTrade &&
+                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+                        'card-outline-winning': bFavoredTrade,
+                        'card-outline-losing': aFavoredTrade
+                      }"
+                    >
+                      <template #title>
+                        <div class="team-header">
+                          <h2>Team A</h2>
+                          <div
+                            class="team-value"
+                            :class="{
+                              'value-favorable': aFavoredTrade,
+                              'value-balanced': isFairTrade
+                            }"
+                          >
+                            <span v-if="selectedPlayers1.length > 0">{{
+                              Math.round(totalValueSideA).toLocaleString()
+                            }}</span>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Manager Selector for Team A -->
+                      <div class="manager-selector-container">
+                        <a-select
+                          v-model:value="selectedTradeManagerA"
+                          placeholder="Select a manager"
+                          style="width: 100%"
+                          size="large"
+                          @change="onTradeManagerAChange"
+                        >
+                          <a-select-option
+                            v-for="manager in sortedSummaryData"
+                            :key="manager.user_id"
+                            :value="manager.user_id"
+                          >
+                            <div class="manager-option">
+                              <a-avatar
+                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :size="24"
+                                class="manager-avatar-small"
+                              />
+                              <span class="manager-name-option">{{ manager.display_name }}</span>
+                            </div>
+                          </a-select-option>
+                        </a-select>
+                      </div>
+
+                      <!-- Trade Assets Grouped by Position for Team A -->
+                      <div v-if="selectedTradeManagerA" class="trade-assets-container">
+                        <div
+                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
+                          :key="`teamA-${position}`"
+                          class="trade-position-group"
+                        >
+                          <div
+                            class="trade-position-header"
+                            :class="`trade-position-header-${position.toLowerCase()}`"
+                            @click="toggleTradePositionGroup('A', position)"
+                          >
+                            <span class="trade-position-title">{{ position }}</span>
+                            <span class="trade-position-count">
+                              {{
+                                getManagerAssetsByPosition(selectedTradeManagerA, position).length
+                              }}
+                            </span>
+                            <DownOutlined
+                              v-if="!isTradePositionExpanded('A', position)"
+                              class="trade-position-expand-icon"
+                            />
+                            <UpOutlined v-else class="trade-position-expand-icon" />
+                          </div>
+                          <div
+                            v-if="isTradePositionExpanded('A', position)"
+                            class="trade-position-assets"
+                          >
+                            <div
+                              v-for="asset in getManagerAssetsByPosition(
+                                selectedTradeManagerA,
+                                position
+                              )"
+                              :key="`teamA-${position}-${asset.sleeper_id || asset.full_name}`"
+                              class="trade-asset-item"
+                              :style="getPositionTagList(asset.player_position, 0.15)"
+                              @click="addAssetToTrade(asset, 1)"
+                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 1) }"
+                            >
+                              <div class="trade-asset-details">
+                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-meta">
+                                  <span v-if="asset.team" class="trade-asset-team">{{
+                                    asset.team
+                                  }}</span>
+                                  <span v-if="asset.age" class="trade-asset-age"
+                                    >{{ asset.age }}y</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="trade-asset-value">
+                                {{ asset.player_value.toLocaleString() }}
+                                <PlusCircleTwoTone
+                                  v-if="!isAssetInTrade(asset, 1)"
+                                  class="trade-asset-add-icon"
+                                />
+                                <CheckCircleTwoTone
+                                  v-else
+                                  class="trade-asset-check-icon"
+                                  two-tone-color="#52c41a"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Selected Assets for Team A -->
+                      <div class="players-container">
+                        <div
+                          v-for="(player, index) in selectedPlayers1"
+                          :key="player.player_full_name + index + '_teamA'"
+                        >
+                          <div
+                            :bordered="false"
+                            class="player-item"
+                            :style="{
+                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
+                            }"
+                          >
+                            <div class="player-details-wrapper">
+                              <div class="player-name-info">
+                                <div class="player-name">
+                                  {{ player.player_full_name || player.full_name }}
+                                </div>
+                                <div>
+                                  <span
+                                    class="player-position"
+                                    :style="{
+                                      color: getTradePositionColor(
+                                        player._position || player.player_position
+                                      )
+                                    }"
+                                  >
+                                    {{ player._position || player.player_position }}
+                                  </span>
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
+                                    >Age: {{ player.age }}</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="player-value-container">
+                                <div class="player-value">
+                                  {{ player.sf_value || player.player_value }}
+                                </div>
+                                <button class="remove-player" @click="removePlayer1(index)">
+                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="showAdjustmentA" class="adjustment-card">
+                          <a-card size="small" :bordered="true" class="va-card">
+                            <div class="card-content">
+                              <span>Value Modifier</span>
+                              <span class="player-value">+{{ Math.round(adjustmentValueA) }}</span>
+                            </div>
+                          </a-card>
+                        </div>
+                      </div>
+
+                      <div class="team-summary">
+                        <div class="asset-count">
+                          <span style="font-weight: bold">{{ selectedPlayers1.length }}</span>
+                          Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="total-value-display">
+                          Total:
+                          <span style="font-weight: bold">{{
+                            Math.round(totalValueSideA).toLocaleString()
+                          }}</span>
+                        </div>
+                      </div>
+                    </a-card>
+
+                    <div class="trade-evaluation">
+                      <TradeBalanceVisualizer
+                        :valueA="totalValueSideA"
+                        :valueB="totalValueSideB"
+                        :isFair="isFairTrade"
+                        :balancingValue="balancingPlayerValue"
+                        :acceptableVariance="
+                          (tradePercentThreshold * (totalValueSideA + totalValueSideB)) / 200
+                        "
+                        class="balance-visualizer-spacing"
+                      />
+                    </div>
+
+                    <a-card
+                      class="team-card"
+                      :bordered="false"
+                      :class="{
+                        'card-outline-balanced':
+                          isFairTrade &&
+                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+                        'card-outline-winning': aFavoredTrade,
+                        'card-outline-losing': bFavoredTrade
+                      }"
+                    >
+                      <template #title>
+                        <div class="team-header">
+                          <h2>Team B</h2>
+                          <div
+                            class="team-value"
+                            :class="{
+                              'value-favorable': bFavoredTrade,
+                              'value-balanced': isFairTrade
+                            }"
+                          >
+                            <span v-if="selectedPlayers2.length > 0">{{
+                              Math.round(totalValueSideB).toLocaleString()
+                            }}</span>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Manager Selector for Team B -->
+                      <div class="manager-selector-container">
+                        <a-select
+                          v-model:value="selectedTradeManagerB"
+                          placeholder="Select a manager"
+                          style="width: 100%"
+                          size="large"
+                          @change="onTradeManagerBChange"
+                        >
+                          <a-select-option
+                            v-for="manager in sortedSummaryData"
+                            :key="manager.user_id"
+                            :value="manager.user_id"
+                          >
+                            <div class="manager-option">
+                              <a-avatar
+                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :size="24"
+                                class="manager-avatar-small"
+                              />
+                              <span class="manager-name-option">{{ manager.display_name }}</span>
+                            </div>
+                          </a-select-option>
+                        </a-select>
+                      </div>
+
+                      <!-- Trade Assets Grouped by Position for Team B -->
+                      <div v-if="selectedTradeManagerB" class="trade-assets-container">
+                        <div
+                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
+                          :key="`teamB-${position}`"
+                          class="trade-position-group"
+                        >
+                          <div
+                            class="trade-position-header"
+                            :class="`trade-position-header-${position.toLowerCase()}`"
+                            @click="toggleTradePositionGroup('B', position)"
+                          >
+                            <span class="trade-position-title">{{ position }}</span>
+                            <span class="trade-position-count">
+                              {{
+                                getManagerAssetsByPosition(selectedTradeManagerB, position).length
+                              }}
+                            </span>
+                            <DownOutlined
+                              v-if="!isTradePositionExpanded('B', position)"
+                              class="trade-position-expand-icon"
+                            />
+                            <UpOutlined v-else class="trade-position-expand-icon" />
+                          </div>
+                          <div
+                            v-if="isTradePositionExpanded('B', position)"
+                            class="trade-position-assets"
+                          >
+                            <div
+                              v-for="asset in getManagerAssetsByPosition(
+                                selectedTradeManagerB,
+                                position
+                              )"
+                              :key="`teamB-${position}-${asset.sleeper_id || asset.full_name}`"
+                              class="trade-asset-item"
+                              :style="getPositionTagList(asset.player_position, 0.15)"
+                              @click="addAssetToTrade(asset, 2)"
+                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 2) }"
+                            >
+                              <div class="trade-asset-details">
+                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-meta">
+                                  <span v-if="asset.team" class="trade-asset-team">{{
+                                    asset.team
+                                  }}</span>
+                                  <span v-if="asset.age" class="trade-asset-age"
+                                    >{{ asset.age }}y</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="trade-asset-value">
+                                {{ asset.player_value.toLocaleString() }}
+                              </div>
+                              <PlusCircleTwoTone
+                                v-if="!isAssetInTrade(asset, 2)"
+                                class="trade-asset-add-icon"
+                              />
+                              <CheckCircleTwoTone
+                                v-else
+                                class="trade-asset-check-icon"
+                                two-tone-color="#52c41a"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="players-container">
+                        <div
+                          v-for="(player, index) in selectedPlayers2"
+                          :key="player.player_full_name + index + '_teamB'"
+                        >
+                          <div
+                            size="small"
+                            :bordered="false"
+                            class="player-item"
+                            :style="{
+                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
+                            }"
+                          >
+                            <div class="player-details-wrapper">
+                              <div class="player-name-info">
+                                <div class="player-name">
+                                  {{ player.player_full_name || player.full_name }}
+                                </div>
+                                <div>
+                                  <span
+                                    class="player-position"
+                                    :style="{
+                                      color: getTradePositionColor(
+                                        player._position || player.player_position
+                                      )
+                                    }"
+                                  >
+                                    {{ player._position || player.player_position }}
+                                  </span>
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
+                                    >Age: {{ player.age }}</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="player-value-container">
+                                <div class="player-value">
+                                  {{ player.sf_value || player.player_value }}
+                                </div>
+                                <button class="remove-player" @click="removePlayer2(index)">
+                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="showAdjustmentB" class="adjustment-card">
+                          <a-card size="small" :bordered="true" class="va-card">
+                            <div class="card-content">
+                              <span>Value Modifier</span>
+                              <span class="player-value">+{{ Math.round(adjustmentValueB) }}</span>
+                            </div>
+                          </a-card>
+                        </div>
+                      </div>
+
+                      <div class="team-summary">
+                        <div class="asset-count">
+                          <span style="font-weight: bold">{{ selectedPlayers2.length }}</span>
+                          Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="total-value-display">
+                          Total:
+                          <span style="font-weight: bold">{{
+                            Math.round(totalValueSideB).toLocaleString()
+                          }}</span>
+                        </div>
+                      </div>
+                    </a-card>
+                  </div>
+
+                  <a-card
+                    v-if="
+                      tradeAnalysisComputed.percentageDifference > tradePercentThreshold &&
+                      closestBalancingPlayers.length > 0
+                    "
+                    class="balancing-players-card"
+                  >
+                    <template #title>
+                      <div class="balancing-title">
+                        <h3>Balance the Trade</h3>
+                        <a-tooltip title="These players could help balance the trade">
+                          <InfoCircleOutlined style="margin-left: 8px" />
+                        </a-tooltip>
+                      </div>
+                    </template>
+                    <div class="balancing-players-container">
+                      <div
+                        v-for="player in displayedBalancingPlayers"
+                        :key="player.player_full_name + '_balancing'"
+                        class="balancing-player-card"
+                      >
+                        <div
+                          :bordered="false"
+                          class="player-item"
+                          :style="{
+                            borderLeft: `4px solid ${getTradePositionColor(player._position)}`
+                          }"
+                          hoverable
+                          @click="addPlayerToTrade(player)"
+                        >
+                          <div class="player-details-wrapper">
+                            <div class="player-name-info">
+                              <div class="player-name">
+                                {{ player.player_full_name }}
+                              </div>
+                              <div>{{ player.display_name }}</div>
+                              <div>
+                                <span
+                                  class="player-position"
+                                  :style="{ color: getTradePositionColor(player._position) }"
+                                >
+                                  {{ player._position }}
+                                </span>
+                                <span class="player-age" v-if="player.age" style="margin-left: 5px"
+                                  >Age: {{ player.age }}</span
+                                >
+                              </div>
+                            </div>
+                            <div class="player-value-container">
+                              <div class="player-value">
+                                {{ tradeState.checked1 ? player.sf_value : player.one_qb_value }}
+                              </div>
+                              <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="view-more" v-if="closestBalancingPlayers.length > 6">
+                      <a-button type="link" @click="toggleShowAllBalancingPlayers">
+                        {{ showAllBalancingPlayers ? 'View Less Players' : 'View More Players' }}
+                      </a-button>
+                    </div>
+                  </a-card>
+
+                  <a-card class="trade-controls-card">
+                    <a-row :gutter="[16, 16]" align="middle">
+                      <a-col :xs="24" :sm="16" :md="18">
+                        <div class="slider-container">
+                          <div class="slider-label">
+                            Acceptable Trade Variance: {{ tradePercentThreshold }}%
+                          </div>
+                          <a-slider
+                            v-model:value="tradePercentThreshold"
+                            :min="1"
+                            :max="25"
+                            :step="1"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
+                        <a-button @click="clearTradeCalculator" danger block
+                          >Clear Calculator</a-button
+                        >
+                      </a-col>
+                    </a-row>
+                  </a-card>
+                </div>
+
+                <a-modal
+                  v-model:open="tradeModalOpen"
+                  @ok="handleTradeModalOk"
+                  title="How the Trade Calculator Works"
+                >
+                  <p>
+                    Fantasy Navigator Rankings are derived from an extensive array of sources,
+                    including millions of crowd-sourced data points, expert consensus rankings, and
+                    real trade analyses. This comprehensive approach ensures that our rankings are
+                    not only well-informed but also reflect the most current trends and insights in
+                    fantasy sports.
+                  </p>
+                  <p>
+                    The calculator accounts for value consolidation, meaning that higher-valued
+                    players are worth more than the sum of multiple lower-valued players. This
+                    provides a more realistic assessment of fantasy football trades.
+                  </p>
+                </a-modal>
+              </a-tab-pane>
 
               <!-- Team Composition Tab -->
               <a-tab-pane key="2" tab="Team Composition">
@@ -1456,589 +2037,6 @@
                     </a-col>
                   </a-row>
                 </div>
-              </a-tab-pane>
-
-              <!-- Trade Calculator Tab -->
-              <a-tab-pane key="6" tab="Trade Calculator">
-                <h2 class="tab-sub-header">Trade Calculator</h2>
-
-                <div class="trade-calculator-container">
-                  <!-- Settings Panel -->
-                  <a-card class="settings-card">
-                    <div class="settings-row">
-                      <div class="settings-group">
-                        <a-radio-group
-                          v-model:value="tradeRankType"
-                          button-style="solid"
-                          size="middle"
-                        >
-                          <a-radio-button value="dynasty">Dynasty</a-radio-button>
-                          <a-radio-button value="redraft">Redraft</a-radio-button>
-                        </a-radio-group>
-
-                        <a-switch
-                          size="default"
-                          v-model:checked="tradeState.checked1"
-                          checked-children="Superflex"
-                          un-checked-children="OneQB"
-                          class="format-switch"
-                        />
-                      </div>
-
-                      <div class="settings-group">
-                        <div class="team-size-selector">
-                          <a-select
-                            v-model:value="tradeDropDownValue1"
-                            :options="tradeDropDownOptions1"
-                            @change="tradeDropDownHandleChange"
-                            size="middle"
-                            style="width: 70px"
-                          />
-                          <span class="team-label">Team</span>
-                        </div>
-
-                        <a-checkbox
-                          v-model:checked="tradeTepCheck"
-                          @change="onCheckTepChange"
-                          class="tep-check"
-                        >
-                          TE Premium
-                        </a-checkbox>
-                      </div>
-                    </div>
-
-                    <div class="action-buttons">
-                      <a-dropdown-button type="default" size="middle">
-                        Share
-                        <template #overlay>
-                          <a-menu @click="handleTradeShareClick">
-                            <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                              <img class="social-logos" :src="source.logo" />
-                              <span style="margin-left: 8px">{{ source.name }}</span>
-                            </a-menu-item>
-                          </a-menu>
-                        </template>
-                        <template #icon><ShareAltOutlined /></template>
-                      </a-dropdown-button>
-
-                      <a-button type="text" @click="showTradeModal" class="help-button">
-                        <QuestionCircleOutlined />
-                        <span class="help-text">How it works</span>
-                      </a-button>
-                    </div>
-                  </a-card>
-
-                  <!-- Trade Teams Section -->
-                  <div class="trade-teams">
-                    <!-- Team A -->
-                    <a-card
-                      class="team-card"
-                      :bordered="false"
-                      :class="{
-                        'card-outline-balanced':
-                          isFairTrade &&
-                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
-                        'card-outline-winning': bFavoredTrade,
-                        'card-outline-losing': aFavoredTrade
-                      }"
-                    >
-                      <template #title>
-                        <div class="team-header">
-                          <h2>Team A</h2>
-                          <div
-                            class="team-value"
-                            :class="{
-                              'value-favorable': aFavoredTrade,
-                              'value-balanced': isFairTrade
-                            }"
-                          >
-                            <span v-if="selectedPlayers1.length > 0">{{
-                              Math.round(totalValueSideA).toLocaleString()
-                            }}</span>
-                          </div>
-                        </div>
-                      </template>
-
-                      <!-- Manager Selector for Team A -->
-                      <div class="manager-selector-container">
-                        <a-select
-                          v-model:value="selectedTradeManagerA"
-                          placeholder="Select a manager"
-                          style="width: 100%"
-                          size="large"
-                          @change="onTradeManagerAChange"
-                        >
-                          <a-select-option
-                            v-for="manager in sortedSummaryData"
-                            :key="manager.user_id"
-                            :value="manager.user_id"
-                          >
-                            <div class="manager-option">
-                              <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
-                                :size="24"
-                                class="manager-avatar-small"
-                              />
-                              <span class="manager-name-option">{{ manager.display_name }}</span>
-                            </div>
-                          </a-select-option>
-                        </a-select>
-                      </div>
-
-                      <!-- Trade Assets Grouped by Position for Team A -->
-                      <div v-if="selectedTradeManagerA" class="trade-assets-container">
-                        <div
-                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
-                          :key="`teamA-${position}`"
-                          class="trade-position-group"
-                        >
-                          <div
-                            class="trade-position-header"
-                            :class="`trade-position-header-${position.toLowerCase()}`"
-                            @click="toggleTradePositionGroup('A', position)"
-                          >
-                            <span class="trade-position-title">{{ position }}</span>
-                            <span class="trade-position-count">
-                              {{
-                                getManagerAssetsByPosition(selectedTradeManagerA, position).length
-                              }}
-                            </span>
-                            <DownOutlined
-                              v-if="!isTradePositionExpanded('A', position)"
-                              class="trade-position-expand-icon"
-                            />
-                            <UpOutlined v-else class="trade-position-expand-icon" />
-                          </div>
-                          <div
-                            v-if="isTradePositionExpanded('A', position)"
-                            class="trade-position-assets"
-                          >
-                            <div
-                              v-for="asset in getManagerAssetsByPosition(
-                                selectedTradeManagerA,
-                                position
-                              )"
-                              :key="`teamA-${position}-${asset.sleeper_id || asset.full_name}`"
-                              class="trade-asset-item"
-                              :style="getPositionTagList(asset.player_position, 0.15)"
-                              @click="addAssetToTrade(asset, 1)"
-                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 1) }"
-                            >
-                              <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name }}</div>
-                                <div class="trade-asset-meta">
-                                  <span v-if="asset.team" class="trade-asset-team">{{
-                                    asset.team
-                                  }}</span>
-                                  <span v-if="asset.age" class="trade-asset-age"
-                                    >{{ asset.age }}y</span
-                                  >
-                                </div>
-                              </div>
-                              <div class="trade-asset-value">
-                                {{ asset.player_value.toLocaleString() }}
-                                <PlusCircleTwoTone
-                                  v-if="!isAssetInTrade(asset, 1)"
-                                  class="trade-asset-add-icon"
-                                />
-                                <CheckCircleTwoTone
-                                  v-else
-                                  class="trade-asset-check-icon"
-                                  two-tone-color="#52c41a"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Selected Assets for Team A -->
-                      <div class="players-container">
-                        <div
-                          v-for="(player, index) in selectedPlayers1"
-                          :key="player.player_full_name + index + '_teamA'"
-                        >
-                          <div
-                            :bordered="false"
-                            class="player-item"
-                            :style="{
-                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
-                            }"
-                          >
-                            <div class="player-details-wrapper">
-                              <div class="player-name-info">
-                                <div class="player-name">
-                                  {{ player.player_full_name || player.full_name }}
-                                </div>
-                                <div>
-                                  <span
-                                    class="player-position"
-                                    :style="{
-                                      color: getTradePositionColor(
-                                        player._position || player.player_position
-                                      )
-                                    }"
-                                  >
-                                    {{ player._position || player.player_position }}
-                                  </span>
-                                  <span
-                                    class="player-age"
-                                    v-if="player.age"
-                                    style="margin-left: 5px"
-                                    >Age: {{ player.age }}</span
-                                  >
-                                </div>
-                              </div>
-                              <div class="player-value-container">
-                                <div class="player-value">
-                                  {{ player.sf_value || player.player_value }}
-                                </div>
-                                <button class="remove-player" @click="removePlayer1(index)">
-                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div v-if="showAdjustmentA" class="adjustment-card">
-                          <a-card size="small" :bordered="true" class="va-card">
-                            <div class="card-content">
-                              <span>Value Modifier</span>
-                              <span class="player-value">+{{ Math.round(adjustmentValueA) }}</span>
-                            </div>
-                          </a-card>
-                        </div>
-                      </div>
-
-                      <div class="team-summary">
-                        <div class="asset-count">
-                          <span style="font-weight: bold">{{ selectedPlayers1.length }}</span>
-                          Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
-                        </div>
-                        <div class="total-value-display">
-                          Total:
-                          <span style="font-weight: bold">{{
-                            Math.round(totalValueSideA).toLocaleString()
-                          }}</span>
-                        </div>
-                      </div>
-                    </a-card>
-
-                    <div class="trade-evaluation">
-                      <TradeBalanceVisualizer
-                        :valueA="totalValueSideA"
-                        :valueB="totalValueSideB"
-                        :isFair="isFairTrade"
-                        :balancingValue="balancingPlayerValue"
-                        :acceptableVariance="
-                          (tradePercentThreshold * (totalValueSideA + totalValueSideB)) / 200
-                        "
-                        class="balance-visualizer-spacing"
-                      />
-                    </div>
-
-                    <a-card
-                      class="team-card"
-                      :bordered="false"
-                      :class="{
-                        'card-outline-balanced':
-                          isFairTrade &&
-                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
-                        'card-outline-winning': aFavoredTrade,
-                        'card-outline-losing': bFavoredTrade
-                      }"
-                    >
-                      <template #title>
-                        <div class="team-header">
-                          <h2>Team B</h2>
-                          <div
-                            class="team-value"
-                            :class="{
-                              'value-favorable': bFavoredTrade,
-                              'value-balanced': isFairTrade
-                            }"
-                          >
-                            <span v-if="selectedPlayers2.length > 0">{{
-                              Math.round(totalValueSideB).toLocaleString()
-                            }}</span>
-                          </div>
-                        </div>
-                      </template>
-
-                      <!-- Manager Selector for Team B -->
-                      <div class="manager-selector-container">
-                        <a-select
-                          v-model:value="selectedTradeManagerB"
-                          placeholder="Select a manager"
-                          style="width: 100%"
-                          size="large"
-                          @change="onTradeManagerBChange"
-                        >
-                          <a-select-option
-                            v-for="manager in sortedSummaryData"
-                            :key="manager.user_id"
-                            :value="manager.user_id"
-                          >
-                            <div class="manager-option">
-                              <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
-                                :size="24"
-                                class="manager-avatar-small"
-                              />
-                              <span class="manager-name-option">{{ manager.display_name }}</span>
-                            </div>
-                          </a-select-option>
-                        </a-select>
-                      </div>
-
-                      <!-- Trade Assets Grouped by Position for Team B -->
-                      <div v-if="selectedTradeManagerB" class="trade-assets-container">
-                        <div
-                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
-                          :key="`teamB-${position}`"
-                          class="trade-position-group"
-                        >
-                          <div
-                            class="trade-position-header"
-                            :class="`trade-position-header-${position.toLowerCase()}`"
-                            @click="toggleTradePositionGroup('B', position)"
-                          >
-                            <span class="trade-position-title">{{ position }}</span>
-                            <span class="trade-position-count">
-                              {{
-                                getManagerAssetsByPosition(selectedTradeManagerB, position).length
-                              }}
-                            </span>
-                            <DownOutlined
-                              v-if="!isTradePositionExpanded('B', position)"
-                              class="trade-position-expand-icon"
-                            />
-                            <UpOutlined v-else class="trade-position-expand-icon" />
-                          </div>
-                          <div
-                            v-if="isTradePositionExpanded('B', position)"
-                            class="trade-position-assets"
-                          >
-                            <div
-                              v-for="asset in getManagerAssetsByPosition(
-                                selectedTradeManagerB,
-                                position
-                              )"
-                              :key="`teamB-${position}-${asset.sleeper_id || asset.full_name}`"
-                              class="trade-asset-item"
-                              :style="getPositionTagList(asset.player_position, 0.15)"
-                              @click="addAssetToTrade(asset, 2)"
-                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 2) }"
-                            >
-                              <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name }}</div>
-                                <div class="trade-asset-meta">
-                                  <span v-if="asset.team" class="trade-asset-team">{{
-                                    asset.team
-                                  }}</span>
-                                  <span v-if="asset.age" class="trade-asset-age"
-                                    >{{ asset.age }}y</span
-                                  >
-                                </div>
-                              </div>
-                              <div class="trade-asset-value">
-                                {{ asset.player_value.toLocaleString() }}
-                                <PlusCircleTwoTone
-                                  v-if="!isAssetInTrade(asset, 2)"
-                                  class="trade-asset-add-icon"
-                                />
-                                <CheckCircleTwoTone
-                                  v-else
-                                  class="trade-asset-check-icon"
-                                  two-tone-color="#52c41a"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="players-container">
-                        <div
-                          v-for="(player, index) in selectedPlayers2"
-                          :key="player.player_full_name + index + '_teamB'"
-                          class="player-card"
-                        >
-                          <a-card
-                            size="small"
-                            :bordered="false"
-                            class="player-item"
-                            :style="{
-                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
-                            }"
-                          >
-                            <div class="player-details-wrapper">
-                              <div class="player-name-info">
-                                <div class="player-name">
-                                  {{ player.player_full_name || player.full_name }}
-                                </div>
-                                <div class="player-meta">
-                                  <span
-                                    class="player-position"
-                                    :style="{
-                                      color: getTradePositionColor(
-                                        player._position || player.player_position
-                                      )
-                                    }"
-                                  >
-                                    {{ player._position || player.player_position }}
-                                  </span>
-                                  <span
-                                    class="player-age"
-                                    v-if="player.age"
-                                    style="margin-left: 5px"
-                                    >Age: {{ player.age }}</span
-                                  >
-                                </div>
-                              </div>
-                              <div class="player-value-container">
-                                <div class="player-value">
-                                  {{ player.sf_value || player.player_value }}
-                                </div>
-                                <button class="remove-player" @click="removePlayer2(index)">
-                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
-                                </button>
-                              </div>
-                            </div>
-                          </a-card>
-                        </div>
-                        <div v-if="showAdjustmentB" class="adjustment-card">
-                          <a-card size="small" :bordered="true" class="va-card">
-                            <div class="card-content">
-                              <span>Value Modifier</span>
-                              <span class="player-value">+{{ Math.round(adjustmentValueB) }}</span>
-                            </div>
-                          </a-card>
-                        </div>
-                      </div>
-
-                      <div class="team-summary">
-                        <div class="asset-count">
-                          <span style="font-weight: bold">{{ selectedPlayers2.length }}</span>
-                          Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
-                        </div>
-                        <div class="total-value-display">
-                          Total:
-                          <span style="font-weight: bold">{{
-                            Math.round(totalValueSideB).toLocaleString()
-                          }}</span>
-                        </div>
-                      </div>
-                    </a-card>
-                  </div>
-
-                  <a-card
-                    v-if="
-                      tradeAnalysisComputed.percentageDifference > tradePercentThreshold &&
-                      closestBalancingPlayers.length > 0
-                    "
-                    class="balancing-players-card"
-                  >
-                    <template #title>
-                      <div class="balancing-title">
-                        <h3>Balance the Trade</h3>
-                        <a-tooltip title="These players could help balance the trade">
-                          <InfoCircleOutlined style="margin-left: 8px" />
-                        </a-tooltip>
-                      </div>
-                    </template>
-                    <div class="balancing-players-container">
-                      <div
-                        v-for="player in displayedBalancingPlayers"
-                        :key="player.player_full_name + '_balancing'"
-                        class="balancing-player-card"
-                      >
-                        <a-card
-                          size="small"
-                          :bordered="false"
-                          class="player-item"
-                          :style="{
-                            borderLeft: `4px solid ${getTradePositionColor(player._position)}`
-                          }"
-                          hoverable
-                          @click="addPlayerToTrade(player)"
-                        >
-                          <div class="player-details-wrapper">
-                            <div class="player-name-info">
-                              <div class="player-name">
-                                {{ player.player_full_name }}
-                              </div>
-                              <div class="player-meta">
-                                <span
-                                  class="player-position"
-                                  :style="{ color: getTradePositionColor(player._position) }"
-                                >
-                                  {{ player._position }}
-                                </span>
-                                <span class="player-age" v-if="player.age" style="margin-left: 5px"
-                                  >Age: {{ player.age }}</span
-                                >
-                              </div>
-                            </div>
-                            <div class="player-value-container">
-                              <div class="player-value">
-                                {{ tradeState.checked1 ? player.sf_value : player.one_qb_value }}
-                              </div>
-                              <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
-                            </div>
-                          </div>
-                        </a-card>
-                      </div>
-                    </div>
-                    <div class="view-more" v-if="closestBalancingPlayers.length > 6">
-                      <a-button type="link" @click="toggleShowAllBalancingPlayers">
-                        {{ showAllBalancingPlayers ? 'View Less Players' : 'View More Players' }}
-                      </a-button>
-                    </div>
-                  </a-card>
-
-                  <a-card class="trade-controls-card">
-                    <a-row :gutter="[16, 16]" align="middle">
-                      <a-col :xs="24" :sm="16" :md="18">
-                        <div class="slider-container">
-                          <div class="slider-label">
-                            Acceptable Trade Variance: {{ tradePercentThreshold }}%
-                          </div>
-                          <a-slider
-                            v-model:value="tradePercentThreshold"
-                            :min="1"
-                            :max="25"
-                            :step="1"
-                          />
-                        </div>
-                      </a-col>
-                      <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
-                        <a-button @click="clearTradeCalculator" danger block
-                          >Clear Calculator</a-button
-                        >
-                      </a-col>
-                    </a-row>
-                  </a-card>
-                </div>
-
-                <a-modal
-                  v-model:open="tradeModalOpen"
-                  @ok="handleTradeModalOk"
-                  title="How the Trade Calculator Works"
-                >
-                  <p>
-                    Fantasy Navigator Rankings are derived from an extensive array of sources,
-                    including millions of crowd-sourced data points, expert consensus rankings, and
-                    real trade analyses. This comprehensive approach ensures that our rankings are
-                    not only well-informed but also reflect the most current trends and insights in
-                    fantasy sports.
-                  </p>
-                  <p>
-                    The calculator accounts for value consolidation, meaning that higher-valued
-                    players are worth more than the sum of multiple lower-valued players. This
-                    provides a more realistic assessment of fantasy football trades.
-                  </p>
-                </a-modal>
               </a-tab-pane>
             </a-tabs>
             <!-- Info Button for Tab Guide -->
@@ -5088,6 +5086,32 @@ li {
   }
 }
 
+/* Fix for mobile layout specific to TradeBalanceVisualizer positioning */
+@media (max-width: 767px) {
+  .trade-teams {
+    display: grid;
+    grid-template-areas:
+      'teamA'
+      'evaluation'
+      'teamB';
+    grid-template-rows: auto auto auto;
+  }
+
+  .team-card:nth-of-type(1) {
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    grid-area: evaluation;
+    margin: 16px auto;
+    width: 100%;
+  }
+
+  .team-card:nth-of-type(2) {
+    grid-area: teamB;
+  }
+}
+
 .balancing-players-card {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -5289,9 +5313,8 @@ li {
 .trade-asset-value {
   font-weight: 600;
   color: #1890ff;
-  background-color: rgba(24, 144, 255, 0.1);
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 8px;

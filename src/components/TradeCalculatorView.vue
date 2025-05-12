@@ -121,8 +121,7 @@
                 :key="player.player_full_name + index"
                 class="player-card"
               >
-                <a-card
-                  size="small"
+                <div
                   :bordered="false"
                   class="player-item"
                   :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
@@ -149,7 +148,7 @@
                       </button>
                     </div>
                   </div>
-                </a-card>
+                </div>
               </div>
 
               <!-- Value Adjustment Card: Shows bonus added by calculation -->
@@ -240,7 +239,7 @@
                 :key="player.player_full_name + index"
                 class="player-card"
               >
-                <a-card
+                <div
                   size="small"
                   :bordered="false"
                   class="player-item"
@@ -268,7 +267,7 @@
                       </button>
                     </div>
                   </div>
-                </a-card>
+                </div>
               </div>
 
               <!-- Value Adjustment Card: Shows bonus added by calculation -->
@@ -322,8 +321,7 @@
               :key="player.player_full_name"
               class="balancing-player-card"
             >
-              <a-card
-                size="small"
+              <div
                 :bordered="false"
                 class="player-item"
                 :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
@@ -350,7 +348,7 @@
                     <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
                   </div>
                 </div>
-              </a-card>
+              </div>
             </div>
           </div>
 
