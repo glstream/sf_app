@@ -1657,10 +1657,8 @@
                         <div
                           v-for="(player, index) in selectedPlayers1"
                           :key="player.player_full_name + index + '_teamA'"
-                          class="player-card"
                         >
-                          <a-card
-                            size="small"
+                          <div
                             :bordered="false"
                             class="player-item"
                             :style="{
@@ -1672,7 +1670,7 @@
                                 <div class="player-name">
                                   {{ player.player_full_name || player.full_name }}
                                 </div>
-                                <div class="player-meta">
+                                <div>
                                   <span
                                     class="player-position"
                                     :style="{
@@ -1683,7 +1681,10 @@
                                   >
                                     {{ player._position || player.player_position }}
                                   </span>
-                                  <span class="player-age" v-if="player.age"
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
                                     >Age: {{ player.age }}</span
                                   >
                                 </div>
@@ -1697,7 +1698,7 @@
                                 </button>
                               </div>
                             </div>
-                          </a-card>
+                          </div>
                         </div>
                         <div v-if="showAdjustmentA" class="adjustment-card">
                           <a-card size="small" :bordered="true" class="va-card">
@@ -1861,10 +1862,8 @@
                         <div
                           v-for="(player, index) in selectedPlayers2"
                           :key="player.player_full_name + index + '_teamB'"
-                          class="player-card"
                         >
-                          <a-card
-                            size="small"
+                          <div
                             :bordered="false"
                             class="player-item"
                             :style="{
@@ -1876,7 +1875,7 @@
                                 <div class="player-name">
                                   {{ player.player_full_name || player.full_name }}
                                 </div>
-                                <div class="player-meta">
+                                <div>
                                   <span
                                     class="player-position"
                                     :style="{
@@ -1887,7 +1886,10 @@
                                   >
                                     {{ player._position || player.player_position }}
                                   </span>
-                                  <span class="player-age" v-if="player.age"
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
                                     >Age: {{ player.age }}</span
                                   >
                                 </div>
@@ -1901,7 +1903,7 @@
                                 </button>
                               </div>
                             </div>
-                          </a-card>
+                          </div>
                         </div>
                         <div v-if="showAdjustmentB" class="adjustment-card">
                           <a-card size="small" :bordered="true" class="va-card">
@@ -1949,14 +1951,11 @@
                         :key="player.player_full_name + '_balancing'"
                         class="balancing-player-card"
                       >
-                        <a-card
-                          size="small"
-                          :bordered="false"
+                        <div
                           class="player-item"
                           :style="{
                             borderLeft: `4px solid ${getTradePositionColor(player._position)}`
                           }"
-                          hoverable
                           @click="addPlayerToTrade(player)"
                         >
                           <div class="player-details-wrapper">
@@ -1964,14 +1963,14 @@
                               <div class="player-name">
                                 {{ player.player_full_name }}
                               </div>
-                              <div class="player-meta">
+                              <div>
                                 <span
                                   class="player-position"
                                   :style="{ color: getTradePositionColor(player._position) }"
                                 >
                                   {{ player._position }}
                                 </span>
-                                <span class="player-age" v-if="player.age"
+                                <span class="player-age" v-if="player.age" style="margin-left: 5px"
                                   >Age: {{ player.age }}</span
                                 >
                               </div>
@@ -1983,7 +1982,7 @@
                               <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
                             </div>
                           </div>
-                        </a-card>
+                        </div>
                       </div>
                     </div>
                     <div class="view-more" v-if="closestBalancingPlayers.length > 6">
