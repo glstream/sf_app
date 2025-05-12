@@ -803,8 +803,37 @@
                         </a-select>
                       </div>
 
+                      <!-- Position groups toggle buttons -->
+                      <div v-if="selectedTradeManagerA" class="position-toggle-controls">
+                        <div class="position-toggle-buttons">
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="toggleAllPositionGroups('A', !areAllPositionsExpanded('A'))"
+                          >
+                            <template v-if="areAllPositionsExpanded('A')">
+                              <UpOutlined /> Collapse All
+                            </template>
+                            <template v-else> <DownOutlined /> Expand All </template>
+                          </a-button>
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="togglePositionsVisibility('A')"
+                          >
+                            <template v-if="showTradePositions.A">
+                              <EyeInvisibleOutlined /> Hide Positions
+                            </template>
+                            <template v-else> <EyeOutlined /> Show Positions </template>
+                          </a-button>
+                        </div>
+                      </div>
+
                       <!-- Trade Assets Grouped by Position for Team A -->
-                      <div v-if="selectedTradeManagerA" class="trade-assets-container">
+                      <div
+                        v-if="selectedTradeManagerA && showTradePositions.A"
+                        class="trade-assets-container"
+                      >
                         <div
                           v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
                           :key="`teamA-${position}`"
@@ -1009,8 +1038,37 @@
                         </a-select>
                       </div>
 
+                      <!-- Position groups toggle buttons -->
+                      <div v-if="selectedTradeManagerB" class="position-toggle-controls">
+                        <div class="position-toggle-buttons">
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="toggleAllPositionGroups('B', !areAllPositionsExpanded('B'))"
+                          >
+                            <template v-if="areAllPositionsExpanded('B')">
+                              <UpOutlined /> Collapse All
+                            </template>
+                            <template v-else> <DownOutlined /> Expand All </template>
+                          </a-button>
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="togglePositionsVisibility('B')"
+                          >
+                            <template v-if="showTradePositions.B">
+                              <EyeInvisibleOutlined /> Hide Positions
+                            </template>
+                            <template v-else> <EyeOutlined /> Show Positions </template>
+                          </a-button>
+                        </div>
+                      </div>
+
                       <!-- Trade Assets Grouped by Position for Team B -->
-                      <div v-if="selectedTradeManagerB" class="trade-assets-container">
+                      <div
+                        v-if="selectedTradeManagerB && showTradePositions.B"
+                        class="trade-assets-container"
+                      >
                         <div
                           v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
                           :key="`teamB-${position}`"
@@ -1184,7 +1242,6 @@
                               <div class="player-name">
                                 {{ player.player_full_name }}
                               </div>
-                              <div>{{ player.display_name }}</div>
                               <div>
                                 <span
                                   class="player-position"
@@ -2204,7 +2261,9 @@ import {
   ReloadOutlined,
   UpOutlined,
   DownOutlined,
-  CheckCircleTwoTone
+  CheckCircleTwoTone,
+  EyeOutlined,
+  EyeInvisibleOutlined
 } from '@ant-design/icons-vue'
 
 // --- Constants ---
@@ -3581,42 +3640,59 @@ const addPlayerToTrade = (player) => {
 const closestBalancingPlayers = computed(() => {
   if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) return []
   const balRawValue = balancingPlayerValue.value
-  if (balRawValue === 0) return []
+  // If balRawValue is 0, the trade is fair or the value to balance is negligible, so no suggestions needed.
+  if (balRawValue < 1) return [] // Use a small threshold to account for floating point issues
 
   const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
+  let losingManagerId = null
 
-  // Get assets only from the two selected managers instead of global tradeRanksData
-  const availableAssets = getAvailableAssetsForBalancing().map(mapAssetToTradeFormat)
+  if (totalValueSideA.value < totalValueSideB.value) {
+    if (selectedTradeManagerA.value) {
+      losingManagerId = selectedTradeManagerA.value
+    } else {
+      // Team A is losing, but its manager isn't selected. Cannot suggest players.
+      return []
+    }
+  } else if (totalValueSideB.value < totalValueSideA.value) {
+    if (selectedTradeManagerB.value) {
+      losingManagerId = selectedTradeManagerB.value
+    } else {
+      // Team B is losing, but its manager isn't selected. Cannot suggest players.
+      return []
+    }
+  } else {
+    // Trade is perfectly balanced or another edge case.
+    return []
+  }
 
-  // Filter out assets that would create duplicates
-  const selectedPlayerNames = [
-    ...selectedPlayers1.value.map((p) => p.player_full_name || p.full_name),
-    ...selectedPlayers2.value.map((p) => p.player_full_name || p.full_name)
-  ]
+  if (!losingManagerId) return [] // Safeguard
 
-  const filteredAssets = availableAssets.filter(
-    (asset) => !selectedPlayerNames.includes(asset.player_full_name)
+  const allPositions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  let rawAssetsFromLosingSide = []
+  allPositions.forEach((position) => {
+    // getManagerAssetsByPosition returns assets owned by losingManagerId
+    // that are NOT already in selectedPlayers1 or selectedPlayers2.
+    const positionAssets = getManagerAssetsByPosition(losingManagerId, position)
+    rawAssetsFromLosingSide.push(...positionAssets)
+  })
+
+  // Map these raw assets to the format used by the balancing display logic.
+  // This adds ownerId, display_name, and maps player_value to sf_value/one_qb_value.
+  const availableAssetsFromLosingManager = rawAssetsFromLosingSide.map(mapAssetToTradeFormat)
+
+  // Filter candidate assets from the losing manager's available assets.
+  // Candidates must have a positive value and be less than or equal to the raw balancing value.
+  const candidateAssets = availableAssetsFromLosingManager.filter(
+    (asset) => asset[valueKey] > 0 && asset[valueKey] <= balRawValue
   )
 
-  // Find closest matching values to balance the trade
-  const highestSelectedValue = Math.max(
-    ...selectedPlayers1.value.map((p) => p[valueKey] || 0),
-    ...selectedPlayers2.value.map((p) => p[valueKey] || 0),
-    0
-  )
-
-  const valueLimit = balRawValue !== 0 ? balRawValue : highestSelectedValue
-
-  // Filter assets within value range
-  const candidateAssets = filteredAssets.filter((asset) => asset[valueKey] <= valueLimit)
-
-  // Sort by proximity to the target balancing value
-  const sortedAssets = candidateAssets.sort(
+  // Sort candidates by how close their value is to the balRawValue.
+  const sortedByProximity = candidateAssets.sort(
     (a, b) => Math.abs(a[valueKey] - balRawValue) - Math.abs(b[valueKey] - balRawValue)
   )
 
-  // Return top matches sorted by value (highest first) - all with owner info
-  const topMatches = sortedAssets.slice(0, 20)
+  // Take the top 20 closest matches and then sort them by their actual value, descending.
+  const topMatches = sortedByProximity.slice(0, 20)
   topMatches.sort((a, b) => b[valueKey] - a[valueKey])
 
   return topMatches
@@ -3727,6 +3803,17 @@ const expandedTradePositions = reactive({
   A: { QB: false, RB: false, WR: false, TE: false, PICKS: false },
   B: { QB: false, RB: false, WR: false, TE: false, PICKS: false }
 })
+
+// Add this with other reactive states
+const showTradePositions = reactive({
+  A: true,
+  B: true
+})
+
+// Add this function to toggle position visibility
+const togglePositionsVisibility = (team) => {
+  showTradePositions[team] = !showTradePositions[team]
+}
 
 const onTradeManagerAChange = (userId) => {
   // Clear selected players for Team A when manager changes
@@ -3858,7 +3945,25 @@ const addAssetToTrade = (asset, team) => {
   }
 }
 
-// ---------- TRADE CALCULATOR CODE END ----------
+// Toggle all position groups for a team
+const toggleAllPositionGroups = (team, expanded) => {
+  const positions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  positions.forEach((position) => {
+    if (team === 'A') {
+      expandedTradePositions.A[position] = expanded
+    } else {
+      expandedTradePositions.B[position] = expanded
+    }
+  })
+}
+
+// Check if all positions are expanded for a team
+const areAllPositionsExpanded = (team) => {
+  const positions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  return positions.every((position) =>
+    team === 'A' ? expandedTradePositions.A[position] : expandedTradePositions.B[position]
+  )
+}
 </script>
 
 <style scoped>
@@ -3866,70 +3971,89 @@ const addAssetToTrade = (asset, team) => {
 .layout {
   min-height: 100vh;
 }
+
 .responsive-padding {
   padding: 0 10px;
 }
+
 @media (min-width: 440px) {
   .responsive-padding {
     padding: 0 100px;
   }
 }
+
 .text-center-margin-top-30 {
   text-align: center;
   margin-top: 30px;
 }
+
 .font-bold {
   font-weight: bold;
 }
+
 .margin-right-8 {
   margin-right: 8px;
 }
+
 .font-size-1-1em {
   font-size: 1.1em;
 }
+
 .font-size-18 {
   font-size: 18px;
 }
+
 .font-bolder {
   font-weight: bolder;
 }
+
 .justify-center-row {
   justify-content: center;
 }
+
 .position-group-col {
   min-width: 220px;
 }
+
 .avatar-bordered {
   border: 2px solid rgb(39, 125, 161);
 }
+
 .player-chunk-container {
   border: 1px solid lightgray;
   border-radius: 5px;
   margin: 5px;
   padding: 5px;
 }
+
 .no-padding-ul {
   padding: 0;
 }
+
 .player-chunk-item {
   border-radius: 2px;
   margin: 2px;
 }
+
 .no-list-style {
   list-style: none;
 }
+
 .waiver-player-item {
   margin-bottom: 2px;
   border-radius: 2px;
 }
+
 .team-card-column {
   min-width: 300px;
   max-width: 315px;
 }
+
 .heatmap-table-container {
   width: 100%;
   max-width: 1150px;
 }
+
 .full-width-table {
   width: 100%;
 }
@@ -3942,18 +4066,21 @@ const addAssetToTrade = (asset, team) => {
   border: 1px solid gray;
   margin-right: 10px;
 }
+
 .league-title {
   display: flex;
   align-items: center;
   justify-content: left;
   flex-wrap: wrap;
 }
+
 .gutter-box-buttons {
   display: flex;
   justify-content: left;
   margin-top: 10px;
   align-items: baseline;
 }
+
 .gutter-box-refresh {
   margin-bottom: 10px;
   display: flex;
@@ -4009,9 +4136,11 @@ const addAssetToTrade = (asset, team) => {
     align-items: center;
     margin-bottom: 16px;
   }
+
   .control-group:last-child {
     margin-bottom: 0;
   }
+
   .ant-radio-group,
   .ant-select,
   .ant-dropdown-button {
@@ -4027,6 +4156,7 @@ const addAssetToTrade = (asset, team) => {
     justify-content: flex-start;
     gap: 10px;
   }
+
   .control-label {
     min-width: 110px;
     text-align: right;
@@ -4038,10 +4168,12 @@ const addAssetToTrade = (asset, team) => {
 .tab-header-container {
   position: relative;
 }
+
 .tab-sub-header {
   text-align: left;
   margin-bottom: 25px;
 }
+
 .info-button {
   position: absolute;
   top: 8px;
@@ -4085,70 +4217,11 @@ const addAssetToTrade = (asset, team) => {
 }
 
 .manager-avatar {
-  position: relative;
   margin-right: 10px;
 }
 
 .manager-rank {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background-color: rgb(70, 70, 70);
-  color: white;
-  font-size: 10px;
-  padding: 2px 4px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
-}
-
-.manager-details {
-  flex: 1;
-  overflow: hidden;
-}
-
-.manager-name {
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.manager-stats {
-  font-size: 12px;
-  color: #666;
-}
-
-.selected-manager {
-  background-color: rgba(24, 144, 255, 0.1);
-  border: 2px solid #1890ff;
-}
-
-.position-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 3px;
-}
-
-.position-badge {
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 10px;
-  color: white;
-}
-
-.qb-badge {
-  background-color: rgba(25, 118, 210, 0.8);
-}
-.rb-badge {
-  background-color: rgba(144, 190, 109, 0.8);
-}
-.wr-badge {
-  background-color: rgba(76, 175, 80, 0.8);
-}
-.te-badge {
-  background-color: rgba(249, 132, 74, 0.8);
 }
 
 /* Charts & Visualizations */
@@ -4187,6 +4260,7 @@ const addAssetToTrade = (asset, team) => {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-color, #333);
+  margin-top: 3px;
 }
 
 /* Heatmap Table (Desktop & Mobile) */
@@ -4194,20 +4268,25 @@ const addAssetToTrade = (asset, team) => {
   display: flex;
   justify-content: center;
 }
+
 .ant-table-tbody > tr {
   border-bottom: 1px solid white;
 }
+
 .ant-table-tbody > tr > td {
   color: white;
 }
+
 .ant-table-thead > tr > th {
   color: white;
   border-bottom: 2px solid white;
 }
+
 .highlighted-row td,
 .manager-card-mobile.highlighted-row {
   font-weight: 600;
 }
+
 .expanded-row-content {
   padding: 12px 8px;
   background-color: #fafafa;
@@ -4232,6 +4311,7 @@ const addAssetToTrade = (asset, team) => {
   background-color: white;
   max-width: 340px;
 }
+
 .position-header {
   display: flex;
   justify-content: space-between;
@@ -4245,6 +4325,7 @@ const addAssetToTrade = (asset, team) => {
   font-weight: 600;
   font-size: 15px;
 }
+
 .position-rank {
   margin: 0;
 }
@@ -4255,15 +4336,18 @@ const addAssetToTrade = (asset, team) => {
   gap: 4px 8px;
   font-size: 13px;
 }
+
 .age-label,
 .value-label {
   color: #777;
 }
+
 .age-value,
 .value-amount {
   font-weight: 500;
   text-align: right;
 }
+
 .value-amount {
   font-weight: 600;
 }
@@ -4271,15 +4355,19 @@ const addAssetToTrade = (asset, team) => {
 .position-qb {
   border-left: 3px solid rgb(25, 118, 210);
 }
+
 .position-rb {
   border-left: 3px solid rgb(144, 190, 109);
 }
+
 .position-wr {
   border-left: 3px solid rgb(76, 175, 80);
 }
+
 .position-te {
   border-left: 3px solid rgb(249, 132, 74);
 }
+
 .position-picks {
   border-left: 3px solid rgb(143, 145, 146);
 }
@@ -4314,40 +4402,48 @@ const addAssetToTrade = (asset, team) => {
   overflow: hidden;
   cursor: pointer;
 }
+
 .player-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
+
 .player-info {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 }
+
 .player-name-team {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
 .player-name {
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .player-team {
   font-size: 11px;
   opacity: 0.8;
 }
+
 .player-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   min-width: 45px;
 }
+
 .player-age {
   font-size: 10px;
   opacity: 0.7;
 }
+
 .player-value {
   font-weight: 600;
   font-size: 12px;
@@ -4358,6 +4454,7 @@ const addAssetToTrade = (asset, team) => {
 .mid-value-asset {
   padding-left: 12px;
 }
+
 .high-value-asset::before,
 .low-value-asset::before,
 .mid-value-asset::before {
@@ -4370,12 +4467,15 @@ const addAssetToTrade = (asset, team) => {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
+
 .high-value-asset::before {
   background-color: gold;
 }
+
 .low-value-asset::before {
   background-color: #e74c3c;
 }
+
 .mid-value-asset::before {
   background-color: #bdbdbd;
 }
@@ -4384,6 +4484,7 @@ const addAssetToTrade = (asset, team) => {
 .heatmap-mobile-view {
   display: none;
 }
+
 .manager-card-mobile {
   background-color: var(--card-background-color, #fff);
   border: 1px solid var(--border-color, #e0e0e0);
@@ -4393,38 +4494,49 @@ const addAssetToTrade = (asset, team) => {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease-in-out;
 }
+
 .manager-card-mobile:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
+
 .manager-info-line-mobile {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
 }
+
 .manager-name-mobile {
   color: var(--text-color, #333);
 }
+
 .manager-stats-grid-mobile {
+  font-size: 10px;
 }
+
 .manager-card-mobile-details-reused {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #f0f0f0;
 }
+
 .position-summary-item.active-position-summary {
   background-color: rgba(24, 144, 255, 0.08);
 }
+
 .nested-players-container {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed #e0e0e0;
 }
+
 .nested-players-container .players-list {
   gap: 6px;
 }
+
 .nested-players-container .player-card {
   background-color: var(--background-color-secondary, #f9f9f9);
 }
+
 .no-players-notice {
   padding: 10px 8px;
   text-align: center;
@@ -4440,50 +4552,62 @@ const addAssetToTrade = (asset, team) => {
   .heatmap-desktop-view {
     display: none;
   }
+
   .heatmap-mobile-view {
     display: block;
   }
+
   .position-summary {
     flex-direction: column;
     gap: 8px;
   }
+
   .position-summary-item {
     width: 100%;
   }
+
   .players-grid {
     flex-direction: column;
   }
+
   .position-players-column {
     width: 100%;
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid #eaeaea;
   }
+
   .position-players-column:last-child {
     border-bottom: none;
     margin-bottom: 0;
   }
 }
+
 @media (max-width: 480px) {
   .expanded-row-content {
     padding: 8px 4px;
   }
+
   .player-card {
     border-radius: 6px;
     margin-bottom: 8px;
   }
+
   .player-name-team {
     width: 65%;
   }
+
   .player-name {
     white-space: normal;
     line-height: 1.2;
   }
+
   .position-summary-item {
     padding: 10px;
     margin-bottom: 4px;
     width: auto;
   }
+
   .players-grid::before {
     content: 'Players';
     display: block;
@@ -4493,6 +4617,7 @@ const addAssetToTrade = (asset, team) => {
     border-bottom: 1px solid #eaeaea;
     color: #555;
   }
+
   .position-players-column::before {
     content: attr(data-position);
     display: block;
@@ -4505,36 +4630,43 @@ const addAssetToTrade = (asset, team) => {
 
 /* Team Composition Tab (Team Cards) */
 .team-card {
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin: 10px 0;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 10px 12px 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
-  min-height: 180px;
-  transition: box-shadow 0.2s;
+  border: 2px solid transparent;
+  transition: border-color 0.4s ease;
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  top: 20px; /* Adjust this value based on fixed headers (e.g., app header, tab bar height) */
+  z-index: 10; /* Ensures cards stay on top of other content when sticky */
 }
+
 .team-card:hover {
   box-shadow: 0 4px 16px rgba(24, 144, 255, 0.1);
 }
+
 .team-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
 }
+
 .team-card-title {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
+
 .team-rank {
   font-size: 12px;
   color: #888;
 }
+
 .team-value {
   margin-left: auto;
   font-size: 13px;
@@ -4543,6 +4675,7 @@ const addAssetToTrade = (asset, team) => {
   border-radius: 6px;
   padding: 2px 8px;
 }
+
 .team-assets-list {
   padding: 0;
   margin: 0;
@@ -4550,11 +4683,13 @@ const addAssetToTrade = (asset, team) => {
   max-height: 340px;
   overflow: hidden;
 }
+
 .team-assets-list.expanded {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 5px;
 }
+
 .team-asset-item {
   display: flex;
   align-items: center;
@@ -4565,16 +4700,21 @@ const addAssetToTrade = (asset, team) => {
   gap: 4px;
   cursor: pointer;
 }
+
 .asset-index {
 }
+
 .asset-name {
 }
+
 .asset-team {
 }
+
 .expand-toggle {
   text-align: center;
-  margin-top: 4px.;
+  margin-top: 4px;
 }
+
 .expand-toggle a {
   color: #1890ff;
   cursor: pointer;
@@ -4582,6 +4722,7 @@ const addAssetToTrade = (asset, team) => {
   font-weight: 500;
   transition: color 0.2s;
 }
+
 .expand-toggle a:hover {
   color: #40a9ff;
 }
@@ -4591,29 +4732,34 @@ const addAssetToTrade = (asset, team) => {
   max-width: 500px;
   margin: 15px 1px;
 }
+
 .user-card {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 5px 4px;
 }
+
 .gutter-box {
   padding: 4px 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .gutter-box-stats {
   padding: 5px 1px;
   display: flex;
   justify-content: center;
   align-content: center;
 }
+
 h4 {
   white-space: normal;
   word-wrap: break-word;
   hyphens: auto;
   overflow-wrap: break-word;
 }
+
 .position-group-container {
   background-color: white;
   border: 1px solid #e0e0e0;
@@ -4626,6 +4772,7 @@ h4 {
   display: flex;
   flex-direction: column;
 }
+
 .position-group-title {
   font-size: 16px;
   margin-bottom: 8px;
@@ -4634,6 +4781,7 @@ h4 {
   text-align: center;
   font-weight: 600;
 }
+
 .position-player-list {
   padding: 0;
   margin: 0;
@@ -4641,6 +4789,7 @@ h4 {
   overflow-y: auto;
   max-height: 450px;
 }
+
 .position-player-item {
   display: flex;
   justify-content: space-between;
@@ -4649,13 +4798,16 @@ h4 {
   border-radius: 4px;
   margin: 2px 0;
   font-size: 12px;
+  gap: 4px;
   cursor: pointer;
 }
+
 .player-value-display {
   font-weight: 500;
   white-space: nowrap;
   font-size: 11px;
 }
+
 .font-size-11 {
   font-size: 11px;
 }
@@ -4665,6 +4817,7 @@ h4 {
   color: #aaa !important;
   opacity: 0.7;
 }
+
 .dimmed-text {
   color: #aaa !important;
 }
@@ -4677,6 +4830,7 @@ h4 {
   margin-bottom: 8px;
   color: var(--text-color, #1890ff);
 }
+
 .tab-info-container p {
   margin-bottom: 16px;
   line-height: 1.5;
@@ -4685,6 +4839,7 @@ h4 {
 .player-modal-content {
   padding: 10px;
 }
+
 .player-modal-header {
   display: flex;
   align-items: center;
@@ -4693,6 +4848,7 @@ h4 {
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
 }
+
 .player-image-placeholder {
   width: 60px;
   height: 60px;
@@ -4703,18 +4859,22 @@ h4 {
   justify-content: center;
   border: 1px solid #e0e0e0;
 }
+
 .player-modal-info h2 {
   margin-bottom: 4px;
   font-size: 1.3em;
 }
+
 .player-modal-info p {
   margin: 0;
   color: #555;
 }
+
 .player-modal-details p {
   margin-bottom: 8px;
   font-size: 14px;
 }
+
 .player-modal-details strong {
   margin-right: 5px;
   color: #333;
@@ -4728,32 +4888,40 @@ h4 {
   gap: 5px 10px;
   margin: 10px 0;
 }
+
 .legend-item {
   display: flex;
   align-items: center;
   margin-right: 10px;
 }
+
 .legend-color {
   width: 15px;
   height: 15px;
   border-radius: 25%;
   margin-right: 5px;
 }
+
 .legend-text {
   font-size: 14px;
 }
+
 .legend-qb {
   background-color: rgb(25, 118, 210);
 }
+
 .legend-rb {
   background-color: rgb(144, 190, 109);
 }
+
 .legend-wr {
   background-color: rgb(76, 175, 80);
 }
+
 .legend-te {
   background-color: rgb(249, 132, 74);
 }
+
 .legend-picks {
   background-color: rgba(70, 70, 70, 0.7);
 }
@@ -4765,6 +4933,7 @@ h4 {
   vertical-align: middle;
   border-radius: 3px;
 }
+
 .manager-logos {
   width: 28px;
   height: 28px;
@@ -4772,6 +4941,7 @@ h4 {
   border-radius: 50%;
   border: 1px solid gray;
 }
+
 li {
   list-style-type: none;
 }
@@ -4877,9 +5047,11 @@ li {
 .team-card.card-outline-balanced {
   border-color: rgba(82, 196, 26, 0.5);
 }
+
 .team-card.card-outline-winning {
   border-color: rgba(24, 144, 255, 0.5);
 }
+
 .team-card.card-outline-losing {
   border-color: rgba(245, 34, 45, 0.4);
 }
@@ -4889,11 +5061,13 @@ li {
   justify-content: space-between;
   align-items: center;
 }
+
 .team-header h2 {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
 }
+
 .team-value {
   font-size: 18px;
   font-weight: 600;
@@ -4903,18 +5077,17 @@ li {
   min-width: 50px;
   text-align: right;
 }
+
 .value-favorable {
   color: #52c41a;
   background-color: rgba(82, 196, 26, 0.1);
 }
+
 .value-balanced {
   color: #1890ff;
   background-color: rgba(24, 144, 255, 0.1);
 }
 
-.search-bar-container {
-  margin-bottom: 16px;
-}
 .players-container {
   display: flex;
   flex-direction: column;
@@ -4926,21 +5099,25 @@ li {
 .player-card {
   margin-bottom: 8px;
 }
+
 .player-item {
   border-radius: 4px;
   background-color: var(--background-color, #fff);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
+
 .player-item:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
 .player-details-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 6px 12px;
 }
+
 .player-name-info {
   display: flex;
   flex-direction: column;
@@ -4948,6 +5125,7 @@ li {
   min-width: 0;
   flex: 1;
 }
+
 .player-name {
   font-size: 14px;
   font-weight: 600;
@@ -4958,27 +5136,32 @@ li {
   color: var(--text-color, #2d3142);
   line-height: 1.2;
 }
+
 .player-meta {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .player-position {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   line-height: 1;
 }
+
 .player-age {
   font-size: 11px;
   color: #8c8c8c;
   line-height: 1;
 }
+
 .player-value-container {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .player-value {
   font-size: 16px;
   font-weight: 700;
@@ -4988,6 +5171,7 @@ li {
   border-radius: 12px;
   white-space: nowrap;
 }
+
 .remove-player {
   background: none;
   border: none;
@@ -5001,10 +5185,12 @@ li {
 .adjustment-card {
   margin-top: 8px;
 }
+
 .va-card {
   background-color: rgba(24, 144, 255, 0.05);
   border-color: rgba(24, 144, 255, 0.2);
 }
+
 .card-content {
   display: flex;
   justify-content: space-between;
@@ -5019,10 +5205,12 @@ li {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 12px;
 }
+
 .asset-count {
   font-size: 14px;
   color: #5c5f6b;
 }
+
 .total-value-display {
   font-size: 14px;
   color: #2d3142;
@@ -5035,6 +5223,7 @@ li {
   padding: 0; /* Remove padding to prevent extra space */
   width: 100%;
   max-width: 100%;
+  /* align-items: start; */
 }
 
 .balance-visualizer-spacing {
@@ -5042,19 +5231,18 @@ li {
   width: 100%;
 }
 
-/* Ensure proper layout in desktop view */
 @media (min-width: 992px) {
   .trade-teams {
     display: grid;
     grid-template-columns: 1fr min-content 1fr;
     gap: 8px;
-    align-items: center;
+    align-items: start; /* Changed from center to start */
   }
 
   .trade-evaluation {
     width: auto;
     padding: 0 12px;
-    align-self: center;
+    align-self: start; /* Changed from center to start to align this item to the top of its grid cell */
   }
 
   .balance-visualizer-spacing {
@@ -5062,7 +5250,6 @@ li {
   }
 }
 
-/* Improve mobile layout */
 @media (max-width: 991px) {
   .trade-teams {
     display: flex;
@@ -5076,17 +5263,8 @@ li {
     margin: 0 auto;
     max-width: 350px;
   }
-
-  .team-card:nth-of-type(1) {
-    order: 0;
-  }
-
-  .team-card:nth-of-type(2) {
-    order: 2;
-  }
 }
 
-/* Fix for mobile layout specific to TradeBalanceVisualizer positioning */
 @media (max-width: 767px) {
   .trade-teams {
     display: grid;
@@ -5117,28 +5295,34 @@ li {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-top: 20px;
 }
+
 .balancing-title {
   display: flex;
   align-items: center;
 }
+
 .balancing-title h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
+
 .balancing-players-container {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
+
 .balancing-player-card {
   margin-bottom: 0;
   cursor: pointer;
   transition: transform 0.2s;
 }
+
 .balancing-player-card:hover {
   transform: translateY(-2px);
 }
+
 .add-player-icon {
   font-size: 16px;
 }
@@ -5153,23 +5337,25 @@ li {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-top: 20px;
 }
+
 .slider-container {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .slider-label {
   font-size: 14px;
   color: #5c5f6b;
   font-weight: 500;
 }
+
 .clear-button-container {
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
 
-/* Ensure tab sub-header is styled */
 .tab-sub-header {
   font-size: 20px;
   font-weight: 600;
@@ -5197,6 +5383,7 @@ li {
 
 .trade-position-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
   background-color: #fafafa;
@@ -5208,6 +5395,83 @@ li {
   background-color: #f0f0f0;
 }
 
+.trade-position-title {
+  font-weight: 500;
+}
+
+.trade-position-count {
+  background-color: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.trade-position-expand-icon {
+  margin-left: 8px;
+}
+
+.trade-position-assets {
+  padding: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.trade-asset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.trade-asset-item:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.trade-asset-item.asset-in-trade {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.trade-asset-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-asset-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-asset-meta {
+  display: flex;
+  font-size: 12px;
+  color: #888;
+  gap: 6px;
+}
+
+.trade-asset-team {
+  white-space: nowrap;
+}
+
+.trade-asset-age {
+  white-space: nowrap;
+}
+
+.trade-asset-value {
+  font-weight: 500;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header colors for position groups */
 .trade-position-header-qb {
   border-left: 4px solid rgb(39, 125, 161);
 }
@@ -5228,122 +5492,14 @@ li {
   border-left: 4px solid rgb(70, 70, 70);
 }
 
-.trade-position-title {
-  font-weight: 600;
-  flex: 1;
-}
-
-.trade-position-count {
-  font-size: 12px;
-  color: #888;
-  background: #f5f5f5;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-right: 8px;
-}
-
-.trade-position-expand-icon {
-  font-size: 12px;
-  color: #888;
-}
-
-.trade-position-assets {
-  max-height: 300px;
-  overflow-y: auto;
-  padding: 8px;
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
-}
-
-/* Enhanced Trade Asset Item Styling */
-.trade-asset-item {
+.position-toggle-controls {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
+  justify-content: flex-end;
   margin-bottom: 8px;
-  border-radius: 6px;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
 }
 
-.trade-asset-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-.trade-asset-item.asset-in-trade {
-  background-color: #f6ffed;
-  border: 1px solid #b7eb8f;
-}
-
-.trade-asset-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.trade-asset-name {
-  font-weight: 500;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 2px;
-}
-
-.trade-asset-meta {
+.position-toggle-buttons {
   display: flex;
   gap: 8px;
-  font-size: 12px;
-  color: #888;
 }
-
-.trade-asset-team {
-  color: #666;
-}
-
-.trade-asset-age {
-  color: #888;
-}
-
-.trade-asset-value {
-  font-weight: 600;
-  color: #1890ff;
-  padding: 2px 8px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.trade-asset-add-icon,
-.trade-asset-check-icon {
-  font-size: 16px;
-}
-
-/* Trade Assets Container */
-.trade-assets-container {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-/* Owner Badge */
-.owner-badge {
-  margin-left: 8px;
-  font-size: 10px;
-  padding: 0 4px;
-  line-height: 1.2;
-  border-radius: 10px;
-  vertical-align: middle;
-}
-
-/* ---------- TRADE CALCULATOR STYLES END ---------- */
 </style>
