@@ -676,6 +676,644 @@
                   </div>
                 </div>
               </a-tab-pane>
+              <!-- Trade Calculator Tab - Only visible when rankings source is sf -->
+              <a-tab-pane key="6" tab="Trade Calculator" v-if="selectedSource.key === 'sf'">
+                <h2 class="tab-sub-header">Trade Calculator</h2>
+
+                <div class="trade-calculator-container">
+                  <!-- Settings Panel -->
+                  <a-card class="settings-card">
+                    <div class="settings-row">
+                      <div class="settings-group">
+                        <a-radio-group
+                          v-model:value="tradeRankType"
+                          button-style="solid"
+                          size="middle"
+                        >
+                          <a-radio-button value="dynasty">Dynasty</a-radio-button>
+                          <a-radio-button value="redraft">Redraft</a-radio-button>
+                        </a-radio-group>
+
+                        <a-switch
+                          size="default"
+                          v-model:checked="tradeState.checked1"
+                          checked-children="Superflex"
+                          un-checked-children="OneQB"
+                          class="format-switch"
+                        />
+                      </div>
+
+                      <div class="settings-group">
+                        <div class="team-size-selector">
+                          <a-select
+                            v-model:value="tradeDropDownValue1"
+                            :options="tradeDropDownOptions1"
+                            @change="tradeDropDownHandleChange"
+                            size="middle"
+                            style="width: 70px"
+                          />
+                          <span class="team-label">Team</span>
+                        </div>
+
+                        <a-checkbox
+                          v-model:checked="tradeTepCheck"
+                          @change="onCheckTepChange"
+                          class="tep-check"
+                        >
+                          TE Premium
+                        </a-checkbox>
+                      </div>
+                    </div>
+
+                    <div class="action-buttons">
+                      <a-dropdown-button type="default" size="middle">
+                        Share
+                        <template #overlay>
+                          <a-menu @click="handleTradeShareClick">
+                            <a-menu-item v-for="source in shareTradeSources" :key="source.key">
+                              <img class="social-logos" :src="source.logo" />
+                              <span style="margin-left: 8px">{{ source.name }}</span>
+                            </a-menu-item>
+                          </a-menu>
+                        </template>
+                        <template #icon><ShareAltOutlined /></template>
+                      </a-dropdown-button>
+
+                      <a-button type="text" @click="showTradeModal" class="help-button">
+                        <QuestionCircleOutlined />
+                        <span class="help-text">How it works</span>
+                      </a-button>
+                    </div>
+                  </a-card>
+
+                  <!-- Trade Teams Section -->
+                  <div class="trade-teams">
+                    <!-- Team A -->
+                    <a-card
+                      class="team-card"
+                      :bordered="false"
+                      :class="{
+                        'card-outline-balanced':
+                          isFairTrade &&
+                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+                        'card-outline-winning': bFavoredTrade,
+                        'card-outline-losing': aFavoredTrade
+                      }"
+                    >
+                      <template #title>
+                        <div class="team-header">
+                          <h2>Team A</h2>
+                          <div
+                            class="team-value"
+                            :class="{
+                              'value-favorable': aFavoredTrade,
+                              'value-balanced': isFairTrade
+                            }"
+                          >
+                            <span v-if="selectedPlayers1.length > 0">{{
+                              Math.round(totalValueSideA).toLocaleString()
+                            }}</span>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Manager Selector for Team A -->
+                      <div class="manager-selector-container">
+                        <a-select
+                          v-model:value="selectedTradeManagerA"
+                          placeholder="Select a manager"
+                          style="width: 100%"
+                          size="large"
+                          @change="onTradeManagerAChange"
+                        >
+                          <a-select-option
+                            v-for="manager in sortedSummaryData"
+                            :key="manager.user_id"
+                            :value="manager.user_id"
+                          >
+                            <div class="manager-option">
+                              <a-avatar
+                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :size="24"
+                                class="manager-avatar-small"
+                              />
+                              <span class="manager-name-option">{{ manager.display_name }}</span>
+                            </div>
+                          </a-select-option>
+                        </a-select>
+                      </div>
+
+                      <!-- Position groups toggle buttons -->
+                      <div v-if="selectedTradeManagerA" class="position-toggle-controls">
+                        <div class="position-toggle-buttons">
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="toggleAllPositionGroups('A', !areAllPositionsExpanded('A'))"
+                          >
+                            <template v-if="areAllPositionsExpanded('A')">
+                              <UpOutlined /> Collapse All
+                            </template>
+                            <template v-else> <DownOutlined /> Expand Players </template>
+                          </a-button>
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="togglePositionsVisibility('A')"
+                          >
+                            <template v-if="showTradePositions.A">
+                              <EyeInvisibleOutlined /> Hide Positions
+                            </template>
+                            <template v-else> <EyeOutlined /> Show Positions </template>
+                          </a-button>
+                        </div>
+                      </div>
+
+                      <!-- Trade Assets Grouped by Position for Team A -->
+                      <div
+                        v-if="selectedTradeManagerA && showTradePositions.A"
+                        class="trade-assets-container"
+                      >
+                        <div
+                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
+                          :key="`teamA-${position}`"
+                          class="trade-position-group"
+                        >
+                          <div
+                            class="trade-position-header"
+                            :class="`trade-position-header-${position.toLowerCase()}`"
+                            @click="toggleTradePositionGroup('A', position)"
+                          >
+                            <span class="trade-position-title">{{ position }}</span>
+                            <span class="trade-position-count">
+                              {{
+                                getManagerAssetsByPosition(selectedTradeManagerA, position).length
+                              }}
+                            </span>
+                            <DownOutlined
+                              v-if="!isTradePositionExpanded('A', position)"
+                              class="trade-position-expand-icon"
+                            />
+                            <UpOutlined v-else class="trade-position-expand-icon" />
+                          </div>
+                          <div
+                            v-if="isTradePositionExpanded('A', position)"
+                            class="trade-position-assets"
+                          >
+                            <div
+                              v-for="asset in getManagerAssetsByPosition(
+                                selectedTradeManagerA,
+                                position
+                              )"
+                              :key="`teamA-${position}-${asset.sleeper_id || asset.full_name}`"
+                              class="trade-asset-item"
+                              :style="getPositionTagList(asset.player_position, 0.15)"
+                              @click="addAssetToTrade(asset, 1)"
+                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 1) }"
+                            >
+                              <div class="trade-asset-details">
+                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-meta">
+                                  <span v-if="asset.team" class="trade-asset-team">{{
+                                    asset.team
+                                  }}</span>
+                                  <span v-if="asset.age" class="trade-asset-age"
+                                    >{{ asset.age }}y</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="trade-asset-value">
+                                {{ asset.player_value.toLocaleString() }}
+                                <PlusCircleTwoTone
+                                  v-if="!isAssetInTrade(asset, 1)"
+                                  class="trade-asset-add-icon"
+                                />
+                                <CheckCircleTwoTone
+                                  v-else
+                                  class="trade-asset-check-icon"
+                                  two-tone-color="#52c41a"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Selected Assets for Team A -->
+                      <div class="players-container">
+                        <div
+                          v-for="(player, index) in selectedPlayers1"
+                          :key="player.player_full_name + index + '_teamA'"
+                        >
+                          <div
+                            :bordered="false"
+                            class="player-item"
+                            :style="{
+                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
+                            }"
+                          >
+                            <div class="player-details-wrapper">
+                              <div class="player-name-info">
+                                <div class="player-name">
+                                  {{ player.player_full_name || player.full_name }}
+                                </div>
+                                <div>
+                                  <span
+                                    class="player-position"
+                                    :style="{
+                                      color: getTradePositionColor(
+                                        player._position || player.player_position
+                                      )
+                                    }"
+                                  >
+                                    {{ player._position || player.player_position }}
+                                  </span>
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
+                                    >Age: {{ player.age }}</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="player-value-container">
+                                <div class="player-value">
+                                  {{ player.sf_value || player.player_value }}
+                                </div>
+                                <button class="remove-player" @click="removePlayer1(index)">
+                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="showAdjustmentA" class="adjustment-card">
+                          <a-card size="small" :bordered="true" class="va-card">
+                            <div class="card-content">
+                              <span>Value Modifier</span>
+                              <span class="player-value">+{{ Math.round(adjustmentValueA) }}</span>
+                            </div>
+                          </a-card>
+                        </div>
+                      </div>
+
+                      <div class="team-summary">
+                        <div class="asset-count">
+                          <span style="font-weight: bold">{{ selectedPlayers1.length }}</span>
+                          Asset{{ selectedPlayers1.length !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="total-value-display">
+                          Total:
+                          <span style="font-weight: bold">{{
+                            Math.round(totalValueSideA).toLocaleString()
+                          }}</span>
+                        </div>
+                      </div>
+                    </a-card>
+
+                    <div class="trade-evaluation">
+                      <TradeBalanceVisualizer
+                        :valueA="totalValueSideA"
+                        :valueB="totalValueSideB"
+                        :isFair="isFairTrade"
+                        :balancingValue="balancingPlayerValue"
+                        :acceptableVariance="
+                          (tradePercentThreshold * (totalValueSideA + totalValueSideB)) / 200
+                        "
+                        class="balance-visualizer-spacing"
+                      />
+                    </div>
+
+                    <a-card
+                      class="team-card"
+                      :bordered="false"
+                      :class="{
+                        'card-outline-balanced':
+                          isFairTrade &&
+                          (selectedPlayers1.length > 0 || selectedPlayers2.length > 0),
+                        'card-outline-winning': aFavoredTrade,
+                        'card-outline-losing': bFavoredTrade
+                      }"
+                    >
+                      <template #title>
+                        <div class="team-header">
+                          <h2>Team B</h2>
+                          <div
+                            class="team-value"
+                            :class="{
+                              'value-favorable': bFavoredTrade,
+                              'value-balanced': isFairTrade
+                            }"
+                          >
+                            <span v-if="selectedPlayers2.length > 0">{{
+                              Math.round(totalValueSideB).toLocaleString()
+                            }}</span>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Manager Selector for Team B -->
+                      <div class="manager-selector-container">
+                        <a-select
+                          v-model:value="selectedTradeManagerB"
+                          placeholder="Select a manager"
+                          style="width: 100%"
+                          size="large"
+                          @change="onTradeManagerBChange"
+                        >
+                          <a-select-option
+                            v-for="manager in sortedSummaryData"
+                            :key="manager.user_id"
+                            :value="manager.user_id"
+                          >
+                            <div class="manager-option">
+                              <a-avatar
+                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :size="24"
+                                class="manager-avatar-small"
+                              />
+                              <span class="manager-name-option">{{ manager.display_name }}</span>
+                            </div>
+                          </a-select-option>
+                        </a-select>
+                      </div>
+
+                      <!-- Position groups toggle buttons -->
+                      <div v-if="selectedTradeManagerB" class="position-toggle-controls">
+                        <div class="position-toggle-buttons">
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="toggleAllPositionGroups('B', !areAllPositionsExpanded('B'))"
+                          >
+                            <template v-if="areAllPositionsExpanded('B')">
+                              <UpOutlined /> Collapse All
+                            </template>
+                            <template v-else> <DownOutlined /> Expand Players </template>
+                          </a-button>
+                          <a-button
+                            type="link"
+                            size="small"
+                            @click="togglePositionsVisibility('B')"
+                          >
+                            <template v-if="showTradePositions.B">
+                              <EyeInvisibleOutlined /> Hide Positions
+                            </template>
+                            <template v-else> <EyeOutlined /> Show Positions </template>
+                          </a-button>
+                        </div>
+                      </div>
+
+                      <!-- Trade Assets Grouped by Position for Team B -->
+                      <div
+                        v-if="selectedTradeManagerB && showTradePositions.B"
+                        class="trade-assets-container"
+                      >
+                        <div
+                          v-for="position in ['QB', 'RB', 'WR', 'TE', 'PICKS']"
+                          :key="`teamB-${position}`"
+                          class="trade-position-group"
+                        >
+                          <div
+                            class="trade-position-header"
+                            :class="`trade-position-header-${position.toLowerCase()}`"
+                            @click="toggleTradePositionGroup('B', position)"
+                          >
+                            <span class="trade-position-title">{{ position }}</span>
+                            <span class="trade-position-count">
+                              {{
+                                getManagerAssetsByPosition(selectedTradeManagerB, position).length
+                              }}
+                            </span>
+                            <DownOutlined
+                              v-if="!isTradePositionExpanded('B', position)"
+                              class="trade-position-expand-icon"
+                            />
+                            <UpOutlined v-else class="trade-position-expand-icon" />
+                          </div>
+                          <div
+                            v-if="isTradePositionExpanded('B', position)"
+                            class="trade-position-assets"
+                          >
+                            <div
+                              v-for="asset in getManagerAssetsByPosition(
+                                selectedTradeManagerB,
+                                position
+                              )"
+                              :key="`teamB-${position}-${asset.sleeper_id || asset.full_name}`"
+                              class="trade-asset-item"
+                              :style="getPositionTagList(asset.player_position, 0.15)"
+                              @click="addAssetToTrade(asset, 2)"
+                              :class="{ 'asset-in-trade': isAssetInTrade(asset, 2) }"
+                            >
+                              <div class="trade-asset-details">
+                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-meta">
+                                  <span v-if="asset.team" class="trade-asset-team">{{
+                                    asset.team
+                                  }}</span>
+                                  <span v-if="asset.age" class="trade-asset-age"
+                                    >{{ asset.age }}y</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="trade-asset-value">
+                                {{ asset.player_value.toLocaleString() }}
+                              </div>
+                              <PlusCircleTwoTone
+                                v-if="!isAssetInTrade(asset, 2)"
+                                class="trade-asset-add-icon"
+                              />
+                              <CheckCircleTwoTone
+                                v-else
+                                class="trade-asset-check-icon"
+                                two-tone-color="#52c41a"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="players-container">
+                        <div
+                          v-for="(player, index) in selectedPlayers2"
+                          :key="player.player_full_name + index + '_teamB'"
+                        >
+                          <div
+                            size="small"
+                            :bordered="false"
+                            class="player-item"
+                            :style="{
+                              borderLeft: `4px solid ${getTradePositionColor(player._position || player.player_position)}`
+                            }"
+                          >
+                            <div class="player-details-wrapper">
+                              <div class="player-name-info">
+                                <div class="player-name">
+                                  {{ player.player_full_name || player.full_name }}
+                                </div>
+                                <div>
+                                  <span
+                                    class="player-position"
+                                    :style="{
+                                      color: getTradePositionColor(
+                                        player._position || player.player_position
+                                      )
+                                    }"
+                                  >
+                                    {{ player._position || player.player_position }}
+                                  </span>
+                                  <span
+                                    class="player-age"
+                                    v-if="player.age"
+                                    style="margin-left: 5px"
+                                    >Age: {{ player.age }}</span
+                                  >
+                                </div>
+                              </div>
+                              <div class="player-value-container">
+                                <div class="player-value">
+                                  {{ player.sf_value || player.player_value }}
+                                </div>
+                                <button class="remove-player" @click="removePlayer2(index)">
+                                  <MinusCircleTwoTone two-tone-color="#f5222d" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="showAdjustmentB" class="adjustment-card">
+                          <a-card size="small" :bordered="true" class="va-card">
+                            <div class="card-content">
+                              <span>Value Modifier</span>
+                              <span class="player-value">+{{ Math.round(adjustmentValueB) }}</span>
+                            </div>
+                          </a-card>
+                        </div>
+                      </div>
+
+                      <div class="team-summary">
+                        <div class="asset-count">
+                          <span style="font-weight: bold">{{ selectedPlayers2.length }}</span>
+                          Asset{{ selectedPlayers2.length !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="total-value-display">
+                          Total:
+                          <span style="font-weight: bold">{{
+                            Math.round(totalValueSideB).toLocaleString()
+                          }}</span>
+                        </div>
+                      </div>
+                    </a-card>
+                  </div>
+
+                  <a-card
+                    v-if="
+                      tradeAnalysisComputed.percentageDifference > tradePercentThreshold &&
+                      closestBalancingPlayers.length > 0
+                    "
+                    class="balancing-players-card"
+                  >
+                    <template #title>
+                      <div class="balancing-title">
+                        <h3>Balance the Trade</h3>
+                        <a-tooltip title="These players could help balance the trade">
+                          <InfoCircleOutlined style="margin-left: 8px" />
+                        </a-tooltip>
+                      </div>
+                    </template>
+                    <div class="balancing-players-container">
+                      <div
+                        v-for="player in displayedBalancingPlayers"
+                        :key="player.player_full_name + '_balancing'"
+                        class="balancing-player-card"
+                      >
+                        <div
+                          :bordered="false"
+                          class="player-item"
+                          :style="{
+                            borderLeft: `4px solid ${getTradePositionColor(player._position)}`
+                          }"
+                          hoverable
+                          @click="addPlayerToTrade(player)"
+                        >
+                          <div class="player-details-wrapper">
+                            <div class="player-name-info">
+                              <div class="player-name">
+                                {{ player.player_full_name }}
+                              </div>
+                              <div>
+                                <span
+                                  class="player-position"
+                                  :style="{ color: getTradePositionColor(player._position) }"
+                                >
+                                  {{ player._position }}
+                                </span>
+                                <span class="player-age" v-if="player.age" style="margin-left: 5px"
+                                  >Age: {{ player.age }}</span
+                                >
+                              </div>
+                            </div>
+                            <div class="player-value-container">
+                              <div class="player-value">
+                                {{ tradeState.checked1 ? player.sf_value : player.one_qb_value }}
+                              </div>
+                              <PlusCircleTwoTone class="add-player-icon" two-tone-color="#52c41a" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="view-more" v-if="closestBalancingPlayers.length > 6">
+                      <a-button type="link" @click="toggleShowAllBalancingPlayers">
+                        {{ showAllBalancingPlayers ? 'View Less Players' : 'View More Players' }}
+                      </a-button>
+                    </div>
+                  </a-card>
+
+                  <a-card class="trade-controls-card">
+                    <a-row :gutter="[16, 16]" align="middle">
+                      <a-col :xs="24" :sm="16" :md="18">
+                        <div class="slider-container">
+                          <div class="slider-label">
+                            Acceptable Trade Variance: {{ tradePercentThreshold }}%
+                          </div>
+                          <a-slider
+                            v-model:value="tradePercentThreshold"
+                            :min="1"
+                            :max="25"
+                            :step="1"
+                          />
+                        </div>
+                      </a-col>
+                      <a-col :xs="24" :sm="8" :md="6" class="clear-button-container">
+                        <a-button @click="clearTradeCalculator" danger block
+                          >Clear Calculator</a-button
+                        >
+                      </a-col>
+                    </a-row>
+                  </a-card>
+                </div>
+
+                <a-modal
+                  v-model:open="tradeModalOpen"
+                  @ok="handleTradeModalOk"
+                  title="How the Trade Calculator Works"
+                >
+                  <p>
+                    Fantasy Navigator Rankings are derived from an extensive array of sources,
+                    including millions of crowd-sourced data points, expert consensus rankings, and
+                    real trade analyses. This comprehensive approach ensures that our rankings are
+                    not only well-informed but also reflect the most current trends and insights in
+                    fantasy sports.
+                  </p>
+                  <p>
+                    The calculator accounts for value consolidation, meaning that higher-valued
+                    players are worth more than the sum of multiple lower-valued players. This
+                    provides a more realistic assessment of fantasy football trades.
+                  </p>
+                </a-modal>
+              </a-tab-pane>
 
               <!-- Team Composition Tab -->
               <a-tab-pane key="2" tab="Team Composition">
@@ -1515,6 +2153,13 @@
                 Browse the best available players on waivers, organized by position. Quickly
                 identify valuable free agents you might want to add to your roster.
               </p>
+
+              <h3>Trade Calculator</h3>
+              <p>
+                Evaluate potential trades between teams using advanced metrics and player rankings.
+                The trade calculator helps you determine fair value and suggests balancing players
+                to make trades equitable.
+              </p>
             </div>
           </a-modal>
 
@@ -1579,10 +2224,11 @@ import BarChart from '@/components/BarChart.vue'
 import ProjectionBarChart from '@/components/ProjectionBarChart.vue'
 import ProjectionPercentColumn from '@/components/ProjectionPercentColumn.vue'
 import OverallScatterPlot from '@/components/OverallScatterPlot.vue'
+import TradeBalanceVisualizer from '@/components/TradeBalanceVisualizer.vue'
 
 // Third-Party Libraries
 import axios from 'axios'
-import { message, Empty, MenuProps } from 'ant-design-vue' // Assuming 'Column' type was from here or a local definition
+import { message, Empty, MenuProps } from 'ant-design-vue'
 import 'primeicons/primeicons.css'
 
 // Stores
@@ -1599,6 +2245,26 @@ import ktcLogo from '@/assets/sourceLogos/ktc.png'
 import dpLogo from '@/assets/sourceLogos/dp.png'
 import fcLogo from '@/assets/sourceLogos/fc.png'
 import ddLogo from '@/assets/sourceLogos/dd.svg'
+import xLogo from '@/assets/socialLogos/x.png'
+import redditLogo from '@/assets/socialLogos/reddit.png'
+
+// Icons
+import {
+  PlusCircleTwoTone,
+  MinusCircleTwoTone,
+  ShareAltOutlined,
+  SearchOutlined,
+  QuestionCircleOutlined,
+  InfoCircleOutlined,
+  HomeOutlined,
+  FileSearchOutlined,
+  ReloadOutlined,
+  UpOutlined,
+  DownOutlined,
+  CheckCircleTwoTone,
+  EyeOutlined,
+  EyeInvisibleOutlined
+} from '@ant-design/icons-vue'
 
 // --- Constants ---
 const API_URL = import.meta.env.VITE_API_URL
@@ -1624,7 +2290,6 @@ const summaryIsLoading = ref(false) // Loading state for summary data
 const detailIsLoading = ref(false) // Loading state for detail data
 const isProjectionLoading = ref(false) // Loading state for projection data
 const baIsLoading = ref(false) // Loading state for best available data
-// const isTradesLoading = ref(false); // Trades loading state (currently not used to control a spinner)
 const clickedManager = ref('') // Tracks clicked manager for highlighting in Position Groups/League Assets
 
 // Data Filters & Selected Options
@@ -1632,7 +2297,6 @@ const overallFilter = ref('all') // Player filter: 'all' or 'STARTER'
 const value1 = ref('espn') // Selected projection source (e.g., 'espn', 'cbs')
 const selectedPlayer = ref(null) // Holds data for the player modal
 const selectedUser = ref(null) // Holds data for the selected manager in certain tabs
-// const selectedUserId = ref(null); // Tracks selected user ID (seems redundant if selectedUser is used)
 
 // League Information (from route params)
 const leagueInfo = reactive({
@@ -1647,10 +2311,7 @@ const leagueInfo = reactive({
   rosterType: route.params.rosterType as string,
   avatar: route.params.avatar as string,
   leagueType: route.params.leagueType as string,
-  apiSource: route.params.platform as string // Initial API source for rankings
-  // These seem to be for navigation to league summary, ensure they are correctly typed if used elsewhere
-  // leagueStarters: route.params.leagueStarters as string,
-  // leagueSize: route.params.leagueSize as string,
+  apiSource: route.params.platform as string
 })
 
 // Data Holders
@@ -1664,7 +2325,7 @@ const bestAvailableData = ref<any[]>([{}])
 
 // Chart Data
 const bchartData = ref<any[]>([])
-const scatterPlotData = ref<any[]>([]) // Note: This was previously scatterPlotData, check if OverallScatterPlotData is the intended one
+const scatterPlotData = ref<any[]>([])
 const projectionBarChartData = ref<any[]>([])
 const projectionPercentColumnData = ref<any[]>([])
 
@@ -1725,7 +2386,6 @@ const OverallScatterPlotData = computed(() => {
 // Sorted summary data for manager lists, respects showProjections and overallFilter
 const sortedSummaryData = computed(() => {
   if (showProjections.value && projSummaryData.value.length > 0) {
-    // Sort by projection ranks
     return [...projSummaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
@@ -1733,7 +2393,6 @@ const sortedSummaryData = computed(() => {
     )
   }
   if (summaryData.value.length > 0) {
-    // Sort by overall ranks
     return [...summaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
@@ -1772,7 +2431,7 @@ const createPositionColumnsConfig = (filterValue: string) => {
     return {
       title: position,
       dataIndex: dataKey,
-      key: `${position.toLowerCase()}_rank`, // Key can be consistent
+      key: `${position.toLowerCase()}_rank`,
       align: 'center',
       customRender: ({ record }) => `${addOrdinalSuffix(record[dataKey])}`,
       sorter: (a, b) => a[dataKey] - b[dataKey],
@@ -1835,7 +2494,7 @@ const projColumns = computed(() => [
   {
     title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
     dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
-    key: 'overall_rank_proj', // Different key for projections
+    key: 'overall_rank_proj',
     align: 'center',
     customRender: ({ record }) =>
       `${addOrdinalSuffix(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)}`,
@@ -1848,7 +2507,6 @@ const projColumns = computed(() => [
     })
   },
   ...createPositionColumnsConfig(overallFilter.value)
-  // Projections typically don't include Picks/Bench ranks in this summary table format
 ])
 
 // Player data sorted for "League Assets" tab, chunked for display
@@ -1856,7 +2514,7 @@ const sortedFilteredData = computed(() => {
   const players = filteredData.value.filter((a) => a.player_position !== 'PICKS')
   const picks = filteredData.value.filter((a) => a.player_position === 'PICKS')
   const sortedPlayers = [...players].sort((a, b) => b.player_value - a.player_value)
-  const sortedPicks = sortPicks(picks) // Uses the detailed sortPicks function
+  const sortedPicks = sortPicks(picks)
   return [...sortedPlayers, ...sortedPicks]
 })
 
@@ -1912,13 +2570,10 @@ const groupedPlayers = computed(() => {
 watch(overallFilter, () => {
   if (summaryData.value.length) {
     updateBchartData(summaryData.value)
-    // updateScatterPlotData(summaryData.value); // This seems to be for a different scatter plot
   }
   if (projSummaryData.value.length) {
-    // Ensure projSummaryData is used for projection charts
     updateProjectionData(projSummaryData.value)
   }
-  // If a user is selected, re-evaluate based on the new filter
   if (selectedUser.value) {
     const currentDataArray = showProjections.value ? projSummaryData.value : summaryData.value
     const updatedSelectedUser = currentDataArray.find(
@@ -1930,10 +2585,17 @@ watch(overallFilter, () => {
   }
 })
 
+// Watch for changes in selectedSource to handle tab switching
+watch(selectedSource, (newSource) => {
+  if (activeKey.value === '6' && newSource.key !== 'sf') {
+    activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
+    message.info('Trade Calculator is only available when using FantasyNavigator rankings')
+  }
+})
+
 // --- Lifecycle Hooks ---
 
 onMounted(() => {
-  // Initial data load when component is mounted
   if (
     leagueInfo.leagueId &&
     leagueInfo.platform &&
@@ -1941,53 +2603,38 @@ onMounted(() => {
     leagueInfo.guid &&
     leagueInfo.userId
   ) {
-    insertLeagueDetials() // Passing no argument, will use leagueInfo from reactive state
+    insertLeagueDetials()
   }
 })
 
 // --- Core Logic & Data Fetching ---
 
-/**
- * Sorts an array of draft pick objects.
- * Picks are sorted primarily by year, then by round number, then by tier (Early, Mid, Late),
- * then by specific pick number (e.g., 1.05), and finally by player_value descending as a fallback.
- * @param {Array} picks - Array of pick objects, each expected to have 'full_name' and 'player_value'.
- * @returns {Array} - A new array with sorted picks.
- */
-// --- START: Added Pick Sorting Logic ---
-// ...existing code...
 function sortPicks(picks) {
-  const roundOrder = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, '5th': 5 } // Extend if needed
+  const roundOrder = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, '5th': 5 }
   const tierOrder = { Early: 1, Mid: 2, Late: 3 }
 
-  // Use spread operator [...] to create a shallow copy before sorting
   return [...picks].sort((a, b) => {
     const nameA = a.full_name || ''
     const nameB = b.full_name || ''
 
-    // 1. Sort by Year
-    const yearA = parseInt(nameA.substring(0, 4)) || 9999 // Default high if parsing fails
+    const yearA = parseInt(nameA.substring(0, 4)) || 9999
     const yearB = parseInt(nameB.substring(0, 4)) || 9999
     if (yearA !== yearB) return yearA - yearB
 
-    // 2. Sort by Round (e.g., "1st", "2nd")
     const roundMatchA = nameA.match(/(\d+)(st|nd|rd|th)/)
     const roundMatchB = nameB.match(/(\d+)(st|nd|rd|th)/)
-    const roundNumA = roundMatchA ? parseInt(roundMatchA[1]) : 99 // Default high if no match
+    const roundNumA = roundMatchA ? parseInt(roundMatchA[1]) : 99
     const roundNumB = roundMatchB ? parseInt(roundMatchB[1]) : 99
     if (roundNumA !== roundNumB) return roundNumA - roundNumB
 
-    // 3. Sort by Tier (e.g., "Early", "Mid", "Late") - Handles 'YYYY Tier Round' format
     const tierMatchA = nameA.match(/(Early|Mid|Late)/)
     const tierMatchB = nameB.match(/(Early|Mid|Late)/)
-    const tierValA = tierMatchA ? tierOrder[tierMatchA[1]] : 2 // Default Mid if no tier
+    const tierValA = tierMatchA ? tierOrder[tierMatchA[1]] : 2
     const tierValB = tierMatchB ? tierOrder[tierMatchB[1]] : 2
     if (tierValA !== tierValB) return tierValA - tierValB
 
-    // 4. Sort by Pick Number (e.g., 1.05 vs 1.10) - Handles 'YYYY Round.Pick' format
     const pickNumMatchA = nameA.match(/(\d+)\.(\d+)/)
     const pickNumMatchB = nameB.match(/(\d+)\.(\d+)/)
-    // Use round * 100 + pick for correct numerical comparison (e.g., 1.10 > 1.05)
     const pickValA = pickNumMatchA
       ? parseInt(pickNumMatchA[1]) * 100 + parseInt(pickNumMatchA[2])
       : 9999
@@ -1996,25 +2643,15 @@ function sortPicks(picks) {
       : 9999
     if (pickValA !== pickValB) return pickValA - pickValB
 
-    // 5. Fallback to original value sort (descending) if all else is equal
     return b.player_value - a.player_value
   })
 }
-// --- END: Added Pick Sorting Logic ---
 
-/**
- * Calculates percentile thresholds for player values by position.
- * @param {Array} data - Array of player objects.
- * @param {number} percentile - The percentile to calculate (e.g., 85 for 85th percentile).
- * @returns {Object} - An object with positions as keys and threshold values.
- */
-// --- START: Dynamic Percentile Threshold Calculation ---
-// ...existing code...
 const calculatePercentileThresholds = (data, percentile = 75) => {
   if (!data || data.length === 0) return {}
 
   const thresholds = {}
-  const positions = ['QB', 'RB', 'WR', 'TE'] // Exclude PICKS for thresholds
+  const positions = ['QB', 'RB', 'WR', 'TE']
 
   positions.forEach((pos) => {
     const positionValues = data
@@ -2031,16 +2668,9 @@ const calculatePercentileThresholds = (data, percentile = 75) => {
   })
   return thresholds
 }
-// --- END: Dynamic Percentile Threshold Calculation ---
 
-/**
- * Orchestrates the initial league data loading process.
- * Clears relevant cache, posts roster data, then fetches all necessary league details.
- * The 'values' parameter (leagueId) is optional; if not provided, uses leagueInfo.leagueId.
- */
 const insertLeagueDetials = async (leagueIdParam?: string) => {
   const currentLeagueId = leagueIdParam || leagueInfo.leagueId
-  // Clear specific cache entries for this league to ensure fresh data
   Object.keys(cacheStore.cache).forEach((key) => {
     if (key.includes(currentLeagueId.toString())) {
       cacheStore.remove(key)
@@ -2052,7 +2682,7 @@ const insertLeagueDetials = async (leagueIdParam?: string) => {
   summaryIsLoading.value = true
   console.log('Attempting to insert/update rosters for league:', currentLeagueId)
 
-  const cacheBuster = Date.now().toString() // Generate cache buster timestamp
+  const cacheBuster = Date.now().toString()
 
   try {
     await axios.post(`${API_URL}/roster`, {
@@ -2066,10 +2696,8 @@ const insertLeagueDetials = async (leagueIdParam?: string) => {
     console.error('Error posting roster data:', error)
     message.error('Failed to update rosters. Data shown might be outdated.')
   } finally {
-    isLoading.value = false // Update loading state
+    isLoading.value = false
 
-    // Fetch all data components, passing the cacheBuster
-    // Use leagueInfo for consistent parameters from the reactive state
     fetchSummaryData(
       leagueInfo.leagueId,
       leagueInfo.apiSource,
@@ -2103,24 +2731,20 @@ const insertLeagueDetials = async (leagueIdParam?: string) => {
       leagueInfo.rankType,
       cacheBuster
     )
-    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster) // value1 is the projection source (e.g. 'espn')
+    fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster)
   }
 }
 
-/**
- * Fetches projection data (summary and detail) for the league.
- * Includes retry logic and uses a cache buster if provided.
- */
 async function fetchProjectionData(
   leagueId: string,
   projectionSource: string,
   guid: string,
   cacheBuster?: string
 ) {
-  isProjectionLoading.value = true // Set loading state for projections specifically
+  isProjectionLoading.value = true
   let retryCount = 0
   const maxRetries = 3
-  const retryDelay = 2000 // ms
+  const retryDelay = 2000
 
   const params: any = { league_id: leagueId, projection_source: projectionSource, guid: guid }
   if (cacheBuster) params._cb = cacheBuster
@@ -2144,7 +2768,7 @@ async function fetchProjectionData(
         te_rank_display: addOrdinalSuffix(item.te_rank)
       }))
 
-      updateProjectionData(summaryResponse.data) // Update chart data
+      updateProjectionData(summaryResponse.data)
       projectionPercentColumnData.value = summaryResponse.data.map((item) => ({
         display_name: item.display_name,
         starters_sum: item.starters_sum,
@@ -2167,10 +2791,6 @@ async function fetchProjectionData(
   isProjectionLoading.value = false
 }
 
-/**
- * Fetches summary league data.
- * Uses caching and retry logic. A cache buster bypasses the cache.
- */
 async function fetchSummaryData(
   leagueId: string,
   platform: string,
@@ -2187,7 +2807,6 @@ async function fetchSummaryData(
     const cachedData = cacheStore.get(cacheKey)
     summaryData.value = cachedData
     updateBchartData(cachedData)
-    // updateScatterPlotData(cachedData); // Check if this is the correct scatter plot data to update
     summaryIsLoading.value = false
     console.log('Using cached summary data.')
     return
@@ -2214,20 +2833,18 @@ async function fetchSummaryData(
         const processedData = rawData.map((item) => ({
           ...item,
           total_rank_display: addOrdinalSuffix(item.total_rank),
-          // ... other mappings ...
           picks_percent: item.total_value ? (item.picks_sum / item.total_value) * 100 : 0
         }))
         cacheStore.set(cacheKey, processedData)
         summaryData.value = processedData
-        updateBchartData(rawData) // Use rawData for charts if they expect original structure
-        // updateScatterPlotData(rawData);
+        updateBchartData(rawData)
         console.log('League summary data fetched successfully.')
-        break // Exit loop on success
+        break
       } catch (error) {
         console.error(`Error fetching league summary (Attempt ${retryCount + 1}):`, error.message)
         retryCount++
         if (retryCount < maxRetries) await sleep(retryDelay)
-        else throw error // Re-throw after max retries
+        else throw error
       }
     }
   } catch (error) {
@@ -2235,7 +2852,6 @@ async function fetchSummaryData(
     message.error('Failed to load league summary. Please try again.')
   } finally {
     summaryIsLoading.value = false
-    // Post user's rank summary (fire and forget)
     const userSummary = summaryData.value.find((item) => item.user_id === leagueInfo.userId)
     if (userSummary) {
       try {
@@ -2256,10 +2872,6 @@ async function fetchSummaryData(
   }
 }
 
-/**
- * Fetches detailed league data (individual player assets).
- * Uses caching and retry logic.
- */
 async function fetchDetailData(
   leagueId: string,
   platform: string,
@@ -2297,7 +2909,7 @@ async function fetchDetailData(
         cacheStore.set(cacheKey, response.data)
         detailData.value = response.data
         console.log('League detail data fetched successfully.')
-        break // Exit loop
+        break
       } catch (error) {
         console.error(`Error fetching league detail (Attempt ${retryCount + 1}):`, error.message)
         retryCount++
@@ -2313,10 +2925,6 @@ async function fetchDetailData(
   }
 }
 
-/**
- * Fetches best available players (waivers).
- * Uses caching and retry logic.
- */
 async function fetchBaData(
   leagueId: string,
   platform: string,
@@ -2354,7 +2962,7 @@ async function fetchBaData(
         cacheStore.set(cacheKey, response.data)
         bestAvailableData.value = response.data
         console.log('Best available data fetched successfully.')
-        break // Exit loop
+        break
       } catch (error) {
         console.error(`Error fetching best available (Attempt ${retryCount + 1}):`, error.message)
         retryCount++
@@ -2370,10 +2978,6 @@ async function fetchBaData(
   }
 }
 
-/**
- * Fetches trades data (summary and detail).
- * Includes retry logic. Cache buster can be used.
- */
 async function fetchTrades(
   leagueId: string,
   platformApi: string,
@@ -2382,7 +2986,6 @@ async function fetchTrades(
   rankType: string,
   cacheBuster?: string
 ) {
-  // isTradesLoading.value = true; // Consider adding a loading state if UI feedback is needed
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500
@@ -2406,41 +3009,28 @@ async function fetchTrades(
         tradesSummaryData.value = summaryResponse.data
         tradesDetailData.value = detailResponse.data
         console.log('Trade data fetched successfully.')
-        // isTradesLoading.value = false;
-        return // Exit function
+        return
       } catch (error) {
         console.error('Error fetching trades data:', error)
         retryCount++
         if (retryCount < maxRetries) await sleep(retryDelay)
-        else throw error // Re-throw after max retries
+        else throw error
       }
     }
   } catch (error) {
     console.error('Failed to fetch trade data after retries.')
     message.error('Failed to load trade data. Please try again.')
-    // isTradesLoading.value = false;
   }
 }
 
 // --- Event Handlers ---
 
-/**
- * Handles selection of a new ranking source from the dropdown.
- * Fetches new summary, detail, BA, and trades data for the selected source.
- */
 const handleMenuClick: MenuProps['onClick'] = (e) => {
   const newPlatform = e.key as string
   selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
-  leagueInfo.apiSource = newPlatform // Update current API source
+  leagueInfo.apiSource = newPlatform
 
-  // Clear cache for the new platform to ensure fresh data if not using cache buster logic here
-  // Or rely on insertLeagueDetials to handle cache busting if it's called.
-  // For simplicity, directly call fetch methods with the new platform.
-  // A full cache invalidation and re-fetch via insertLeagueDetials might be more robust
-  // if changing source implies a full data refresh.
-  // However, current insertLeagueDetials is tied to initial load/refresh button.
-  // So, direct calls here:
-  const cacheBuster = Date.now().toString() // Force refresh for new source
+  const cacheBuster = Date.now().toString()
   fetchSummaryData(
     leagueInfo.leagueId,
     newPlatform,
@@ -2478,22 +3068,13 @@ const handleMenuClick: MenuProps['onClick'] = (e) => {
   message.success(`Ranking source changed to ${selectedSource.value.name}`)
 }
 
-/**
- * Handles change in projection source selection.
- * Fetches new projection data.
- */
 const handleProjChange = async (projectionSource: string) => {
   fetchProjectionData(leagueInfo.leagueId, projectionSource, leagueInfo.guid, Date.now().toString())
 }
 
-/**
- * Handles toggling between Overall and Projections view.
- * Fetches projection data if not already loaded. Updates selected user if any.
- */
 const handleViewToggle = (checked: boolean) => {
-  showProjections.value = checked // Explicitly set, though v-model does this
+  showProjections.value = checked
   if (checked) {
-    // Switched to Projections
     if (projSummaryData.value.length === 0 || projDetailData.value.length === 0) {
       fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, Date.now().toString())
     }
@@ -2502,7 +3083,6 @@ const handleViewToggle = (checked: boolean) => {
       if (projUser) selectedUser.value = projUser
     }
   } else {
-    // Switched to Overall
     if (selectedUser.value) {
       const overallUser = summaryData.value.find((s) => s.user_id === selectedUser.value.user_id)
       if (overallUser) selectedUser.value = overallUser
@@ -2510,25 +3090,17 @@ const handleViewToggle = (checked: boolean) => {
   }
 }
 
-/**
- * Handles clicking on a user/manager.
- * Toggles selection or sets the clicked user as selected.
- */
 function handleUserClick(user: any) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
   if (selectedUser.value && selectedUser.value.user_id === user.user_id) {
-    selectedUser.value = null // Deselect if already selected
+    selectedUser.value = null
   } else {
-    selectedUser.value = user // Select the new user
+    selectedUser.value = user
   }
 }
 
-/**
- * Navigates to the league summary page.
- */
 const getLeagueSummary = async () => {
   try {
-    // Ensure all params for league summary route are available and correctly encoded
     const {
       userName,
       userId,
@@ -2540,10 +3112,7 @@ const getLeagueSummary = async () => {
       avatar,
       rankType
     } = leagueInfo
-    // const leagueStarters = route.params.leagueStarters as string; // Or from leagueInfo if stored
-    // const leagueSize = route.params.leagueSize as string; // Or from leagueInfo if stored
 
-    // Example: If leagueStarters and leagueSize are not in leagueInfo, fetch from route or define defaults
     const leagueStarters = route.params.leagueStarters || '0'
     const leagueSize = route.params.leagueSize || '0'
 
@@ -2571,7 +3140,7 @@ function toggleExpand(userId: string) {
 const toggleMobileManagerExpand = (userId: string) => {
   expandedMobileManagers.value[userId] = !expandedMobileManagers.value[userId]
   if (!expandedMobileManagers.value[userId]) {
-    expandedMobileManagerPosition.value[userId] = null // Collapse position if manager is collapsed
+    expandedMobileManagerPosition.value[userId] = null
   }
 }
 const toggleMobileManagerPositionExpand = (userId: string, position: string) => {
@@ -2594,7 +3163,6 @@ const updateBchartData = (rawData: any[]) => {
       rank: overallFilter.value === 'all' ? item[`${pos}_rank`] : item[`${pos}_starter_rank`]
     }))
     if (overallFilter.value === 'all' && item.picks_sum !== undefined) {
-      // Check if picks_sum exists
       data.push({
         display_name: displayName,
         value: item.picks_sum,
@@ -2610,7 +3178,7 @@ const updateProjectionData = (rawData: any[]) => {
   projectionBarChartData.value = rawData.flatMap((item) => {
     const displayName =
       item.display_name.length > 8 ? `${item.display_name.slice(0, 8)}...` : item.display_name
-    const positions = ['qb', 'rb', 'wr', 'te'] // Projections usually don't include picks in this chart
+    const positions = ['qb', 'rb', 'wr', 'te']
     return positions.map((pos) => ({
       display_name: displayName,
       value: overallFilter.value === 'all' ? item[`${pos}_sum`] : item[`${pos}_starter_sum`],
@@ -2620,7 +3188,6 @@ const updateProjectionData = (rawData: any[]) => {
   })
 }
 
-// Get rank string (e.g., "1st") for a user based on current view (overall/projection) and filter
 function getRank(user: any): string {
   let rankValue
   if (showProjections.value) {
@@ -2634,7 +3201,6 @@ function getRank(user: any): string {
   return rankValue !== undefined ? addOrdinalSuffix(rankValue) : '--'
 }
 
-// Get players for a user, sorted (players by value, then picks by custom logic)
 const getPlayers = (userId: string) => {
   const userAssets = filteredData.value.filter((item) => item.user_id === userId)
   const players = userAssets.filter((a) => a.player_position !== 'PICKS')
@@ -2645,20 +3211,18 @@ const getPlayers = (userId: string) => {
 const getPlayersProj = (userId: string) => {
   const userAssets = filteredProjData.value.filter((item) => item.user_id === userId)
   const players = userAssets.filter((a) => a.player_position !== 'PICKS')
-  const picks = userAssets.filter((a) => a.player_position === 'PICKS') // Proj data might not have picks
+  const picks = userAssets.filter((a) => a.player_position === 'PICKS')
   return [
     ...[...players].sort((a, b) => b.player_value - a.player_value),
-    ...(picks.length > 0 ? sortPicks(picks) : []) // Handle if no picks in proj data
+    ...(picks.length > 0 ? sortPicks(picks) : [])
   ]
 }
 
-// Get players for a specific position for mobile view, respecting filters and projection view
 const getPlayersForMobilePosition = (userId: string, position: string) => {
   const allPlayersForUser = showProjections.value ? getPlayersProj(userId) : getPlayers(userId)
   return allPlayersForUser.filter((p) => p.player_position === position)
 }
 
-// Styling utility for position tags
 function getPositionTagList(position: string, opacity = 0.6) {
   const colors = {
     QB: 'rgb(39, 125, 161',
@@ -2667,21 +3231,809 @@ function getPositionTagList(position: string, opacity = 0.6) {
     TE: 'rgb(249, 132, 74',
     PICKS: 'rgb(70, 70, 70'
   }
-  const color = colors[position] || 'rgb(0,0,0)' // Default color
+  const color = colors[position] || 'rgb(0,0,0)'
   return {
     background: `${color}, ${opacity})`,
     'border-color': color,
-    border: `1px solid ${color}, ${opacity + 0.2})` // Slightly more opaque border
+    border: `1px solid ${color}, ${opacity + 0.2})`
   }
 }
 
-// Titles for position groups
 const positionTitles = {
   QB: 'Quarterbacks',
   RB: 'Running Backs',
   WR: 'Wide Receivers',
   TE: 'Tight Ends',
   PICKS: 'Draft Picks'
+}
+
+// ---------- TRADE CALCULATOR CODE START ----------
+const tradePercentThreshold = ref<number>(5)
+const tradeValue1 = ref('')
+const tradeValue2 = ref('')
+const tradeOptions1 = ref<any[]>([])
+const tradeOptions2 = ref<any[]>([])
+const selectedPlayers1 = ref<any[]>([])
+const selectedPlayers2 = ref<any[]>([])
+const tradeIsLoading = ref(false)
+const tradeRanksData = ref<any[]>([{}])
+const tradePlatform = ref('sf')
+const tradeRankType = ref('dynasty')
+const tradeTepCheck = ref(false)
+const tradeDropDownValue1 = ref('12')
+const tradeModalOpen = ref<boolean>(false)
+let tradeBpv_value: number | null = null
+const showAllBalancingPlayers = ref(false)
+
+const tradeDropDownOptions1 = ref<any[]>([
+  { value: '8', label: '8' },
+  { value: '10', label: '10' },
+  { value: '12', label: '12' },
+  { value: '14', label: '14' },
+  { value: '16', label: '16' }
+])
+
+const tradeState = reactive({
+  checked1: true
+})
+
+const shareTradeSources = [
+  { key: 'x', name: 'X', logo: xLogo },
+  { key: 'reddit', name: 'Reddit', logo: redditLogo }
+]
+
+const calculateTradeCalculatorIndex = (value) => {
+  return tradeRankType.value === 'redraft' ? parseInt(value) * 15 : parseInt(value) * 25
+}
+
+const tradeDropDownHandleChange = (value: string) => {
+  const index = calculateTradeCalculatorIndex(value)
+  const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
+
+  if (tradeRanksData.value && tradeRanksData.value.length > index && index >= 0) {
+    const playerAtBPVIndex = tradeRanksData.value[index]
+    if (playerAtBPVIndex && typeof playerAtBPVIndex[valueKey] === 'number') {
+      tradeBpv_value = playerAtBPVIndex[valueKey]
+    } else {
+      tradeBpv_value = null
+    }
+  } else {
+    tradeBpv_value = null
+  }
+}
+
+async function onCheckTepChange(event: Event): Promise<void> {
+  const checked = (event.target as HTMLInputElement).checked
+  const factor = 1.1
+
+  // Apply TE Premium to all players in the data
+  tradeRanksData.value.forEach((player) => {
+    if (player._position === 'TE') {
+      if (checked) {
+        player.sf_value = Math.round(player.sf_value * factor)
+        player.one_qb_value = Math.round(player.one_qb_value * factor)
+      } else {
+        player.sf_value = Math.round(player.sf_value / factor)
+        player.one_qb_value = Math.round(player.one_qb_value / factor)
+      }
+    }
+  })
+
+  // Update selected players with the new values from tradeRanksData
+  selectedPlayers1.value = selectedPlayers1.value.map((player) => {
+    if (player._position === 'TE') {
+      // Find the updated player data and use it
+      const updatedPlayer = tradeRanksData.value.find(
+        (p) => p.player_id === player.player_id || p.player_full_name === player.player_full_name
+      )
+      return updatedPlayer || player
+    }
+    return player
+  })
+
+  selectedPlayers2.value = selectedPlayers2.value.map((player) => {
+    if (player._position === 'TE') {
+      // Find the updated player data and use it
+      const updatedPlayer = tradeRanksData.value.find(
+        (p) => p.player_id === player.player_id || p.player_full_name === player.player_full_name
+      )
+      return updatedPlayer || player
+    }
+    return player
+  })
+
+  // Force reactivity update
+  selectedPlayers1.value = [...selectedPlayers1.value]
+  selectedPlayers2.value = [...selectedPlayers2.value]
+
+  // Also update any balancing player suggestions that might contain TEs
+  message.success(`TE Premium ${checked ? 'enabled' : 'disabled'}`)
+}
+
+const tweetPlayers = () => {
+  const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
+  const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
+  const currentDropDownLabel = tradeDropDownOptions1.value.find(
+    (option) => option.value === tradeDropDownValue1.value
+  )?.label
+  const tepText = tradeTepCheck.value ? 'TEP' : ''
+  const tweetText = `${currentDropDownLabel} Team ${tepText}\n${tradeRankType.value.charAt(0).toUpperCase() + tradeRankType.value.slice(1)} ${tradeState.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @fantasynav1\n www.fantasynavigator.com`
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+  window.open(tweetUrl, '_blank')
+}
+
+const redditPlayers = () => {
+  const playerNames1 = selectedPlayers1.value.map((p) => p.player_full_name).join(', ')
+  const playerNames2 = selectedPlayers2.value.map((p) => p.player_full_name).join(', ')
+  const currentDropDownLabel = tradeDropDownOptions1.value.find(
+    (option) => option.value === tradeDropDownValue1.value
+  )?.label
+  const dynastySubReddit = 'DynastyFFTradeAdvice'
+  const redraftSubReddit = 'fantasyfootballadvice'
+  const subReddit = tradeRankType.value === 'dynasty' ? dynastySubReddit : redraftSubReddit
+  const tepText = tradeTepCheck.value ? 'TEP' : ''
+  const redditTitle = 'Which Side Wins?'
+  const redditText = `${currentDropDownLabel} Team ${tepText}\n${tradeRankType.value.charAt(0).toUpperCase() + tradeRankType.value.slice(1)} ${tradeState.checked1 ? 'Superflex' : 'OneQB'}\nWhich side wins?\nTeam A: ${playerNames1}\nTeam B: ${playerNames2} \n Powered by @fantasynav1\n www.fantasynavigator.com`
+  const redditUrl = `https://www.reddit.com/r/${subReddit}/submit?title=${encodeURIComponent(redditTitle)}&text=${encodeURIComponent(redditText)}`
+  window.open(redditUrl, '_blank')
+}
+
+const handleTradeShareClick = (item) => {
+  if (item.key === 'x') {
+    tweetPlayers()
+  }
+  if (item.key === 'reddit') {
+    redditPlayers()
+  }
+}
+
+const showTradeModal = () => {
+  tradeModalOpen.value = true
+}
+const handleTradeModalOk = () => {
+  tradeModalOpen.value = false
+}
+
+const rawTotalValue1 = computed(() => {
+  return selectedPlayers1.value.reduce((sum, player) => {
+    const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
+    return sum + (player[valueKey] || 0)
+  }, 0)
+})
+
+const rawTotalValue2 = computed(() => {
+  return selectedPlayers2.value.reduce((sum, player) => {
+    const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
+    return sum + (player[valueKey] || 0)
+  }, 0)
+})
+
+function calculateTradeValueInternal(rawPlayerValues: number[], BPV = tradeBpv_value): number {
+  if (BPV === null || !isFinite(BPV) || BPV <= 0) return rawPlayerValues.reduce((s, v) => s + v, 0)
+  if (
+    !Array.isArray(rawPlayerValues) ||
+    rawPlayerValues.some((value) => typeof value !== 'number' || !isFinite(value))
+  )
+    return 0
+  if (rawPlayerValues.length === 0) return 0
+
+  const sortedPlayerValues = [...rawPlayerValues].sort((a, b) => b - a)
+  const topAssetValue = sortedPlayerValues[0]
+  const eliteThreshold = BPV * 2.0
+  const highEndThreshold = BPV * 1.2
+  const starterThreshold = BPV * 0.8
+  let adjustedTotalValue = 0
+
+  sortedPlayerValues.forEach((value) => {
+    let multiplier = 0.85
+    if (value >= eliteThreshold) multiplier = 1.15
+    else if (value >= highEndThreshold) multiplier = 1.05
+    else if (value >= starterThreshold) multiplier = 0.95
+    adjustedTotalValue += value * multiplier
+  })
+
+  if (sortedPlayerValues.length > 1) {
+    if (topAssetValue >= eliteThreshold) adjustedTotalValue += topAssetValue * 0.05
+    else if (topAssetValue < starterThreshold) adjustedTotalValue *= 0.95
+  }
+  return Math.max(0, adjustedTotalValue)
+}
+
+const totalValueSideA = computed(() => {
+  const playerValues = selectedPlayers1.value.map((player) =>
+    tradeState.checked1 ? player.sf_value : player.one_qb_value
+  )
+  return calculateTradeValueInternal(playerValues)
+})
+
+const totalValueSideB = computed(() => {
+  const playerValues = selectedPlayers2.value.map((player) =>
+    tradeState.checked1 ? player.sf_value : player.one_qb_value
+  )
+  return calculateTradeValueInternal(playerValues)
+})
+
+const adjustmentValueA = computed(() =>
+  selectedPlayers1.value.length > 0 ? totalValueSideA.value - rawTotalValue1.value : 0
+)
+const adjustmentValueB = computed(() =>
+  selectedPlayers2.value.length > 0 ? totalValueSideB.value - rawTotalValue2.value : 0
+)
+
+const showAdjustmentA = computed(() => {
+  const numA = selectedPlayers1.value.length
+  const numB = selectedPlayers2.value.length
+  return numA > 0 && numB > 0 && numA < numB && adjustmentValueA.value > 0.1
+})
+
+const showAdjustmentB = computed(() => {
+  const numA = selectedPlayers1.value.length
+  const numB = selectedPlayers2.value.length
+  return numA > 0 && numB > 0 && numB < numA && adjustmentValueB.value > 0.1
+})
+
+const searchPlayerSharedLogic = (searchText: string, ranks: any[]) => {
+  if (!searchText || searchText.trim().length === 0) return []
+  const matchingPlayers = ranks.filter((item) =>
+    item.player_full_name?.toLowerCase().includes(searchText.toLowerCase())
+  )
+  const uniquePlayerMap = new Map()
+  matchingPlayers.forEach((player) => {
+    const uniqueKey = `${player.player_id}`
+    const teamInfo = player.team ? ` - ${player.team}` : ''
+    const ageInfo = player.age ? ` (Age: ${player.age})` : ''
+    const positionInfo = player._position || ''
+    const label = `${player.player_full_name} - ${positionInfo}${teamInfo}${ageInfo}`
+    uniquePlayerMap.set(uniqueKey, { label: label, value: player.player_id, data: player })
+  })
+  const options = Array.from(uniquePlayerMap.values())
+  options.sort((a, b) => a.data.player_full_name.localeCompare(b.data.player_full_name))
+  return options
+}
+
+const searchPlayer1 = (searchText: string) => {
+  tradeOptions1.value = searchPlayerSharedLogic(searchText, tradeRanksData.value)
+}
+const searchPlayer2 = (searchText: string) => {
+  tradeOptions2.value = searchPlayerSharedLogic(searchText, tradeRanksData.value)
+}
+
+const selectPlayer1 = (playerId: string) => {
+  const player = tradeRanksData.value.find((item) => item.player_id === playerId)
+  const isAlreadySelected = selectedPlayers1.value.some((p) => p.player_id === player?.player_id)
+  const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
+  if (player && (!isAlreadySelected || hasSpecialYear)) {
+    selectedPlayers1.value.push(player)
+  }
+  tradeValue1.value = ''
+}
+
+const selectPlayer2 = (playerId: string) => {
+  const player = tradeRanksData.value.find((item) => item.player_id === playerId)
+  const isAlreadySelected = selectedPlayers2.value.some((p) => p.player_id === player?.player_id)
+  const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
+  if (player && (!isAlreadySelected || hasSpecialYear)) {
+    selectedPlayers2.value.push(player)
+  }
+  tradeValue2.value = ''
+}
+
+const removePlayer1 = (index) => selectedPlayers1.value.splice(index, 1)
+const removePlayer2 = (index) => selectedPlayers2.value.splice(index, 1)
+const clearTradeCalculator = () => {
+  selectedPlayers1.value = []
+  selectedPlayers2.value = []
+  tradeValue1.value = ''
+  tradeValue2.value = ''
+  tradeOptions1.value = []
+  tradeOptions2.value = []
+  selectedTradeManagerA.value = null
+  selectedTradeManagerB.value = null
+
+  // Reset expanded position groups
+  Object.keys(expandedTradePositions.A).forEach((key) => {
+    expandedTradePositions.A[key] = false
+  })
+  Object.keys(expandedTradePositions.B).forEach((key) => {
+    expandedTradePositions.B[key] = false
+  })
+
+  // Keep positions visible after clearing
+  showTradePositions.A = true
+  showTradePositions.B = true
+}
+
+const tradeAnalysisComputed = computed(() => {
+  const valueA = totalValueSideA.value
+  const valueB = totalValueSideB.value
+  if (valueA === 0 && valueB === 0) return { percentageDifference: 0, valueA: 0, valueB: 0 }
+  const averageValue = (valueA + valueB) / 2
+  if (averageValue === 0) return { percentageDifference: 0, valueA: valueA, valueB: valueB }
+  const difference = Math.abs(valueA - valueB)
+  const percentageDiff = (difference / averageValue) * 100
+  return { percentageDifference: parseFloat(percentageDiff.toFixed(2)), valueA, valueB }
+})
+
+function findBalancingPlayerValueInternal(
+  currentValueSideA: number,
+  currentValueSideB: number,
+  BPV: number
+): number {
+  if (BPV === null || !isFinite(BPV) || BPV <= 0) return 0
+  const targetValue = Math.max(currentValueSideA, currentValueSideB)
+  const deficitSideValue = Math.min(currentValueSideA, currentValueSideB)
+  let valueDifference = targetValue - deficitSideValue
+  if (valueDifference < 0.01) return 0
+  let estimatedRawValue = valueDifference,
+    low = 0,
+    high = estimatedRawValue * 5
+  for (let i = 0; i < 50; i++) {
+    let mid = (low + high) / 2
+    let calculatedValueOfAddedPlayer = calculateTradeValueInternal([mid], BPV)
+    let newDeficitSideValue = deficitSideValue + calculatedValueOfAddedPlayer
+    if (Math.abs(newDeficitSideValue - targetValue) < 0.1) {
+      estimatedRawValue = mid
+      break
+    } else if (newDeficitSideValue < targetValue) low = mid
+    else high = mid
+    estimatedRawValue = mid
+  }
+  return Math.max(0, estimatedRawValue)
+}
+
+const balancingPlayerValue = computed(() => {
+  const valueA = totalValueSideA.value
+  const valueB = totalValueSideB.value
+  if (tradeBpv_value === null || !isFinite(tradeBpv_value) || tradeBpv_value <= 0) return 0
+  return findBalancingPlayerValueInternal(valueA, valueB, tradeBpv_value)
+})
+
+function findClosestPlayersInternal(
+  balancingRawValue,
+  playersData,
+  valueKey,
+  selPlayers1,
+  selPlayers2
+) {
+  const selectedPlayerNames = [
+    ...selPlayers1.map((p) => p.player_full_name),
+    ...selPlayers2.map((p) => p.player_full_name)
+  ]
+  const highestSelectedValue = Math.max(
+    ...selPlayers1.map((p) => p[valueKey] || 0),
+    ...selPlayers2.map((p) => p[valueKey] || 0),
+    0
+  )
+  const valueLimit = balancingRawValue !== 0 ? balancingRawValue : highestSelectedValue
+  const filteredPlayers = playersData.filter(
+    (p) => !selectedPlayerNames.includes(p.player_full_name) && p[valueKey] <= valueLimit
+  )
+  const sortedPlayers = filteredPlayers.sort(
+    (a, b) => Math.abs(a[valueKey] - balancingRawValue) - Math.abs(b[valueKey] - balancingRawValue)
+  )
+  return sortedPlayers.slice(0, 20)
+}
+
+// NEW FUNCTION: Get all available assets from both selected managers for balancing suggestions
+const getAvailableAssetsForBalancing = () => {
+  const assets = []
+
+  // Only proceed if both managers are selected
+  if (!selectedTradeManagerA.value || !selectedTradeManagerB.value) {
+    return assets
+  }
+
+  // Get all assets from both managers
+  const allPositions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+
+  // Team A assets
+  allPositions.forEach((position) => {
+    const positionAssets = getManagerAssetsByPosition(selectedTradeManagerA.value, position)
+    assets.push(...positionAssets)
+  })
+
+  // Team B assets
+  allPositions.forEach((position) => {
+    const positionAssets = getManagerAssetsByPosition(selectedTradeManagerB.value, position)
+    assets.push(...positionAssets)
+  })
+
+  return assets
+}
+
+// Convert roster asset to trade calculator format
+const mapAssetToTradeFormat = (asset) => {
+  return {
+    player_full_name: asset.full_name,
+    player_id: asset.sleeper_id,
+    _position: asset.player_position,
+    sf_value: asset.player_value,
+    one_qb_value: Math.round(asset.player_value * 0.8), // Estimate 1QB value if not available
+    team: asset.team,
+    age: asset.age,
+    ownerId: asset.user_id, // Add the ownerId to track asset ownership
+    display_name: asset.display_name // Include manager display name for UI
+  }
+}
+
+// REPLACE the addPlayerToTrade function to respect asset ownership
+const addPlayerToTrade = (player) => {
+  // Now determine side based on ownerId instead of value comparison
+  const sideToAdd =
+    player.ownerId === selectedTradeManagerA.value ? selectedPlayers1 : selectedPlayers2
+
+  const isPick = player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+  const existingPlayer = sideToAdd.value.find(
+    (p) => !isPick && p.player_full_name === player.player_full_name
+  )
+
+  if (!existingPlayer || isPick) {
+    sideToAdd.value.push(player)
+    const teamLabel = player.ownerId === selectedTradeManagerA.value ? 'A' : 'B'
+    message.success(
+      `Added ${player.player_full_name} to Team ${teamLabel} (owner: ${player.display_name})`
+    )
+  } else {
+    message.warning(`${player.player_full_name} is already in the trade.`)
+  }
+}
+
+// Update the UI for the balance section to show ownership indicators
+const closestBalancingPlayers = computed(() => {
+  if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0) return []
+  const balRawValue = balancingPlayerValue.value
+  // If balRawValue is 0, the trade is fair or the value to balance is negligible, so no suggestions needed.
+  if (balRawValue < 1) return [] // Use a small threshold to account for floating point issues
+
+  const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
+  let losingManagerId = null
+
+  if (totalValueSideA.value < totalValueSideB.value) {
+    if (selectedTradeManagerA.value) {
+      losingManagerId = selectedTradeManagerA.value
+    } else {
+      // Team A is losing, but its manager isn't selected. Cannot suggest players.
+      return []
+    }
+  } else if (totalValueSideB.value < totalValueSideA.value) {
+    if (selectedTradeManagerB.value) {
+      losingManagerId = selectedTradeManagerB.value
+    } else {
+      // Team B is losing, but its manager isn't selected. Cannot suggest players.
+      return []
+    }
+  } else {
+    // Trade is perfectly balanced or another edge case.
+    return []
+  }
+
+  if (!losingManagerId) return [] // Safeguard
+
+  const allPositions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  let rawAssetsFromLosingSide = []
+  allPositions.forEach((position) => {
+    // getManagerAssetsByPosition returns assets owned by losingManagerId
+    // that are NOT already in selectedPlayers1 or selectedPlayers2.
+    const positionAssets = getManagerAssetsByPosition(losingManagerId, position)
+    rawAssetsFromLosingSide.push(...positionAssets)
+  })
+
+  // Map these raw assets to the format used by the balancing display logic.
+  // This adds ownerId, display_name, and maps player_value to sf_value/one_qb_value.
+  const availableAssetsFromLosingManager = rawAssetsFromLosingSide.map(mapAssetToTradeFormat)
+
+  // Get already traded player identifiers for filtering
+  const tradedPlayerIds = [
+    ...selectedPlayers1.value.map((p) => p.player_id || p.sleeper_id),
+    ...selectedPlayers2.value.map((p) => p.player_id || p.sleeper_id)
+  ].filter((id) => id) // Filter out undefined/null IDs
+
+  const tradedPickNames = [
+    ...selectedPlayers1.value
+      .filter((p) => !p.player_id && !p.sleeper_id)
+      .map((p) => p.player_full_name || p.full_name),
+    ...selectedPlayers2.value
+      .filter((p) => !p.player_id && !p.sleeper_id)
+      .map((p) => p.player_full_name || p.full_name)
+  ].filter((name) => name) // Filter out undefined/null names
+
+  // Filter candidate assets from the losing manager's available assets.
+  // Candidates must:
+  // 1. Have a positive value
+  // 2. Be less than or equal to the raw balancing value
+  // 3. Not already be in the trade (by ID or by name for picks)
+  const candidateAssets = availableAssetsFromLosingManager.filter(
+    (asset) =>
+      asset[valueKey] > 0 &&
+      asset[valueKey] <= balRawValue &&
+      !tradedPlayerIds.includes(asset.player_id) &&
+      !tradedPickNames.includes(asset.player_full_name)
+  )
+
+  // Sort candidates by how close their value is to the balRawValue.
+  const sortedByProximity = candidateAssets.sort(
+    (a, b) => Math.abs(a[valueKey] - balRawValue) - Math.abs(b[valueKey] - balRawValue)
+  )
+
+  // Take the top 20 closest matches and then sort them by their actual value, descending.
+  const topMatches = sortedByProximity.slice(0, 20)
+  topMatches.sort((a, b) => b[valueKey] - a[valueKey])
+
+  return topMatches
+})
+
+const displayedBalancingPlayers = computed(() =>
+  showAllBalancingPlayers.value
+    ? closestBalancingPlayers.value
+    : closestBalancingPlayers.value.slice(0, 6)
+)
+const toggleShowAllBalancingPlayers = () =>
+  (showAllBalancingPlayers.value = !showAllBalancingPlayers.value)
+
+const tradeStatusComputed = computed(() => {
+  if (selectedPlayers1.value.length === 0 && selectedPlayers2.value.length === 0)
+    return { message: 'Please select players', isFair: false, aFavored: false, bFavored: false }
+  const percentageDifference = tradeAnalysisComputed.value.percentageDifference
+  if (percentageDifference <= tradePercentThreshold.value)
+    return { message: 'Fair Trade', isFair: true, aFavored: false, bFavored: false }
+  const balValue = Math.round(balancingPlayerValue.value)
+  if (totalValueSideA.value > totalValueSideB.value)
+    return {
+      message: `Team A favored; add ~${balValue.toLocaleString()} to balance.`,
+      isFair: false,
+      aFavored: true,
+      bFavored: false
+    }
+  return {
+    message: `Team B favored; add ~${balValue.toLocaleString()} to balance.`,
+    isFair: false,
+    aFavored: false,
+    bFavored: true
+  }
+})
+
+const isFairTrade = computed(() => tradeStatusComputed.value.isFair)
+const aFavoredTrade = computed(() => tradeStatusComputed.value.aFavored)
+const bFavoredTrade = computed(() => tradeStatusComputed.value.bFavored)
+
+async function fetchTradeRanks() {
+  if (tradeRanksData.value.length > 1 && tradeRanksData.value[0].player_id) {
+    tradeDropDownHandleChange(tradeDropDownValue1.value)
+    return
+  }
+  tradeIsLoading.value = true
+  tradeTepCheck.value = false
+  try {
+    const response = await axios.get(`${API_URL}/trade_calculator`, {
+      params: { platform: tradePlatform.value, rank_type: tradeRankType.value }
+    })
+    tradeRanksData.value = response.data
+    tradeDropDownHandleChange(tradeDropDownValue1.value)
+  } catch (error) {
+    console.error('Error fetching trade ranks:', error)
+    message.error('Failed to load player values for trade calculator.')
+    tradeRanksData.value = []
+    tradeBpv_value = null
+  } finally {
+    tradeIsLoading.value = false
+  }
+}
+
+function getTradePositionColor(position: string): string {
+  const colors = {
+    QB: 'rgb(39, 125, 161)',
+    RB: 'rgb(144, 190, 109)',
+    WR: 'rgb(67, 170, 139)',
+    TE: 'rgb(249, 132, 74)',
+    PICK: 'rgb(189, 195, 199)'
+  }
+  return colors[position?.toUpperCase()] || 'rgb(0, 0, 0, .00)'
+}
+
+watch(tradeRankType, (newVal) => {
+  clearTradeCalculator()
+  tradeRanksData.value = [{}]
+  fetchTradeRanks()
+})
+
+watch(tradeRanksData, (newData) => {
+  if (newData && newData.length > 0) {
+    const updateSelected = (selectedList) =>
+      selectedList.value.map(
+        (selP) => newData.find((p) => p.player_full_name === selP.player_full_name) || selP
+      )
+    selectedPlayers1.value = updateSelected(selectedPlayers1)
+    selectedPlayers2.value = updateSelected(selectedPlayers2)
+  }
+})
+
+watch(
+  () => tradeState.checked1,
+  () => {
+    tradeDropDownHandleChange(tradeDropDownValue1.value)
+  }
+)
+
+watch(activeKey, (newValue) => {
+  if (newValue === '6') {
+    fetchTradeRanks()
+    // Reset position visibility to ensure positions are shown by default
+    showTradePositions.A = true
+    showTradePositions.B = true
+  }
+})
+
+// Manager selection handlers
+const selectedTradeManagerA = ref(null)
+const selectedTradeManagerB = ref(null)
+const expandedTradePositions = reactive({
+  A: { QB: false, RB: false, WR: false, TE: false, PICKS: false },
+  B: { QB: false, RB: false, WR: false, TE: false, PICKS: false }
+})
+
+// Add this with other reactive states
+const showTradePositions = reactive({
+  A: true,
+  B: true
+})
+
+// Add this function to toggle position visibility
+const togglePositionsVisibility = (team) => {
+  showTradePositions[team] = !showTradePositions[team]
+}
+
+const onTradeManagerAChange = (userId) => {
+  // Clear selected players for Team A when manager changes
+  selectedPlayers1.value = []
+
+  selectedTradeManagerA.value = userId
+  // Reset expanded position groups
+  Object.keys(expandedTradePositions.A).forEach((key) => {
+    expandedTradePositions.A[key] = false
+  })
+  // Ensure positions are visible when a manager is selected
+  showTradePositions.A = true
+}
+
+const onTradeManagerBChange = (userId) => {
+  // Clear selected players for Team B when manager changes
+  selectedPlayers2.value = []
+
+  selectedTradeManagerB.value = userId
+  // Reset expanded position groups
+  Object.keys(expandedTradePositions.B).forEach((key) => {
+    expandedTradePositions.B[key] = false
+  })
+  // Ensure positions are visible when a manager is selected
+  showTradePositions.B = true
+}
+
+// Position group toggle
+const toggleTradePositionGroup = (team, position) => {
+  if (team === 'A') {
+    expandedTradePositions.A[position] = !expandedTradePositions.A[position]
+  } else {
+    expandedTradePositions.B[position] = !expandedTradePositions.B[position]
+  }
+}
+
+// Check if position group is expanded
+const isTradePositionExpanded = (team, position) => {
+  return team === 'A' ? expandedTradePositions.A[position] : expandedTradePositions.B[position]
+}
+
+// Get manager assets by position
+const getManagerAssetsByPosition = (managerId, position) => {
+  if (!managerId) return []
+
+  // Convert position to lowercase for PICKS comparison
+  const posToCheck = position === 'PICKS' ? 'PICKS' : position
+
+  // First get all assets for this manager and position
+  const managerAssets = filteredData.value.filter(
+    (asset) => asset.user_id === managerId && asset.player_position === posToCheck
+  )
+
+  // Then filter out assets that are already in either trade basket
+  return managerAssets
+    .filter((asset) => {
+      // For non-pick assets, use sleeper_id to check uniqueness
+      if (asset.player_position !== 'PICKS') {
+        return !isAssetInEitherTrade(asset)
+      }
+      // For picks, we need to match by full_name since picks can be duplicated
+      // But we still need to show all picks in the available list
+      return true
+    })
+    .sort((a, b) => b.player_value - a.player_value)
+}
+
+// Enhanced helper function to check if an asset is in either trade basket
+const isAssetInEitherTrade = (asset) => {
+  return isAssetInTrade(asset, 1) || isAssetInTrade(asset, 2)
+}
+
+// Check if an asset is in the trade
+const isAssetInTrade = (asset, team) => {
+  const targetArray = team === 1 ? selectedPlayers1.value : selectedPlayers2.value
+
+  // For non-pick assets, match by sleeper_id
+  if (asset.player_position !== 'PICKS') {
+    return targetArray.some((p) => p.sleeper_id === asset.sleeper_id)
+  }
+
+  // For picks, match by full name
+  return targetArray.some((p) => p.player_position === 'PICKS' && p.full_name === asset.full_name)
+}
+
+// Add asset to trade
+const addAssetToTrade = (asset, team) => {
+  try {
+    // Create a deep clone of the asset to avoid reactivity issues
+    const assetCopy = JSON.parse(
+      JSON.stringify({
+        sleeper_id: asset.sleeper_id,
+        player_full_name: asset.full_name,
+        full_name: asset.full_name,
+        team: asset.team,
+        age: asset.age,
+        player_position: asset.player_position,
+        _position: asset.player_position,
+        player_value: asset.player_value,
+        sf_value: asset.player_value,
+        one_qb_value: Math.round(asset.player_value * 0.8),
+        user_id: asset.user_id,
+        display_name: asset.display_name
+      })
+    )
+
+    // Determine if this is a draft pick
+    const isPick = asset.player_position === 'PICKS'
+
+    // For non-picks, check if the asset is already in the trade
+    if (!isPick && isAssetInTrade(asset, team)) {
+      // If it exists, remove it (toggle behavior)
+      const targetArray = team === 1 ? selectedPlayers1 : selectedPlayers2
+      const existingIndex = targetArray.value.findIndex((p) => p.sleeper_id === asset.sleeper_id)
+
+      if (existingIndex >= 0) {
+        targetArray.value.splice(existingIndex, 1)
+        message.info(`Removed ${asset.full_name} from Team ${team === 1 ? 'A' : 'B'}`)
+      }
+    } else {
+      // Add the asset to the appropriate side
+      if (team === 1) {
+        selectedPlayers1.value = [...selectedPlayers1.value, assetCopy]
+      } else {
+        selectedPlayers2.value = [...selectedPlayers2.value, assetCopy]
+      }
+
+      message.success(`Added ${asset.full_name} to Team ${team === 1 ? 'A' : 'B'}`)
+    }
+  } catch (error) {
+    console.error('Error in addAssetToTrade:', error)
+    message.error('Failed to update trade assets. Please try again.')
+  }
+}
+
+// Toggle all position groups for a team
+const toggleAllPositionGroups = (team, expanded) => {
+  const positions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  positions.forEach((position) => {
+    if (team === 'A') {
+      expandedTradePositions.A[position] = expanded
+    } else {
+      expandedTradePositions.B[position] = expanded
+    }
+  })
+}
+
+// Check if all positions are expanded for a team
+const areAllPositionsExpanded = (team) => {
+  const positions = ['QB', 'RB', 'WR', 'TE', 'PICKS']
+  return positions.every((position) =>
+    team === 'A' ? expandedTradePositions.A[position] : expandedTradePositions.B[position]
+  )
 }
 </script>
 
@@ -2690,71 +4042,89 @@ const positionTitles = {
 .layout {
   min-height: 100vh;
 }
+
 .responsive-padding {
   padding: 0 10px;
 }
+
 @media (min-width: 440px) {
   .responsive-padding {
-    padding: 0 100px; /* Consider using variables or more granular steps */
+    padding: 0 100px;
   }
 }
+
 .text-center-margin-top-30 {
-  /* For h2 heatmap title */
   text-align: center;
   margin-top: 30px;
 }
+
 .font-bold {
   font-weight: bold;
 }
+
 .margin-right-8 {
   margin-right: 8px;
 }
+
 .font-size-1-1em {
   font-size: 1.1em;
 }
+
 .font-size-18 {
   font-size: 18px;
 }
+
 .font-bolder {
   font-weight: bolder;
 }
+
 .justify-center-row {
   justify-content: center;
 }
+
 .position-group-col {
   min-width: 220px;
 }
+
 .avatar-bordered {
   border: 2px solid rgb(39, 125, 161);
 }
+
 .player-chunk-container {
   border: 1px solid lightgray;
   border-radius: 5px;
   margin: 5px;
   padding: 5px;
 }
+
 .no-padding-ul {
   padding: 0;
 }
+
 .player-chunk-item {
   border-radius: 2px;
   margin: 2px;
 }
+
 .no-list-style {
   list-style: none;
 }
+
 .waiver-player-item {
   margin-bottom: 2px;
   border-radius: 2px;
 }
+
 .team-card-column {
   min-width: 300px;
   max-width: 315px;
 }
+
 .heatmap-table-container {
   width: 100%;
   max-width: 1150px;
 }
+
 .full-width-table {
   width: 100%;
 }
@@ -2767,19 +4137,21 @@ const positionTitles = {
   border: 1px solid gray;
   margin-right: 10px;
 }
+
 .league-title {
   display: flex;
   align-items: center;
   justify-content: left;
   flex-wrap: wrap;
-  /* text-align: center; Removed as justify-content: left is used */
 }
+
 .gutter-box-buttons {
   display: flex;
   justify-content: left;
   margin-top: 10px;
   align-items: baseline;
 }
+
 .gutter-box-refresh {
   margin-bottom: 10px;
   display: flex;
@@ -2788,7 +4160,6 @@ const positionTitles = {
 }
 
 /* Data Controls Card */
-/* ... existing .data-controls-card styles ... */
 .data-controls-card {
   margin-bottom: 24px;
   background-color: var(--background-color-secondary, #f9f9f9);
@@ -2836,9 +4207,11 @@ const positionTitles = {
     align-items: center;
     margin-bottom: 16px;
   }
+
   .control-group:last-child {
     margin-bottom: 0;
   }
+
   .ant-radio-group,
   .ant-select,
   .ant-dropdown-button {
@@ -2854,6 +4227,7 @@ const positionTitles = {
     justify-content: flex-start;
     gap: 10px;
   }
+
   .control-label {
     min-width: 110px;
     text-align: right;
@@ -2865,12 +4239,13 @@ const positionTitles = {
 .tab-header-container {
   position: relative;
 }
+
 .tab-sub-header {
   text-align: left;
   margin-bottom: 25px;
 }
+
 .info-button {
-  /* For tab guide */
   position: absolute;
   top: 8px;
   right: 8px;
@@ -2878,7 +4253,6 @@ const positionTitles = {
 }
 
 /* Managers Grid (used in multiple tabs) */
-/* ... existing .managers-card, .managers-grid, .manager-item styles ... */
 .managers-card {
   margin-bottom: 20px;
   background-color: var(--background-color, #fff);
@@ -2893,6 +4267,7 @@ const positionTitles = {
   padding: 5px;
 }
 
+/* Enhanced Manager Item Styling */
 .manager-item {
   display: flex;
   align-items: center;
@@ -2901,6 +4276,7 @@ const positionTitles = {
   border: 1px solid #e8e8e8;
   transition: all 0.3s;
   cursor: pointer;
+  position: relative;
 }
 
 .manager-item:hover {
@@ -2913,6 +4289,11 @@ const positionTitles = {
   background-color: rgba(255, 215, 0, 0.1);
 }
 
+.selected-manager {
+  border: 2px solid #1890ff;
+  background-color: rgba(24, 144, 255, 0.05);
+}
+
 .manager-avatar {
   position: relative;
   margin-right: 10px;
@@ -2920,24 +4301,29 @@ const positionTitles = {
 
 .manager-rank {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background-color: rgb(70, 70, 70);
+  bottom: -2px;
+  right: -2px;
+  background-color: #1890ff;
   color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 10px;
-  padding: 2px 4px;
-  border-radius: 10px;
-  min-width: 18px;
-  text-align: center;
+  font-weight: bold;
+  border: 1px solid white;
 }
 
 .manager-details {
   flex: 1;
-  overflow: hidden;
+  min-width: 0;
 }
 
 .manager-name {
-  font-weight: bold;
+  font-weight: 600;
+  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2945,43 +4331,54 @@ const positionTitles = {
 
 .manager-stats {
   font-size: 12px;
-  color: #666;
-}
-
-.selected-manager {
-  background-color: rgba(24, 144, 255, 0.1);
-  border: 2px solid #1890ff;
+  color: rgba(0, 0, 0, 0.65);
 }
 
 .position-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .position-badge {
+  padding: 2px 4px;
+  border-radius: 4px;
   font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 10px;
-  color: white;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .qb-badge {
-  background-color: rgba(25, 118, 210, 0.8); /* Updated QB color */
+  background-color: rgba(39, 125, 161, 0.15);
+  color: rgb(39, 125, 161);
 }
+
 .rb-badge {
-  background-color: rgba(144, 190, 109, 0.8);
+  background-color: rgba(144, 190, 109, 0.15);
+  color: rgb(144, 190, 109);
 }
+
 .wr-badge {
-  background-color: rgba(76, 175, 80, 0.8); /* Updated WR color */
+  background-color: rgba(67, 170, 139, 0.15);
+  color: rgb(67, 170, 139);
 }
+
 .te-badge {
-  background-color: rgba(249, 132, 74, 0.8);
+  background-color: rgba(249, 132, 74, 0.15);
+  color: rgb(249, 132, 74);
+}
+
+/* Manager avatar for trade selectors */
+.manager-avatar-small {
+  margin-right: 8px;
+}
+
+.manager-name-option {
+  font-size: 14px;
 }
 
 /* Charts & Visualizations */
-/* ... existing .modern-card, .card-header, .viz-container, .chart-title styles ... */
 .modern-card {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -3004,9 +4401,9 @@ const positionTitles = {
 }
 
 .viz-container {
-  border: none; /* Was: border: 1px solid #d3d3d3; */
+  border: none;
   padding: 10px;
-  margin: 0; /* Was: margin: 10px 0; */
+  margin: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -3014,39 +4411,39 @@ const positionTitles = {
 }
 
 .chart-title {
-  font-size: 16px; /* Was implicitly styled, making it explicit */
+  font-size: 16px;
   font-weight: 600;
   color: var(--text-color, #333);
-  /* text-align: center; Already in .card-header */
-  /* margin-bottom: 20px; Already in .card-header */
+  margin-top: 3px;
 }
 
 /* Heatmap Table (Desktop & Mobile) */
-/* ... existing .table-section, .highlighted-row styles ... */
-/* ... existing .expanded-row-content and its children (.position-summary, .players-grid, .player-card) styles ... */
-/* ... existing .high-value-asset, .low-value-asset, .mid-value-asset styles ... */
-/* ... existing .heatmap-mobile-view and its children styles ... */
 .table-section {
   display: flex;
   justify-content: center;
 }
+
 .ant-table-tbody > tr {
-  border-bottom: 1px solid white; /* Assuming dark theme context, adjust if needed */
+  border-bottom: 1px solid white;
 }
+
 .ant-table-tbody > tr > td {
-  color: white; /* Assuming dark theme context */
+  color: white;
 }
+
 .ant-table-thead > tr > th {
-  color: white; /* Assuming dark theme context */
-  border-bottom: 2px solid white; /* Assuming dark theme context */
+  color: white;
+  border-bottom: 2px solid white;
 }
+
 .highlighted-row td,
 .manager-card-mobile.highlighted-row {
-  font-weight: 600; /* Ensure mobile highlight also gets font weight */
+  font-weight: 600;
 }
+
 .expanded-row-content {
   padding: 12px 8px;
-  background-color: #fafafa; /* Light background for expanded details */
+  background-color: #fafafa;
   border-radius: 8px;
 }
 
@@ -3066,9 +4463,9 @@ const positionTitles = {
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   background-color: white;
-  max-width: 340px; /* Max width for readability */
+  max-width: 340px;
 }
-/* ... other position-summary-item children styles ... */
+
 .position-header {
   display: flex;
   justify-content: space-between;
@@ -3082,62 +4479,69 @@ const positionTitles = {
   font-weight: 600;
   font-size: 15px;
 }
+
 .position-rank {
   margin: 0;
-} /* Ant tag default margins might be fine */
+}
 
 .position-stats {
   display: grid;
-  grid-template-columns: auto 1fr; /* Label and value */
+  grid-template-columns: auto 1fr;
   gap: 4px 8px;
   font-size: 13px;
 }
+
 .age-label,
 .value-label {
   color: #777;
 }
+
 .age-value,
 .value-amount {
   font-weight: 500;
   text-align: right;
 }
+
 .value-amount {
   font-weight: 600;
-} /* Emphasize value */
-
-/* Position-specific border colors */
-.position-qb {
-  border-left: 3px solid rgb(25, 118, 210); /* Updated QB color */
 }
+
+.position-qb {
+  border-left: 3px solid rgb(25, 118, 210);
+}
+
 .position-rb {
   border-left: 3px solid rgb(144, 190, 109);
 }
+
 .position-wr {
-  border-left: 3px solid rgb(76, 175, 80); /* Updated WR color */
+  border-left: 3px solid rgb(76, 175, 80);
 }
+
 .position-te {
   border-left: 3px solid rgb(249, 132, 74);
 }
+
 .position-picks {
   border-left: 3px solid rgb(143, 145, 146);
 }
 
 .players-grid {
   display: flex;
-  flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+  flex-wrap: wrap;
   gap: 16px;
 }
 
 .position-players-column {
-  flex: 1; /* Each column takes equal space */
-  min-width: 165px; /* Minimum width before wrapping */
+  flex: 1;
+  min-width: 165px;
   max-width: 340px;
 }
 
 .players-list {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Space between player cards */
+  gap: 4px;
 }
 
 .player-card {
@@ -3152,52 +4556,59 @@ const positionTitles = {
   overflow: hidden;
   cursor: pointer;
 }
+
 .player-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
-/* ... other player-card children styles ... */
+
 .player-info {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
 }
+
 .player-name-team {
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
+
 .player-name {
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .player-team {
   font-size: 11px;
   opacity: 0.8;
 }
+
 .player-meta {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   min-width: 45px;
 }
+
 .player-age {
   font-size: 10px;
   opacity: 0.7;
 }
+
 .player-value {
   font-weight: 600;
   font-size: 12px;
 }
 
-/* Asset value indicators */
 .high-value-asset,
 .low-value-asset,
 .mid-value-asset {
   padding-left: 12px;
 }
+
 .high-value-asset::before,
 .low-value-asset::before,
 .mid-value-asset::before {
@@ -3210,12 +4621,15 @@ const positionTitles = {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
+
 .high-value-asset::before {
   background-color: gold;
 }
+
 .low-value-asset::before {
   background-color: #e74c3c;
-} /* Was: #e74d3cdd */
+}
+
 .mid-value-asset::before {
   background-color: #bdbdbd;
 }
@@ -3223,7 +4637,8 @@ const positionTitles = {
 /* Mobile Heatmap Specifics */
 .heatmap-mobile-view {
   display: none;
-} /* Hidden by default, shown via media query */
+}
+
 .manager-card-mobile {
   background-color: var(--card-background-color, #fff);
   border: 1px solid var(--border-color, #e0e0e0);
@@ -3233,40 +4648,49 @@ const positionTitles = {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s ease-in-out;
 }
+
 .manager-card-mobile:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
+
 .manager-info-line-mobile {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
 }
+
 .manager-name-mobile {
-  /* font-weight: 900; font-size: 1.25em; */
   color: var(--text-color, #333);
-} /* Simplified */
-.manager-stats-grid-mobile {
-  /* Ant Row used, gutter handles spacing */
 }
+
+.manager-stats-grid-mobile {
+  font-size: 10px;
+}
+
 .manager-card-mobile-details-reused {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #f0f0f0;
 }
+
 .position-summary-item.active-position-summary {
-  background-color: rgba(24, 144, 255, 0.08); /* Highlight for active mobile position */
+  background-color: rgba(24, 144, 255, 0.08);
 }
+
 .nested-players-container {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed #e0e0e0;
 }
+
 .nested-players-container .players-list {
   gap: 6px;
 }
+
 .nested-players-container .player-card {
   background-color: var(--background-color-secondary, #f9f9f9);
 }
+
 .no-players-notice {
   padding: 10px 8px;
   text-align: center;
@@ -3279,58 +4703,66 @@ const positionTitles = {
 }
 
 @media (max-width: 768px) {
-  /* Breakpoint for mobile heatmap */
   .heatmap-desktop-view {
     display: none;
   }
+
   .heatmap-mobile-view {
     display: block;
   }
-  /* Further mobile-specific adjustments from original file */
+
   .position-summary {
     flex-direction: column;
     gap: 8px;
   }
+
   .position-summary-item {
     width: 100%;
   }
+
   .players-grid {
     flex-direction: column;
   }
+
   .position-players-column {
     width: 100%;
     margin-bottom: 16px;
     padding-bottom: 8px;
     border-bottom: 1px solid #eaeaea;
   }
+
   .position-players-column:last-child {
     border-bottom: none;
     margin-bottom: 0;
   }
 }
+
 @media (max-width: 480px) {
-  /* Extra small screens */
   .expanded-row-content {
     padding: 8px 4px;
   }
+
   .player-card {
     border-radius: 6px;
     margin-bottom: 8px;
   }
+
   .player-name-team {
     width: 65%;
-  } /* Ensure it doesn't overflow too much */
+  }
+
   .player-name {
     white-space: normal;
     line-height: 1.2;
-  } /* Allow name to wrap */
+  }
+
   .position-summary-item {
     padding: 10px;
     margin-bottom: 4px;
     width: auto;
-  } /* Auto width for better fit */
+  }
+
   .players-grid::before {
-    /* "Players" title for mobile grid */
     content: 'Players';
     display: block;
     font-weight: 600;
@@ -3339,8 +4771,8 @@ const positionTitles = {
     border-bottom: 1px solid #eaeaea;
     color: #555;
   }
+
   .position-players-column::before {
-    /* Position title for mobile column */
     content: attr(data-position);
     display: block;
     font-weight: 600;
@@ -3351,39 +4783,40 @@ const positionTitles = {
 }
 
 /* Team Composition Tab (Team Cards) */
-/* ... existing .team-card and its children styles ... */
 .team-card {
-  border: 1px solid #e0e0e0;
   border-radius: 8px;
-  margin: 10px 0;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  padding: 10px 12px 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
-  min-height: 180px; /* Ensure cards have a minimum height */
-  transition: box-shadow 0.2s;
+  border: 2px solid transparent;
+  transition: border-color 0.4s ease;
 }
+
 .team-card:hover {
   box-shadow: 0 4px 16px rgba(24, 144, 255, 0.1);
 }
+
 .team-card-header {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
 }
+
 .team-card-title {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
-/* .manager-name is already defined */
+
 .team-rank {
   font-size: 12px;
   color: #888;
 }
+
 .team-value {
   margin-left: auto;
   font-size: 13px;
@@ -3392,18 +4825,21 @@ const positionTitles = {
   border-radius: 6px;
   padding: 2px 8px;
 }
+
 .team-assets-list {
   padding: 0;
   margin: 0;
   list-style: none;
-  max-height: 340px; /* Initial collapsed height */
+  max-height: 340px;
   overflow: hidden;
 }
+
 .team-assets-list.expanded {
-  max-height: 400px; /* Expanded height */
+  max-height: 400px;
   overflow-y: auto;
-  padding-right: 5px; /* For scrollbar */
+  padding-right: 5px;
 }
+
 .team-asset-item {
   display: flex;
   align-items: center;
@@ -3414,20 +4850,21 @@ const positionTitles = {
   gap: 4px;
   cursor: pointer;
 }
+
 .asset-index {
-  /* Style for asset number */
 }
+
 .asset-name {
-  /* Style for asset name */
 }
+
 .asset-team {
-  /* Style for asset team */
 }
-/* .player-value is already defined */
+
 .expand-toggle {
   text-align: center;
-  margin-top: 4px.;
+  margin-top: 4px;
 }
+
 .expand-toggle a {
   color: #1890ff;
   cursor: pointer;
@@ -3435,41 +4872,44 @@ const positionTitles = {
   font-weight: 500;
   transition: color 0.2s;
 }
+
 .expand-toggle a:hover {
   color: #40a9ff;
 }
 
 /* Position Groups Tab */
-/* ... existing .mirrored-user, .user-card, .gutter-box, .gutter-box-stats styles ... */
-/* ... existing .position-group-container and its children styles ... */
 .mirrored-user {
   max-width: 500px;
   margin: 15px 1px;
 }
+
 .user-card {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 5px 4px;
 }
+
 .gutter-box {
   padding: 4px 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .gutter-box-stats {
   padding: 5px 1px;
   display: flex;
   justify-content: center;
   align-content: center;
 }
+
 h4 {
-  /* For user name in mirrored card */
   white-space: normal;
   word-wrap: break-word;
   hyphens: auto;
   overflow-wrap: break-word;
 }
+
 .position-group-container {
   background-color: white;
   border: 1px solid #e0e0e0;
@@ -3482,6 +4922,7 @@ h4 {
   display: flex;
   flex-direction: column;
 }
+
 .position-group-title {
   font-size: 16px;
   margin-bottom: 8px;
@@ -3490,13 +4931,15 @@ h4 {
   text-align: center;
   font-weight: 600;
 }
+
 .position-player-list {
   padding: 0;
   margin: 0;
   list-style: none;
   overflow-y: auto;
-  max-height: 450px; /* Adjust as needed */
+  max-height: 450px;
 }
+
 .position-player-item {
   display: flex;
   justify-content: space-between;
@@ -3505,40 +4948,39 @@ h4 {
   border-radius: 4px;
   margin: 2px 0;
   font-size: 12px;
+  gap: 4px;
   cursor: pointer;
 }
-/* .player-name is already defined */
+
 .player-value-display {
   font-weight: 500;
   white-space: nowrap;
   font-size: 11px;
 }
+
 .font-size-11 {
   font-size: 11px;
-} /* For age in position group list */
+}
 
 /* League Assets Tab */
-/* ... existing styles for player chunks ... */
-/* .lighter and .dimmed-text are already defined */
 .lighter {
   color: #aaa !important;
   opacity: 0.7;
 }
+
 .dimmed-text {
   color: #aaa !important;
 }
 
 /* Waivers Tab */
-/* ... existing styles for waiver cards ... */
 
 /* Modals (Info and Player Detail) */
-/* ... existing .tab-info-container styles ... */
-/* ... existing .player-modal-content and its children styles ... */
 .tab-info-container h3 {
   margin-top: 16px;
   margin-bottom: 8px;
-  color: var(--text-color, #1890ff); /* Use theme color */
+  color: var(--text-color, #1890ff);
 }
+
 .tab-info-container p {
   margin-bottom: 16px;
   line-height: 1.5;
@@ -3547,6 +4989,7 @@ h4 {
 .player-modal-content {
   padding: 10px;
 }
+
 .player-modal-header {
   display: flex;
   align-items: center;
@@ -3555,6 +4998,7 @@ h4 {
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
 }
+
 .player-image-placeholder {
   width: 60px;
   height: 60px;
@@ -3565,18 +5009,22 @@ h4 {
   justify-content: center;
   border: 1px solid #e0e0e0;
 }
+
 .player-modal-info h2 {
   margin-bottom: 4px;
   font-size: 1.3em;
 }
+
 .player-modal-info p {
   margin: 0;
   color: #555;
 }
+
 .player-modal-details p {
   margin-bottom: 8px;
   font-size: 14px;
 }
+
 .player-modal-details strong {
   margin-right: 5px;
   color: #333;
@@ -3586,68 +5034,619 @@ h4 {
 .legend {
   display: flex;
   align-items: center;
-  flex-wrap: wrap; /* Allow legend items to wrap */
-  gap: 5px 10px; /* Spacing for wrapped items */
-  margin: 10px 0; /* Spacing around legend */
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  margin: 10px 0;
 }
+
 .legend-item {
   display: flex;
   align-items: center;
   margin-right: 10px;
 }
+
 .legend-color {
   width: 15px;
   height: 15px;
   border-radius: 25%;
   margin-right: 5px;
 }
+
 .legend-text {
   font-size: 14px;
 }
+
 .legend-qb {
-  background-color: rgb(25, 118, 210); /* Updated QB color */
+  background-color: rgb(25, 118, 210);
 }
+
 .legend-rb {
   background-color: rgb(144, 190, 109);
 }
+
 .legend-wr {
-  background-color: rgb(76, 175, 80); /* Updated WR color */
+  background-color: rgb(76, 175, 80);
 }
+
 .legend-te {
   background-color: rgb(249, 132, 74);
 }
+
 .legend-picks {
   background-color: rgba(70, 70, 70, 0.7);
 }
 
 /* Miscellaneous & Utility Styles */
 .rank-logos {
-  /* For source logos in dropdown */
   width: 24px;
   height: 20px;
   vertical-align: middle;
   border-radius: 3px;
 }
+
 .manager-logos {
-  /* For manager avatars in team cards */
-  width: 28px; /* Was 328px, assuming typo */
+  width: 28px;
   height: 28px;
   vertical-align: middle;
   border-radius: 50%;
   border: 1px solid gray;
 }
+
 li {
   list-style-type: none;
-} /* Global reset for li if needed, or apply more specifically */
+}
 
-/* Styles from original file that might be less organized or redundant, review if needed */
-/* table { border-collapse: collapse; } */ /* Generally handled by Ant Design */
-/* .league-info-container { ... } */ /* Seems unused */
-/* .user-progress, .progress-container, .median-line, .overlay-progress, .badge-label { ... } */ /* Seem unused */
-/* .avatar-traded-asset { ... } */ /* Seems unused */
-/* .load-league-button { ... } */ /* Seems unused */
-/* .avatar:hover { transform: scale(1.4); } */ /* Generic avatar hover, ensure it applies where intended */
-/* .ant-card .ant-card-body { padding: 8px !important; } */ /* Overly broad, specific card padding is better */
-/* .position-card { ... } */ /* Seems like an old or alternative card style */
-/* .avatar-group-container, .progress-bar, .avatar-container, .avatar-title { ... } */ /* Seem unused */
+/* ---------- TRADE CALCULATOR STYLES START ---------- */
+.trade-calculator-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  contain: layout style;
+}
+
+.trade-teams {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 992px) {
+  .trade-teams {
+    display: grid;
+    grid-template-columns: 1fr min-content 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .trade-evaluation {
+    width: auto;
+    padding: 0 12px;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .balance-visualizer-spacing {
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 991px) {
+  .trade-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .trade-evaluation {
+    order: 1;
+    padding: 8px 0;
+    margin: 0 auto;
+    max-width: 350px;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .trade-teams {
+    display: grid;
+    grid-template-areas:
+      'teamA'
+      'evaluation'
+      'teamB';
+    grid-template-rows: auto auto auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .team-card:nth-of-type(1) {
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    grid-area: evaluation;
+    margin: 16px auto;
+    width: 100%;
+  }
+
+  .team-card:nth-of-type(2) {
+    grid-area: teamB;
+  }
+}
+
+.team-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid transparent;
+  transition: border-color 0.4s ease;
+}
+
+.team-card.card-outline-balanced {
+  border-color: rgba(82, 196, 26, 0.5);
+}
+
+.team-card.card-outline-winning {
+  border-color: rgba(24, 144, 255, 0.5);
+}
+
+.team-card.card-outline-losing {
+  border-color: rgba(245, 34, 45, 0.4);
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.team-value {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: #f0f2f5;
+  min-width: 50px;
+  text-align: right;
+}
+
+.value-favorable {
+  color: #52c41a;
+  background-color: rgba(82, 196, 26, 0.1);
+}
+
+.value-balanced {
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.players-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 200px;
+  flex-grow: 1;
+}
+
+.player-card {
+  margin-bottom: 8px;
+}
+
+.player-item {
+  border-radius: 4px;
+  background-color: var(--background-color, #fff);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.player-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.player-details-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+}
+
+.player-name-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.player-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  color: var(--text-color, #2d3142);
+  line-height: 1.2;
+}
+
+.player-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player-position {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.player-age {
+  font-size: 11px;
+  color: #8c8c8c;
+  line-height: 1;
+}
+
+.player-value-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.player-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1890ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.remove-player {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adjustment-card {
+  margin-top: 8px;
+}
+
+.va-card {
+  background-color: rgba(24, 144, 255, 0.05);
+  border-color: rgba(24, 144, 255, 0.2);
+}
+
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 12px;
+}
+
+.asset-count {
+  font-size: 14px;
+  color: #5c5f6b;
+}
+
+.total-value-display {
+  font-size: 14px;
+  color: #2d3142;
+}
+
+.trade-evaluation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* Remove padding to prevent extra space */
+  width: 100%;
+  max-width: 100%;
+  /* align-items: start; */
+}
+
+.balance-visualizer-spacing {
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .trade-teams {
+    display: grid;
+    grid-template-columns: 1fr min-content 1fr;
+    gap: 8px;
+    align-items: start; /* Changed from center to start */
+  }
+
+  .trade-evaluation {
+    width: auto;
+    padding: 0 12px;
+    align-self: start; /* Changed from center to start to align this item to the top of its grid cell */
+  }
+
+  .balance-visualizer-spacing {
+    min-width: 280px; /* Ensure consistent width */
+  }
+}
+
+@media (max-width: 991px) {
+  .trade-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .trade-evaluation {
+    order: 1; /* Place between Team A and Team B */
+    padding: 8px 0;
+    margin: 0 auto;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 767px) {
+  .trade-teams {
+    display: grid;
+    grid-template-areas:
+      'teamA'
+      'evaluation'
+      'teamB';
+    grid-template-rows: auto auto auto;
+  }
+
+  .team-card:nth-of-type(1) {
+    grid-area: teamA;
+  }
+
+  .trade-evaluation {
+    grid-area: evaluation;
+    margin: 16px auto;
+    width: 100%;
+  }
+
+  .team-card:nth-of-type(2) {
+    grid-area: teamB;
+  }
+}
+
+.balancing-players-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+}
+
+.balancing-title {
+  display: flex;
+  align-items: center;
+}
+
+.balancing-title h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.balancing-players-container {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.balancing-player-card {
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.balancing-player-card:hover {
+  transform: translateY(-2px);
+}
+
+.add-player-icon {
+  font-size: 16px;
+}
+
+.view-more {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.trade-controls-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+}
+
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-label {
+  font-size: 14px;
+  color: #5c5f6b;
+  font-weight: 500;
+}
+
+.clear-button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.tab-sub-header {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+/* Owner Badge */
+.owner-badge {
+  margin-left: 8px;
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 1.2;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+/* Trade Position Group Enhancements */
+.trade-position-group {
+  margin-bottom: 8px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.trade-position-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #fafafa;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.trade-position-header:hover {
+  background-color: #f0f0f0;
+}
+
+.trade-position-title {
+  font-weight: 500;
+}
+
+.trade-position-count {
+  background-color: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.trade-position-expand-icon {
+  margin-left: 8px;
+}
+
+.trade-position-assets {
+  padding: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.trade-asset-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.trade-asset-item:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.trade-asset-item.asset-in-trade {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.trade-asset-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-asset-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trade-asset-meta {
+  display: flex;
+  font-size: 12px;
+  color: #888;
+  gap: 6px;
+}
+
+.trade-asset-team {
+  white-space: nowrap;
+}
+
+.trade-asset-age {
+  white-space: nowrap;
+}
+
+.trade-asset-value {
+  font-weight: 500;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header colors for position groups */
+.trade-position-header-qb {
+  border-left: 4px solid rgb(39, 125, 161);
+}
+
+.trade-position-header-rb {
+  border-left: 4px solid rgb(144, 190, 109);
+}
+
+.trade-position-header-wr {
+  border-left: 4px solid rgb(67, 170, 139);
+}
+
+.trade-position-header-te {
+  border-left: 4px solid rgb(249, 132, 74);
+}
+
+.trade-position-header-picks {
+  border-left: 4px solid rgb(70, 70, 70);
+}
+
+.position-toggle-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.position-toggle-buttons {
+  display: flex;
+  gap: 8px;
+}
 </style>

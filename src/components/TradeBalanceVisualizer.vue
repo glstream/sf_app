@@ -143,7 +143,7 @@ const varianceZoneStyle = computed(() => {
 <style scoped>
 .trade-balance-visualizer {
   min-height: 55px;
-  padding: 0 0 10px 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -161,17 +161,16 @@ const varianceZoneStyle = computed(() => {
   color: #555;
   padding: 0 5px;
   box-sizing: border-box;
-  min-height: 18px; /* Ensure space for labels */
-  align-items: center; /* Vertically align items if they wrap */
+  min-height: 18px;
+  align-items: center;
 }
 
 .top-labels {
   margin-bottom: 6px;
-  position: relative; /* Needed for absolute positioning if used */
-  min-height: 18px; /* Ensure space */
+  position: relative;
+  min-height: 18px;
 }
 
-/* New container for top labels when imbalanced */
 .label-container {
   display: flex;
   justify-content: space-between;
@@ -179,43 +178,45 @@ const varianceZoneStyle = computed(() => {
   align-items: center;
 }
 
-/* Styles for the "Needs Value" part */
 .label-needs {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
   font-weight: 600;
-  color: #096dd9; /* Changed to blue */
+  color: #096dd9;
 }
+
 .label-a-needs {
   justify-content: flex-start;
 }
+
 .label-b-needs {
   justify-content: flex-end;
 }
 
-/* Styles for the "Team Favored" part */
 .label-favored {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px; /* Match original label size */
+  font-size: 12px;
   font-weight: 500;
-  color: #cf1322; /* Always red */
+  color: #cf1322;
 }
+
 .label-a-favored {
   justify-content: flex-start;
 }
+
 .label-b-favored {
   justify-content: flex-end;
 }
 
 .balancing-value-display {
   padding: 1px 5px;
-  background-color: rgba(24, 144, 255, 0.1); /* Use blue background */
+  background-color: rgba(24, 144, 255, 0.1);
   border-radius: 4px;
-  color: #096dd9; /* Ensure text is blue */
+  color: #096dd9;
 }
 
 .bottom-label {
@@ -238,11 +239,19 @@ const varianceZoneStyle = computed(() => {
   width: 100%;
   height: 16px;
   border-radius: 8px;
-  overflow: hidden; /* Keep overflow hidden */
-  background-color: var(--color-background-mute); /* Use theme variable */
-  position: relative; /* Changed to relative for positioning children */
+  overflow: hidden;
+  background-color: var(--color-background-mute, #f0f2f5);
+  position: relative;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease-in-out;
+}
+
+.variance-zone {
+  position: absolute;
+  height: 100%;
+  background-color: rgba(82, 196, 26, 0.15);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .balance-bar.is-hovered {
@@ -255,11 +264,11 @@ const varianceZoneStyle = computed(() => {
 .bar-segment {
   height: 100%;
   transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-  position: relative; /* Keep relative */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 0; /* Ensure segments are behind the variance zone if needed */
+  z-index: 2;
 }
 
 .team-a {
@@ -269,12 +278,11 @@ const varianceZoneStyle = computed(() => {
 }
 
 .team-b {
-  background: linear-gradient(to right, #69c0ff, #1890ff); /* Keep B blue */
+  background: linear-gradient(to right, #69c0ff, #1890ff);
   border-radius: 0 8px 8px 0;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-/* Style when the trade is fair */
 .balance-bar.is-fair .team-a {
   background: linear-gradient(to right, #95de64, #73d13d);
 }
@@ -294,7 +302,7 @@ const varianceZoneStyle = computed(() => {
   border-radius: 1.5px;
   box-shadow: 0 0 6px rgba(82, 196, 26, 0.7);
   animation: pulse 1.5s infinite alternate;
-  z-index: 3; /* Ensure fair indicator is on top */
+  z-index: 3;
 }
 
 .midpoint-marker {
@@ -305,7 +313,7 @@ const varianceZoneStyle = computed(() => {
   width: 1px;
   background-color: rgba(0, 0, 0, 0.15);
   transform: translateX(-50%);
-  z-index: 2; /* Above variance zone, below fair indicator */
+  z-index: 2;
 }
 
 .label-fair {
@@ -326,29 +334,29 @@ const varianceZoneStyle = computed(() => {
   font-weight: bold;
   line-height: 1;
 }
-/* Arrow colors based on context */
+
 .label-needs .favor-icon {
-  color: #096dd9; /* Blue for needing value arrow */
-}
-.label-favored .favor-icon {
-  color: #cf1322; /* Red for favored arrow */
+  color: #096dd9;
 }
 
-/* Hide side arrows by default (mobile-first) */
+.label-favored .favor-icon {
+  color: #cf1322;
+}
+
 .side-arrow {
   display: none;
 }
+
 .up-arrow {
-  display: inline; /* Show up/down arrows on mobile */
+  display: inline;
 }
 
-/* Desktop Styles */
 @media (min-width: 992px) {
   .up-arrow {
-    display: none; /* Hide up/down arrows on desktop */
+    display: none;
   }
   .side-arrow {
-    display: inline; /* Show side arrows on desktop */
+    display: inline;
   }
 }
 
@@ -361,11 +369,10 @@ const varianceZoneStyle = computed(() => {
   font-weight: bold;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease-out;
-  position: relative; /* Ensure it's not absolutely positioned by default */
-  z-index: 2; /* Above variance zone */
+  position: relative;
+  z-index: 2;
 }
 
-/* Styling for empty state elements */
 .balance-bar.empty-state {
   background-color: #f5f5f5;
   cursor: default;
