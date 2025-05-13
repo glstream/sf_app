@@ -26,6 +26,15 @@
           <span class="favor-icon up-arrow">↓</span>
         </span>
       </span>
+
+      <span class="label-container fair-trade-label" v-if="isFair && totalValue > 0">
+        {{ teamAName }} ({{ Math.round(valueA) }}) <span class="arrow">→</span
+        ><span class="balance-icon">⚖️</span><span class="arrow">←</span> ({{ Math.round(valueB) }})
+        {{ teamBName }}
+      </span>
+      <span class="label-container fair-trade-label" v-if="isFair && totalValue === 0">
+        Balanced Trade
+      </span>
     </div>
 
     <div
@@ -79,7 +88,7 @@
     </div>
 
     <div class="balance-labels bottom-label" v-if="isFair">
-      <span class="label-fair"><span class="balance-icon">⚖️</span> Balanced Trade</span>
+      <span class="label-fair">Balanced Trade</span>
     </div>
   </div>
 </template>
@@ -94,6 +103,8 @@ const props = defineProps<{
   balancingValue: number
   showDifference?: boolean // Optional prop, not currently used in template but kept
   acceptableVariance: number // The acceptable variance *value* (e.g., 1000 points)
+  teamAName: string
+  teamBName: string
 }>()
 
 const isHovered = ref(false)
@@ -327,6 +338,27 @@ const varianceZoneStyle = computed(() => {
   background-color: rgba(82, 196, 26, 0.15);
   box-shadow: 0 1px 3px rgba(82, 196, 26, 0.1);
   animation: fadeIn 0.5s ease-out;
+}
+
+.fair-trade-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #28a745; /* Green for fair trade */
+  padding: 4px 0;
+}
+
+.fair-trade-label .arrow {
+  font-size: 1.2em;
+  margin: 0 5px;
+}
+
+.fair-trade-label .balance-icon {
+  font-size: 1.2em;
+  margin: 0 5px;
 }
 
 .favor-icon {

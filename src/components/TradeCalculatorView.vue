@@ -187,6 +187,8 @@
               :balancingValue="balancingPlayerValue"
               :percentThreshold="percentThreshold"
               class="balance-visualizer-spacing"
+              :teamAName="'Team A'"
+              :teamBName="'Team B'"
             />
           </div>
 
