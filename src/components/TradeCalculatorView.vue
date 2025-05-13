@@ -1383,11 +1383,9 @@ function getCardPositionColor(position: string): string {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #2d3142;
 }
 
 .subtitle {
-  color: #5c5f6b;
   font-size: 16px;
 }
 
@@ -1544,7 +1542,7 @@ function getCardPositionColor(position: string): string {
 
 .player-item {
   border-radius: 4px;
-  background-color: var(--background-color, #fff);
+  background-color: var(--color-background-soft);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -1575,7 +1573,7 @@ function getCardPositionColor(position: string): string {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 180px;
-  color: var(--text-color, #2d3142);
+  color: var(--primary-text-color);
   line-height: 1.2;
 }
 

@@ -19,6 +19,9 @@
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 
+  --primary-color-theme-light: rgba(60, 60, 60);
+  --primary-color-theme-dark: rgba(235, 235, 235, 0.64);
+
   --white-text: #ffffff;
 }
 
@@ -34,6 +37,8 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
 
+  --primary-text-color: var(--primary-color-theme-light);
+
   --section-gap: 160px;
 }
 
@@ -48,6 +53,8 @@
 
   --color-heading: var(--vt-c-text-dark-1);
   --color-text: var(--vt-c-text-dark-2);
+
+  --primary-text-color: var(--primary-color-theme-dark);
 }
 
 /* We can still keep this for initial load to avoid flash of incorrect theme */
@@ -62,6 +69,7 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--white-text);
+    --primary-color: var(--primary-color-theme-dark);
   }
 }
 

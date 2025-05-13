@@ -192,10 +192,6 @@ import { Line } from '@antv/g2plot'
 // Source image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
 
-// Add theme store
-import { useThemeStore } from '@/stores/theme'
-const themeStore = useThemeStore()
-
 const ranksData = ref([{}])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
@@ -558,70 +554,6 @@ const handlePlayerModalOk = () => {
   min-height: 100vh;
   background-color: var(--color-background);
   /* Define theme variables */
-  --background-color: #f5f7fa;
-  --text-color: #2d3142;
-  --secondary-text-color: #4b5563;
-  --muted-text-color: #6b7280;
-  --card-background: #ffffff;
-  --header-background: #f1f5f9;
-  --border-color: #e0e0e0;
-  --hover-background: #f0f5ff;
-  --control-background: #f9fafb;
-  --shadow-color: rgba(0, 0, 0, 0.06);
-  --primary-color: #1e3a8a;
-  transition: all 0.5s ease;
-}
-
-:deep(.dark-theme) .layout {
-  /* Dark theme overrides */
-  --background-color: #1a202c;
-  --text-color: #e2e8f0;
-  --secondary-text-color: #a0aec0;
-  --muted-text-color: #718096;
-  --card-background: #2d3748;
-  --header-background: #2c3e50;
-  --border-color: #4a5568;
-  --hover-background: #38465a;
-  --control-background: #2d3748;
-  --shadow-color: rgba(0, 0, 0, 0.2);
-  --primary-color: #63b3ed;
-}
-
-/* Global transition styles */
-:deep(html) {
-  transition: background-color 0.5s ease;
-}
-
-:deep(html.no-transition),
-:deep(html.no-transition *) {
-  transition: none !important;
-}
-
-/* Apply transitions to all theme-sensitive components */
-.page-title h1,
-.subtitle,
-.ranks-controls,
-.cell,
-.player-name,
-.tier-indicator,
-.player-modal-info h2,
-.player-modal-info p,
-.player-modal-details .ant-descriptions-item-label,
-.player-modal-chart h3 {
-  transition:
-    color 0.5s ease,
-    background-color 0.5s ease;
-}
-
-.rankings-row,
-.rankings-header,
-.player-modal-content,
-.player-image-placeholder {
-  transition:
-    background-color 0.5s ease,
-    color 0.5s ease,
-    border-color 0.5s ease,
-    box-shadow 0.5s ease;
 }
 
 .responsive-padding {
@@ -639,12 +571,10 @@ const handlePlayerModalOk = () => {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--color-text);
   transition: color 0.3s ease;
 }
 
 .subtitle {
-  color: var(--secondary-text-color);
   transition: color 0.3s ease;
 }
 
@@ -685,7 +615,7 @@ const handlePlayerModalOk = () => {
 
 .switch-label {
   font-weight: 500;
-  color: var(--secondary-text-color);
+  color: var(--primary-text-color);
   transition: color 0.3s ease;
 }
 
@@ -732,7 +662,7 @@ const handlePlayerModalOk = () => {
   align-items: center;
   transition: background-color 0.2s;
   margin-bottom: 8px;
-  background: var(--card-background);
+  background-color: var(--color-background-soft);
   border-radius: 6px;
   box-shadow: 0 1px 4px var(--shadow-color);
   cursor: pointer;
@@ -742,14 +672,19 @@ const handlePlayerModalOk = () => {
   margin-bottom: 0;
 }
 
-.rankings-row:hover {
-  background-color: var(--hover-background);
+.position-tag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .cell {
-  padding: 0 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 0 1px;
   white-space: nowrap;
   color: var(--text-color);
   transition: color 0.3s ease;
@@ -757,18 +692,18 @@ const handlePlayerModalOk = () => {
 
 .cell-rank {
   font-weight: 600;
-  color: var(--secondary-text-color);
+  color: var(--primary-text-color);
   text-align: center;
 }
 
 .cell-value {
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--primary-text-color);
   text-align: right;
 }
 
 .cell-team {
-  color: var(--secondary-text-color);
+  color: var(--primary-text-color);
   font-weight: 500;
 }
 
@@ -885,7 +820,7 @@ const handlePlayerModalOk = () => {
 
 .player-modal-info p {
   margin: 0;
-  color: var(--secondary-text-color);
+  color: var(--primary-text-color);
 }
 
 .player-modal-details {
@@ -955,8 +890,8 @@ const handlePlayerModalOk = () => {
 }
 
 :deep(.dark-theme) .ant-pagination-item-active {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+  background-color: var(--primary-text-color);
+  border-color: var(--primary-text-color);
 }
 
 :deep(.dark-theme) .ant-pagination-item-active a {
@@ -1000,7 +935,7 @@ const handlePlayerModalOk = () => {
   .cell-value {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--primary-text-color);
     text-align: right;
     min-width: 48px;
     max-width: 54px;
@@ -1014,6 +949,7 @@ const handlePlayerModalOk = () => {
   .position-tag {
     padding: 0 2px;
     font-size: 0.65rem;
+    border-radius: 6px;
   }
 
   .tier-indicator {
@@ -1082,11 +1018,16 @@ const handlePlayerModalOk = () => {
 
   .page-title h1 {
     font-size: 24px;
-    color: var(--color-text);
   }
 
   .cell-tier {
     padding: 0;
+    color: var(--primary-text-color);
+  }
+
+  .cell-player {
+    padding: 0;
+    color: var(--primary-text-color);
   }
 
   .tier-indicator {
