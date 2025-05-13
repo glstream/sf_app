@@ -300,7 +300,7 @@ const mobileItems = computed(() => {
 }
 
 .header {
-  background: #fff;
+  background: var(--color-background-soft);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 0 20px;
   height: 64px;

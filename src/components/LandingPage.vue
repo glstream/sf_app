@@ -164,16 +164,42 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.layout {
+  /* Default (light theme) values */
+  --hero-gradient-start: var(
+    --hero-gradient-start-light,
+    #f5f7fa
+  ); /* Fallback for clarity, original vars can be removed */
+  --hero-gradient-end: var(--hero-gradient-end-light, #c3cfe2);
+  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+
+  /* Original specific variables can be kept if used elsewhere, or removed if only for this pattern */
+  --hero-gradient-start-light: #f5f7fa;
+  --hero-gradient-end-light: #c3cfe2;
+  --hero-gradient-start-dark: #2d3748;
+  --hero-gradient-end-dark: #1a202c;
+}
+
+:deep(.dark-theme) .layout {
+  /* Dark theme overrides */
+  --hero-gradient-start: var(--hero-gradient-start-dark, #2d3748);
+  --hero-gradient-end: var(--hero-gradient-end-dark, #1a202c);
+  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.15);
+}
+
 /* Hero Section Styles */
 .hero-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px 20px;
   position: relative;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: var(--hero-box-shadow);
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease; /* Added box-shadow to transition */
 }
 
 .hero-content {
@@ -188,6 +214,11 @@ onMounted(() => {
   color: #2d3142;
   margin-bottom: 18px;
   letter-spacing: -1px;
+  transition: color 0.3s ease;
+}
+
+:deep(.dark-theme) .hero-title {
+  color: #e2e8f0;
 }
 
 .hero-subtitle {
@@ -196,6 +227,11 @@ onMounted(() => {
   margin-bottom: 32px;
   font-weight: 400;
   line-height: 1.6;
+  transition: color 0.3s ease;
+}
+
+:deep(.dark-theme) .hero-subtitle {
+  color: #a0aec0;
 }
 
 .cta-buttons {
@@ -208,20 +244,33 @@ onMounted(() => {
 .cta-btn {
   font-weight: 600;
   min-width: 160px;
+  transition: all 0.3s ease;
 }
 
 /* Feature Cards */
 .feature-card {
   height: 100%;
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.4s ease,
+    box-shadow 0.4s ease,
+    background-color 0.3s ease;
   cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+:deep(.dark-theme) .feature-card {
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+}
+
+:deep(.dark-theme) .feature-card :deep(.ant-card-meta-title) {
+  color: #e2e8f0;
 }
 
 .card-cover-container {
@@ -230,6 +279,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.5s ease;
+}
+
+.feature-card:hover .card-cover-container {
+  transform: scale(1.05);
 }
 
 .card-cover-container img {
@@ -240,6 +294,11 @@ onMounted(() => {
 
 .card-description {
   padding: 10px 0;
+  transition: color 0.3s ease;
+}
+
+:deep(.dark-theme) .card-description {
+  color: #a0aec0;
 }
 
 .card-description ul {
@@ -262,6 +321,11 @@ onMounted(() => {
   font-size: 1.1rem;
   line-height: 1.6;
   color: #4a5568;
+  transition: color 0.3s ease;
+}
+
+:deep(.dark-theme) .about-text {
+  color: #a0aec0;
 }
 
 .features-header {
@@ -275,6 +339,11 @@ onMounted(() => {
   font-weight: 700;
   color: #2d3142;
   letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+:deep(.dark-theme) .features-title {
+  color: #e2e8f0;
 }
 
 .responsive-padding {
@@ -299,6 +368,16 @@ onMounted(() => {
   .cta-btn {
     width: 80%;
     margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
   }
 }
 

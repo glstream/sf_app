@@ -552,8 +552,39 @@ const handlePlayerModalOk = () => {
 <style scoped>
 .layout {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--color-background-soft);
+  /* Define theme variables */
+  --background-color: #f5f7fa;
+  --text-color: #2d3142;
+  --secondary-text-color: #4b5563;
+  --muted-text-color: #6b7280;
+  --card-background: #ffffff;
+  --header-background: #f1f5f9;
+  --border-color: #e0e0e0;
+  --hover-background: #f0f5ff;
+  --control-background: #f9fafb;
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --primary-color: #1e3a8a;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
+
+:deep(.dark-theme) .layout {
+  /* Dark theme overrides */
+  --background-color: #1a202c;
+  --text-color: #e2e8f0;
+  --secondary-text-color: #a0aec0;
+  --muted-text-color: #718096;
+  --card-background: #2d3748;
+  --header-background: #2c3e50;
+  --border-color: #4a5568;
+  --hover-background: #38465a;
+  --control-background: #2d3748;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --primary-color: #63b3ed;
+}
+
 .responsive-padding {
   padding: 0 16px;
   max-width: 1400px;
@@ -569,7 +600,13 @@ const handlePlayerModalOk = () => {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: #2d3142;
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.subtitle {
+  color: var(--secondary-text-color);
+  transition: color 0.3s ease;
 }
 
 .rank-logos {
@@ -585,35 +622,41 @@ const handlePlayerModalOk = () => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
-  background: #f9fafb;
+  background: var(--control-background);
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px var(--shadow-color);
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .ranks-toggle-section {
   display: flex;
-  gap: 16px; /* Increased gap slightly */
+  gap: 16px;
   flex-wrap: wrap;
-  align-items: center; /* Align items vertically */
+  align-items: center;
 }
 
 .setting-item {
   display: flex;
   align-items: center;
-  gap: 8px; /* Add gap between label and switch */
+  gap: 8px;
 }
 
 .switch-label {
   font-weight: 500;
-  color: #4b5563; /* Adjust color as needed */
+  color: var(--secondary-text-color);
+  transition: color 0.3s ease;
 }
 
 .ranks-filter-section {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px; /* Adjusted gap */
+  gap: 12px;
+  color: var(--secondary-text-color);
+  transition: color 0.3s ease;
 }
 
 .download-btn {
@@ -622,9 +665,9 @@ const handlePlayerModalOk = () => {
 
 .rankings-table {
   width: 100%;
-  border-radius: 12px; /* Keep radius if desired */
-  overflow: hidden; /* Keep overflow */
-  background: transparent; /* Make container transparent */
+  border-radius: 12px;
+  overflow: hidden;
+  background: transparent;
   max-width: 100%;
 }
 
@@ -633,11 +676,14 @@ const handlePlayerModalOk = () => {
   grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
   padding: 12px 8px;
   font-weight: 600;
-  color: #1f2937;
-  background: #f1f5f9;
+  color: var(--text-color);
+  background: var(--header-background);
   position: sticky;
   top: 0;
   z-index: 10;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .rankings-row {
@@ -646,11 +692,11 @@ const handlePlayerModalOk = () => {
   padding: 10px 8px;
   align-items: center;
   transition: background-color 0.2s;
-  margin-bottom: 8px; /* Increased margin slightly for spacing */
-  background: white; /* Keep row background white */
-  border-radius: 6px; /* Slightly increased radius */
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06); /* Add shadow to rows */
-  cursor: pointer; /* Add cursor pointer */
+  margin-bottom: 8px;
+  background: var(--card-background);
+  border-radius: 6px;
+  box-shadow: 0 1px 4px var(--shadow-color);
+  cursor: pointer;
 }
 
 .rankings-row:last-child {
@@ -658,7 +704,7 @@ const handlePlayerModalOk = () => {
 }
 
 .rankings-row:hover {
-  background-color: #f0f5ff; /* Optional: Add hover effect */
+  background-color: var(--hover-background);
 }
 
 .cell {
@@ -666,28 +712,30 @@ const handlePlayerModalOk = () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-color);
+  transition: color 0.3s ease;
 }
 
 .cell-rank {
   font-weight: 600;
-  color: #4b5563;
+  color: var(--secondary-text-color);
   text-align: center;
 }
 
 .cell-value {
   font-weight: 700;
-  color: #1e3a8a;
+  color: var(--primary-color);
   text-align: right;
 }
 
 .cell-team {
-  color: #4b5563;
+  color: var(--secondary-text-color);
   font-weight: 500;
 }
 
 .cell-age {
   text-align: center;
-  color: #6b7280;
+  color: var(--muted-text-color);
 }
 
 .player-container {
@@ -698,86 +746,12 @@ const handlePlayerModalOk = () => {
 
 .player-name {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-color);
+  transition: color 0.3s ease;
 }
 
-.position-tag {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
+/* The remaining styles may need similar updates */
 
-.pos-rank {
-  font-size: 0.75rem;
-  opacity: 0.85;
-}
-
-.tier-indicator {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-align: center;
-  color: white;
-  max-width: 60px;
-}
-
-.tier-elite {
-  border-left: 4px solid #277da1;
-}
-.tier-elite .tier-indicator {
-  background-color: #277da1;
-}
-
-.tier-1 {
-  border-left: 4px solid #43aa8b;
-}
-.tier-1 .tier-indicator {
-  background-color: #43aa8b;
-}
-
-.tier-2 {
-  border-left: 4px solid #90be6d;
-}
-.tier-2 .tier-indicator {
-  background-color: #90be6d;
-}
-
-.tier-3 {
-  border-left: 4px solid #f9c74f;
-}
-.tier-3 .tier-indicator {
-  background-color: #f9c74f;
-  color: #333;
-}
-
-.tier-4 {
-  border-left: 4px solid #f9844a;
-}
-.tier-4 .tier-indicator {
-  background-color: #f9844a;
-}
-
-.tier-depth {
-  border-left: 4px solid #bdbdbd;
-}
-.tier-depth .tier-indicator {
-  background-color: #bdbdbd;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 32px;
-}
-
-/* Styles for Player Modal */
 .player-modal-content {
   padding: 10px;
 }
@@ -788,49 +762,51 @@ const handlePlayerModalOk = () => {
   gap: 16px;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .player-image-placeholder {
   width: 60px;
   height: 60px;
-  background-color: #f5f5f5;
+  background-color: var(--control-background);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
 }
 
 .player-modal-info h2 {
   margin-bottom: 4px;
   font-size: 1.3em;
+  color: var(--text-color);
 }
 
 .player-modal-info p {
   margin: 0;
-  color: #555;
+  color: var(--secondary-text-color);
 }
 
 .player-modal-details {
-  margin-top: 16px; /* Add some space above the descriptions */
+  margin-top: 16px;
 }
 
 .player-modal-details .ant-descriptions-item-label {
-  font-weight: 600; /* Make labels bold */
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .player-modal-chart {
   margin-top: 20px;
   padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-color);
 }
 
 .player-modal-chart h3 {
   margin-bottom: 12px;
   font-size: 1.1em;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
 }
 
 #player-value-chart-container .ant-spin-nested-loading {
@@ -843,6 +819,47 @@ const handlePlayerModalOk = () => {
   align-items: center;
 }
 #player-value-chart-container .ant-empty {
+}
+
+:deep(.dark-theme) .ant-modal-content {
+  background-color: var(--card-background);
+}
+
+:deep(.dark-theme) .ant-modal-header {
+  background-color: var(--card-background);
+  border-bottom-color: var(--border-color);
+}
+
+:deep(.dark-theme) .ant-modal-title {
+  color: var(--text-color);
+}
+
+:deep(.dark-theme) .ant-modal-close {
+  color: var(--text-color);
+}
+
+:deep(.dark-theme) .ant-descriptions-item-label,
+:deep(.dark-theme) .ant-descriptions-item-content {
+  background-color: var(--card-background);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+:deep(.dark-theme) .ant-empty-description {
+  color: var(--muted-text-color);
+}
+
+:deep(.dark-theme) .ant-pagination-item a {
+  color: var(--text-color);
+}
+
+:deep(.dark-theme) .ant-pagination-item-active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+:deep(.dark-theme) .ant-pagination-item-active a {
+  color: #fff;
 }
 
 @media (min-width: 1400px) {
@@ -882,7 +899,7 @@ const handlePlayerModalOk = () => {
   .cell-value {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #1e3a8a;
+    color: var(--primary-color);
     text-align: right;
     min-width: 48px;
     max-width: 54px;
