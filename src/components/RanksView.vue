@@ -5,10 +5,10 @@
 
     <a-layout-content class="responsive-padding">
       <div class="page-title">
-        <h1>Fantasy Football Trade Calculator</h1>
+        <h1>Fantasy Navigator Rankings</h1>
         <p class="subtitle">
-          Evaluate dynasty and redraft trades with precision using our advanced fantasy football
-          trade calculator
+          Dynasty and Redraft rankings that help you make informed decisions. Filter by position,
+          league type, and roster type. Click on a player for detailed value history.
         </p>
       </div>
 
