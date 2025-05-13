@@ -980,6 +980,8 @@
                         :acceptableVariance="
                           (tradePercentThreshold * (totalValueSideA + totalValueSideB)) / 200
                         "
+                        :teamAName="'Team A'"
+                        :teamBName="'Team B'"
                         class="balance-visualizer-spacing"
                       />
                     </div>
