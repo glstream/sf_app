@@ -5,10 +5,10 @@
 
     <a-layout-content class="responsive-padding">
       <div class="page-title">
-        <h1>Fantasy Football Trade Calculator</h1>
+        <h1>Fantasy Navigator Rankings</h1>
         <p class="subtitle">
-          Evaluate dynasty and redraft trades with precision using our advanced fantasy football
-          trade calculator
+          Dynasty and Redraft rankings that help you make informed decisions. Filter by position,
+          league type, and roster type. Click on a player for detailed value history.
         </p>
       </div>
 
@@ -191,6 +191,10 @@ import { Line } from '@antv/g2plot'
 
 // Source image imports
 import fnLogo from '@/assets/sourceLogos/fn.png'
+
+// Add theme store
+import { useThemeStore } from '@/stores/theme'
+const themeStore = useThemeStore()
 
 const ranksData = ref([{}])
 const isLoading = ref(false)
@@ -552,7 +556,7 @@ const handlePlayerModalOk = () => {
 <style scoped>
 .layout {
   min-height: 100vh;
-  background-color: var(--color-background-soft);
+  background-color: var(--color-background);
   /* Define theme variables */
   --background-color: #f5f7fa;
   --text-color: #2d3142;
@@ -565,9 +569,7 @@ const handlePlayerModalOk = () => {
   --control-background: #f9fafb;
   --shadow-color: rgba(0, 0, 0, 0.06);
   --primary-color: #1e3a8a;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: all 0.5s ease;
 }
 
 :deep(.dark-theme) .layout {
@@ -585,6 +587,43 @@ const handlePlayerModalOk = () => {
   --primary-color: #63b3ed;
 }
 
+/* Global transition styles */
+:deep(html) {
+  transition: background-color 0.5s ease;
+}
+
+:deep(html.no-transition),
+:deep(html.no-transition *) {
+  transition: none !important;
+}
+
+/* Apply transitions to all theme-sensitive components */
+.page-title h1,
+.subtitle,
+.ranks-controls,
+.cell,
+.player-name,
+.tier-indicator,
+.player-modal-info h2,
+.player-modal-info p,
+.player-modal-details .ant-descriptions-item-label,
+.player-modal-chart h3 {
+  transition:
+    color 0.5s ease,
+    background-color 0.5s ease;
+}
+
+.rankings-row,
+.rankings-header,
+.player-modal-content,
+.player-image-placeholder {
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
 .responsive-padding {
   padding: 0 16px;
   max-width: 1400px;
@@ -600,7 +639,7 @@ const handlePlayerModalOk = () => {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
-  color: var(--text-color);
+  color: var(--color-text);
   transition: color 0.3s ease;
 }
 
@@ -622,7 +661,7 @@ const handlePlayerModalOk = () => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
-  background: var(--control-background);
+  background: var(--color-background);
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 1px 3px var(--shadow-color);
@@ -655,7 +694,7 @@ const handlePlayerModalOk = () => {
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  color: var(--secondary-text-color);
+  color: var(--color-text);
   transition: color 0.3s ease;
 }
 
@@ -746,8 +785,70 @@ const handlePlayerModalOk = () => {
 
 .player-name {
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--color-text);
   transition: color 0.3s ease;
+}
+
+/* Tier indicator styles */
+.tier-indicator {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+  text-align: center;
+  min-width: 70px;
+}
+
+.tier-elite {
+  border-left: 4px solid #277da1;
+}
+.tier-elite .tier-indicator {
+  background-color: #277da1;
+}
+
+.tier-1 {
+  border-left: 4px solid #43aa8b;
+}
+.tier-1 .tier-indicator {
+  background-color: #43aa8b;
+}
+
+.tier-2 {
+  border-left: 4px solid #90be6d;
+}
+.tier-2 .tier-indicator {
+  background-color: #90be6d;
+}
+
+.tier-3 {
+  border-left: 4px solid #f9c74f;
+}
+.tier-3 .tier-indicator {
+  background-color: #f9c74f;
+  color: #333;
+}
+
+.tier-4 {
+  border-left: 4px solid #f9844a;
+}
+.tier-4 .tier-indicator {
+  background-color: #f9844a;
+}
+
+.tier-depth {
+  border-left: 4px solid #bdbdbd;
+}
+.tier-depth .tier-indicator {
+  background-color: #bdbdbd;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 32px;
 }
 
 /* The remaining styles may need similar updates */
@@ -916,9 +1017,14 @@ const handlePlayerModalOk = () => {
   }
 
   .tier-indicator {
-    font-size: 0.65rem;
-    padding: 0 2px;
-    max-width: 32px;
+    font-size: 0.6rem;
+    padding: 1px 2px;
+    max-width: 28px;
+    min-width: 28px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
   }
 
   .player-modal-chart {
@@ -937,11 +1043,21 @@ const handlePlayerModalOk = () => {
     grid-template-columns: 18px 26px minmax(40px, 1fr) 24px 16px 38px;
     font-size: 0.7rem;
     padding: 2px 0;
+    background-color: var(--color-background-soft);
   }
   .cell-value {
     min-width: 36px;
     max-width: 38px;
     font-size: 0.7rem;
+  }
+
+  .tier-indicator {
+    font-size: 0.55rem; /* Smaller font */
+    padding: 1px 1px;
+    max-width: 22px;
+    min-width: 22px;
+    line-height: 1; /* Reduce line height */
+    border-radius: 2px;
   }
 }
 
@@ -966,6 +1082,61 @@ const handlePlayerModalOk = () => {
 
   .page-title h1 {
     font-size: 24px;
+    color: var(--color-text);
+  }
+
+  .cell-tier {
+    padding: 0;
+  }
+
+  .tier-indicator {
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Convert tier text to very abbreviated versions */
+  .tier-elite .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-elite .tier-indicator:empty::before {
+    content: 'E';
+  }
+
+  .tier-1 .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-1 .tier-indicator:empty::before {
+    content: '1';
+  }
+
+  .tier-2 .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-2 .tier-indicator:empty::before {
+    content: '2';
+  }
+
+  .tier-3 .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-3 .tier-indicator:empty::before {
+    content: '3';
+  }
+
+  .tier-4 .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-4 .tier-indicator:empty::before {
+    content: '4';
+  }
+
+  .tier-depth .tier-indicator {
+    font-size: 0.55rem;
+  }
+  .tier-depth .tier-indicator:empty::before {
+    content: 'W';
   }
 }
 </style>
