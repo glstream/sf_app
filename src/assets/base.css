@@ -25,6 +25,9 @@
   --league-details-primary-card-light: #ffffff;
   --league-details-primary-card-dark: #222222;
 
+  --primary-card-outline-reverse-light: rgba(84, 84, 84, 0.3);
+  --primary-card-outline-reverse-dark: rgba(255, 255, 255, 1);
+
   --white-text: #ffffff;
 }
 
@@ -43,6 +46,8 @@
   --primary-text-color: var(--primary-color-theme-light);
   --league-details-primary-card: var(--league-details-primary-card-light);
 
+  --card-outline-reverse: var(--primary-card-outline-reverse-light);
+
   --section-gap: 160px;
 }
 
@@ -60,6 +65,7 @@
 
   --primary-text-color: var(--primary-color-theme-dark);
   --league-details-primary-card: var(--league-details-primary-card-dark);
+  --card-outline-reverse: var(--primary-card-outline-reverse-dark);
 }
 
 /* We can still keep this for initial load to avoid flash of incorrect theme */

@@ -2447,6 +2447,21 @@ const columns = computed(() => {
   const base = [
     { title: '', dataIndex: 'display_name', key: 'display_name', align: 'left', width: 1 },
     {
+      title: 'Total Value',
+      dataIndex: overallFilter.value === 'all' ? 'total_value' : 'starters_sum',
+      key: 'total_value_col',
+      align: 'center',
+      customRender: ({ record }) => {
+        const value = overallFilter.value === 'all' ? record.total_value : record.starters_sum
+        return value?.toLocaleString() ?? 'N/A'
+      },
+      sorter: (a, b) => {
+        const valA = overallFilter.value === 'all' ? a.total_value : a.starters_sum
+        const valB = overallFilter.value === 'all' ? b.total_value : b.starters_sum
+        return (valA ?? 0) - (valB ?? 0)
+      }
+    },
+    {
       title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
       dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
       key: 'overall_rank',
@@ -2463,6 +2478,7 @@ const columns = computed(() => {
         )
       })
     },
+
     ...createPositionColumnsConfig(overallFilter.value)
   ]
   if (overallFilter.value === 'all') {
@@ -2494,6 +2510,21 @@ const columns = computed(() => {
 const projColumns = computed(() => [
   { title: '', dataIndex: 'display_name', key: 'display_name', align: 'left', width: 1 },
   {
+    title: 'Total Value',
+    dataIndex: overallFilter.value === 'all' ? 'total_value' : 'starters_sum',
+    key: 'total_value_proj_col',
+    align: 'center',
+    customRender: ({ record }) => {
+      const value = overallFilter.value === 'all' ? record.total_value : record.starters_sum
+      return value?.toLocaleString() ?? 'N/A'
+    },
+    sorter: (a, b) => {
+      const valA = overallFilter.value === 'all' ? a.total_value : a.starters_sum
+      const valB = overallFilter.value === 'all' ? b.total_value : b.starters_sum
+      return (valA ?? 0) - (valB ?? 0)
+    }
+  },
+  {
     title: overallFilter.value === 'all' ? 'Overall' : 'Starters',
     dataIndex: overallFilter.value === 'all' ? 'total_rank' : 'starters_rank',
     key: 'overall_rank_proj',
@@ -2508,6 +2539,7 @@ const projColumns = computed(() => [
       style: getCellStyle(overallFilter.value === 'all' ? record.total_rank : record.starters_rank)
     })
   },
+
   ...createPositionColumnsConfig(overallFilter.value)
 ])
 
@@ -4474,6 +4506,7 @@ const areAllPositionsExpanded = (team) => {
   background-color: var(--color-background-mute);
   max-width: 340px;
   background: 1px solid white;
+  border: 1px solid var(--card-outline-reverse);
 }
 
 .position-header {
