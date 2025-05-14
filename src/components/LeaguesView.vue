@@ -24,6 +24,7 @@
         </a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
+
       <div style="padding-top: 30px">
         <a-flex :gap="20">
           <a-select
@@ -323,6 +324,24 @@
         </div>
       </a-spin>
     </a-layout-content>
+    <!-- About Section for Google AdSense Approval -->
+    <div
+      class="about-site-section"
+      style="margin-bottom: 24px; background: #f8f9fa; border-radius: 8px; padding: 18px 20px"
+    >
+      <h1 style="font-size: 1.5em; margin-bottom: 8px">About Fantasy Navigator</h1>
+      <p>
+        Welcome to the Leagues Overview! Here you can explore detailed rankings and statistics for
+        your fantasy football leagues, powered by multiple trusted sources. Use the filters to find
+        leagues by type and roster settings, and compare your teams’ strengths across power,
+        starters, bench, and draft picks. Our platform is dedicated to helping fantasy football
+        managers make informed decisions and improve their league performance.
+      </p>
+      <p style="font-size: 0.95em; color: #888">
+        Fantasy Navigator is an independent project and is not affiliated with the NFL, Sleeper,
+        ESPN, Yahoo, or any official fantasy sports provider.
+      </p>
+    </div>
 
     <AppFooter />
   </a-layout>

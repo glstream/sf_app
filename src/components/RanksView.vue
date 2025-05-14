@@ -1010,7 +1010,7 @@ const handlePlayerModalOk = () => {
     font-size: 0.65rem;
     padding: 0 2px;
     max-width: 32px;
-    color: var(--primary-text-color);
+    color: #ffff;
     border-radius: 5px;
   }
   .tier-elite {

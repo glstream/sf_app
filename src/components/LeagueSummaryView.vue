@@ -444,6 +444,29 @@
           </a-row>
         </a-col>
       </a-row>
+
+      <!-- About Section for Google AdSense Approval -->
+      <div
+        class="about-site-section"
+        style="margin: 40px 0 24px 0; background: #f8f9fa; border-radius: 8px; padding: 18px 20px"
+      >
+        <h1 style="font-size: 1.5em; margin-bottom: 8px">About Fantasy Navigator</h1>
+        <p>
+          Fantasy Navigator is an advanced fantasy football analytics platform designed to help
+          users analyze, compare, and optimize their fantasy football leagues. Our League Summary
+          view provides a comprehensive overview of your team's performance across multiple ranking
+          systems and projection sources. By consolidating data from trusted sources like
+          FantasyNavigator, Keep Trade Cut, FantasyCalc, DynastyProcess, and DynastyDaddy, we offer
+          fantasy managers a holistic view of their team's strengths and weaknesses across different
+          positions. Our projection data from ESPN, NFL, and CBS helps you prepare for upcoming
+          matchups with confidence.
+        </p>
+        <p style="font-size: 0.95em; color: #888">
+          Fantasy Navigator is an independent project and is not affiliated with the NFL, Sleeper,
+          ESPN, Yahoo, or any official fantasy sports provider. All analysis and projections are
+          meant for informational purposes to enhance your fantasy football experience.
+        </p>
+      </div>
     </a-layout-content>
     <AppFooter />
   </a-layout>

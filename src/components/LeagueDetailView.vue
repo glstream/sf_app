@@ -13,7 +13,6 @@
         <a-breadcrumb-item>{{ leagueInfo.leagueName }}</a-breadcrumb-item>
         <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
-
       <div>
         <!-- League Header Info -->
         <div class="">
@@ -2209,6 +2208,25 @@
         </a-spin>
       </div>
     </a-layout-content>
+    <!-- About Section for Google AdSense Approval -->
+    <div
+      class="about-site-section"
+      style="margin-bottom: 24px; background: #f8f9fa; border-radius: 8px; padding: 18px 20px"
+    >
+      <h1 style="font-size: 1.5em; margin-bottom: 8px">About Fantasy Navigator</h1>
+      <p>
+        Fantasy Navigator is an advanced fantasy football analytics platform designed to help users
+        analyze, compare, and optimize their fantasy football leagues. Our tools provide unique
+        insights, power rankings, trade calculators, and player value breakdowns using a blend of
+        expert consensus, crowd-sourced data, and real trade analysis. Whether you're a seasoned
+        fantasy manager or new to the game, Fantasy Navigator offers actionable data to help you
+        make smarter decisions and win your league.
+      </p>
+      <p style="font-size: 0.95em; color: #888">
+        Fantasy Navigator is an independent project and is not affiliated with the NFL, Sleeper,
+        ESPN, Yahoo, or any official fantasy sports provider.
+      </p>
+    </div>
     <AppFooter />
   </a-layout>
 </template>
@@ -4418,7 +4436,6 @@ const areAllPositionsExpanded = (team) => {
 .manager-name-option {
   font-size: 14px;
 }
-
 /* Charts & Visualizations */
 .modern-card {
   border-radius: 8px;

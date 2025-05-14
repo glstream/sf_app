@@ -1,9 +1,13 @@
 <template>
   <a-layout-footer class="custom-footer">
     <br />
-    <a href="https://twitter.com/fantasynav1" target="_blank">Follow on X</a>
+    <a href="https://bsky.app/profile/fantasynavigator.bsky.social" target="_blank"
+      >Follow on Blue Sky</a
+    >
     |
     <a href="https://www.buymeacoffee.com/superflex" target="_blank">Donate</a>
+    |
+    <router-link to="/privacy">Privacy Policy</router-link>
     <br />
     Data provided by <a href="https://sleeper.app/" target="_blank">Sleeper</a>,
     <a href="https://keeptradecut.com/" target="_blank">KeepTradeCut</a>,
