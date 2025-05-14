@@ -14,9 +14,14 @@ const themeStore = useThemeStore()
 
 const toggleTheme = () => {
   themeStore.toggleTheme()
+  // The toggleTheme method in the store now handles applying the theme
 }
 </script>
 
 <style scoped>
-/* Add button styling if needed */
+/* Position the theme toggle button in the top-right corner */
+:deep(.ant-float-btn) {
+  right: 24px;
+  top: 24px;
+}
 </style>

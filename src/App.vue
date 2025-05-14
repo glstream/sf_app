@@ -29,7 +29,10 @@ const currentTheme = computed(() => {
       }
 })
 
-onMounted(() => {})
+onMounted(() => {
+  // Initialize theme on application start
+  themeStore.initializeTheme()
+})
 </script>
 
 <style></style>

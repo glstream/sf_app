@@ -18,6 +18,14 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --primary-color-theme-light: rgba(60, 60, 60);
+  --primary-color-theme-dark: rgba(235, 235, 235, 0.64);
+
+  --league-details-primary-card-light: #ffffff;
+  --league-details-primary-card-dark: #222222;
+
+  --white-text: #ffffff;
 }
 
 /* semantic color variables for this project */
@@ -32,11 +40,31 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
 
+  --primary-text-color: var(--primary-color-theme-light);
+  --league-details-primary-card: var(--league-details-primary-card-light);
+
   --section-gap: 160px;
 }
 
+/* Dark mode class-based theme instead of media query */
+:root.dark {
+  --color-background: var(--vt-c-black);
+  --color-background-soft: var(--vt-c-black-soft);
+  --color-background-mute: var(--vt-c-black-mute);
+
+  --color-border: var(--vt-c-divider-dark-2);
+  --color-border-hover: var(--vt-c-divider-dark-1);
+
+  --color-heading: var(--vt-c-text-dark-1);
+  --color-text: var(--vt-c-text-dark-2);
+
+  --primary-text-color: var(--primary-color-theme-dark);
+  --league-details-primary-card: var(--league-details-primary-card-dark);
+}
+
+/* We can still keep this for initial load to avoid flash of incorrect theme */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
     --color-background-mute: var(--vt-c-black-mute);
@@ -45,7 +73,8 @@
     --color-border-hover: var(--vt-c-divider-dark-1);
 
     --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
+    --color-text: var(--white-text);
+    --primary-color: var(--primary-color-theme-dark);
   }
 }
 
