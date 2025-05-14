@@ -57,6 +57,11 @@ const router = createRouter({
       name: 'NotFound',
       component: () => import('../components/UsernameView.vue'),
       beforeEnter: logNavigation
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/components/PrivacyPolicyView.vue')
     }
   ]
 })
