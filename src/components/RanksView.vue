@@ -552,8 +552,37 @@ const handlePlayerModalOk = () => {
 <style scoped>
 .layout {
   min-height: 100vh;
-  background-color: var(--color-background);
+  background-color: var(--color-background-soft);
   /* Define theme variables */
+  --background-color: #f5f7fa;
+  --text-color: #2d3142;
+  --secondary-text-color: #4b5563;
+  --muted-text-color: #6b7280;
+  --card-background: #ffffff;
+  --header-background: #f1f5f9;
+  --border-color: #e0e0e0;
+  --hover-background: #f0f5ff;
+  --control-background: #f9fafb;
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --primary-color: #1e3a8a;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+:deep(.dark-theme) .layout {
+  /* Dark theme overrides */
+  --background-color: #1a202c;
+  --text-color: #e2e8f0;
+  --secondary-text-color: #a0aec0;
+  --muted-text-color: #718096;
+  --card-background: #2d3748;
+  --header-background: #2c3e50;
+  --border-color: #4a5568;
+  --hover-background: #38465a;
+  --control-background: #2d3748;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --primary-color: #63b3ed;
 }
 
 .responsive-padding {
@@ -571,10 +600,12 @@ const handlePlayerModalOk = () => {
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 8px;
+  color: var(--color-text);
   transition: color 0.3s ease;
 }
 
 .subtitle {
+  color: var(--secondary-text-color);
   transition: color 0.3s ease;
 }
 
@@ -615,7 +646,7 @@ const handlePlayerModalOk = () => {
 
 .switch-label {
   font-weight: 500;
-  color: var(--primary-text-color);
+  color: var(--secondary-text-color);
   transition: color 0.3s ease;
 }
 
@@ -646,7 +677,7 @@ const handlePlayerModalOk = () => {
   padding: 12px 8px;
   font-weight: 600;
   color: var(--text-color);
-  background: var(--header-background);
+  background: var(--color-background);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -662,9 +693,8 @@ const handlePlayerModalOk = () => {
   align-items: center;
   transition: background-color 0.2s;
   margin-bottom: 8px;
-  background-color: var(--color-background-soft);
+  background: var(--color-background);
   border-radius: 6px;
-  box-shadow: 0 1px 4px var(--shadow-color);
   cursor: pointer;
 }
 
@@ -672,19 +702,10 @@ const handlePlayerModalOk = () => {
   margin-bottom: 0;
 }
 
-.position-tag {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
 .cell {
-  padding: 0 1px;
+  padding: 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-color);
   transition: color 0.3s ease;
@@ -692,18 +713,18 @@ const handlePlayerModalOk = () => {
 
 .cell-rank {
   font-weight: 600;
-  color: var(--primary-text-color);
+  color: var(--secondary-text-color);
   text-align: center;
 }
 
 .cell-value {
   font-weight: 700;
-  color: var(--primary-text-color);
+  color: var(--primary-color);
   text-align: right;
 }
 
 .cell-team {
-  color: var(--primary-text-color);
+  color: var(--secondary-text-color);
   font-weight: 500;
 }
 
@@ -720,70 +741,8 @@ const handlePlayerModalOk = () => {
 
 .player-name {
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--primary-text-color);
   transition: color 0.3s ease;
-}
-
-/* Tier indicator styles */
-.tier-indicator {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: white;
-  display: inline-block;
-  text-align: center;
-  min-width: 70px;
-}
-
-.tier-elite {
-  border-left: 4px solid #277da1;
-}
-.tier-elite .tier-indicator {
-  background-color: #277da1;
-}
-
-.tier-1 {
-  border-left: 4px solid #43aa8b;
-}
-.tier-1 .tier-indicator {
-  background-color: #43aa8b;
-}
-
-.tier-2 {
-  border-left: 4px solid #90be6d;
-}
-.tier-2 .tier-indicator {
-  background-color: #90be6d;
-}
-
-.tier-3 {
-  border-left: 4px solid #f9c74f;
-}
-.tier-3 .tier-indicator {
-  background-color: #f9c74f;
-  color: #333;
-}
-
-.tier-4 {
-  border-left: 4px solid #f9844a;
-}
-.tier-4 .tier-indicator {
-  background-color: #f9844a;
-}
-
-.tier-depth {
-  border-left: 4px solid #bdbdbd;
-}
-.tier-depth .tier-indicator {
-  background-color: #bdbdbd;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 32px;
 }
 
 /* The remaining styles may need similar updates */
@@ -820,7 +779,7 @@ const handlePlayerModalOk = () => {
 
 .player-modal-info p {
   margin: 0;
-  color: var(--primary-text-color);
+  color: var(--secondary-text-color);
 }
 
 .player-modal-details {
@@ -890,12 +849,60 @@ const handlePlayerModalOk = () => {
 }
 
 :deep(.dark-theme) .ant-pagination-item-active {
-  background-color: var(--primary-text-color);
-  border-color: var(--primary-text-color);
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 :deep(.dark-theme) .ant-pagination-item-active a {
   color: #fff;
+}
+.tier-indicator {
+  font-size: 0.65rem;
+  padding: 0 2px;
+  max-width: 32px;
+  color: var(--primary-text-color);
+}
+.tier-elite {
+  border-left: 4px solid #277da1;
+}
+.tier-elite .tier-indicator {
+  background-color: #277da1;
+}
+
+.tier-1 {
+  border-left: 4px solid #43aa8b;
+}
+.tier-1 .tier-indicator {
+  background-color: #43aa8b;
+}
+
+.tier-2 {
+  border-left: 4px solid #90be6d;
+}
+.tier-2 .tier-indicator {
+  background-color: #90be6d;
+}
+
+.tier-3 {
+  border-left: 4px solid #f9c74f;
+}
+.tier-3 .tier-indicator {
+  background-color: #f9c74f;
+  color: #333;
+}
+
+.tier-4 {
+  border-left: 4px solid #f9844a;
+}
+.tier-4 .tier-indicator {
+  background-color: #f9844a;
+}
+
+.tier-depth {
+  border-left: 4px solid #bdbdbd;
+}
+.tier-depth .tier-indicator {
+  background-color: #bdbdbd;
 }
 
 @media (min-width: 1400px) {
@@ -908,6 +915,54 @@ const handlePlayerModalOk = () => {
   .responsive-padding {
     padding: 0 24px;
   }
+}
+.tier-indicator {
+  font-size: 0.65rem;
+  padding: 0 2px;
+  max-width: 32px;
+  color: var(--primary-text-color);
+}
+.tier-elite {
+  border-left: 4px solid #277da1;
+}
+.tier-elite .tier-indicator {
+  background-color: #277da1;
+}
+
+.tier-1 {
+  border-left: 4px solid #43aa8b;
+}
+.tier-1 .tier-indicator {
+  background-color: #43aa8b;
+}
+
+.tier-2 {
+  border-left: 4px solid #90be6d;
+}
+.tier-2 .tier-indicator {
+  background-color: #90be6d;
+}
+
+.tier-3 {
+  border-left: 4px solid #f9c74f;
+}
+.tier-3 .tier-indicator {
+  background-color: #f9c74f;
+  color: #333;
+}
+
+.tier-4 {
+  border-left: 4px solid #f9844a;
+}
+.tier-4 .tier-indicator {
+  background-color: #f9844a;
+}
+
+.tier-depth {
+  border-left: 4px solid #bdbdbd;
+}
+.tier-depth .tier-indicator {
+  background-color: #bdbdbd;
 }
 
 @media (max-width: 767px) {
@@ -935,7 +990,7 @@ const handlePlayerModalOk = () => {
   .cell-value {
     font-size: 0.8rem;
     font-weight: 700;
-    color: var(--primary-text-color);
+    color: var(--primary-color);
     text-align: right;
     min-width: 48px;
     max-width: 54px;
@@ -949,20 +1004,57 @@ const handlePlayerModalOk = () => {
   .position-tag {
     padding: 0 2px;
     font-size: 0.65rem;
-    border-radius: 6px;
   }
 
   .tier-indicator {
-    font-size: 0.6rem;
-    padding: 1px 2px;
-    max-width: 28px;
-    min-width: 28px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: center;
+    font-size: 0.65rem;
+    padding: 0 2px;
+    max-width: 32px;
+    color: var(--primary-text-color);
+    border-radius: 5px;
+  }
+  .tier-elite {
+    border-left: 4px solid #277da1;
+  }
+  .tier-elite .tier-indicator {
+    background-color: #277da1;
   }
 
+  .tier-1 {
+    border-left: 4px solid #43aa8b;
+  }
+  .tier-1 .tier-indicator {
+    background-color: #43aa8b;
+  }
+
+  .tier-2 {
+    border-left: 4px solid #90be6d;
+  }
+  .tier-2 .tier-indicator {
+    background-color: #90be6d;
+  }
+
+  .tier-3 {
+    border-left: 4px solid #f9c74f;
+  }
+  .tier-3 .tier-indicator {
+    background-color: #f9c74f;
+    color: #333;
+  }
+
+  .tier-4 {
+    border-left: 4px solid #f9844a;
+  }
+  .tier-4 .tier-indicator {
+    background-color: #f9844a;
+  }
+
+  .tier-depth {
+    border-left: 4px solid #bdbdbd;
+  }
+  .tier-depth .tier-indicator {
+    background-color: #bdbdbd;
+  }
   .player-modal-chart {
     margin-top: 16px;
     padding-top: 12px;
@@ -979,21 +1071,11 @@ const handlePlayerModalOk = () => {
     grid-template-columns: 18px 26px minmax(40px, 1fr) 24px 16px 38px;
     font-size: 0.7rem;
     padding: 2px 0;
-    background-color: var(--color-background-soft);
   }
   .cell-value {
     min-width: 36px;
     max-width: 38px;
     font-size: 0.7rem;
-  }
-
-  .tier-indicator {
-    font-size: 0.55rem; /* Smaller font */
-    padding: 1px 1px;
-    max-width: 22px;
-    min-width: 22px;
-    line-height: 1; /* Reduce line height */
-    border-radius: 2px;
   }
 }
 
@@ -1018,66 +1100,7 @@ const handlePlayerModalOk = () => {
 
   .page-title h1 {
     font-size: 24px;
-  }
-
-  .cell-tier {
-    padding: 0;
-    color: var(--primary-text-color);
-  }
-
-  .cell-player {
-    padding: 0;
-    color: var(--primary-text-color);
-  }
-
-  .tier-indicator {
-    border-radius: 2px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Convert tier text to very abbreviated versions */
-  .tier-elite .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-elite .tier-indicator:empty::before {
-    content: 'E';
-  }
-
-  .tier-1 .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-1 .tier-indicator:empty::before {
-    content: '1';
-  }
-
-  .tier-2 .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-2 .tier-indicator:empty::before {
-    content: '2';
-  }
-
-  .tier-3 .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-3 .tier-indicator:empty::before {
-    content: '3';
-  }
-
-  .tier-4 .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-4 .tier-indicator:empty::before {
-    content: '4';
-  }
-
-  .tier-depth .tier-indicator {
-    font-size: 0.55rem;
-  }
-  .tier-depth .tier-indicator:empty::before {
-    content: 'W';
+    color: var(--color-text);
   }
 }
 </style>

@@ -62,7 +62,7 @@
               <a-row :gutter="[16, 16]" align="middle">
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
                   <div class="control-group">
-                    <span class="control-label">Data View:</span>
+                    <span class="control-label">Data View</span>
                     <a-switch
                       v-model:checked="showProjections"
                       checked-children="Projections"
@@ -73,7 +73,7 @@
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
                   <div class="control-group">
-                    <span class="control-label">Player Filter:</span>
+                    <span class="control-label">Player Filter</span>
                     <a-radio-group v-model:value="overallFilter" button-style="solid" size="small">
                       <a-radio-button value="all">All Players</a-radio-button>
                       <a-radio-button value="STARTER">Starters</a-radio-button>
@@ -82,7 +82,7 @@
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
                   <div class="control-group">
-                    <span class="control-label">Projection Source:</span>
+                    <span class="control-label">Projection Source</span>
                     <a-select
                       ref="select"
                       v-model:value="value1"
@@ -98,7 +98,7 @@
                 </a-col>
                 <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="6">
                   <div class="control-group">
-                    <span class="control-label">Rankings Source:</span>
+                    <span class="control-label">Rankings Source</span>
                     <a-dropdown-button :loading="summaryIsLoading" size="small">
                       <img
                         style="padding-right: 5px"
@@ -131,12 +131,12 @@
             <a-tabs v-model:activeKey="activeKey">
               <!-- Power Rankings Tab -->
               <a-tab-pane key="1" tab="Power Rankings">
-                <h2 class="tab-sub-header">Power Ranks</h2>
+                <h2 class="tab-sub-header">Power Rankings</h2>
 
                 <!-- League Managers Grid -->
                 <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                   <a-col :span="24">
-                    <a-card :bordered="false" class="managers-card">
+                    <a-card class="managers-card">
                       <template #title>
                         <div class="card-header">
                           <span class="chart-title">League Managers</span>
@@ -160,7 +160,7 @@
                           <div class="manager-details">
                             <div class="manager-name">{{ user.display_name }}</div>
                             <div class="manager-stats">
-                              <span
+                              <span class="manager-value-label"
                                 >{{ showProjections ? 'Proj' : 'Value' }}:
                                 {{
                                   (showProjections
@@ -278,7 +278,7 @@
                                 </a-tag>
                               </div>
                               <div class="position-stats">
-                                <span class="age-label">Avg Age:</span>
+                                <span class="age-label">Avg Age</span>
                                 <span class="age-value">{{
                                   position === 'PICKS'
                                     ? '--'
@@ -286,7 +286,7 @@
                                       ? record[`${position.toLowerCase()}_average_age`]
                                       : record[`${position.toLowerCase()}_starter_average_age`]
                                 }}</span>
-                                <span class="value-label">Total:</span>
+                                <span class="value-label"></span>
                                 <span class="value-amount">{{
                                   (overallFilter === 'all'
                                     ? record[`${position.toLowerCase()}_sum`]
@@ -555,9 +555,9 @@
                                   user[`${position.toLowerCase()}_sum`] !== undefined
                                 "
                               >
-                                <span class="value-label"
-                                  >{{ showProjections ? 'Projections' : 'Value' }}:</span
-                                >
+                                <span class="value-label">{{
+                                  showProjections ? 'Projections' : 'Value'
+                                }}</span>
                                 <span class="value-amount">{{
                                   (showProjections
                                     ? overallFilter === 'all'
@@ -569,7 +569,7 @@
                                   ).toLocaleString()
                                 }}</span>
                                 <template v-if="position !== 'PICKS'">
-                                  <span class="age-label">Avg Age:</span>
+                                  <span class="age-label">Avg Age</span>
                                   <span class="age-value"
                                     >{{
                                       (showProjections
@@ -590,7 +590,7 @@
                                 <span class="value-label">Value:</span>
                                 <span class="value-amount">--</span>
                                 <template v-if="position !== 'PICKS'">
-                                  <span class="age-label">Avg Age:</span>
+                                  <span class="age-label">Avg Age</span>
                                   <span class="age-value">-- yrs</span>
                                 </template>
                               </template>
@@ -1816,7 +1816,7 @@
                           <div class="manager-details">
                             <div class="manager-name">{{ user.display_name }}</div>
                             <div class="manager-stats">
-                              <span
+                              <span class="manager-value-label"
                                 >{{ overallFilter === 'all' ? 'Overall' : 'Starters' }}:
                                 {{
                                   addOrdinalSuffix(
@@ -2192,14 +2192,14 @@
               </div>
               <div class="player-modal-details">
                 <p>
-                  <strong>Value:</strong>
+                  <strong>Value</strong>
                   {{
                     selectedPlayer.player_value === -1
                       ? 'N/A'
                       : selectedPlayer.player_value?.toLocaleString()
                   }}
                 </p>
-                <p><strong>Manager:</strong> {{ selectedPlayer.display_name }}</p>
+                <p><strong>Manager</strong> {{ selectedPlayer.display_name }}</p>
               </div>
             </div>
             <div v-else>
@@ -4164,7 +4164,7 @@ const areAllPositionsExpanded = (team) => {
 /* Data Controls Card */
 .data-controls-card {
   margin-bottom: 24px;
-  background-color: var(--background-color-secondary, #f9f9f9);
+  background-color: var(--color-background-soft);
   border: 1px solid var(--border-color, #e8e8e8);
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -4222,6 +4222,12 @@ const areAllPositionsExpanded = (team) => {
   }
 }
 
+.manager-value-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-text-color);
+}
+
 @media (min-width: 1200px) {
   .control-group {
     flex-direction: row;
@@ -4257,7 +4263,7 @@ const areAllPositionsExpanded = (team) => {
 /* Managers Grid (used in multiple tabs) */
 .managers-card {
   margin-bottom: 20px;
-  background-color: var(--background-color, #fff);
+  background-color: var(--league-details-primary-card);
 }
 
 .managers-grid {
@@ -4267,6 +4273,7 @@ const areAllPositionsExpanded = (team) => {
   max-height: 300px;
   overflow-y: auto;
   padding: 5px;
+  color: var(--primary-text-color);
 }
 
 /* Enhanced Manager Item Styling */
@@ -4324,7 +4331,7 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-name {
-  font-weight: 600;
+  font-weight: 400;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -4415,7 +4422,7 @@ const areAllPositionsExpanded = (team) => {
 .chart-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--text-color, #333);
+  color: var(--primary-text-color);
   margin-top: 3px;
 }
 
@@ -4445,7 +4452,7 @@ const areAllPositionsExpanded = (team) => {
 
 .expanded-row-content {
   padding: 12px 8px;
-  background-color: #fafafa;
+  background-color: var(--color-background-mute);
   border-radius: 8px;
 }
 
@@ -4464,8 +4471,9 @@ const areAllPositionsExpanded = (team) => {
   padding: 8px 12px;
   border-radius: 6px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  background-color: white;
+  background-color: var(--color-background-mute);
   max-width: 340px;
+  background: 1px solid white;
 }
 
 .position-header {
@@ -4642,7 +4650,7 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-card-mobile {
-  background-color: var(--card-background-color, #fff);
+  background-color: var(--color-background-mute, #fff);
   border: 1px solid var(--border-color, #e0e0e0);
   border-radius: 8px;
   margin-bottom: 16px;
@@ -4662,7 +4670,8 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-name-mobile {
-  color: var(--text-color, #333);
+  color: var(--primary-text-color);
+  font-weight: 899;
 }
 
 .manager-stats-grid-mobile {
@@ -4673,6 +4682,7 @@ const areAllPositionsExpanded = (team) => {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #f0f0f0;
+  background: var(--color-background-mute);
 }
 
 .position-summary-item.active-position-summary {
@@ -4716,6 +4726,7 @@ const areAllPositionsExpanded = (team) => {
   .position-summary {
     flex-direction: column;
     gap: 8px;
+    color: var(--color-background-mute);
   }
 
   .position-summary-item {
@@ -4762,6 +4773,8 @@ const areAllPositionsExpanded = (team) => {
     padding: 10px;
     margin-bottom: 4px;
     width: auto;
+    color: var(--primary-text-color);
+    background: var(--color-background-mute);
   }
 
   .players-grid::before {
@@ -4913,7 +4926,7 @@ h4 {
 }
 
 .position-group-container {
-  background-color: white;
+  background-color: var(--color-background-mute);
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 8px;
@@ -4967,11 +4980,12 @@ h4 {
 /* League Assets Tab */
 .lighter {
   color: #aaa !important;
-  opacity: 0.7;
+  opacity: 0.3;
 }
 
 .dimmed-text {
   color: #aaa !important;
+  /* color: var(--league-details-primary-card) !important; */
 }
 
 /* Waivers Tab */
@@ -5252,7 +5266,7 @@ li {
 
 .player-item {
   border-radius: 4px;
-  background-color: var(--background-color, #fff);
+  background-color: var(--color-background-mute, #fff);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
@@ -5283,7 +5297,7 @@ li {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 180px;
-  color: var(--text-color, #2d3142);
+  color: var(--primary-text-color);
   line-height: 1.2;
 }
 
@@ -5535,9 +5549,10 @@ li {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background-color: #fafafa;
+  background-color: var(--color-background-soft, #f9f9f9);
   cursor: pointer;
   transition: background-color 0.2s;
+  color: var(--primary-text-color, #333);
 }
 
 .trade-position-header:hover {
@@ -5549,7 +5564,7 @@ li {
 }
 
 .trade-position-count {
-  background-color: #f0f0f0;
+  background-color: var(--color-background-mute);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 12px;
