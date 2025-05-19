@@ -59,7 +59,7 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
-      path: '/privacy',
+      path: '/privacy-policy',
       name: 'privacy',
       component: () => import('../components/PrivacyPolicyView.vue')
     }
