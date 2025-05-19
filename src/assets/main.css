@@ -1,4 +1,36 @@
 @import './base.css';
+
+/* Ensure buttons and interactive elements are clickable */
+button,
+.ant-btn,
+a[role='button'],
+.clickable {
+  position: relative;
+  z-index: 5;
+  cursor: pointer !important;
+}
+
+/* Prevent click events from being blocked */
+.ant-card-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure proper hover states */
+button:hover,
+.ant-btn:hover,
+a[role='button']:hover,
+.clickable:hover {
+  opacity: 0.9;
+}
+
+/* Fix pointer events for nested elements */
+.ant-card-cover,
+.card-description {
+  pointer-events: auto;
+}
+
+/* Original CSS commented out for reference */
 /* #app {
   max-width: 1280px;
   margin: 0 auto;

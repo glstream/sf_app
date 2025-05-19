@@ -12,16 +12,21 @@
           trade opportunities, and dominate your competition.
         </p>
         <div class="cta-buttons">
-          <a-button type="primary" size="large" @click="navigateTo('/username')" class="cta-btn">
+          <a-button
+            type="primary"
+            size="large"
+            @click.stop="navigateTo('/username')"
+            class="cta-btn"
+          >
             League Dashboard
           </a-button>
-          <a-button type="default" size="large" @click="navigateTo('/ranks')" class="cta-btn">
+          <a-button type="default" size="large" @click.stop="navigateTo('/ranks')" class="cta-btn">
             Player Rankings
           </a-button>
           <a-button
             type="default"
             size="large"
-            @click="navigateTo('/tradecalculator')"
+            @click.stop="navigateTo('/tradecalculator')"
             class="cta-btn"
           >
             Trade Calculator
@@ -45,9 +50,9 @@
       >
         <!-- League Dashboard Card -->
         <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" style="padding-top: 20px">
-          <a-card hoverable @click="navigateTo('/username')" class="feature-card">
+          <a-card hoverable class="feature-card">
             <template #cover>
-              <div class="card-cover-container">
+              <div class="card-cover-container" @click="navigateTo('/username')">
                 <img src="@/assets/site/league_details.png" alt="League Dashboard" />
               </div>
             </template>
@@ -63,7 +68,7 @@
                     <li>League power rankings</li>
                     <li>Player value breakdowns</li>
                   </ul>
-                  <a-button type="primary" block @click="navigateTo('/username')"
+                  <a-button type="primary" block @click.stop="navigateTo('/username')"
                     >Enter Dashboard</a-button
                   >
                 </div>
@@ -74,9 +79,9 @@
 
         <!-- Player Rankings Card -->
         <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" style="padding-top: 20px">
-          <a-card hoverable @click="navigateTo('/ranks')" class="feature-card">
+          <a-card hoverable class="feature-card">
             <template #cover>
-              <div class="card-cover-container">
+              <div class="card-cover-container" @click="navigateTo('/ranks')">
                 <img src="@/assets/site/power_ranks.png" alt="Player Rankings" />
               </div>
             </template>
@@ -89,7 +94,7 @@
                     <li>Superflex & 1QB formats</li>
                     <li>Positional breakdowns</li>
                   </ul>
-                  <a-button type="primary" block @click="navigateTo('/ranks')"
+                  <a-button type="primary" block @click.stop="navigateTo('/ranks')"
                     >View Rankings</a-button
                   >
                 </div>
@@ -100,9 +105,9 @@
 
         <!-- Trade Calculator Card -->
         <a-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" style="padding-top: 20px">
-          <a-card hoverable @click="navigateTo('/tradecalculator')" class="feature-card">
+          <a-card hoverable class="feature-card">
             <template #cover>
-              <div class="card-cover-container">
+              <div class="card-cover-container" @click="navigateTo('/tradecalculator')">
                 <img src="@/assets/site/trade_calc.png" alt="Trade Calculator" />
               </div>
             </template>
@@ -117,7 +122,7 @@
                     <li>Draft pick valuation</li>
                     <li>Shareable trade results</li>
                   </ul>
-                  <a-button type="primary" block @click="navigateTo('/tradecalculator')"
+                  <a-button type="primary" block @click.stop="navigateTo('/tradecalculator')"
                     >Calculate Trades</a-button
                   >
                 </div>
@@ -155,6 +160,7 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 const router = useRouter()
 
 const navigateTo = (path) => {
+  console.log('Navigating to:', path)
   router.push(path)
 }
 
@@ -241,10 +247,13 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
-.cta-btn {
+.cta-btn,
+.feature-card .ant-btn {
   font-weight: 600;
   min-width: 160px;
   transition: all 0.3s ease;
+  position: relative; /* Ensure the button sits above other elements */
+  z-index: 5; /* Higher z-index to make sure it's accessible */
 }
 
 /* Feature Cards */
@@ -254,7 +263,7 @@ onMounted(() => {
     transform 0.4s ease,
     box-shadow 0.4s ease,
     background-color 0.3s ease;
-  cursor: pointer;
+  position: relative;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -262,6 +271,11 @@ onMounted(() => {
 .feature-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Make the card title area clickable for navigation */
+.feature-card :deep(.ant-card-meta-title) {
+  cursor: pointer;
 }
 
 :deep(.dark-theme) .feature-card {
