@@ -2,18 +2,23 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   build: {
     assetsDir: 'assets',
+    sourcemap: true, // Enable sourcemaps for better debugging
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia'],
+          antd: ['ant-design-vue'],
+          charts: ['chart.js']
+        },
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js'
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
   plugins: [vue()],
   resolve: {
