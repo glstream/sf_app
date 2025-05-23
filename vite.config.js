@@ -4,7 +4,15 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/', // Explicitly set the base path
+  base: './', // Change to relative base for better Netlify compatibility
+  build: {
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  },
   plugins: [vue()],
   resolve: {
     alias: {
