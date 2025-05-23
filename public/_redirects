@@ -1,10 +1,11 @@
-# Handle assets first - don't redirect these to index.html
-/assets/*    /assets/:splat    200
-*.js         /:splat           200
-*.css        /:splat           200
-*.ico        /:splat           200
-*.png        /:splat           200
-*.svg        /:splat           200
+# Static assets - serve directly
+/assets/*    200
+/favicon.ico 200
+/*.js        200
+/*.css       200
+/*.png       200
+/*.svg       200
+/*.ico       200
 
-# SPA fallback for everything else
+# SPA fallback - only for HTML requests
 /*           /index.html       200

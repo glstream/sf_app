@@ -6,11 +6,20 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
-# CSS, JavaScript, and Media files - longer cache
+# JavaScript files - explicit MIME type
+/assets/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
 *.js
+  Content-Type: application/javascript
   Cache-Control: public, max-age=31536000, immutable
+
+# CSS files
 *.css
+  Content-Type: text/css
   Cache-Control: public, max-age=31536000, immutable
+
+# Other assets
 *.svg
   Cache-Control: public, max-age=31536000, immutable
 *.jpg
