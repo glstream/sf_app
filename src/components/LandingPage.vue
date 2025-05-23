@@ -6,7 +6,7 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">Fantasy Navigator</h1>
+        <h1 class="hero-title">Fantasy Navigatory -x-</h1>
         <p class="hero-subtitle">
           The ultimate toolkit for Dynasty and Redraft fantasy football. Analyze leagues, discover
           trade opportunities, and dominate your competition.
