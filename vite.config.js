@@ -3,22 +3,24 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
+  base: './',
   build: {
     assetsDir: 'assets',
-    sourcemap: true, // Enable sourcemaps for better debugging
+    sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['vue', 'vue-router', 'pinia'],
-          antd: ['ant-design-vue'],
-          charts: ['chart.js']
-        },
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js'
+        manualChunks(id) {
+          // Force these problematic components into the main bundle
+          if (id.includes('LandingPage') || id.includes('ThemeToggleButton')) {
+            return 'main'
+          }
+          // Keep vendor chunking for everything else
+          if (id.includes('node_modules')) {
+            return 'vendor'
+          }
+        }
       }
-    },
-    chunkSizeWarningLimit: 1000
+    }
   },
   plugins: [vue()],
   resolve: {
@@ -26,4 +28,3 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   }
-})
