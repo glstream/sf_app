@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/', // Explicitly set the base path
   plugins: [vue()],
   resolve: {
     alias: {
