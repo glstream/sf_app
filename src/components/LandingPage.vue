@@ -150,7 +150,7 @@ import { useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+// import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 const router = useRouter()
 

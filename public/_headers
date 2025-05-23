@@ -5,34 +5,3 @@
   X-XSS-Protection: 1; mode=block
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-
-# JavaScript files - explicit MIME type
-/assets/*.js
-  Content-Type: application/javascript
-  Cache-Control: public, max-age=31536000, immutable
-*.js
-  Content-Type: application/javascript
-  Cache-Control: public, max-age=31536000, immutable
-
-# CSS files
-*.css
-  Content-Type: text/css
-  Cache-Control: public, max-age=31536000, immutable
-
-# Other assets
-*.svg
-  Cache-Control: public, max-age=31536000, immutable
-*.jpg
-  Cache-Control: public, max-age=31536000, immutable
-*.png
-  Cache-Control: public, max-age=31536000, immutable
-*.gif
-  Cache-Control: public, max-age=31536000, immutable
-*.woff2
-  Cache-Control: public, max-age=31536000, immutable
-
-# Never cache the service worker or manifest
-/sw.js
-  Cache-Control: public, max-age=0, must-revalidate
-/manifest.json
-  Cache-Control: public, max-age=0, must-revalidate

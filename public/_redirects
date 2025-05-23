@@ -1,11 +1,5 @@
 # Static assets - serve directly
 /assets/*    200
-/favicon.ico 200
-/*.js        200
-/*.css       200
-/*.png       200
-/*.svg       200
-/*.ico       200
 
 # SPA fallback - only for HTML requests
 /*           /index.html       200
