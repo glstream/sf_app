@@ -62,6 +62,12 @@ const router = createRouter({
       path: '/privacy-policy',
       name: 'privacy',
       component: () => import('../components/PrivacyPolicyView.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*', // Catch all undefined routes
+      redirect: { name: 'trade-calculator' } // Redirect to the trade calculator page
+      // Or, if 'trade-calculator' is not a named route, you can use path:
+      // redirect: '/trade-calculator'
     }
   ]
 })
