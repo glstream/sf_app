@@ -3829,7 +3829,7 @@ const tradeStatusComputed = computed(() => {
   if (percentageDifference <= tradePercentThreshold.value)
     return { message: 'Fair Trade', isFair: true, aFavored: false, bFavored: false }
   const balValue = Math.round(balancingPlayerValue.value)
-  if (totalValueSideA.value > totalValueSideB.value)
+  if (totalValueSideA.value < totalValueSideB.value)
     return {
       message: `Team A favored; add ~${balValue.toLocaleString()} to balance.`,
       isFair: false,
@@ -4852,7 +4852,7 @@ const areAllPositionsExpanded = (team) => {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   height: fit-content;
-  min-height: 380px;
+  min-height: 280px;
   display: flex;
   flex-direction: column;
   border: 2px solid transparent;
@@ -5251,7 +5251,7 @@ li {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   height: fit-content;
-  min-height: 380px;
+  min-height: 280px;
   display: flex;
   flex-direction: column;
   border: 2px solid transparent;
@@ -5306,7 +5306,7 @@ li {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 200px;
+  min-height: 10px;
   flex-grow: 1;
 }
 
@@ -5414,9 +5414,9 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
+  margin-top: 8px;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
-  padding-top: 12px;
+  padding-top: 8px;
 }
 
 .asset-count {
@@ -5427,6 +5427,10 @@ li {
 .total-value-display {
   font-size: 14px;
   color: #2d3142;
+}
+
+.manager-selector-container {
+  margin-bottom: 12px;
 }
 
 .trade-evaluation {

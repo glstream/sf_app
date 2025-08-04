@@ -2,19 +2,6 @@
   <div class="trade-balance-visualizer">
     <div class="balance-labels top-labels">
       <span class="label-container" v-if="!isFair && valueA > valueB">
-        <span class="label-favored label-a-favored">
-          <span class="favor-icon side-arrow left-arrow">←</span>
-          <span class="favor-icon up-arrow">↑</span>
-          Team A Favored
-        </span>
-        <span class="label-needs label-b-needs">
-          <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
-          <span class="favor-icon side-arrow right-arrow">→</span>
-          <span class="favor-icon up-arrow">↓</span>
-        </span>
-      </span>
-
-      <span class="label-container" v-if="!isFair && valueB > valueA">
         <span class="label-needs label-a-needs">
           <span class="favor-icon side-arrow left-arrow">←</span>
           <span class="favor-icon up-arrow">↑</span>
@@ -22,6 +9,19 @@
         </span>
         <span class="label-favored label-b-favored">
           Team B Favored
+          <span class="favor-icon side-arrow right-arrow">→</span>
+          <span class="favor-icon up-arrow">↓</span>
+        </span>
+      </span>
+
+      <span class="label-container" v-if="!isFair && valueB > valueA">
+        <span class="label-favored label-a-favored">
+          <span class="favor-icon side-arrow left-arrow">←</span>
+          <span class="favor-icon up-arrow">↑</span>
+          Team A Favored
+        </span>
+        <span class="label-needs label-b-needs">
+          <span class="balancing-value-display">{{ Math.round(balancingValue) }}</span>
           <span class="favor-icon side-arrow right-arrow">→</span>
           <span class="favor-icon up-arrow">↓</span>
         </span>
