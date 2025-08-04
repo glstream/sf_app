@@ -33,7 +33,6 @@
               un-checked-children="Redraft"
             />
           </div>
-          <!-- Updated Rookie switch without separate label -->
           <div class="setting-item">
             <a-switch
               id="rookie-switch"
@@ -112,61 +111,68 @@
       <!-- Player Detail Modal -->
       <a-modal
         v-model:open="isPlayerModalVisible"
-        :title="selectedPlayer?.player_full_name || 'Player Details'"
+        :title="null"
         @ok="handlePlayerModalOk"
         :footer="null"
-        width="400px"
+        width="420px"
+        class="modern-player-modal"
       >
         <div v-if="selectedPlayer" class="player-modal-content">
-          <div class="player-modal-header">
-            <div class="player-image-placeholder">
-              <!-- Placeholder for player image -->
-              <UserOutlined style="font-size: 48px; color: #ccc" />
+          <div class="player-header-compact">
+            <div class="player-avatar-small">
+              <UserOutlined />
+              <div class="tier-badge-small" :class="getTierClass(selectedPlayer.player_value)">
+                {{ getTierLabel(selectedPlayer.player_value) }}
+              </div>
             </div>
-            <div class="player-modal-info">
-              <h2>{{ selectedPlayer.player_full_name }}</h2>
-              <p>
-                <a-tag :style="getPositionTag(selectedPlayer._position)">{{
-                  selectedPlayer._position
-                }}</a-tag>
-                <span v-if="selectedPlayer.team"> &bull; {{ selectedPlayer.team }}</span>
-                <span v-if="selectedPlayer.age"> &bull; {{ selectedPlayer.age }} yrs</span>
-              </p>
+            <div class="player-info-compact">
+              <h2 class="player-name-compact">{{ selectedPlayer.player_full_name }}</h2>
+              <div class="player-details">
+                <span
+                  class="position-badge-small"
+                  :style="getPositionTag(selectedPlayer._position)"
+                >
+                  {{ selectedPlayer._position }}
+                </span>
+                <span v-if="selectedPlayer.team" class="meta-info">{{ selectedPlayer.team }}</span>
+                <span v-if="selectedPlayer.age" class="meta-info">{{ selectedPlayer.age }}y</span>
+              </div>
             </div>
-          </div>
-          <div class="player-modal-details">
-            <a-descriptions bordered :column="1" size="small">
-              <a-descriptions-item label="Value">
-                {{
-                  selectedPlayer.player_value === -1
-                    ? 'N/A'
-                    : selectedPlayer.player_value?.toLocaleString()
-                }}
-              </a-descriptions-item>
-              <a-descriptions-item label="Overall Rank">
-                {{ selectedPlayer._rownum }}
-              </a-descriptions-item>
-              <a-descriptions-item label="Positional Rank">
-                {{ selectedPlayer.pos_ranked }}
-              </a-descriptions-item>
-            </a-descriptions>
+            <div class="value-compact">
+              {{
+                selectedPlayer.player_value === -1
+                  ? 'N/A'
+                  : selectedPlayer.player_value?.toLocaleString()
+              }}
+            </div>
           </div>
 
-          <!-- Player Value Chart Section -->
-          <div class="player-modal-chart">
-            <h3>Value History</h3>
+          <div class="stats-compact">
+            <div class="stat-item">
+              <div class="stat-number">{{ selectedPlayer._rownum }}</div>
+              <div class="stat-text">Overall</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ selectedPlayer.pos_ranked }}</div>
+              <div class="stat-text">Position</div>
+            </div>
+          </div>
+
+          <div class="chart-compact">
+            <h4>Value History</h4>
             <a-spin :spinning="isChartLoading">
-              <div id="player-value-chart-container" style="height: 200px; margin-top: 16px">
-                <!-- Chart will be rendered here -->
+              <div id="player-value-chart-container" style="height: 160px">
                 <a-empty
                   v-if="!isChartLoading && (!playerValueHistory || playerValueHistory.length === 0)"
-                  description="No value history available"
+                  description="No history"
+                  :image="null"
                 />
               </div>
             </a-spin>
           </div>
         </div>
-        <div v-else>
+        <div v-else class="loading-state">
+          <a-spin size="large" />
           <p>Loading player details...</p>
         </div>
       </a-modal>
@@ -483,48 +489,141 @@ const renderPlayerValueChart = () => {
 
   chartInstance = new Line(container, {
     data: formattedData,
-    padding: 'auto',
+    padding: [25, 35, 45, 45],
     xField: 'date',
     yField: 'value',
+    theme: {
+      background: 'transparent'
+    },
     xAxis: {
       type: 'time',
-      tickCount: 5,
-      title: { text: '', style: { fontSize: 10 } }
+      tickCount: 3,
+      line: null,
+      tickLine: null,
+      subTickLine: null,
+      label: {
+        style: {
+          fill: 'rgba(107, 114, 128, 0.8)',
+          fontSize: 10,
+          fontWeight: 600,
+          textAlign: 'center'
+        },
+        formatter: (text) => {
+          const date = new Date(text)
+          return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        },
+        offset: 8
+      },
+      grid: {
+        line: {
+          style: {
+            stroke: 'rgba(229, 231, 235, 0.6)',
+            lineWidth: 1,
+            lineDash: [1, 3]
+          }
+        }
+      }
     },
     yAxis: {
-      title: { text: '', style: { fontSize: 10 } },
+      line: null,
+      tickLine: null,
+      subTickLine: null,
       label: {
-        formatter: (v) => `${Number(v).toLocaleString()}`
+        style: {
+          fill: 'rgba(107, 114, 128, 0.7)',
+          fontSize: 10,
+          fontWeight: 500,
+          textAlign: 'right'
+        },
+        formatter: (v) => {
+          const num = Number(v)
+          if (num >= 10000) {
+            return `${Math.round(num / 1000)}K`
+          } else if (num >= 1000) {
+            return `${(num / 1000).toFixed(1)}K`
+          }
+          return num.toString()
+        },
+        offset: 12
+      },
+      grid: {
+        line: {
+          style: {
+            stroke: 'rgba(229, 231, 235, 0.4)',
+            lineWidth: 1,
+            lineDash: [1, 4]
+          }
+        }
       },
       min: minValue,
       max: maxValue,
       nice: false
     },
     tooltip: {
-      showCrosshairs: true,
-      shared: true,
-      title: (data) => (data[0]?.date ? new Date(data[0].date).toLocaleDateString() : 'Date'),
-      formatter: (datum) => ({ name: 'Value', value: datum.value.toLocaleString() })
+      showCrosshairs: false,
+      showMarkers: false,
+      marker: false,
+      shared: false,
+      enterable: false,
+      position: 'top',
+      offset: 10,
+      customContent: (title, items) => {
+        if (!items || items.length === 0) return ''
+        const item = items[0]
+        const date = new Date(item.title).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        })
+        
+        return `
+          <div style="
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            font-family: system-ui, -apple-system, sans-serif;
+          ">
+            <div style="
+              font-weight: 600;
+              font-size: 14px;
+              color: #1f2937;
+              margin-bottom: 2px;
+            ">${item.value.toLocaleString()}</div>
+            <div style="
+              color: #6b7280;
+              font-size: 10px;
+              font-weight: 500;
+            ">${date}</div>
+          </div>
+        `
+      }
     },
     smooth: true,
-    height: 180,
+    height: 160,
     autoFit: true,
     point: {
-      size: 4, // <-- Make points larger (default is 4)
+      size: 3,
       shape: 'circle',
       style: {
-        fill: '#43AA8B',
-        stroke: '#8F9192',
-        lineWidth: 1,
-        shadowColor: '#277DA1',
-        shadowBlur: 4
+        fill: '#ffffff',
+        stroke: '#3b82f6',
+        lineWidth: 2
       }
     },
     lineStyle: {
-      stroke: '#277DA1',
-      lineWidth: 2,
-      shadowColor: '#277DA1',
-      shadowBlur: 2
+      stroke: '#3b82f6',
+      lineWidth: 2.5,
+      lineCap: 'round',
+      lineJoin: 'round'
+    },
+    area: {
+      style: {
+        fill: 'l(90) 0:#3b82f640 0.5:#3b82f620 1:#3b82f600',
+        fillOpacity: 0.6
+      }
     }
   })
 
@@ -552,83 +651,55 @@ const handlePlayerModalOk = () => {
 <style scoped>
 .layout {
   min-height: 100vh;
-  background-color: var(--color-background-soft);
-  /* Define theme variables */
-  --background-color: #f5f7fa;
-  --text-color: #2d3142;
-  --secondary-text-color: #4b5563;
-  --muted-text-color: #6b7280;
-  --card-background: #ffffff;
-  --header-background: #f1f5f9;
-  --border-color: #e0e0e0;
-  --hover-background: #f0f5ff;
-  --control-background: #f9fafb;
-  --shadow-color: rgba(0, 0, 0, 0.06);
-  --primary-color: #1e3a8a;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  position: relative;
 }
 
 :deep(.dark-theme) .layout {
-  /* Dark theme overrides */
-  --background-color: #1a202c;
-  --text-color: #e2e8f0;
-  --secondary-text-color: #a0aec0;
-  --muted-text-color: #718096;
-  --card-background: #2d3748;
-  --header-background: #2c3e50;
-  --border-color: #4a5568;
-  --hover-background: #38465a;
-  --control-background: #2d3748;
-  --shadow-color: rgba(0, 0, 0, 0.2);
-  --primary-color: #63b3ed;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
 }
 
 .responsive-padding {
   padding: 0 16px;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 .page-title {
   text-align: center;
-  margin: 24px 0;
+  margin: 32px 0;
 }
 
 .page-title h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--color-text);
-  transition: color 0.3s ease;
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: var(--secondary-text-color);
-  transition: color 0.3s ease;
-}
-
-.rank-logos {
-  width: 24px;
-  height: 20px;
-  vertical-align: middle;
-  border-radius: 3px;
-  margin-right: 5px;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .ranks-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  background: var(--color-background);
-  padding: 16px;
+  gap: 20px;
+  margin-bottom: 28px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px var(--shadow-color);
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .ranks-toggle-section {
@@ -665,41 +736,42 @@ const handlePlayerModalOk = () => {
 
 .rankings-table {
   width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
   border-radius: 12px;
   overflow: hidden;
-  background: transparent;
-  max-width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .rankings-header {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
-  padding: 12px 8px;
+  grid-template-columns: 80px 130px 3fr 160px 130px 180px;
+  padding: 18px 20px;
   font-weight: 600;
-  color: var(--text-color);
-  background: var(--color-background);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  color: var(--color-text);
+  background: rgba(248, 250, 252, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .rankings-row {
   display: grid;
-  grid-template-columns: 50px 80px minmax(250px, 2fr) 100px 80px 120px;
-  padding: 10px 8px;
+  grid-template-columns: 80px 130px 3fr 160px 130px 180px;
+  padding: 16px 20px;
   align-items: center;
-  transition: background-color 0.2s;
-  margin-bottom: 8px;
-  background: var(--color-background);
-  border-radius: 6px;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
+  position: relative;
+}
+
+.rankings-row:hover {
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateX(2px);
 }
 
 .rankings-row:last-child {
-  margin-bottom: 0;
+  border-bottom: none;
 }
 
 .cell {
@@ -707,30 +779,29 @@ const handlePlayerModalOk = () => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-color);
-  transition: color 0.3s ease;
+  color: var(--color-text);
 }
 
 .cell-rank {
   font-weight: 600;
-  color: var(--secondary-text-color);
   text-align: center;
+  color: var(--color-text-secondary);
 }
 
 .cell-value {
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--color-primary);
   text-align: right;
 }
 
 .cell-team {
-  color: var(--secondary-text-color);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
 .cell-age {
   text-align: center;
-  color: var(--muted-text-color);
+  color: var(--color-text-secondary);
 }
 
 .player-container {
@@ -741,8 +812,7 @@ const handlePlayerModalOk = () => {
 
 .player-name {
   font-weight: 600;
-  color: var(--primary-text-color);
-  transition: color 0.3s ease;
+  color: var(--color-text);
 }
 
 /* The remaining styles may need similar updates */
@@ -791,300 +861,385 @@ const handlePlayerModalOk = () => {
   color: var(--text-color);
 }
 
-.player-modal-chart {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-color);
-}
-
-.player-modal-chart h3 {
-  margin-bottom: 12px;
-  font-size: 1.1em;
+/* Tier System - Subtle Design */
+.tier-indicator {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-weight: 600;
-  color: var(--text-color);
+  text-align: center;
+  min-width: 45px;
+  letter-spacing: 0.3px;
+  border: 1px solid;
 }
 
-#player-value-chart-container .ant-spin-nested-loading {
-  height: 100%;
+/* Elite Tier - Blue */
+.tier-elite .tier-indicator {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.3);
 }
-#player-value-chart-container .ant-spin-container {
-  height: 100%;
+
+.tier-elite {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.03), transparent);
+  border-left: 3px solid #3b82f6;
+}
+
+/* Tier 1 - Darker Green */
+.tier-1 .tier-indicator {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.tier-1 {
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.03), transparent);
+  border-left: 3px solid #22c55e;
+}
+
+/* Tier 2 - Green */
+.tier-2 .tier-indicator {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.tier-2 {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.03), transparent);
+  border-left: 3px solid #10b981;
+}
+
+/* Tier 3 - Yellow */
+.tier-3 .tier-indicator {
+  background: rgba(234, 179, 8, 0.1);
+  color: #a16207;
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.tier-3 {
+  background: linear-gradient(90deg, rgba(234, 179, 8, 0.03), transparent);
+  border-left: 3px solid #eab308;
+}
+
+/* Tier 4 - Orange */
+.tier-4 .tier-indicator {
+  background: rgba(249, 115, 22, 0.1);
+  color: #ea580c;
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.tier-4 {
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.03), transparent);
+  border-left: 3px solid #f97316;
+}
+
+/* Depth Tier - Orangish */
+.tier-depth .tier-indicator {
+  background: rgba(251, 146, 60, 0.1);
+  color: #c2410c;
+  border-color: rgba(251, 146, 60, 0.3);
+}
+
+.tier-depth {
+  background: linear-gradient(90deg, rgba(251, 146, 60, 0.03), transparent);
+  border-left: 3px solid #fb923c;
+}
+
+.position-tag {
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 900;
+  border: 1px solid currentColor;
+}
+
+.pos-rank {
+  margin-left: 4px;
+  opacity: 0.8;
+}
+
+.pagination-container {
   display: flex;
   justify-content: center;
+  padding: 32px 0;
+}
+
+/* Compact Player Modal */
+.modern-player-modal :deep(.ant-modal-content) {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.player-modal-content {
+  padding: 0;
+}
+
+.player-header-compact {
+  display: flex;
   align-items: center;
-}
-#player-value-chart-container .ant-empty {
-}
-
-:deep(.dark-theme) .ant-modal-content {
-  background-color: var(--card-background);
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.03));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-:deep(.dark-theme) .ant-modal-header {
-  background-color: var(--card-background);
-  border-bottom-color: var(--border-color);
+.player-avatar-small {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #64748b;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 
-:deep(.dark-theme) .ant-modal-title {
-  color: var(--text-color);
+.tier-badge-small {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-:deep(.dark-theme) .ant-modal-close {
-  color: var(--text-color);
+.player-info-compact {
+  flex: 1;
+  min-width: 0;
 }
 
-:deep(.dark-theme) .ant-descriptions-item-label,
-:deep(.dark-theme) .ant-descriptions-item-content {
-  background-color: var(--card-background);
-  border-color: var(--border-color);
-  color: var(--text-color);
+.player-name-compact {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: var(--color-text);
+  line-height: 1.2;
 }
 
-:deep(.dark-theme) .ant-empty-description {
-  color: var(--muted-text-color);
+.player-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-:deep(.dark-theme) .ant-pagination-item a {
-  color: var(--text-color);
+.position-badge-small {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid currentColor;
 }
 
-:deep(.dark-theme) .ant-pagination-item-active {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
+.meta-info {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
 }
 
-:deep(.dark-theme) .ant-pagination-item-active a {
-  color: #fff;
-}
-.tier-indicator {
-  font-size: 0.65rem;
-  padding: 0 2px;
-  max-width: 32px;
-  color: var(--primary-text-color);
-}
-.tier-elite {
-  border-left: 4px solid #277da1;
-}
-.tier-elite .tier-indicator {
-  background-color: #277da1;
+.value-compact {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.tier-1 {
-  border-left: 4px solid #43aa8b;
-}
-.tier-1 .tier-indicator {
-  background-color: #43aa8b;
-}
-
-.tier-2 {
-  border-left: 4px solid #90be6d;
-}
-.tier-2 .tier-indicator {
-  background-color: #90be6d;
+.stats-compact {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(248, 250, 252, 0.5);
 }
 
-.tier-3 {
-  border-left: 4px solid #f9c74f;
-}
-.tier-3 .tier-indicator {
-  background-color: #f9c74f;
-  color: #333;
-}
-
-.tier-4 {
-  border-left: 4px solid #f9844a;
-}
-.tier-4 .tier-indicator {
-  background-color: #f9844a;
+.stat-item {
+  flex: 1;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 12px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.tier-depth {
-  border-left: 4px solid #bdbdbd;
-}
-.tier-depth .tier-indicator {
-  background-color: #bdbdbd;
-}
-
-@media (min-width: 1400px) {
-  .responsive-padding {
-    padding: 0 32px;
-  }
+.stat-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
-@media (min-width: 768px) and (max-width: 1399px) {
-  .responsive-padding {
-    padding: 0 24px;
-  }
-}
-.tier-indicator {
-  font-size: 0.65rem;
-  padding: 0 2px;
-  max-width: 32px;
-  color: var(--primary-text-color);
-}
-.tier-elite {
-  border-left: 4px solid #277da1;
-}
-.tier-elite .tier-indicator {
-  background-color: #277da1;
+.stat-text {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
 }
 
-.tier-1 {
-  border-left: 4px solid #43aa8b;
-}
-.tier-1 .tier-indicator {
-  background-color: #43aa8b;
+.chart-compact {
+  padding: 20px;
 }
 
-.tier-2 {
-  border-left: 4px solid #90be6d;
-}
-.tier-2 .tier-indicator {
-  background-color: #90be6d;
-}
-
-.tier-3 {
-  border-left: 4px solid #f9c74f;
-}
-.tier-3 .tier-indicator {
-  background-color: #f9c74f;
-  color: #333;
+.chart-compact h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 12px 0;
 }
 
-.tier-4 {
-  border-left: 4px solid #f9844a;
-}
-.tier-4 .tier-indicator {
-  background-color: #f9844a;
+.loading-state {
+  padding: 40px 20px;
+  text-align: center;
 }
 
-.tier-depth {
-  border-left: 4px solid #bdbdbd;
+.loading-state p {
+  margin-top: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
 }
-.tier-depth .tier-indicator {
-  background-color: #bdbdbd;
+
+/* Compact Tier Badge Colors */
+.tier-elite.tier-badge-small {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
 }
 
-@media (max-width: 767px) {
-  .responsive-padding {
-    max-width: 100%;
-  }
+.tier-1.tier-badge-small {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  color: white;
+}
 
-  .rankings-header,
-  .rankings-row {
-    grid-template-columns: 24px 36px minmax(60px, 1fr) 34px 24px 54px;
-    font-size: 0.85rem;
-    padding: 2px 1px;
-  }
+.tier-2.tier-badge-small {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
 
-  .rankings-row {
-    margin-bottom: 4px;
-    border-radius: 4px;
-  }
+.tier-3.tier-badge-small {
+  background: linear-gradient(135deg, #eab308, #a16207);
+  color: white;
+}
 
-  .cell {
-    padding: 0 1px;
-    font-size: 0.75rem;
+.tier-4.tier-badge-small {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+}
+
+.tier-depth.tier-badge-small {
+  background: linear-gradient(135deg, #fb923c, #c2410c);
+  color: white;
+}
+
+/* Mobile Modal Optimization */
+@media (max-width: 768px) {
+  .modern-player-modal :deep(.ant-modal) {
+    width: 95% !important;
+    max-width: 380px !important;
+    margin: 10px auto;
   }
 
-  .cell-value {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    text-align: right;
-    min-width: 48px;
-    max-width: 54px;
-    overflow: visible;
+  .player-header-compact {
+    padding: 16px;
+    gap: 12px;
   }
 
-  .player-container {
-    gap: 2px;
+  .player-avatar-small {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
   }
 
-  .position-tag {
-    padding: 0 2px;
-    font-size: 0.65rem;
+  .tier-badge-small {
+    bottom: -4px;
+    right: -4px;
+    padding: 1px 6px;
+    font-size: 7px;
   }
 
-  .tier-indicator {
-    font-size: 0.65rem;
-    padding: 0 2px;
-    max-width: 32px;
-    color: #ffff;
-    border-radius: 5px;
-  }
-  .tier-elite {
-    border-left: 4px solid #277da1;
-  }
-  .tier-elite .tier-indicator {
-    background-color: #277da1;
+  .player-name-compact {
+    font-size: 16px;
   }
 
-  .tier-1 {
-    border-left: 4px solid #43aa8b;
-  }
-  .tier-1 .tier-indicator {
-    background-color: #43aa8b;
+  .value-compact {
+    font-size: 18px;
   }
 
-  .tier-2 {
-    border-left: 4px solid #90be6d;
-  }
-  .tier-2 .tier-indicator {
-    background-color: #90be6d;
+  .stats-compact {
+    padding: 12px 16px;
+    gap: 8px;
   }
 
-  .tier-3 {
-    border-left: 4px solid #f9c74f;
-  }
-  .tier-3 .tier-indicator {
-    background-color: #f9c74f;
-    color: #333;
+  .stat-item {
+    padding: 10px 6px;
   }
 
-  .tier-4 {
-    border-left: 4px solid #f9844a;
-  }
-  .tier-4 .tier-indicator {
-    background-color: #f9844a;
+  .stat-number {
+    font-size: 14px;
   }
 
-  .tier-depth {
-    border-left: 4px solid #bdbdbd;
-  }
-  .tier-depth .tier-indicator {
-    background-color: #bdbdbd;
-  }
-  .player-modal-chart {
-    margin-top: 16px;
-    padding-top: 12px;
+  .chart-compact {
+    padding: 16px;
   }
 
   #player-value-chart-container {
-    height: 180px;
+    height: 140px !important;
   }
 }
 
-@media (max-width: 400px) {
-  .rankings-header,
-  .rankings-row {
-    grid-template-columns: 18px 26px minmax(40px, 1fr) 24px 16px 38px;
-    font-size: 0.7rem;
-    padding: 2px 0;
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .responsive-padding {
+    padding: 0 12px;
   }
-  .cell-value {
-    min-width: 36px;
-    max-width: 38px;
-    font-size: 0.7rem;
-  }
-}
 
-@media (max-width: 575px) {
+  .page-title h1 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .ranks-controls {
+    padding: 16px;
+  }
+
+  .ranks-toggle-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ranks-filter-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .download-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 30px 55px minmax(120px, 1fr) 50px 40px 70px;
-    font-size: 0.8rem;
-    padding: 6px 2px;
+    grid-template-columns: 35px 60px 1fr 70px 50px 80px;
+    padding: 8px 4px;
+    font-size: 14px;
   }
 
   .player-container {
@@ -1093,14 +1248,31 @@ const handlePlayerModalOk = () => {
     gap: 4px;
   }
 
-  .cell-team,
-  .cell-age {
-    font-size: 0.75rem;
+  .position-tag {
+    font-size: 8px;
+    padding: 1px 3px;
   }
 
-  .page-title h1 {
-    font-size: 24px;
-    color: var(--color-text);
+  .pos-rank {
+    display: none;
+  }
+
+  .tier-indicator {
+    font-size: 10px;
+    padding: 2px 6px;
+    min-width: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rankings-header,
+  .rankings-row {
+    grid-template-columns: 30px 50px 1fr 60px 40px 70px;
+    font-size: 12px;
+  }
+
+  .player-name {
+    font-size: 14px;
   }
 }
 </style>

@@ -219,9 +219,14 @@
                 </a-row>
 
                 <!-- Heatmap Title -->
-                <h2 class="text-center-margin-top-30">
-                  {{ showProjections ? 'Projections' : 'Rankings' }} Heat Map
-                </h2>
+                <div class="heatmap-title-section">
+                  <h2 class="heatmap-title">
+                    {{ showProjections ? 'Projections' : 'Rankings' }} Heat Map
+                  </h2>
+                  <p class="heatmap-subtitle">
+                    Interactive team rankings and performance visualization
+                  </p>
+                </div>
 
                 <!-- Desktop Heatmap Table -->
                 <div class="heatmap-desktop-view">

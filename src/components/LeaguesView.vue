@@ -714,7 +714,7 @@ const getCurrentYear = async () => {
 }
 
 .gutter-box-stats {
-  padding: 3px 2px; /* Slightly more padding */
+  padding: 3px 2px;
   display: flex;
   justify-content: center;
 }
@@ -722,8 +722,8 @@ const getCurrentYear = async () => {
 .gutter-box-stats-header {
   padding: 3px 10px;
   font-size: 13px;
-  font-weight: 500; /* Medium weight */
-  color: var(--color-text); /* Use theme variable */
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 .gutter-box-stats-top {
@@ -919,11 +919,7 @@ a-tag:hover {
   text-align: center;
   margin-bottom: 20px;
   padding: 16px;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03),
-    transparent
-  );
+  background: linear-gradient(135deg, rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03), transparent);
   border-radius: 8px;
 }
 
