@@ -387,7 +387,7 @@
 </template>
 <script lang="ts" setup>
 // Vue Imports
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, watch, computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
@@ -451,6 +451,9 @@ const leagueInfo = reactive({
 })
 
 onMounted(() => {
+  // Scroll to top immediately when component mounts
+  window.scrollTo(0, 0)
+  
   const userName = route.params.userName as string
   const leagueYear = route.params.leagueYear as string
   const guid = route.params.guid as string
@@ -467,6 +470,15 @@ const filteredData = computed(() => {
       selectedRosterType.value.length === 0 || selectedRosterType.value.includes(league.roster_type)
     return matchesLeagueType && matchesRosterType
   })
+})
+
+// Watch for loading state changes and scroll to top
+watch(isLoading, async (newVal) => {
+  if (!newVal) {
+    // When loading finishes, ensure we're at the top
+    await nextTick()
+    window.scrollTo(0, 0)
+  }
 })
 
 const handleLeagueChange = (value: string) => {
