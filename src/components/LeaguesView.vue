@@ -25,12 +25,16 @@
         <a-breadcrumb-item>{{ leagueInfo.userName }}</a-breadcrumb-item>
       </a-breadcrumb>
 
-      <div style="padding-top: 30px">
-        <a-flex :gap="20">
+      <div class="filters-section">
+        <div class="filters-header">
+          <h2>Filter Leagues</h2>
+          <p>Customize your view by league and roster type</p>
+        </div>
+        <a-flex :gap="20" class="filters-container">
           <a-select
             placeholder="Select League Type"
             :options="leagueOptions"
-            style="width: 175px"
+            class="filter-select"
             @change="handleLeagueChange"
             v-model="selectedLeagueType"
             mode="multiple"
@@ -40,7 +44,7 @@
           <a-select
             placeholder="Select Roster Type"
             :options="rosterOptions"
-            style="width: 175px"
+            class="filter-select"
             @change="handleRosterChange"
             v-model="selectedRosterType"
             mode="multiple"
@@ -63,16 +67,16 @@
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col class="gutter-row" :span="24">
                   <div class="gutter-box-header">
-                    <div>
+                    <div class="league-header-content">
                       <img
                         class="league-logo"
                         :src="`https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
-                        style="vertical-align: middle"
                         @error="(event) => (event.target.src = defaultimage)"
                       />
-                      <span style="font-size: larger; padding-left: 5px">{{
-                        league.league_name
-                      }}</span>
+                      <div class="league-title-section">
+                        <span class="league-name">{{ league.league_name }}</span>
+                        <span class="league-year">{{ league.league_year }} Season</span>
+                      </div>
                     </div>
                   </div>
                 </a-col>
@@ -98,24 +102,29 @@
                 <a-col :span="8">
                   <div class="gutter-box-refresh">
                     <a-tooltip>
-                      <template #title>League Details</template>
-                      <a-dropdown-button size="default" type="primary">
+                      <template #title>View detailed power rankings and analysis</template>
+                      <a-dropdown-button size="default" type="primary" class="power-ranks-button">
+                        <template #icon><BarChartOutlined /></template>
                         Power Ranks
                         <template #overlay>
-                          <a-menu @click="(e) => handleMenuClick(e, league)">
-                            <a-menu-item v-for="source in sources" :key="source.key">
-                              <UserOutlined />
-                              <img
-                                style="padding-right: 5px"
-                                class="rank-logos"
-                                :src="source.logo"
-                              />{{ source.name }}
+                          <a-menu
+                            @click="(e) => handleMenuClick(e, league)"
+                            class="power-ranks-menu"
+                          >
+                            <a-menu-item
+                              v-for="source in sources"
+                              :key="source.key"
+                              class="rank-menu-item"
+                            >
+                              <img class="rank-logos" :src="source.logo" />{{ source.name }}
                             </a-menu-item>
                             <a-menu-divider />
-                            <a-menu-item key="summary"> <FileSearchOutlined /> Summary</a-menu-item>
+                            <a-menu-item key="summary" class="summary-menu-item">
+                              <FileSearchOutlined />
+                              League Summary
+                            </a-menu-item>
                           </a-menu>
                         </template>
-                        <template #icon><DownOutlined /></template>
                       </a-dropdown-button>
                     </a-tooltip>
                   </div>
@@ -134,28 +143,34 @@
                 </a-col>
               </a-row>
               <div class="leagues-stats-container">
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-top-header" style="font-weight: bold">
-                      Rankings
-                    </div></a-col
+                <div class="stats-header">
+                  <h3>Power Rankings Comparison</h3>
+                  <p>Compare your team's rankings across multiple platforms</p>
+                </div>
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="stats-table-header">
+                  <a-col class="gutter-row" :span="8"> </a-col>
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats column-header">Overall</div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
-                    <div class="gutter-box-stats">Power</div></a-col
+                    <div class="gutter-box-stats column-header">Starters</div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
-                    <div class="gutter-box-stats">Starters</div></a-col
+                    <div class="gutter-box-stats column-header">Bench</div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
-                    <div class="gutter-box-stats">Bench</div></a-col
-                  >
-                  <a-col class="gutter-row" :span="4">
-                    <div class="gutter-box-stats">Picks</div></a-col
+                    <div class="gutter-box-stats column-header">Picks</div></a-col
                   >
                 </a-row>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-row
+                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                  class="clickable-platform-row"
+                  @click="handlePlatformClick('sf', league)"
+                >
                   <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header">FantasyNavigator</div></a-col
+                    <div class="gutter-box-stats-header clickable-platform-header">
+                      FantasyNavigator
+                    </div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
                     <div class="gutter-box-stats">
@@ -186,9 +201,15 @@
                     </div></a-col
                   >
                 </a-row>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-row
+                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                  class="clickable-platform-row"
+                  @click="handlePlatformClick('ktc', league)"
+                >
                   <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header">KeepTradeCut</div></a-col
+                    <div class="gutter-box-stats-header clickable-platform-header">
+                      KeepTradeCut
+                    </div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
                     <div class="gutter-box-stats">
@@ -219,9 +240,15 @@
                     </div></a-col
                   >
                 </a-row>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-row
+                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                  class="clickable-platform-row"
+                  @click="handlePlatformClick('dp', league)"
+                >
                   <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header">DynastyProcess</div></a-col
+                    <div class="gutter-box-stats-header clickable-platform-header">
+                      DynastyProcess
+                    </div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
                     <div class="gutter-box-stats">
@@ -252,9 +279,15 @@
                     </div></a-col
                   >
                 </a-row>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-row
+                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                  class="clickable-platform-row"
+                  @click="handlePlatformClick('fc', league)"
+                >
                   <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header">FantasyCalc</div></a-col
+                    <div class="gutter-box-stats-header clickable-platform-header">
+                      FantasyCalc
+                    </div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
                     <div class="gutter-box-stats">
@@ -285,9 +318,15 @@
                     </div></a-col
                   >
                 </a-row>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+                <a-row
+                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                  class="clickable-platform-row"
+                  @click="handlePlatformClick('dd', league)"
+                >
                   <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header">DynastyDaddy</div></a-col
+                    <div class="gutter-box-stats-header clickable-platform-header">
+                      DynastyDaddy
+                    </div></a-col
                   >
                   <a-col class="gutter-row" :span="4">
                     <div class="gutter-box-stats">
@@ -360,7 +399,8 @@ import {
   HomeOutlined,
   FileSearchOutlined,
   BarChartOutlined,
-  DownOutlined
+  DownOutlined,
+  UserOutlined
 } from '@ant-design/icons-vue'
 import type { SelectProps, MenuProps } from 'ant-design-vue'
 
@@ -489,6 +529,12 @@ const handleMenuClick = (e, league) => {
   } else {
     getLeagueDetail(e, league)
   }
+}
+
+const handlePlatformClick = (platformKey, league) => {
+  // Create an event object similar to the menu click event
+  const mockEvent = { key: platformKey }
+  getLeagueDetail(mockEvent, league)
 }
 
 const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
@@ -716,6 +762,7 @@ const getCurrentYear = async () => {
   display: flex;
   justify-content: right;
   margin-right: 5px;
+  margin-top: 8px;
   align-items: baseline;
 }
 
@@ -748,5 +795,299 @@ a-tag:hover {
 
 .leagues-container {
   animation: fadeIn 0.4s ease-out;
+}
+
+/* New Enhanced Styles */
+
+/* Filters Section */
+.filters-section {
+  padding: 30px 0 40px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05),
+    transparent
+  );
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.filters-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.filters-header h2 {
+  margin: 0 0 8px;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.filters-header p {
+  margin: 0;
+  color: var(--color-text-secondary, #666);
+  font-size: 0.95em;
+}
+
+.filters-container {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  width: 200px !important;
+  min-width: 175px;
+}
+
+/* Enhanced League Header */
+.league-header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.league-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.league-name {
+  font-size: 1.25em;
+  font-weight: 600;
+  color: var(--color-heading);
+  line-height: 1.2;
+}
+
+.league-year {
+  font-size: 0.85em;
+  color: var(--color-text-secondary, #666);
+  font-weight: 500;
+}
+
+/* Enhanced Power Ranks Button */
+.power-ranks-button {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.power-ranks-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Enhanced Rankings Menu */
+.power-ranks-menu {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.rank-menu-item {
+  padding: 12px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.rank-menu-item:hover {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.08) !important;
+}
+
+.summary-menu-item {
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+  color: var(--ant-primary-color, #277da1) !important;
+}
+
+/* Enhanced Stats Section */
+.stats-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03),
+    transparent
+  );
+  border-radius: 8px;
+}
+
+.stats-header h3 {
+  margin: 0 0 6px;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.stats-header p {
+  margin: 0;
+  font-size: 0.9em;
+  color: var(--color-text-secondary, #666);
+}
+
+.stats-table-header {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  padding: 8px 0;
+}
+
+.column-header {
+  font-weight: 600 !important;
+  font-size: 0.9em !important;
+  color: var(--color-heading) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced League Container */
+.leagues-container {
+  border: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.2);
+  border-radius: 12px;
+  margin-top: 20px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-background);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+
+.leagues-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ant-primary-color, #277da1), #43aa8b);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.leagues-container:hover {
+  border-color: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.leagues-container:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced Stats Container */
+.leagues-stats-container {
+  border-radius: 8px;
+  margin: 8px 8px 16px;
+  background: var(--color-background-soft);
+  padding: 16px 8px;
+  border: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
+}
+
+/* Enhanced Tags */
+.standard-tag {
+  border: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.2);
+  border-radius: 6px;
+  padding: 4px 12px;
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05);
+  box-shadow: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.standard-tag:hover {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
+  transform: scale(1.02);
+}
+
+/* Enhanced League Logo */
+.league-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.2);
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.league-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced Rank Logos */
+.rank-logos {
+  width: 28px;
+  height: 24px;
+  vertical-align: middle;
+  border-radius: 4px;
+  margin-right: 8px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.rank-logos:hover {
+  transform: scale(1.1);
+}
+
+/* Clickable Platform Rows */
+.clickable-platform-row {
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-radius: 6px;
+  margin: 2px 0;
+  padding: 4px 0;
+}
+
+.clickable-platform-row:hover {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.08) !important;
+  transform: translateX(4px);
+}
+
+.clickable-platform-header {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.clickable-platform-row:active {
+  transform: translateX(2px);
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.12) !important;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px !important;
+  }
+
+  .filter-select {
+    width: 100% !important;
+    max-width: 300px;
+  }
+
+  .league-title-section {
+    gap: 2px;
+  }
+
+  .league-name {
+    font-size: 1.1em;
+  }
+
+  .stats-header h3 {
+    font-size: 1.1em;
+  }
+
+  .column-header {
+    font-size: 0.8em !important;
+  }
+
+  .clickable-platform-row:hover {
+    transform: none;
+  }
 }
 </style>
