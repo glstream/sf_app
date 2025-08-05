@@ -1468,29 +1468,48 @@ function getCardPositionColor(position: string): string {
 }
 
 .team-card {
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   height: fit-content;
-  min-height: 350px; /* Add minimum height */
-  display: flex; /* Use flexbox for better height management */
-  flex-direction: column; /* Stack content vertically */
-  border: 2px solid transparent; /* Default transparent border */
-  transition: border-color 0.4s ease; /* Add transition for border-color */
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
 }
 
-/* Updated styles for card border based on trade status */
+/* Clean, vibrant styles for card borders */
 .team-card.card-outline-balanced {
-  border-color: rgba(82, 196, 26, 0.5); /* Light green border */
+  border-color: #22c55e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(34, 197, 94, 0.2);
 }
 
 .team-card.card-outline-winning {
-  /* Losing side */
-  border-color: rgba(24, 144, 255, 0.5); /* Light blue border */
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(59, 130, 246, 0.2);
 }
 
 .team-card.card-outline-losing {
-  /* Winning side */
-  border-color: rgba(245, 34, 45, 0.4); /* Light red border */
+  border-color: #ef4444;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+/* Nice hover effect */
+.team-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.team-card.card-outline-balanced:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(34, 197, 94, 0.3);
+}
+
+.team-card.card-outline-winning:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+.team-card.card-outline-losing:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(239, 68, 68, 0.3);
 }
 
 .team-header {
