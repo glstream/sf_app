@@ -453,7 +453,7 @@ const leagueInfo = reactive({
 onMounted(() => {
   // Scroll to top immediately when component mounts
   window.scrollTo(0, 0)
-  
+
   const userName = route.params.userName as string
   const leagueYear = route.params.leagueYear as string
   const guid = route.params.guid as string
@@ -753,7 +753,7 @@ const getCurrentYear = async () => {
 }
 
 .max-width-container {
-  max-width: 400px; /* Slightly wider for better spacing */
+  max-width: 380px; /* Slightly wider for better spacing */
   width: 100%;
   margin: 15px 10px; /* More top/bottom margin */
 }
@@ -919,7 +919,11 @@ a-tag:hover {
   text-align: center;
   margin-bottom: 20px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03), transparent);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03),
+    transparent
+  );
   border-radius: 8px;
 }
 
