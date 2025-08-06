@@ -35,6 +35,7 @@ export const useThemeStore = defineStore('theme', {
     applyTheme() {
       // Apply theme to document for CSS variables
       document.documentElement.classList.toggle('dark', this.isDarkMode)
+      document.documentElement.classList.toggle('light', !this.isDarkMode)
     }
   },
   persist: {

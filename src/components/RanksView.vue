@@ -1282,6 +1282,36 @@ const handlePlayerModalOk = () => {
 </style>
 
 <style>
+/* Global light theme overrides to ensure proper text colors */
+html.light .layout {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+
+html.light .ranks-controls {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .rankings-table {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+html.light .rankings-header {
+  background: rgba(248, 250, 252, 0.8) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .rankings-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .rankings-row:hover {
+  background: rgba(59, 130, 246, 0.05) !important;
+}
+
 /* Global dark theme overrides for rankings table */
 html.dark .layout {
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;

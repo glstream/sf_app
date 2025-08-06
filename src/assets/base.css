@@ -53,6 +53,25 @@
   --section-gap: 160px;
 }
 
+/* Explicit light mode class-based theme to override system preferences */
+:root.light {
+  --color-background: var(--vt-c-white);
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
+
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--vt-c-text-light-1);
+  --color-text: var(--vt-c-text-light-1);
+  --color-text-secondary: var(--vt-c-text-light-2);
+  --color-primary: #3b82f6;
+
+  --primary-text-color: var(--primary-color-theme-light);
+  --league-details-primary-card: var(--league-details-primary-card-light);
+  --card-outline-reverse: var(--primary-card-outline-reverse-light);
+}
+
 /* Dark mode class-based theme instead of media query */
 :root.dark {
   --color-background: var(--vt-c-black);
@@ -72,9 +91,9 @@
   --card-outline-reverse: var(--primary-card-outline-reverse-dark);
 }
 
-/* We can still keep this for initial load to avoid flash of incorrect theme */
+/* Initial load theme detection - only applies if no manual theme class is present */
 @media (prefers-color-scheme: dark) {
-  :root:not(.light) {
+  :root:not(.light):not(.dark) {
     --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
     --color-background-mute: var(--vt-c-black-mute);
@@ -83,8 +102,27 @@
     --color-border-hover: var(--vt-c-divider-dark-1);
 
     --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--white-text);
+    --color-text: var(--vt-c-text-dark-2);
+    --color-text-secondary: var(--vt-c-text-dark-2);
+    --color-primary: #60a5fa;
     --primary-color: var(--primary-color-theme-dark);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not(.light):not(.dark) {
+    --color-background: var(--vt-c-white);
+    --color-background-soft: var(--vt-c-white-soft);
+    --color-background-mute: var(--vt-c-white-mute);
+
+    --color-border: var(--vt-c-divider-light-2);
+    --color-border-hover: var(--vt-c-divider-light-1);
+
+    --color-heading: var(--vt-c-text-light-1);
+    --color-text: var(--vt-c-text-light-1);
+    --color-text-secondary: var(--vt-c-text-light-2);
+    --color-primary: #3b82f6;
+    --primary-text-color: var(--primary-color-theme-light);
   }
 }
 
