@@ -787,6 +787,8 @@ const handlePlayerModalOk = () => {
   font-weight: 600;
   text-align: center;
   color: var(--color-text-secondary);
+  min-width: 0;
+  overflow: visible;
 }
 
 .cell-value {
@@ -1241,7 +1243,7 @@ const handlePlayerModalOk = () => {
 
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 35px 60px 1fr 70px 50px 80px;
+    grid-template-columns: 45px 65px 1fr 70px 45px 85px;
     padding: 8px 4px;
     font-size: 14px;
   }
@@ -1271,12 +1273,22 @@ const handlePlayerModalOk = () => {
 @media (max-width: 480px) {
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 30px 50px 1fr 60px 40px 70px;
+    grid-template-columns: 42px 55px 1fr 55px 38px 75px;
     font-size: 12px;
   }
 
   .player-name {
     font-size: 14px;
+  }
+
+  .cell-rank {
+    padding: 0 2px;
+    font-size: 12px;
+    min-width: 0;
+  }
+
+  .cell {
+    padding: 0 2px;
   }
 }
 </style>
