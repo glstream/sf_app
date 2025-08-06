@@ -33,7 +33,7 @@
                 style="width: 220px"
               >
                 <template #prefix>
-                  <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
+                  <UserOutlined class="input-icon" />
                 </template>
               </a-input>
             </a-form-item>
@@ -443,14 +443,28 @@ const structuredData = {
 <style scoped>
 /* Hero Section Styles */
 .hero-section {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
   min-height: 350px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px 0 40px 0;
   position: relative;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: var(--hero-box-shadow);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Theme-specific hero gradients */
+.hero-section {
+  --hero-gradient-start: #f5f7fa;
+  --hero-gradient-end: #c3cfe2;
+  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+}
+
+html.dark .hero-section {
+  --hero-gradient-start: #2d3748;
+  --hero-gradient-end: #1a202c;
+  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.15);
 }
 
 .hero-content {
@@ -462,16 +476,18 @@ const structuredData = {
 .hero-title {
   font-size: 2.8rem;
   font-weight: 800;
-  color: #2d3142;
+  color: var(--color-text);
   margin-bottom: 18px;
   letter-spacing: -1px;
+  transition: color 0.3s ease;
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: #495670;
+  color: var(--color-text-secondary);
   margin-bottom: 32px;
   font-weight: 400;
+  transition: color 0.3s ease;
 }
 
 .hero-form {
@@ -491,9 +507,34 @@ const structuredData = {
   margin-bottom: 0 !important;
 }
 
+.input-icon {
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
 .cta-btn {
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+/* Card theme support */
+:deep(.ant-card) {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+:deep(.ant-card-meta-title) {
+  color: var(--color-text);
+}
+
+:deep(.ant-card-meta-description) {
+  color: var(--color-text-secondary);
+}
+
+/* Dark theme specific adjustments */
+html.dark :deep(.ant-card) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .features-header {
@@ -505,8 +546,9 @@ const structuredData = {
 .features-title {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #2d3142;
+  color: var(--color-text);
   letter-spacing: 0.5px;
+  transition: color 0.3s ease;
 }
 
 .responsive-padding {

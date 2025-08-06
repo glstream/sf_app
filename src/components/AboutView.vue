@@ -165,12 +165,12 @@ watch(activeKeyRankings, (val) => {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 12px;
-  color: var(--text-color, #333);
+  color: var(--color-text);
 }
 
 .subtitle {
   font-size: 1.25rem;
-  color: var(--secondary-text-color, #666);
+  color: var(--color-text-secondary);
   max-width: 700px;
   margin: 0 auto;
 }
@@ -183,7 +183,8 @@ watch(activeKeyRankings, (val) => {
 }
 
 .feature-card {
-  background: var(--card-background, white);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
@@ -205,18 +206,18 @@ watch(activeKeyRankings, (val) => {
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  color: #277da1;
+  color: var(--color-primary);
 }
 
 .feature-card h3 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 12px;
-  color: var(--text-color, #333);
+  color: var(--color-text);
 }
 
 .feature-card p {
-  color: var(--secondary-text-color, #666);
+  color: var(--color-text-secondary);
   line-height: 1.6;
 }
 
@@ -229,18 +230,19 @@ watch(activeKeyRankings, (val) => {
   font-weight: 700;
   margin-bottom: 24px;
   text-align: center;
-  color: var(--text-color, #333);
+  color: var(--color-text);
 }
 
 :deep(.custom-collapse) {
-  background: var(--card-background, white);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 :deep(.custom-collapse .ant-collapse-item) {
-  border-bottom: 1px solid var(--border-color, #f0f0f0);
+  border-bottom: 1px solid var(--color-border);
 }
 
 :deep(.custom-collapse .ant-collapse-item:last-child) {
@@ -251,7 +253,7 @@ watch(activeKeyRankings, (val) => {
   font-size: 1.1rem;
   font-weight: 600;
   padding: 20px 24px !important;
-  color: var(--text-color, #333) !important;
+  color: var(--color-text) !important;
 }
 
 :deep(.custom-collapse .ant-collapse-content-box) {
@@ -265,11 +267,24 @@ watch(activeKeyRankings, (val) => {
 .panel-content p {
   margin-bottom: 16px;
   line-height: 1.8;
-  color: var(--secondary-text-color, #666);
+  color: var(--color-text-secondary);
 }
 
 .panel-content p:last-child {
   margin-bottom: 0;
+}
+
+/* Dark theme specific adjustments */
+html.dark .feature-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .feature-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+html.dark :deep(.custom-collapse) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 1024px) {
