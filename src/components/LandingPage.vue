@@ -150,7 +150,7 @@ import { useRouter } from 'vue-router'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-// import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 const router = useRouter()
 
@@ -165,25 +165,16 @@ onMounted(() => {
 
 <style scoped>
 .layout {
-  /* Default (light theme) values */
-  --hero-gradient-start: var(
-    --hero-gradient-start-light,
-    #f5f7fa
-  ); /* Fallback for clarity, original vars can be removed */
-  --hero-gradient-end: var(--hero-gradient-end-light, #c3cfe2);
+  /* Light theme hero gradient */
+  --hero-gradient-start: #f5f7fa;
+  --hero-gradient-end: #c3cfe2;
   --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
-
-  /* Original specific variables can be kept if used elsewhere, or removed if only for this pattern */
-  --hero-gradient-start-light: #f5f7fa;
-  --hero-gradient-end-light: #c3cfe2;
-  --hero-gradient-start-dark: #2d3748;
-  --hero-gradient-end-dark: #1a202c;
 }
 
-:deep(.dark-theme) .layout {
-  /* Dark theme overrides */
-  --hero-gradient-start: var(--hero-gradient-start-dark, #2d3748);
-  --hero-gradient-end: var(--hero-gradient-end-dark, #1a202c);
+/* Dark theme hero gradient */
+html.dark .layout {
+  --hero-gradient-start: #2d3748;
+  --hero-gradient-end: #1a202c;
   --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.15);
 }
 
@@ -211,27 +202,19 @@ onMounted(() => {
 .hero-title {
   font-size: 3.2rem;
   font-weight: 800;
-  color: #2d3142;
+  color: var(--color-text);
   margin-bottom: 18px;
   letter-spacing: -1px;
   transition: color 0.3s ease;
 }
 
-:deep(.dark-theme) .hero-title {
-  color: #e2e8f0;
-}
-
 .hero-subtitle {
   font-size: 1.3rem;
-  color: #495670;
+  color: var(--color-text-secondary);
   margin-bottom: 32px;
   font-weight: 400;
   line-height: 1.6;
   transition: color 0.3s ease;
-}
-
-:deep(.dark-theme) .hero-subtitle {
-  color: #a0aec0;
 }
 
 .cta-buttons {
@@ -250,6 +233,8 @@ onMounted(() => {
 /* Feature Cards */
 .feature-card {
   height: 100%;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   transition:
     transform 0.4s ease,
     box-shadow 0.4s ease,
@@ -264,13 +249,13 @@ onMounted(() => {
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
-:deep(.dark-theme) .feature-card {
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
+.feature-card :deep(.ant-card-meta-title) {
+  color: var(--color-text);
 }
 
-:deep(.dark-theme) .feature-card :deep(.ant-card-meta-title) {
-  color: #e2e8f0;
+/* Dark theme specific box shadow */
+html.dark .feature-card:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
 }
 
 .card-cover-container {
@@ -294,11 +279,8 @@ onMounted(() => {
 
 .card-description {
   padding: 10px 0;
+  color: var(--color-text-secondary);
   transition: color 0.3s ease;
-}
-
-:deep(.dark-theme) .card-description {
-  color: #a0aec0;
 }
 
 .card-description ul {
@@ -320,12 +302,8 @@ onMounted(() => {
 .about-text {
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #4a5568;
+  color: var(--color-text-secondary);
   transition: color 0.3s ease;
-}
-
-:deep(.dark-theme) .about-text {
-  color: #a0aec0;
 }
 
 .features-header {
@@ -337,13 +315,9 @@ onMounted(() => {
 .features-title {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #2d3142;
+  color: var(--color-text);
   letter-spacing: 0.5px;
   transition: color 0.3s ease;
-}
-
-:deep(.dark-theme) .features-title {
-  color: #e2e8f0;
 }
 
 .responsive-padding {

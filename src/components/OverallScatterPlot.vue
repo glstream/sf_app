@@ -5,6 +5,7 @@
 <script setup>
 import { onMounted, ref, watch, toRef, computed, onUnmounted } from 'vue'
 import { Scatter } from '@antv/g2plot'
+import { useThemeStore } from '@/stores/theme.js'
 
 const props = defineProps({
   scatterPlotData: Array
@@ -12,6 +13,30 @@ const props = defineProps({
 
 const container = ref(null)
 let scatterPlot = null
+
+// Theme support
+const themeStore = useThemeStore()
+
+// Theme-responsive colors
+const themeColors = computed(() => {
+  if (themeStore.isDarkMode) {
+    return {
+      gridStroke: '#404040',
+      textColor: '#e5e5e5',
+      pointStroke: '#555',
+      tooltipBackground: '#2a2a2a',
+      tooltipBorder: '#444'
+    }
+  } else {
+    return {
+      gridStroke: '#e0e0e0',
+      textColor: '#333',
+      pointStroke: '#fff',
+      tooltipBackground: '#fff',
+      tooltipBorder: '#e0e0e0'
+    }
+  }
+})
 
 // Calculate medians for positioning quadrant dividers
 const medianX = computed(() => calculateMedian(props.scatterPlotData.map((d) => d.Value)))
@@ -85,7 +110,7 @@ onMounted(() => {
     color: (record) => getPointColor(record),
     pointStyle: {
       lineWidth: 1,
-      stroke: '#fff'
+      stroke: themeColors.value.pointStroke
     },
     // Disable the legend
     legend: false,
@@ -104,13 +129,19 @@ onMounted(() => {
         text: 'Team Value',
         style: {
           fontSize: 14,
-          fontWeight: 500
+          fontWeight: 500,
+          fill: themeColors.value.textColor
+        }
+      },
+      label: {
+        style: {
+          fill: themeColors.value.textColor
         }
       },
       grid: {
         line: {
           style: {
-            stroke: '#e0e0e0',
+            stroke: themeColors.value.gridStroke,
             lineWidth: 1,
             lineDash: [4, 4]
           }
@@ -122,13 +153,19 @@ onMounted(() => {
         text: 'Team Projection',
         style: {
           fontSize: 14,
-          fontWeight: 500
+          fontWeight: 500,
+          fill: themeColors.value.textColor
+        }
+      },
+      label: {
+        style: {
+          fill: themeColors.value.textColor
         }
       },
       grid: {
         line: {
           style: {
-            stroke: '#e0e0e0',
+            stroke: themeColors.value.gridStroke,
             lineWidth: 1,
             lineDash: [4, 4]
           }
@@ -389,14 +426,233 @@ watch(
   },
   { deep: true, immediate: true }
 )
+
+// Watch for theme changes and recreate chart
+watch(
+  () => themeStore.isDarkMode,
+  () => {
+    if (scatterPlot) {
+      scatterPlot.destroy()
+      scatterPlot = null
+      // Recreate chart with new theme
+      setTimeout(() => {
+        const { minX, maxX, minY, maxY } = getDataExtents()
+        const mX = medianX.value
+        const mY = medianY.value
+
+        scatterPlot = new Scatter(container.value, {
+          data: props.scatterPlotData,
+          xField: 'Value',
+          yField: 'Projection',
+          colorField: 'Manager',
+          shape: 'circle',
+          size: pointSize.value,
+          pixelRatio: window.devicePixelRatio,
+          color: (record) => getPointColor(record),
+          pointStyle: {
+            lineWidth: 1,
+            stroke: themeColors.value.pointStroke
+          },
+          legend: false,
+          tooltip: {
+            showMarkers: false,
+            shared: true,
+            formatter: (datum) => {
+              return {
+                name: datum.Manager,
+                value: `Value: ${datum.Value.toLocaleString()}, Projection: ${datum.Projection.toLocaleString()}`
+              }
+            }
+          },
+          xAxis: {
+            title: {
+              text: 'Team Value',
+              style: {
+                fontSize: 14,
+                fontWeight: 500,
+                fill: themeColors.value.textColor
+              }
+            },
+            label: {
+              style: {
+                fill: themeColors.value.textColor
+              }
+            },
+            grid: {
+              line: {
+                style: {
+                  stroke: themeColors.value.gridStroke,
+                  lineWidth: 1,
+                  lineDash: [4, 4]
+                }
+              }
+            }
+          },
+          yAxis: {
+            title: {
+              text: 'Team Projection',
+              style: {
+                fontSize: 14,
+                fontWeight: 500,
+                fill: themeColors.value.textColor
+              }
+            },
+            label: {
+              style: {
+                fill: themeColors.value.textColor
+              }
+            },
+            grid: {
+              line: {
+                style: {
+                  stroke: themeColors.value.gridStroke,
+                  lineWidth: 1,
+                  lineDash: [4, 4]
+                }
+              }
+            }
+          },
+          interactions: [
+            {
+              type: 'tooltip',
+              cfg: {
+                start: [{ trigger: 'plot:mousemove', action: 'tooltip:show' }],
+                end: [{ trigger: 'plot:mouseleave', action: 'tooltip:hide' }]
+              }
+            },
+            {
+              type: 'element-active'
+            }
+          ],
+          annotations: [
+            // Quadrant regions with slightly increased opacity
+            {
+              type: 'region',
+              start: [mX, mY],
+              end: [maxX, maxY],
+              style: {
+                fill: 'rgba(63, 163, 77, 0.2)'
+              }
+            },
+            {
+              type: 'region',
+              start: [minX, mY],
+              end: [mX, maxY],
+              style: {
+                fill: 'rgba(66, 133, 244, 0.2)'
+              }
+            },
+            {
+              type: 'region',
+              start: [minX, minY],
+              end: [mX, mY],
+              style: {
+                fill: 'rgba(219, 68, 55, 0.2)'
+              }
+            },
+            {
+              type: 'region',
+              start: [mX, minY],
+              end: [maxX, mY],
+              style: {
+                fill: 'rgba(244, 180, 0, 0.2)'
+              }
+            },
+            // Median lines
+            {
+              type: 'line',
+              start: [mX, minY],
+              end: [mX, maxY],
+              style: {
+                stroke: themeColors.value.gridStroke,
+                lineWidth: 2,
+                lineDash: [6, 4],
+                opacity: 0.8
+              }
+            },
+            {
+              type: 'line',
+              start: [minX, mY],
+              end: [maxX, mY],
+              style: {
+                stroke: themeColors.value.gridStroke,
+                lineWidth: 2,
+                lineDash: [6, 4],
+                opacity: 0.8
+              }
+            },
+            // Quadrant Labels
+            {
+              type: 'text',
+              position: [mX + (maxX - mX) / 2, mY + (maxY - mY) / 2],
+              content: 'Elite',
+              style: {
+                textAlign: 'center',
+                textBaseline: 'middle',
+                fill: '#3FA34D',
+                fontWeight: 'bold',
+                fontSize: textSize.value
+              }
+            },
+            {
+              type: 'text',
+              position: [minX + (mX - minX) / 2, mY + (maxY - mY) / 2],
+              content: 'Contenders',
+              style: {
+                textAlign: 'center',
+                textBaseline: 'middle',
+                fill: '#4285F4',
+                fontWeight: 'bold',
+                fontSize: textSize.value
+              }
+            },
+            {
+              type: 'text',
+              position: [minX + (mX - minX) / 2, minY + (mY - minY) / 2],
+              content: 'Teardown',
+              style: {
+                textAlign: 'center',
+                textBaseline: 'middle',
+                fill: '#DB4437',
+                fontWeight: 'bold',
+                fontSize: textSize.value
+              }
+            },
+            {
+              type: 'text',
+              position: [mX + (maxX - mX) / 2, minY + (mY - minY) / 2],
+              content: 'Rebuilding',
+              style: {
+                textAlign: 'center',
+                textBaseline: 'middle',
+                fill: '#F4B400',
+                fontWeight: 'bold',
+                fontSize: textSize.value
+              }
+            }
+          ]
+        })
+
+        scatterPlot.render()
+      }, 100)
+    }
+  }
+)
 </script>
 
 <style scoped>
 div {
   height: 400px;
-  background-color: #fcfcfc; /* Very light background */
+  background: var(--color-background-mute);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   padding: 16px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark theme specific adjustments */
+html.dark div {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 </style>
