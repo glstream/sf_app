@@ -1,5 +1,5 @@
 <template>
-  <a-float-button @click="toggleTheme">
+  <a-float-button @click="toggleTheme" :title="themeStore.isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
     <template #icon>
       <FormatPainterOutlined />
     </template>
