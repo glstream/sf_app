@@ -2214,11 +2214,8 @@
       </div>
     </a-layout-content>
     <!-- About Section for Google AdSense Approval -->
-    <div
-      class="about-site-section"
-      style="margin-bottom: 24px; background: #f8f9fa; border-radius: 8px; padding: 18px 20px"
-    >
-      <h1 style="font-size: 1.5em; margin-bottom: 8px">About Fantasy Navigator</h1>
+    <div class="about-site-section">
+      <h1 class="about-site-title">About Fantasy Navigator</h1>
       <p>
         Fantasy Navigator is an advanced fantasy football analytics platform designed to help users
         analyze, compare, and optimize their fantasy football leagues. Our tools provide unique
@@ -4705,26 +4702,62 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-card-mobile {
-  background-color: var(--color-background-mute, #fff);
-  border: 1px solid var(--border-color, #e0e0e0);
-  border-radius: 8px;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.2s ease-in-out;
+  background: rgba(136, 136, 136, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.manager-card-mobile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .manager-card-mobile:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.manager-card-mobile:hover::before {
+  opacity: 1;
+}
+
+.manager-card-mobile:active {
+  transform: translateY(0);
+  transition: transform 0.1s ease;
 }
 
 .manager-info-line-mobile {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.manager-info-line-mobile .ant-avatar {
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .manager-name-mobile {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-left: 12px;
   color: var(--primary-text-color);
   font-weight: 899;
 }
@@ -4734,10 +4767,39 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-card-mobile-details-reused {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-  background: var(--color-background-mute);
+  margin-top: 16px;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(248, 250, 252, 0.5);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* Modern stats grid styling */
+.manager-stats-grid-mobile .ant-tag {
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.manager-stats-grid-mobile .ant-tag:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Primary value tag - larger and more prominent */
+.manager-stats-grid-mobile .ant-col:first-child .ant-tag {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 8px 16px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
 .position-summary-item.active-position-summary {
@@ -5724,5 +5786,28 @@ li {
 .position-toggle-buttons {
   display: flex;
   gap: 8px;
+}
+
+/* About Site Section - Theme Responsive */
+.about-site-section {
+  margin-bottom: 24px;
+  background: var(--color-background-mute);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  color: var(--color-text);
+}
+
+.about-site-title {
+  font-size: 1.5em;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.about-site-section p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 </style>
