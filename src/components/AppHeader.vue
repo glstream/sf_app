@@ -301,6 +301,7 @@ const mobileItems = computed(() => {
 
 .header {
   background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 0 20px;
   height: 64px;
@@ -308,6 +309,12 @@ const mobileItems = computed(() => {
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dark theme header adjustments */
+html.dark .header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .header-row {
@@ -333,26 +340,97 @@ const mobileItems = computed(() => {
 
 .desktop-menu {
   border-bottom: none;
+  background: transparent;
 }
 
+/* Menu theme integration */
+:deep(.ant-menu-horizontal) {
+  background: transparent;
+  border-bottom: none;
+}
+
+:deep(.ant-menu-item) {
+  color: var(--color-text) !important;
+  transition: color 0.3s ease;
+}
+
+:deep(.ant-menu-item:hover) {
+  color: var(--color-primary) !important;
+}
+
+:deep(.ant-menu-item-selected) {
+  color: var(--color-primary) !important;
+}
+
+:deep(.ant-menu-item-selected::after) {
+  border-bottom-color: var(--color-primary) !important;
+}
+
+/* Mobile menu button theme */
 .mobile-menu-button {
   display: none;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   margin-left: auto;
+  transition: all 0.3s ease;
 }
+
+.mobile-menu-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Mobile drawer theme support */
+:deep(.ant-drawer-content) {
+  background: var(--color-background);
+}
+
+:deep(.ant-drawer-header) {
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+:deep(.ant-drawer-close) {
+  color: var(--color-text);
+}
+
+:deep(.ant-menu-inline) {
+  background: var(--color-background);
+  border-right: none;
+}
+
+:deep(.ant-menu-inline .ant-menu-item) {
+  color: var(--color-text) !important;
+}
+
+:deep(.ant-menu-inline .ant-menu-item:hover) {
+  background: var(--color-background-mute);
+  color: var(--color-primary) !important;
+}
+
+:deep(.ant-menu-inline .ant-menu-item-selected) {
+  background: var(--color-background-mute);
+  color: var(--color-primary) !important;
+}
+
 
 .mobile-league-type-label {
   padding-left: 16px !important;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--color-text);
   margin-top: 8px;
   font-size: 0.95em;
   opacity: 1;
+  transition: color 0.3s ease;
 }
 
 .mobile-league-item {
   padding-left: 24px !important;
   font-size: 0.9em;
   opacity: 0.85;
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* Mobile styles */
@@ -362,7 +440,7 @@ const mobileItems = computed(() => {
   }
 
   .mobile-menu-button {
-    display: block;
+    display: block !important;
   }
 
   .header {
