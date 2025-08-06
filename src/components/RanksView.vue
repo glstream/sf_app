@@ -190,19 +190,18 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 // 3rd Party imports
 import axios from 'axios'
-import { message, Spin, Column, Empty, Descriptions, DescriptionsItem } from 'ant-design-vue' // Added Descriptions, DescriptionsItem
-import { HomeOutlined, DownloadOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
+import { DownloadOutlined, UserOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 import { Line } from '@antv/g2plot'
 
-// Source image imports
-import fnLogo from '@/assets/sourceLogos/fn.png'
 
-const ranksData = ref([{}])
+const ranksData = ref([])
 const isLoading = ref(false)
 const rankType = ref('dynasty')
 const currentPage = ref(1)
 const perPage = ref(75)
+
 
 const plainOptions = ['QB', 'RB', 'WR', 'TE']
 
@@ -213,7 +212,7 @@ const checkState = reactive({
   showRookiesOnly: false
 })
 
-const onCheckAllChange = (e: any) => {
+const onCheckAllChange = (e) => {
   Object.assign(checkState, {
     checkedList: e.target.checked ? plainOptions : [],
     indeterminate: false
@@ -309,7 +308,7 @@ function getPositionTag(position) {
   }
 }
 
-function getTierClass(value: number) {
+function getTierClass(value) {
   if (value >= 8000) return 'tier-elite'
   if (value >= 5000) return 'tier-1'
   if (value >= 3000) return 'tier-2'
@@ -318,7 +317,7 @@ function getTierClass(value: number) {
   return 'tier-depth'
 }
 
-function getTierLabel(value: number) {
+function getTierLabel(value) {
   if (value >= 8000) return 'Elite'
   if (value >= 5000) return 'Tier 1'
   if (value >= 3000) return 'Tier 2'
@@ -388,7 +387,7 @@ const isPlayerModalVisible = ref(false)
 const selectedPlayer = ref(null)
 const playerValueHistory = ref([])
 const isChartLoading = ref(false)
-let chartInstance: Line | null = null
+let chartInstance = null
 
 // Modal Functions
 const showPlayerModal = async (player) => {
@@ -655,9 +654,6 @@ const handlePlayerModalOk = () => {
   position: relative;
 }
 
-:deep(.dark-theme) .layout {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-}
 
 .responsive-padding {
   padding: 0 16px;
@@ -702,6 +698,7 @@ const handlePlayerModalOk = () => {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+
 .ranks-toggle-section {
   display: flex;
   gap: 16px;
@@ -744,6 +741,7 @@ const handlePlayerModalOk = () => {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+
 .rankings-header {
   display: grid;
   grid-template-columns: 80px 130px 3fr 160px 130px 180px;
@@ -753,6 +751,7 @@ const handlePlayerModalOk = () => {
   background: rgba(248, 250, 252, 0.8);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 
 .rankings-row {
   display: grid;
@@ -765,10 +764,12 @@ const handlePlayerModalOk = () => {
   position: relative;
 }
 
+
 .rankings-row:hover {
   background: rgba(59, 130, 246, 0.05);
   transform: translateX(2px);
 }
+
 
 .rankings-row:last-child {
   border-bottom: none;
@@ -974,6 +975,7 @@ const handlePlayerModalOk = () => {
   overflow: hidden;
 }
 
+
 .player-modal-content {
   padding: 0;
 }
@@ -1066,6 +1068,7 @@ const handlePlayerModalOk = () => {
   background: rgba(248, 250, 252, 0.5);
 }
 
+
 .stat-item {
   flex: 1;
   text-align: center;
@@ -1075,6 +1078,7 @@ const handlePlayerModalOk = () => {
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
+
 
 .stat-number {
   font-size: 16px;
@@ -1274,5 +1278,52 @@ const handlePlayerModalOk = () => {
   .player-name {
     font-size: 14px;
   }
+}
+</style>
+
+<style>
+/* Global dark theme overrides for rankings table */
+html.dark .layout {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+}
+
+html.dark .ranks-controls {
+  background: rgba(34, 34, 34, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .rankings-table {
+  background: rgba(34, 34, 34, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .rankings-header {
+  background: rgba(31, 41, 55, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .rankings-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .rankings-row:hover {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+html.dark .modern-player-modal .ant-modal-content {
+  background: rgba(34, 34, 34, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .stats-compact {
+  background: rgba(31, 41, 55, 0.5) !important;
+}
+
+html.dark .stat-item {
+  background: rgba(55, 65, 81, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 </style>
