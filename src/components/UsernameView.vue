@@ -5,97 +5,133 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
+      <div class="hero-background">
+        <div class="hero-gradient"></div>
+        <div class="hero-pattern"></div>
+      </div>
       <div class="hero-content">
-        <h1 class="hero-title">Fantasy Football League Dashboard</h1>
-        <p class="hero-subtitle">
-          Enter your Sleeper username to analyze your leagues, discover trade opportunities, and
-          optimize your roster with rankings from FantasyCalc, DynastyDaddy, KTC, and more.
-        </p>
-        <div class="hero-form">
+        <div class="hero-text">
+          <h1 class="hero-title">Your Fantasy Football League Dashboard</h1>
+          <p class="hero-subtitle">
+            Connect your Sleeper account to unlock deep league analytics, discover optimal trades,
+            and dominate your competition with data-driven insights.
+          </p>
+        </div>
+
+        <div class="hero-form-container">
           <a-form
             :model="formState"
             name="basic"
             autocomplete="off"
             @finish="onFinish"
             @finishFailed="onFinishFailed"
-            layout="inline"
             class="landing-form"
           >
-            <a-form-item
-              name="userName"
-              :rules="[{ required: true, message: 'Please enter your Sleeper username' }]"
-              class="form-item-large"
-            >
-              <a-input
-                v-model:value="formState.userName"
-                placeholder="Enter Sleeper Username"
-                size="large"
-                style="width: 220px"
+            <div class="form-inputs-row">
+              <a-form-item
+                name="userName"
+                :rules="[{ required: true, message: 'Please enter your Sleeper username' }]"
+                class="form-item-username"
               >
-                <template #prefix>
-                  <UserOutlined class="input-icon" />
-                </template>
-              </a-input>
-            </a-form-item>
-            <a-form-item
-              name="leagueYear"
-              :rules="[{ required: true, message: 'Please select a league year' }]"
-              class="form-item-large"
-            >
-              <a-select
-                v-model:value="formState.leagueYear"
-                placeholder="Year"
-                size="large"
-                style="width: 120px"
+                <a-input
+                  v-model:value="formState.userName"
+                  placeholder="Enter your Sleeper username"
+                  size="large"
+                  class="username-input"
+                >
+                  <template #prefix>
+                    <UserOutlined class="input-icon" />
+                  </template>
+                </a-input>
+              </a-form-item>
+
+              <a-form-item
+                name="leagueYear"
+                :rules="[{ required: true, message: 'Please select a league year' }]"
+                class="form-item-year"
               >
-                <a-select-option value="2025">2025</a-select-option>
-                <a-select-option value="2024">2024</a-select-option>
-                <a-select-option value="2023">2023</a-select-option>
-                <a-select-option value="2022">2022</a-select-option>
-                <a-select-option value="2021">2021</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item class="form-item-large">
-              <a-button
-                type="primary"
-                html-type="submit"
-                size="large"
-                :loading="formIsLoading"
-                class="cta-btn"
-              >
-                Load My Leagues
-              </a-button>
-            </a-form-item>
-            <a-form-item class="form-item-large">
-              <a-button
-                type="default"
-                html-type="button"
-                size="large"
-                :loading="demoFormIsLoading"
-                @click="navigateToDemoPage"
-              >
-                Try Demo
-              </a-button>
-            </a-form-item>
-            <a-form-item>
-              <a-button type="text" @click="showModal" style="margin-left: 8px">
+                <a-select
+                  v-model:value="formState.leagueYear"
+                  placeholder="Year"
+                  size="large"
+                  class="year-select"
+                >
+                  <a-select-option value="2025">2025</a-select-option>
+                  <a-select-option value="2024">2024</a-select-option>
+                  <a-select-option value="2023">2023</a-select-option>
+                  <a-select-option value="2022">2022</a-select-option>
+                  <a-select-option value="2021">2021</a-select-option>
+                </a-select>
+              </a-form-item>
+            </div>
+
+            <div class="form-actions-row">
+              <a-form-item class="form-item-primary">
+                <a-button
+                  type="primary"
+                  html-type="submit"
+                  size="large"
+                  :loading="formIsLoading"
+                  class="cta-btn-primary"
+                >
+                  <span>Analyze My Leagues</span>
+                  <RightOutlined v-if="!formIsLoading" class="arrow-icon" />
+                </a-button>
+              </a-form-item>
+
+              <a-form-item class="form-item-demo">
+                <a-button
+                  type="default"
+                  html-type="button"
+                  size="large"
+                  :loading="demoFormIsLoading"
+                  @click="navigateToDemoPage"
+                  class="demo-btn"
+                >
+                  View Demo
+                </a-button>
+              </a-form-item>
+            </div>
+
+            <div class="form-info">
+              <a-button type="text" @click="showModal" class="info-btn">
                 <InfoCircleOutlined />
+                <span>Sleeper leagues only</span>
               </a-button>
-              <a-modal v-model:open="open" @ok="handleOk">
-                <p>Fantasy Navigator is currently only available for Sleeper leagues.</p>
+              <a-modal v-model:open="open" @ok="handleOk" title="Platform Support">
+                <p>
+                  Fantasy Navigator is currently optimized for Sleeper leagues, with support for
+                  both dynasty and redraft formats.
+                </p>
               </a-modal>
-            </a-form-item>
+            </div>
           </a-form>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">50K+</span>
+            <span class="stat-label">Leagues Analyzed</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">4</span>
+            <span class="stat-label">Ranking Sources</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">Real-time</span>
+            <span class="stat-label">Trade Analysis</span>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Features Section -->
-    <a-layout-content class="responsive-padding" :style="{ padding: '0 0px', marginTop: '0px' }">
+    <a-layout-content class="responsive-padding features-section">
       <div class="features-header">
-        <a-divider>
-          <span class="features-title">What Can You Do?</span>
-        </a-divider>
+        <h2 class="features-title">Unlock Your Fantasy Football Potential</h2>
+        <p class="features-subtitle">
+          Comprehensive tools and analytics to give you the competitive edge
+        </p>
       </div>
       <a-row
         :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }"
@@ -252,7 +288,13 @@ import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 
 // 3rd Part Utils
 import axios from 'axios'
-import { UserOutlined, LockOutlined, InfoCircleOutlined, HomeOutlined } from '@ant-design/icons-vue'
+import {
+  UserOutlined,
+  LockOutlined,
+  InfoCircleOutlined,
+  HomeOutlined,
+  RightOutlined
+} from '@ant-design/icons-vue'
 
 import { message } from 'ant-design-vue'
 
@@ -443,68 +485,297 @@ const structuredData = {
 <style scoped>
 /* Hero Section Styles */
 .hero-section {
-  background: linear-gradient(135deg, var(--hero-gradient-start) 0%, var(--hero-gradient-end) 100%);
-  min-height: 350px;
+  min-height: 600px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 0 40px 0;
-  position: relative;
-  box-shadow: var(--hero-box-shadow);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  padding: 80px 20px 60px;
+  overflow: hidden;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.hero-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    var(--hero-gradient-start) 0%,
+    var(--hero-gradient-mid) 50%,
+    var(--hero-gradient-end) 100%
+  );
+  transition: background 0.3s ease;
+}
+
+.hero-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
 }
 
 /* Theme-specific hero gradients */
 .hero-section {
-  --hero-gradient-start: #f5f7fa;
-  --hero-gradient-end: #c3cfe2;
-  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
+  --hero-gradient-start: #f8fafc;
+  --hero-gradient-mid: #e2e8f0;
+  --hero-gradient-end: #cbd5e1;
 }
 
 html.dark .hero-section {
-  --hero-gradient-start: #2d3748;
-  --hero-gradient-end: #1a202c;
-  --hero-box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.15);
+  --hero-gradient-start: #1e293b;
+  --hero-gradient-mid: #334155;
+  --hero-gradient-end: #475569;
 }
 
 .hero-content {
+  position: relative;
+  z-index: 1;
   text-align: center;
-  max-width: 700px;
-  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+}
+
+.hero-text {
+  margin-bottom: 48px;
 }
 
 .hero-title {
-  font-size: 2.8rem;
-  font-weight: 800;
+  font-size: 3.5rem;
+  font-weight: 900;
   color: var(--color-text);
-  margin-bottom: 18px;
-  letter-spacing: -1px;
-  transition: color 0.3s ease;
+  margin-bottom: 24px;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.3s ease;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   color: var(--color-text-secondary);
-  margin-bottom: 32px;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
   transition: color 0.3s ease;
 }
 
-.hero-form {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.hero-form-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  margin-bottom: 48px;
+  transition: all 0.3s ease;
+}
+
+html.dark .hero-form-container {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .landing-form {
   display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.form-inputs-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 500px;
+  align-items: flex-start;
+}
+
+.form-item-username {
+  flex: 1;
+  margin-bottom: 0 !important;
+}
+
+.form-item-year {
+  flex: 0 0 120px;
+  margin-bottom: 0 !important;
+}
+
+.username-input {
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.username-input:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.1);
+}
+
+.username-input:focus,
+.username-input.ant-input-focused {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.15);
+}
+
+.year-select {
+  border-radius: 12px;
+}
+
+.year-select .ant-select-selector {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.year-select:hover .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.1);
+}
+
+.year-select.ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.15);
+}
+
+.form-actions-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+}
+
+.form-item-primary,
+.form-item-demo {
+  margin-bottom: 0 !important;
+}
+
+.cta-btn-primary {
+  background: var(--color-primary);
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 32px;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(39, 125, 161, 0.3);
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.cta-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(39, 125, 161, 0.4);
+  background: color-mix(in srgb, var(--color-primary) 90%, white);
+}
+
+.cta-btn-primary:active {
+  transform: translateY(0);
+}
+
+.arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.cta-btn-primary:hover .arrow-icon {
+  transform: translateX(4px);
+}
+
+.demo-btn {
+  border: 2px solid var(--color-border);
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 12px 24px;
+  height: auto;
+  color: var(--color-text);
+  transition: all 0.3s ease;
+}
+
+.demo-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(39, 125, 161, 0.05);
+}
+
+.form-info {
+  display: flex;
   justify-content: center;
 }
 
-.form-item-large {
-  margin-bottom: 0 !important;
+.info-btn {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.info-btn:hover {
+  color: var(--color-primary);
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .input-icon {
@@ -512,16 +783,13 @@ html.dark .hero-section {
   transition: color 0.3s ease;
 }
 
-.cta-btn {
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
 /* Card theme support */
 :deep(.ant-card) {
   background: var(--color-background);
   border: 1px solid var(--color-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 :deep(.ant-card-meta-title) {
@@ -537,17 +805,36 @@ html.dark :deep(.ant-card) {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.features-section {
+  padding: 80px 0;
+  background: var(--color-background);
+  transition: background-color 0.3s ease;
+}
+
 .features-header {
-  margin-top: 32px;
-  margin-bottom: 8px;
   text-align: center;
+  margin-bottom: 64px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .features-title {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: var(--color-text);
-  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  transition: color 0.3s ease;
+}
+
+.features-subtitle {
+  font-size: 1.2rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
   transition: color 0.3s ease;
 }
 
@@ -600,122 +887,85 @@ html.dark :deep(.ant-card) {
 .image-cards-col {
   padding-bottom: 20px;
 }
-@media (max-width: 599px) {
-  .layout-content {
-    padding: 0 20px;
-  }
-  .hero-title {
-    font-size: 2rem;
-  }
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
   .hero-section {
-    padding: 32px 0 24px 0;
+    min-height: 500px;
+    padding: 60px 16px 40px;
   }
-  .landing-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
+
+  .hero-title {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+  }
+
+  .hero-form-container {
+    padding: 32px 24px;
+    margin-bottom: 32px;
+  }
+
+  .form-inputs-row {
+    flex-direction: column;
+    gap: 20px;
+    max-width: 100%;
+  }
+
+  .form-item-username,
+  .form-item-year {
+    flex: 1;
+  }
+
+  .form-actions-row {
+    flex-direction: column;
+    gap: 12px;
     width: 100%;
-    flex-direction: row;
-    justify-content: space-between; /* Better distribute items */
   }
 
-  /* Create a proper row for username and year fields */
-  .landing-form .form-item-large:nth-child(1),
-  .landing-form .form-item-large:nth-child(2) {
-    display: inline-flex;
-    margin-bottom: 0;
-  }
-
-  /* Username field should take up most space, now with info icon */
-  .landing-form .form-item-large:nth-child(1) {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding-left: 8px;
-    display: flex; /* Make it a flex container for aligning with info button */
-    align-items: center;
-    position: relative; /* Set as position reference for info button */
-  }
-
-  /* Position info button next to username */
-  .landing-form .form-item:nth-child(5) {
-    position: absolute;
-    right: -40px; /* Position it to the right of username field */
-    top: 0;
-    margin-top: 0;
-    height: 40px; /* Match height of input */
-  }
-
-  .landing-form .form-item:nth-child(5) button {
-    height: 40px;
-    width: 32px;
-    padding: 0;
-    display: flex;
-    align-items: center;
+  .cta-btn-primary,
+  .demo-btn {
+    width: 100%;
     justify-content: center;
   }
 
-  /* Make username input a bit narrower to accommodate info button */
-  .landing-form .form-item-large:nth-child(1) .ant-input {
-    width: calc(100% - 40px);
+  .hero-stats {
+    gap: 24px;
   }
 
-  /* Make year dropdown narrower */
-  .landing-form .form-item-large:nth-child(2) {
-    flex: 0 0 auto; /* Don't grow or shrink */
-    width: 80px;
-    min-width: 80px; /* Smaller minimum width */
-    max-width: 80px; /* Add maximum width constraint */
-    padding-right: 8px;
+  .stat-number {
+    font-size: 1.5rem;
   }
 
-  /* Force the year dropdown to be narrower */
-  .landing-form .form-item-large:nth-child(2) .ant-select {
-    width: 80px !important;
+  .stat-label {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
   }
 
-  /* Create a second row for the buttons - modified to be side by side */
-  .landing-form .form-item-large:nth-child(3),
-  .landing-form .form-item-large:nth-child(4) {
-    flex: 0 0 auto; /* Don't grow, don't shrink, use natural size */
-    margin-top: 16px;
-    width: auto;
-    display: inline-flex;
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
-  /* First button (Load My Leagues) */
-  .landing-form .form-item-large:nth-child(3) {
-    margin-right: 10px; /* Add spacing between buttons */
+  .hero-form-container {
+    padding: 24px 20px;
   }
 
-  /* Add a flex container to hold buttons on one line */
-  .landing-form::after {
-    content: '';
-    display: flex;
-    width: 100%;
-    flex-wrap: nowrap;
-    justify-content: center; /* Center buttons horizontally */
-    gap: 10px;
+  .hero-stats {
+    flex-direction: column;
+    gap: 16px;
   }
 
-  /* Info button adjusted to align with buttons */
-  .landing-form .form-item:nth-child(5) {
-    margin-top: 16px;
-    align-self: center;
-  }
-
-  /* Ensure buttons are sized properly for mobile */
-  .landing-form .cta-btn,
-  .landing-form button {
-    width: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  /* Add padding to the form container */
-  .hero-form {
-    padding: 20px 16px; /* More horizontal padding */
-    width: 100%;
-    max-width: 100%;
+  .layout-content {
+    padding: 0 16px;
   }
 }
 @media (min-width: 600px) {
