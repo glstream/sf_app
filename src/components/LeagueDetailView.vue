@@ -730,19 +730,6 @@
                     </div>
 
                     <div class="action-buttons">
-                      <a-dropdown-button type="default" size="middle">
-                        Share
-                        <template #overlay>
-                          <a-menu @click="handleTradeShareClick">
-                            <a-menu-item v-for="source in shareTradeSources" :key="source.key">
-                              <img class="social-logos" :src="source.logo" />
-                              <span style="margin-left: 8px">{{ source.name }}</span>
-                            </a-menu-item>
-                          </a-menu>
-                        </template>
-                        <template #icon><ShareAltOutlined /></template>
-                      </a-dropdown-button>
-
                       <a-button type="text" @click="showTradeModal" class="help-button">
                         <QuestionCircleOutlined />
                         <span class="help-text">How it works</span>
@@ -5631,6 +5618,110 @@ li {
   margin-left: auto;
   margin-right: auto;
   contain: layout style;
+}
+
+/* Trade Calculator Settings Panel */
+.settings-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .settings-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .settings-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+}
+
+.format-switch {
+  margin-top: 8px;
+}
+
+@media (min-width: 768px) {
+  .format-switch {
+    margin-top: 0;
+  }
+}
+
+.team-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.tep-check {
+  margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+  .tep-check {
+    margin-top: 0;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .action-buttons {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 0;
+    gap: 16px;
+  }
+}
+
+.help-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+}
+
+.help-text {
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .help-button {
+    justify-content: center;
+  }
 }
 
 .trade-teams {
