@@ -6,7 +6,7 @@
     <a-layout-content class="responsive-padding">
       <!-- Page Header -->
       <div class="page-header">
-        <h1 class="page-title">Rate Your Team</h1>
+        <h1 class="page-title">Rate My Team</h1>
         <p class="page-subtitle">
           Build your roster and see how your team rates with our comprehensive scoring system
         </p>

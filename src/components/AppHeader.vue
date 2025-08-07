@@ -89,7 +89,7 @@ function updateActiveKey() {
   else if (path.includes('/tradecalculator')) activeKey.value = ['tradeCalculator']
   else if (path.includes('/leagues')) activeKey.value = ['leagues']
   else if (path.includes('/ranks')) activeKey.value = ['ranks']
-  else if (path.includes('/rankyourteam')) activeKey.value = ['rankYourTeam']
+  else if (path.includes('/ratemyteam')) activeKey.value = ['rateMyTeam']
   else if (path.includes('/about')) activeKey.value = ['about']
   else if (path.includes('/league/')) activeKey.value = ['leagues']
 }
@@ -202,11 +202,11 @@ const items = computed(() => {
       onClick: () => router.push('/ranks')
     },
     {
-      key: 'rankYourTeam',
+      key: 'rateMyTeam',
       icon: () => h(StarOutlined),
       label: 'Rate My Team',
       title: 'Rate My Team',
-      onClick: () => router.push('/rankyourteam')
+      onClick: () => router.push('/ratemyteam')
     },
     {
       key: 'about',
@@ -244,11 +244,11 @@ const mobileItems = computed(() => {
       onClick: () => router.push('/ranks')
     },
     {
-      key: 'rankYourTeam',
+      key: 'rateMyTeam',
       icon: () => h(StarOutlined),
-      label: 'Rate Your Team',
-      title: 'Rate Your Team',
-      onClick: () => router.push('/rankyourteam')
+      label: 'Rate My Team',
+      title: 'Rate My Team',
+      onClick: () => router.push('/ratemyteam')
     },
     {
       key: 'about',

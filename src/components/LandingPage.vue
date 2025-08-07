@@ -29,10 +29,10 @@
           <a-button
             type="default"
             size="large"
-            @click="navigateTo('/rankyourteam')"
+            @click="navigateTo('/ratemyteam')"
             class="cta-btn"
           >
-            Rank My Team
+            Rate My Team
           </a-button>
         </div>
       </div>

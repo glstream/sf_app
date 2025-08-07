@@ -43,10 +43,14 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
-      path: '/rankyourteam',
-      name: 'RateYourTeam',
+      path: '/ratemyteam',
+      name: 'RateMyTeam',
       component: () => import('../components/RankYourTeam.vue'),
       beforeEnter: logNavigation
+    },
+    {
+      path: '/rankyourteam',
+      redirect: '/ratemyteam'
     },
     {
       path: '/tradecalculator',
