@@ -1406,7 +1406,40 @@
                     lg="{6}"
                     class="team-card-column"
                   >
-                    <div class="team-card">
+                    <div
+                      class="team-card"
+                      :class="{
+                        'selected-team':
+                          clickedManager !== '' && clickedManager === manager.display_name,
+                        'dimmed-team':
+                          clickedManager !== '' && clickedManager !== manager.display_name,
+                        'elite-team': getTeamTier(manager).tier === 'Elite',
+                        'strong-team': getTeamTier(manager).tier === 'Strong',
+                        'average-team': getTeamTier(manager).tier === 'Average',
+                        'developing-team': getTeamTier(manager).tier === 'Developing'
+                      }"
+                    >
+                      <!-- Team Level Indicators (shown when a manager is selected) -->
+                      <div
+                        v-if="clickedManager !== '' && clickedManager === manager.display_name"
+                        class="team-level-indicators"
+                      >
+                        <div class="team-tier-badge" :class="getTeamTier(manager).class">
+                          {{ getTeamTier(manager).tier }}
+                        </div>
+                        <div class="position-strength-indicators">
+                          <div
+                            v-for="pos in ['QB', 'RB', 'WR', 'TE']"
+                            :key="pos"
+                            class="position-strength"
+                            :class="getPositionStrengthClass(manager, pos)"
+                            :title="`${pos}: ${addOrdinalSuffix(getPositionRank(manager, pos))}`"
+                          >
+                            {{ pos }}
+                          </div>
+                        </div>
+                      </div>
+
                       <div class="team-card-header">
                         <img
                           class="manager-logos"
@@ -1725,24 +1758,21 @@
                     <span class="legend-color legend-te"></span>
                     <span class="legend-text">TE</span>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-color legend-picks"></span>
-                    <span class="legend-text">Picks</span>
-                  </div>
                 </div>
 
-                <a-row class="justify-center-row" :gutter="[8, 16]">
+                <!-- Main Positions Row (QB, RB, WR, TE) -->
+                <a-row class="justify-center-row main-positions-row" :gutter="[12, 20]">
                   <a-col
-                    v-for="(players, position) in playersByPosition"
+                    v-for="(players, position) in mainPositionPlayers"
                     :key="position"
-                    :xs="24"
+                    :xs="12"
                     :sm="12"
-                    :md="8"
-                    :lg="4"
-                    :xl="4"
+                    :md="6"
+                    :lg="6"
+                    :xl="6"
                     class="position-group-col"
                   >
-                    <div class="position-group-container">
+                    <div class="position-group-container main-position-container">
                       <h3 class="position-group-title">{{ position }}</h3>
                       <ul class="position-player-list">
                         <li
@@ -1753,9 +1783,7 @@
                           :class="{
                             lighter: clickedManager !== '' && clickedManager !== player.display_name
                           }"
-                          @click="
-                            player.player_position !== 'PICKS' ? showPlayerModal(player) : null
-                          "
+                          @click="showPlayerModal(player)"
                         >
                           <span
                             :class="{
@@ -1765,11 +1793,7 @@
                             class="player-name"
                           >
                             {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
-                            <span
-                              v-if="player.player_position.toLowerCase() !== 'picks'"
-                              class="font-size-11"
-                              >{{ player?.age }}yrs</span
-                            >
+                            <span class="font-size-11">{{ player?.age }}yrs</span>
                           </span>
                           <span class="player-value-display"
                             >{{
@@ -1780,6 +1804,49 @@
                           </span>
                         </li>
                       </ul>
+                    </div>
+                  </a-col>
+                </a-row>
+
+                <!-- Picks Section -->
+                <a-row v-if="playersByPosition.PICKS" class="picks-row" :gutter="[12, 20]">
+                  <a-col :span="24">
+                    <div class="position-group-container picks-container">
+                      <h3 class="position-group-title picks-title">
+                        <span>DRAFT PICKS</span>
+                        <span class="picks-count"
+                          >({{ playersByPosition.PICKS.length }} total)</span
+                        >
+                      </h3>
+                      <div class="picks-grid">
+                        <div
+                          v-for="(player, index) in playersByPosition.PICKS"
+                          :key="player.sleeper_id"
+                          :style="getPositionTagList(player.player_position, 0.2)"
+                          class="pick-item"
+                          :class="{
+                            lighter: clickedManager !== '' && clickedManager !== player.display_name
+                          }"
+                        >
+                          <span
+                            :class="{
+                              'dimmed-text':
+                                clickedManager !== '' && clickedManager !== player.display_name
+                            }"
+                            class="pick-name"
+                          >
+                            {{ index + 1 }}. {{ player?.full_name }}
+                          </span>
+                          <span class="pick-value">
+                            {{
+                              player.player_value === -1
+                                ? 'N/A'
+                                : player.player_value?.toLocaleString()
+                            }}
+                          </span>
+                          <span class="pick-owner">{{ player.display_name }}</span>
+                        </div>
+                      </div>
                     </div>
                   </a-col>
                 </a-row>
@@ -2009,10 +2076,6 @@
                     <span class="legend-color legend-te"></span>
                     <span class="legend-text">TE</span>
                   </div>
-                  <div class="legend-item">
-                    <span class="legend-color legend-picks"></span>
-                    <span class="legend-text">Picks</span>
-                  </div>
                 </div>
                 <a-row :gutter="16">
                   <a-col
@@ -2025,33 +2088,46 @@
                   >
                     <div class="player-chunk-container">
                       <ul class="no-padding-ul">
-                        <li
+                        <template
                           v-for="(player, index) in chunk"
-                          :key="player.sleeper_id"
-                          :style="getPositionTagList(player.player_position, 0.2)"
-                          class="player-chunk-item"
-                          :class="{
-                            lighter: clickedManager !== '' && clickedManager !== player.display_name
-                          }"
-                          @click="
-                            player.player_position !== 'PICKS' ? showPlayerModal(player) : null
-                          "
+                          :key="`template-${player.sleeper_id}`"
                         >
-                          <span
+                          <li
+                            :style="getPositionTagList(player.player_position, 0.2)"
+                            class="player-chunk-item"
                             :class="{
-                              'dimmed-text':
+                              lighter:
                                 clickedManager !== '' && clickedManager !== player.display_name
                             }"
+                            @click="
+                              player.player_position !== 'PICKS' ? showPlayerModal(player) : null
+                            "
                           >
-                            {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
-                            {{
-                              player.player_value === -1
-                                ? 'N/A'
-                                : player.player_value?.toLocaleString()
-                            }}
-                            - {{ player.display_name }}
-                          </span>
-                        </li>
+                            <span
+                              :class="{
+                                'dimmed-text':
+                                  clickedManager !== '' && clickedManager !== player.display_name
+                              }"
+                            >
+                              {{ index + 1 + chunkIndex * 50 }}. {{ player?.full_name }} &bull;
+                              {{
+                                player.player_value === -1
+                                  ? 'N/A'
+                                  : player.player_value?.toLocaleString()
+                              }}
+                              - {{ player.display_name }}
+                            </span>
+                          </li>
+                          <!-- Manager divider line -->
+                          <li
+                            v-if="shouldShowDividerAfter(index + chunkIndex * 50)"
+                            class="league-assets-divider"
+                          >
+                            <div class="divider-line">
+                              <span class="divider-text"></span>
+                            </div>
+                          </li>
+                        </template>
                       </ul>
                     </div>
                   </a-col>
@@ -2322,34 +2398,34 @@ const selectedUser = ref(null) // Holds data for the selected manager in certain
 
 // League Information (from route params)
 const leagueInfo = reactive({
-  leagueName: route.params.leagueName as string,
-  leagueId: route.params.leagueId as string,
-  userName: route.params.userName as string,
-  leagueYear: route.params.leagueYear as string,
-  guid: route.params.guid as string,
-  rankType: route.params.rankType as string,
-  platform: route.params.platform as string,
-  userId: route.params.userId as string,
-  rosterType: route.params.rosterType as string,
-  avatar: route.params.avatar as string,
-  leagueType: route.params.leagueType as string,
-  apiSource: route.params.platform as string
+  leagueName: route.params.leagueName,
+  leagueId: route.params.leagueId,
+  userName: route.params.userName,
+  leagueYear: route.params.leagueYear,
+  guid: route.params.guid,
+  rankType: route.params.rankType,
+  platform: route.params.platform,
+  userId: route.params.userId,
+  rosterType: route.params.rosterType,
+  avatar: route.params.avatar,
+  leagueType: route.params.leagueType,
+  apiSource: route.params.platform
 })
 
 // Data Holders
-const summaryData = ref<any[]>([])
-const detailData = ref<any[]>([{}])
-const projDetailData = ref<any[]>([{}])
-const projSummaryData = ref<any[]>([{}])
-const tradesDetailData = ref<any[]>([{}])
-const tradesSummaryData = ref<any[]>([{}])
-const bestAvailableData = ref<any[]>([{}])
+const summaryData = ref([])
+const detailData = ref([{}])
+const projDetailData = ref([{}])
+const projSummaryData = ref([{}])
+const tradesDetailData = ref([{}])
+const tradesSummaryData = ref([{}])
+const bestAvailableData = ref([{}])
 
 // Chart Data
-const bchartData = ref<any[]>([])
-const scatterPlotData = ref<any[]>([])
-const projectionBarChartData = ref<any[]>([])
-const projectionPercentColumnData = ref<any[]>([])
+const bchartData = ref([])
+const scatterPlotData = ref([])
+const projectionBarChartData = ref([])
+const projectionPercentColumnData = ref([])
 
 // --- Computed Properties ---
 
@@ -2443,7 +2519,7 @@ const filteredSources = computed(() => {
 })
 
 // Helper function to generate common table columns for positions
-const createPositionColumnsConfig = (filterValue: string) => {
+const createPositionColumnsConfig = (filterValue) => {
   const positions = ['QB', 'RB', 'WR', 'TE']
   return positions.map((position) => {
     const dataKey =
@@ -2579,7 +2655,7 @@ const playerChunks = computed(() => {
     acc[idx] = acc[idx] || []
     acc[idx].push(val)
     return acc
-  }, [] as any[][])
+  }, [])
 })
 
 // Players grouped by position for "Position Groups" tab
@@ -2608,6 +2684,36 @@ const playersByPosition = computed(() => {
   })
   return groups
 })
+
+// Filtered players by position excluding PICKS
+const mainPositionPlayers = computed(() => {
+  const positions = playersByPosition.value
+  const filtered = {}
+  Object.keys(positions).forEach((position) => {
+    if (position !== 'PICKS') {
+      filtered[position] = positions[position]
+    }
+  })
+  return filtered
+})
+
+// Calculate divider line positions for League Assets (every 12 managers)
+const leagueAssetDividers = computed(() => {
+  const managerCount = summaryData.value.length
+  const dividerPositions = []
+
+  // Create dividers at 12, 24, 36, etc.
+  for (let i = 12; i < sortedFilteredData.value.length; i += managerCount) {
+    dividerPositions.push(i)
+  }
+
+  return dividerPositions
+})
+
+// Helper function to check if a specific index should have a divider after it
+const shouldShowDividerAfter = (globalIndex) => {
+  return leagueAssetDividers.value.includes(globalIndex + 1)
+}
 
 // Grouped best available players for "Waivers" tab
 const groupedPlayers = computed(() => {
@@ -2723,7 +2829,7 @@ const calculatePercentileThresholds = (data, percentile = 75) => {
   return thresholds
 }
 
-const insertLeagueDetials = async (leagueIdParam?: string) => {
+const insertLeagueDetials = async (leagueIdParam) => {
   const currentLeagueId = leagueIdParam || leagueInfo.leagueId
   Object.keys(cacheStore.cache).forEach((key) => {
     if (key.includes(currentLeagueId.toString())) {
@@ -2789,18 +2895,13 @@ const insertLeagueDetials = async (leagueIdParam?: string) => {
   }
 }
 
-async function fetchProjectionData(
-  leagueId: string,
-  projectionSource: string,
-  guid: string,
-  cacheBuster?: string
-) {
+async function fetchProjectionData(leagueId, projectionSource, guid, cacheBuster) {
   isProjectionLoading.value = true
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 2000
 
-  const params: any = { league_id: leagueId, projection_source: projectionSource, guid: guid }
+  const params = { league_id: leagueId, projection_source: projectionSource, guid: guid }
   if (cacheBuster) params._cb = cacheBuster
 
   while (retryCount < maxRetries) {
@@ -2846,13 +2947,13 @@ async function fetchProjectionData(
 }
 
 async function fetchSummaryData(
-  leagueId: string,
-  platform: string,
-  rankType: string,
-  guid: string,
-  rosterType: string,
-  leagueType: string,
-  cacheBuster?: string
+  leagueId,
+  platform,
+  rankType,
+  guid,
+  rosterType,
+  leagueType,
+  cacheBuster
 ) {
   summaryIsLoading.value = true
   const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
@@ -2869,7 +2970,7 @@ async function fetchSummaryData(
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500
-  const params: any = {
+  const params = {
     league_id: leagueId,
     platform,
     rank_type: rankType,
@@ -2926,14 +3027,7 @@ async function fetchSummaryData(
   }
 }
 
-async function fetchDetailData(
-  leagueId: string,
-  platform: string,
-  rankType: string,
-  guid: string,
-  rosterType: string,
-  cacheBuster?: string
-) {
+async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
   detailIsLoading.value = true
   const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
@@ -2947,7 +3041,7 @@ async function fetchDetailData(
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500
-  const params: any = {
+  const params = {
     league_id: leagueId,
     platform,
     rank_type: rankType,
@@ -2979,14 +3073,7 @@ async function fetchDetailData(
   }
 }
 
-async function fetchBaData(
-  leagueId: string,
-  platform: string,
-  rankType: string,
-  guid: string,
-  rosterType: string,
-  cacheBuster?: string
-) {
+async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
   baIsLoading.value = true
   const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
@@ -3000,7 +3087,7 @@ async function fetchBaData(
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500
-  const params: any = {
+  const params = {
     league_id: leagueId,
     platform,
     rank_type: rankType,
@@ -3032,18 +3119,11 @@ async function fetchBaData(
   }
 }
 
-async function fetchTrades(
-  leagueId: string,
-  platformApi: string,
-  rosterType: string,
-  leagueYear: string,
-  rankType: string,
-  cacheBuster?: string
-) {
+async function fetchTrades(leagueId, platformApi, rosterType, leagueYear, rankType, cacheBuster) {
   let retryCount = 0
   const maxRetries = 3
   const retryDelay = 500
-  const params: any = {
+  const params = {
     league_id: leagueId,
     platform: platformApi,
     roster_type: rosterType,
@@ -3079,8 +3159,8 @@ async function fetchTrades(
 
 // --- Event Handlers ---
 
-const handleMenuClick: MenuProps['onClick'] = (e) => {
-  const newPlatform = e.key as string
+const handleMenuClick = (e) => {
+  const newPlatform = e.key
   selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
   leagueInfo.apiSource = newPlatform
 
@@ -3122,11 +3202,11 @@ const handleMenuClick: MenuProps['onClick'] = (e) => {
   message.success(`Ranking source changed to ${selectedSource.value.name}`)
 }
 
-const handleProjChange = async (projectionSource: string) => {
+const handleProjChange = async (projectionSource) => {
   fetchProjectionData(leagueInfo.leagueId, projectionSource, leagueInfo.guid, Date.now().toString())
 }
 
-const handleViewToggle = (checked: boolean) => {
+const handleViewToggle = (checked) => {
   showProjections.value = checked
   if (checked) {
     if (projSummaryData.value.length === 0 || projDetailData.value.length === 0) {
@@ -3144,7 +3224,7 @@ const handleViewToggle = (checked: boolean) => {
   }
 }
 
-function handleUserClick(user: any) {
+function handleUserClick(user) {
   clickedManager.value = clickedManager.value === user.display_name ? '' : user.display_name
   if (selectedUser.value && selectedUser.value.user_id === user.user_id) {
     selectedUser.value = null
@@ -3179,7 +3259,7 @@ const getLeagueSummary = async () => {
 }
 
 // Player Modal Handlers
-const showPlayerModal = (player: any) => {
+const showPlayerModal = (player) => {
   selectedPlayer.value = player
   isPlayerModalVisible.value = true
 }
@@ -3188,16 +3268,16 @@ const handlePlayerModalOk = () => {
 }
 
 // Expand/Collapse Handlers for UI elements
-function toggleExpand(userId: string) {
+function toggleExpand(userId) {
   expandedTeams[userId] = !expandedTeams[userId]
 }
-const toggleMobileManagerExpand = (userId: string) => {
+const toggleMobileManagerExpand = (userId) => {
   expandedMobileManagers.value[userId] = !expandedMobileManagers.value[userId]
   if (!expandedMobileManagers.value[userId]) {
     expandedMobileManagerPosition.value[userId] = null
   }
 }
-const toggleMobileManagerPositionExpand = (userId: string, position: string) => {
+const toggleMobileManagerPositionExpand = (userId, position) => {
   expandedMobileManagerPosition.value[userId] =
     expandedMobileManagerPosition.value[userId] === position ? null : position
 }
@@ -3205,7 +3285,7 @@ const toggleMobileManagerPositionExpand = (userId: string, position: string) => 
 // --- Utility Functions & Data Transformations ---
 
 // Chart data update functions
-const updateBchartData = (rawData: any[]) => {
+const updateBchartData = (rawData) => {
   bchartData.value = rawData.flatMap((item) => {
     const displayName =
       item.display_name.length > 8 ? `${item.display_name.slice(0, 8)}...` : item.display_name
@@ -3228,7 +3308,7 @@ const updateBchartData = (rawData: any[]) => {
   })
 }
 
-const updateProjectionData = (rawData: any[]) => {
+const updateProjectionData = (rawData) => {
   projectionBarChartData.value = rawData.flatMap((item) => {
     const displayName =
       item.display_name.length > 8 ? `${item.display_name.slice(0, 8)}...` : item.display_name
@@ -3242,7 +3322,7 @@ const updateProjectionData = (rawData: any[]) => {
   })
 }
 
-function getRank(user: any): string {
+function getRank(user) {
   let rankValue
   if (showProjections.value) {
     const projUser = projSummaryData.value.find((p) => p.user_id === user.user_id)
@@ -3255,14 +3335,14 @@ function getRank(user: any): string {
   return rankValue !== undefined ? addOrdinalSuffix(rankValue) : '--'
 }
 
-const getPlayers = (userId: string) => {
+const getPlayers = (userId) => {
   const userAssets = filteredData.value.filter((item) => item.user_id === userId)
   const players = userAssets.filter((a) => a.player_position !== 'PICKS')
   const picks = userAssets.filter((a) => a.player_position === 'PICKS')
   return [...[...players].sort((a, b) => b.player_value - a.player_value), ...sortPicks(picks)]
 }
 
-const getPlayersProj = (userId: string) => {
+const getPlayersProj = (userId) => {
   const userAssets = filteredProjData.value.filter((item) => item.user_id === userId)
   const players = userAssets.filter((a) => a.player_position !== 'PICKS')
   const picks = userAssets.filter((a) => a.player_position === 'PICKS')
@@ -3272,12 +3352,12 @@ const getPlayersProj = (userId: string) => {
   ]
 }
 
-const getPlayersForMobilePosition = (userId: string, position: string) => {
+const getPlayersForMobilePosition = (userId, position) => {
   const allPlayersForUser = showProjections.value ? getPlayersProj(userId) : getPlayers(userId)
   return allPlayersForUser.filter((p) => p.player_position === position)
 }
 
-function getPositionTagList(position: string, opacity = 0.6) {
+function getPositionTagList(position, opacity = 0.6) {
   const colors = {
     QB: 'rgb(39, 125, 161',
     RB: 'rgb(144, 190, 109',
@@ -3302,24 +3382,24 @@ const positionTitles = {
 }
 
 // ---------- TRADE CALCULATOR CODE START ----------
-const tradePercentThreshold = ref<number>(5)
+const tradePercentThreshold = ref(5)
 const tradeValue1 = ref('')
 const tradeValue2 = ref('')
-const tradeOptions1 = ref<any[]>([])
-const tradeOptions2 = ref<any[]>([])
-const selectedPlayers1 = ref<any[]>([])
-const selectedPlayers2 = ref<any[]>([])
+const tradeOptions1 = ref([])
+const tradeOptions2 = ref([])
+const selectedPlayers1 = ref([])
+const selectedPlayers2 = ref([])
 const tradeIsLoading = ref(false)
-const tradeRanksData = ref<any[]>([{}])
+const tradeRanksData = ref([{}])
 const tradePlatform = ref('sf')
 const tradeRankType = ref('dynasty')
 const tradeTepCheck = ref(false)
 const tradeDropDownValue1 = ref('12')
-const tradeModalOpen = ref<boolean>(false)
-let tradeBpv_value: number | null = null
+const tradeModalOpen = ref(false)
+let tradeBpv_value = null
 const showAllBalancingPlayers = ref(false)
 
-const tradeDropDownOptions1 = ref<any[]>([
+const tradeDropDownOptions1 = ref([
   { value: '8', label: '8' },
   { value: '10', label: '10' },
   { value: '12', label: '12' },
@@ -3340,7 +3420,7 @@ const calculateTradeCalculatorIndex = (value) => {
   return tradeRankType.value === 'redraft' ? parseInt(value) * 15 : parseInt(value) * 25
 }
 
-const tradeDropDownHandleChange = (value: string) => {
+const tradeDropDownHandleChange = (value) => {
   const index = calculateTradeCalculatorIndex(value)
   const valueKey = tradeState.checked1 ? 'sf_value' : 'one_qb_value'
 
@@ -3356,8 +3436,8 @@ const tradeDropDownHandleChange = (value: string) => {
   }
 }
 
-async function onCheckTepChange(event: Event): Promise<void> {
-  const checked = (event.target as HTMLInputElement).checked
+async function onCheckTepChange(event) {
+  const checked = event.target.checked
   const factor = 1.1
 
   // Apply TE Premium to all players in the data
@@ -3462,7 +3542,7 @@ const rawTotalValue2 = computed(() => {
   }, 0)
 })
 
-function calculateTradeValueInternal(rawPlayerValues: number[], BPV = tradeBpv_value): number {
+function calculateTradeValueInternal(rawPlayerValues, BPV = tradeBpv_value) {
   if (BPV === null || !isFinite(BPV) || BPV <= 0) return rawPlayerValues.reduce((s, v) => s + v, 0)
   if (
     !Array.isArray(rawPlayerValues) ||
@@ -3526,7 +3606,7 @@ const showAdjustmentB = computed(() => {
   return numA > 0 && numB > 0 && numB < numA && adjustmentValueB.value > 0.1
 })
 
-const searchPlayerSharedLogic = (searchText: string, ranks: any[]) => {
+const searchPlayerSharedLogic = (searchText, ranks) => {
   if (!searchText || searchText.trim().length === 0) return []
   const matchingPlayers = ranks.filter((item) =>
     item.player_full_name?.toLowerCase().includes(searchText.toLowerCase())
@@ -3545,14 +3625,14 @@ const searchPlayerSharedLogic = (searchText: string, ranks: any[]) => {
   return options
 }
 
-const searchPlayer1 = (searchText: string) => {
+const searchPlayer1 = (searchText) => {
   tradeOptions1.value = searchPlayerSharedLogic(searchText, tradeRanksData.value)
 }
-const searchPlayer2 = (searchText: string) => {
+const searchPlayer2 = (searchText) => {
   tradeOptions2.value = searchPlayerSharedLogic(searchText, tradeRanksData.value)
 }
 
-const selectPlayer1 = (playerId: string) => {
+const selectPlayer1 = (playerId) => {
   const player = tradeRanksData.value.find((item) => item.player_id === playerId)
   const isAlreadySelected = selectedPlayers1.value.some((p) => p.player_id === player?.player_id)
   const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
@@ -3562,7 +3642,7 @@ const selectPlayer1 = (playerId: string) => {
   tradeValue1.value = ''
 }
 
-const selectPlayer2 = (playerId: string) => {
+const selectPlayer2 = (playerId) => {
   const player = tradeRanksData.value.find((item) => item.player_id === playerId)
   const isAlreadySelected = selectedPlayers2.value.some((p) => p.player_id === player?.player_id)
   const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
@@ -3608,11 +3688,7 @@ const tradeAnalysisComputed = computed(() => {
   return { percentageDifference: parseFloat(percentageDiff.toFixed(2)), valueA, valueB }
 })
 
-function findBalancingPlayerValueInternal(
-  currentValueSideA: number,
-  currentValueSideB: number,
-  BPV: number
-): number {
+function findBalancingPlayerValueInternal(currentValueSideA, currentValueSideB, BPV) {
   if (BPV === null || !isFinite(BPV) || BPV <= 0) return 0
   const targetValue = Math.max(currentValueSideA, currentValueSideB)
   const deficitSideValue = Math.min(currentValueSideA, currentValueSideB)
@@ -3873,7 +3949,7 @@ async function fetchTradeRanks() {
   }
 }
 
-function getTradePositionColor(position: string): string {
+function getTradePositionColor(position) {
   const colors = {
     QB: 'rgb(39, 125, 161)',
     RB: 'rgb(144, 190, 109)',
@@ -4088,6 +4164,46 @@ const areAllPositionsExpanded = (team) => {
   return positions.every((position) =>
     team === 'A' ? expandedTradePositions.A[position] : expandedTradePositions.B[position]
   )
+}
+
+// Get team tier based on overall rank
+const getTeamTier = (manager) => {
+  const rank = overallFilter.value === 'all' ? manager.total_rank : manager.starters_rank
+  const totalTeams = summaryData.value.length
+
+  if (rank <= totalTeams * 0.25) {
+    return { tier: 'Elite', class: 'elite-tier' }
+  } else if (rank <= totalTeams * 0.5) {
+    return { tier: 'Strong', class: 'strong-tier' }
+  } else if (rank <= totalTeams * 0.75) {
+    return { tier: 'Average', class: 'average-tier' }
+  } else {
+    return { tier: 'Developing', class: 'developing-tier' }
+  }
+}
+
+// Get position strength class for visual indicator
+const getPositionStrengthClass = (manager, position) => {
+  const rank = getPositionRank(manager, position)
+  const totalTeams = summaryData.value.length
+
+  if (rank <= totalTeams * 0.25) {
+    return 'position-elite'
+  } else if (rank <= totalTeams * 0.5) {
+    return 'position-strong'
+  } else if (rank <= totalTeams * 0.75) {
+    return 'position-average'
+  } else {
+    return 'position-weak'
+  }
+}
+
+// Get position rank for a manager
+const getPositionRank = (manager, position) => {
+  const positionKey = position.toLowerCase()
+  const rankKey =
+    overallFilter.value === 'all' ? `${positionKey}_rank` : `${positionKey}_starter_rank`
+  return manager[rankKey] || 999
 }
 </script>
 
@@ -4332,27 +4448,77 @@ const areAllPositionsExpanded = (team) => {
 .manager-item {
   display: flex;
   align-items: center;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #e8e8e8;
-  transition: all 0.3s;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--color-background-soft);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
+  overflow: hidden;
+}
+
+:root.dark .manager-item {
+  background: rgba(34, 34, 34, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.manager-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .manager-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  transform: translateY(-2px);
+  background: var(--color-background);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  border-color: var(--color-primary);
+}
+
+:root.dark .manager-item:hover {
+  background: rgba(40, 40, 40, 0.95);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.manager-item:hover::before {
+  opacity: 1;
+}
+
+.manager-item:active {
+  transform: translateY(-2px) scale(1.01);
+  transition: transform 0.1s ease;
 }
 
 .current-user {
-  border: 2px solid gold;
-  background-color: rgba(255, 215, 0, 0.1);
+  border: 2px solid #ffd700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 223, 0, 0.08));
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+}
+
+.current-user::before {
+  background: linear-gradient(90deg, #ffd700, #ffed4e, #fff200);
+  opacity: 1;
 }
 
 .selected-manager {
   border: 2px solid #1890ff;
-  background-color: rgba(24, 144, 255, 0.05);
+  background: linear-gradient(135deg, rgba(24, 144, 255, 0.15), rgba(24, 144, 255, 0.08));
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.2);
+}
+
+.selected-manager::before {
+  background: linear-gradient(90deg, #1890ff, #40a9ff, #69c0ff);
+  opacity: 1;
 }
 
 .manager-avatar {
@@ -4362,19 +4528,20 @@ const areAllPositionsExpanded = (team) => {
 
 .manager-rank {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  background-color: #1890ff;
+  bottom: -3px;
+  right: -3px;
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  font-weight: bold;
-  border: 1px solid white;
+  font-weight: 700;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .manager-details {
@@ -4383,16 +4550,19 @@ const areAllPositionsExpanded = (team) => {
 }
 
 .manager-name {
-  font-weight: 400;
-  margin-bottom: 2px;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--color-text);
 }
 
 .manager-stats {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 .position-badges {
@@ -4958,6 +5128,118 @@ const areAllPositionsExpanded = (team) => {
   padding: 2px 8px;
 }
 
+/* Team Level Indicators */
+.team-level-indicators {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px;
+  border-radius: 8px 8px 0 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.team-tier-badge {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.elite-tier {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+  color: white;
+}
+
+.strong-tier {
+  background: linear-gradient(135deg, #1890ff, #40a9ff);
+  color: white;
+}
+
+.average-tier {
+  background: linear-gradient(135deg, #fa8c16, #ffc53d);
+  color: white;
+}
+
+.developing-tier {
+  background: linear-gradient(135deg, #f5222d, #ff7875);
+  color: white;
+}
+
+.position-strength-indicators {
+  display: flex;
+  gap: 4px;
+}
+
+.position-strength {
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  min-width: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.position-elite {
+  background: rgba(82, 196, 26, 0.8);
+  color: white;
+}
+
+.position-strong {
+  background: rgba(24, 144, 255, 0.8);
+  color: white;
+}
+
+.position-average {
+  background: rgba(250, 140, 22, 0.8);
+  color: white;
+}
+
+.position-weak {
+  background: rgba(245, 34, 45, 0.8);
+  color: white;
+}
+
+/* Team card states */
+.selected-team {
+  border: 2px solid #1890ff !important;
+  box-shadow: 0 4px 20px rgba(24, 144, 255, 0.3) !important;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dimmed-team {
+  opacity: 0.5;
+  filter: grayscale(20%);
+  transition: all 0.3s ease;
+}
+
+.elite-team {
+  border-left: 4px solid #52c41a;
+}
+
+.strong-team {
+  border-left: 4px solid #1890ff;
+}
+
+.average-team {
+  border-left: 4px solid #fa8c16;
+}
+
+.developing-team {
+  border-left: 4px solid #f5222d;
+}
+
 .team-assets-list {
   padding: 0;
   margin: 0;
@@ -5094,6 +5376,92 @@ h4 {
   font-size: 11px;
 }
 
+/* Enhanced Position Groups Layout */
+.main-positions-row {
+  margin-bottom: 24px;
+}
+
+.main-position-container {
+  min-height: 500px;
+}
+
+.picks-row {
+  margin-top: 16px;
+}
+
+.picks-container {
+  background: linear-gradient(135deg, var(--color-background-soft), var(--color-background-mute));
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: auto;
+}
+
+.picks-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--color-primary);
+}
+
+.picks-count {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.pick-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  font-size: 13px;
+  transition: all 0.2s ease;
+  cursor: default;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.pick-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pick-name {
+  flex: 1;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.pick-value {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-right: 12px;
+  min-width: 60px;
+  text-align: right;
+}
+
+.pick-owner {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  min-width: 80px;
+  text-align: right;
+}
+
 /* League Assets Tab */
 .lighter {
   color: #aaa !important;
@@ -5103,6 +5471,34 @@ h4 {
 .dimmed-text {
   color: #aaa !important;
   /* color: var(--league-details-primary-card) !important; */
+}
+
+/* League Assets Divider Lines */
+.league-assets-divider {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.divider-line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff4d4f, transparent);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divider-text {
+  background: white;
+  color: #ff4d4f;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 0 8px;
+  border: 1px solid #ff4d4f;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 /* Waivers Tab */
@@ -5203,10 +5599,6 @@ h4 {
 
 .legend-te {
   background-color: rgb(249, 132, 74);
-}
-
-.legend-picks {
-  background-color: rgba(70, 70, 70, 0.7);
 }
 
 /* Miscellaneous & Utility Styles */
