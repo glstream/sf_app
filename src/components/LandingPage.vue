@@ -26,6 +26,14 @@
           >
             Trade Calculator
           </a-button>
+          <a-button
+            type="default"
+            size="large"
+            @click="navigateTo('/rankyourteam')"
+            class="cta-btn"
+          >
+            Rank My Team
+          </a-button>
         </div>
       </div>
     </section>

@@ -204,8 +204,8 @@ const items = computed(() => {
     {
       key: 'rankYourTeam',
       icon: () => h(StarOutlined),
-      label: 'Rate Your Team',
-      title: 'Rate Your Team',
+      label: 'Rate My Team',
+      title: 'Rate My Team',
       onClick: () => router.push('/rankyourteam')
     },
     {
@@ -324,7 +324,10 @@ const mobileItems = computed(() => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Dark theme header adjustments */
@@ -428,7 +431,6 @@ html.dark .header {
   background: var(--color-background-mute);
   color: var(--color-primary) !important;
 }
-
 
 .mobile-league-type-label {
   padding-left: 16px !important;
