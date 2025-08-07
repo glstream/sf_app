@@ -57,7 +57,8 @@ import {
   AppstoreOutlined,
   OrderedListOutlined,
   QuestionCircleOutlined,
-  MenuOutlined
+  MenuOutlined,
+  StarOutlined
 } from '@ant-design/icons-vue'
 
 import { useLeaguesStore } from '@/stores/leaguesStore'
@@ -88,6 +89,7 @@ function updateActiveKey() {
   else if (path.includes('/tradecalculator')) activeKey.value = ['tradeCalculator']
   else if (path.includes('/leagues')) activeKey.value = ['leagues']
   else if (path.includes('/ranks')) activeKey.value = ['ranks']
+  else if (path.includes('/rankyourteam')) activeKey.value = ['rankYourTeam']
   else if (path.includes('/about')) activeKey.value = ['about']
   else if (path.includes('/league/')) activeKey.value = ['leagues']
 }
@@ -199,7 +201,13 @@ const items = computed(() => {
       title: 'Rankings',
       onClick: () => router.push('/ranks')
     },
-
+    {
+      key: 'rankYourTeam',
+      icon: () => h(StarOutlined),
+      label: 'Rate Your Team',
+      title: 'Rate Your Team',
+      onClick: () => router.push('/rankyourteam')
+    },
     {
       key: 'about',
       icon: () => h(QuestionCircleOutlined),
@@ -234,6 +242,13 @@ const mobileItems = computed(() => {
       label: 'Rankings',
       title: 'Rankings',
       onClick: () => router.push('/ranks')
+    },
+    {
+      key: 'rankYourTeam',
+      icon: () => h(StarOutlined),
+      label: 'Rate Your Team',
+      title: 'Rate Your Team',
+      onClick: () => router.push('/rankyourteam')
     },
     {
       key: 'about',
