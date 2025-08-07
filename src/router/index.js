@@ -43,6 +43,12 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
+      path: '/rankyourteam',
+      name: 'RateYourTeam',
+      component: () => import('../components/RankYourTeam.vue'),
+      beforeEnter: logNavigation
+    },
+    {
       path: '/tradecalculator',
       component: () => import('../components/TradeCalculatorView.vue'),
       beforeEnter: logNavigation
