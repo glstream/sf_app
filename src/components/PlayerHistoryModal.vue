@@ -128,10 +128,19 @@ const fetchPlayerData = async (ktcPlayerId) => {
         p.roster_type === requiredRosterType
       )
       
-      console.log(`🔍 Players matching league criteria (${requiredRankType} + ${requiredRosterType}): ${matchingPlayers.length}`)
+      // Sort by player value (descending) and recalculate overall rankings for this specific league type
+      const sortedMatchingPlayers = matchingPlayers
+        .sort((a, b) => (b.player_value || 0) - (a.player_value || 0))
+        .map((player, index) => ({
+          ...player,
+          _rownum: index + 1  // Recalculate overall rank within this league type
+        }))
       
-      // First try direct KTC ID match
-      let player = matchingPlayers.find(p => String(p.ktc_player_id) === String(ktcPlayerId))
+      console.log(`🔍 Players matching league criteria (${requiredRankType} + ${requiredRosterType}): ${matchingPlayers.length}`)
+      console.log(`🔍 Recalculated overall rankings for this specific league type`)
+      
+      // First try direct KTC ID match (using recalculated rankings)
+      let player = sortedMatchingPlayers.find(p => String(p.ktc_player_id) === String(ktcPlayerId))
       
       if (player) {
         console.log(`✅ Found player by KTC ID: ${player.player_full_name} (rank_type: ${player.rank_type}, roster_type: ${player.roster_type})`)
@@ -155,8 +164,8 @@ const fetchPlayerData = async (ktcPlayerId) => {
         if (playerAnyType) {
           console.log(`🔍 Found player in different league type: ${playerAnyType.player_full_name} (${playerAnyType.rank_type}/${playerAnyType.roster_type})`)
           
-          // Now search for the same player name in the required league type
-          const playerByName = matchingPlayers.find(p => p.player_full_name === playerAnyType.player_full_name)
+          // Now search for the same player name in the required league type (using recalculated rankings)
+          const playerByName = sortedMatchingPlayers.find(p => p.player_full_name === playerAnyType.player_full_name)
           
           if (playerByName) {
             console.log(`✅ Found player by name mapping: ${playerByName.player_full_name} with KTC ID ${playerByName.ktc_player_id} (${playerByName.rank_type}/${playerByName.roster_type})`)
@@ -181,12 +190,13 @@ const fetchPlayerData = async (ktcPlayerId) => {
           console.warn(`❌ Player with KTC ID ${ktcPlayerId} does not exist in any league type combination`)
         }
         
-        // Debug: Show some example KTC IDs from the matching league criteria
-        const sampleIds = matchingPlayers.slice(0, 5).map(p => ({ 
+        // Debug: Show some example KTC IDs from the matching league criteria  
+        const sampleIds = sortedMatchingPlayers.slice(0, 5).map(p => ({ 
           ktc_id: p.ktc_player_id, 
-          name: p.player_full_name 
+          name: p.player_full_name,
+          overall_rank: p._rownum
         }))
-        console.log(`🔍 Sample KTC IDs from matching league criteria:`, sampleIds)
+        console.log(`🔍 Sample top 5 players with recalculated rankings:`, sampleIds)
       }
     }
     return null

@@ -266,9 +266,14 @@ const filteredData = computed(() => {
     })
   })
 
+  // Sort all filtered players by value and recalculate overall rankings
   return Object.values(grouped)
     .flat()
     .sort((a, b) => b.player_value - a.player_value)
+    .map((player, index) => ({
+      ...player,
+      _rownum: index + 1  // Recalculate overall rank within this specific league configuration
+    }))
 })
 
 function getPositionTag(position) {
