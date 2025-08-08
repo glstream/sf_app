@@ -139,7 +139,7 @@
                       }"
                     >
                       <div class="player-info-compact">
-                        <span class="player-name-compact">{{ slot.player.full_name }}</span>
+                        <span class="player-name-compact clickable-player" @click="showPlayerModal(slot.player)">{{ slot.player.full_name }}</span>
                         <span class="player-details-compact">
                           <span
                             class="player-position-compact"
@@ -213,7 +213,7 @@
                   }"
                 >
                   <div class="pick-header">
-                    <span class="pick-player">{{ analysis.player.full_name }}</span>
+                    <span class="pick-player clickable-player" @click="showPlayerModal(analysis.player)">{{ analysis.player.full_name }}</span>
                     <span
                       class="pick-position"
                       :style="{ color: getPositionColor(analysis.player.position) }"
@@ -287,6 +287,14 @@
       </a-modal>
     </a-layout-content>
 
+    <!-- Player History Modal -->
+    <PlayerHistoryModal 
+      ref="playerModalRef"
+      :isSuperflex="isSuperflex" 
+      :isDynasty="rankType === 'dynasty'" 
+      platform="sf"
+    />
+
     <AppFooter />
   </a-layout>
 </template>
@@ -299,6 +307,7 @@ import axios from 'axios'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
 
 // Icons
 import { DeleteOutlined, EditOutlined, ClearOutlined } from '@ant-design/icons-vue'
@@ -337,6 +346,9 @@ const playerOptions = ref([])
 const draftSimulator = ref(null)
 const draftScore = ref(null)
 const showDraftAnalysis = ref(false)
+
+// Player modal ref
+const playerModalRef = ref(null)
 
 // Initialize roster slots
 const initializeRosterSlots = () => {
@@ -984,6 +996,14 @@ watch(
 )
 
 // Initialize component
+// Show player modal function
+const showPlayerModal = (player) => {
+  const ktcPlayerId = player.ktc_player_id || player.player_id
+  if (playerModalRef.value && ktcPlayerId) {
+    playerModalRef.value.showModal(ktcPlayerId)
+  }
+}
+
 onMounted(() => {
   console.log('🚀 RankYourTeam component mounted')
   console.log('🔗 API URL:', apiUrl)
@@ -1857,6 +1877,17 @@ onMounted(() => {
     right: 10px !important;
     z-index: 1000 !important;
   }
+}
+
+/* Clickable player names */
+.clickable-player {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.clickable-player:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 /* Tablets and up */

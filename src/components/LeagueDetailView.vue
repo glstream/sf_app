@@ -2238,47 +2238,13 @@
             </div>
           </a-modal>
 
-          <!-- Player Detail Modal -->
-          <a-modal
-            v-model:open="isPlayerModalVisible"
-            :title="selectedPlayer?.full_name || 'Player Details'"
-            @ok="handlePlayerModalOk"
-            :footer="null"
-            width="400px"
-          >
-            <!-- ... existing player detail modal content ... -->
-            <div v-if="selectedPlayer" class="player-modal-content">
-              <div class="player-modal-header">
-                <div class="player-image-placeholder">
-                  <UserOutlined style="font-size: 48px; color: #ccc" />
-                </div>
-                <div class="player-modal-info">
-                  <h2>{{ selectedPlayer.full_name }}</h2>
-                  <p>
-                    <a-tag :style="getPositionTagList(selectedPlayer.player_position)">{{
-                      selectedPlayer.player_position
-                    }}</a-tag>
-                    <span v-if="selectedPlayer.team"> &bull; {{ selectedPlayer.team }}</span>
-                    <span v-if="selectedPlayer.age"> &bull; {{ selectedPlayer.age }} yrs</span>
-                  </p>
-                </div>
-              </div>
-              <div class="player-modal-details">
-                <p>
-                  <strong>Value</strong>
-                  {{
-                    selectedPlayer.player_value === -1
-                      ? 'N/A'
-                      : selectedPlayer.player_value?.toLocaleString()
-                  }}
-                </p>
-                <p><strong>Manager</strong> {{ selectedPlayer.display_name }}</p>
-              </div>
-            </div>
-            <div v-else>
-              <p>Loading player details...</p>
-            </div>
-          </a-modal>
+          <!-- Player History Modal -->
+          <PlayerHistoryModal 
+            ref="playerModalRef"
+            :isSuperflex="leagueInfo.rosterType === 'sf_value'" 
+            :isDynasty="leagueInfo.rankType === 'dynasty'" 
+            :platform="leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource"
+          />
         </a-spin>
       </div>
     </a-layout-content>
@@ -2339,6 +2305,9 @@ import ddLogo from '@/assets/sourceLogos/dd.svg'
 import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
 
+// Components
+import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
+
 // Icons
 import {
   PlusCircleTwoTone,
@@ -2387,6 +2356,7 @@ const clickedManager = ref('') // Tracks clicked manager for highlighting in Pos
 const overallFilter = ref('all') // Player filter: 'all' or 'STARTER'
 const value1 = ref('espn') // Selected projection source (e.g., 'espn', 'cbs')
 const selectedPlayer = ref(null) // Holds data for the player modal
+const playerModalRef = ref(null) // Reference to PlayerHistoryModal component
 const selectedUser = ref(null) // Holds data for the selected manager in certain tabs
 
 // League Information (from route params)
@@ -2409,6 +2379,7 @@ const leagueInfo = reactive({
 const summaryData = ref([])
 const detailData = ref([{}])
 const projDetailData = ref([{}])
+
 const projSummaryData = ref([{}])
 const tradesDetailData = ref([{}])
 const tradesSummaryData = ref([{}])
@@ -3284,10 +3255,12 @@ const getLeagueSummary = async () => {
   }
 }
 
+
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  selectedPlayer.value = player
-  isPlayerModalVisible.value = true
+  if (playerModalRef.value && player.ktc_player_id) {
+    playerModalRef.value.showModal(player.ktc_player_id)
+  }
 }
 const handlePlayerModalOk = () => {
   isPlayerModalVisible.value = false
