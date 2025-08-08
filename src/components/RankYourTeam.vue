@@ -292,6 +292,7 @@
       ref="playerModalRef"
       :isSuperflex="isSuperflex" 
       :isDynasty="rankType === 'dynasty'" 
+      platform="sf"
     />
 
     <AppFooter />
@@ -997,20 +998,9 @@ watch(
 // Initialize component
 // Show player modal function
 const showPlayerModal = (player) => {
-  // Transform player data to match the modal's expected format
-  const transformedPlayer = {
-    player_full_name: player.full_name,
-    _position: player.position,
-    team: player.team,
-    age: player.age,
-    player_value: player.value,
-    _rownum: player.pos_ranked || '—',
-    pos_ranked: player.pos_ranked || '—',
-    ktc_player_id: player.ktc_player_id || player.player_id
-  }
-  
-  if (playerModalRef.value) {
-    playerModalRef.value.showModal(transformedPlayer)
+  const ktcPlayerId = player.ktc_player_id || player.player_id
+  if (playerModalRef.value && ktcPlayerId) {
+    playerModalRef.value.showModal(ktcPlayerId)
   }
 }
 

@@ -2243,6 +2243,7 @@
             ref="playerModalRef"
             :isSuperflex="leagueInfo.rosterType === 'sf_value'" 
             :isDynasty="leagueInfo.rankType === 'dynasty'" 
+            :platform="leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource"
           />
         </a-spin>
       </div>
@@ -2379,8 +2380,6 @@ const summaryData = ref([])
 const detailData = ref([{}])
 const projDetailData = ref([{}])
 
-// Player ID mapping for player history modal  
-const playerNameToKtcId = ref(new Map())
 const projSummaryData = ref([{}])
 const tradesDetailData = ref([{}])
 const tradesSummaryData = ref([{}])
@@ -2762,8 +2761,6 @@ onMounted(() => {
     leagueInfo.userId
   ) {
     insertLeagueDetials()
-    // Load player name to KTC ID mapping for player history modal
-    loadPlayerNameToKtcIdMapping()
   }
 })
 
@@ -3258,78 +3255,11 @@ const getLeagueSummary = async () => {
   }
 }
 
-// Player ID mapping functions
-const loadPlayerNameToKtcIdMapping = async () => {
-  try {
-    const apiUrl = import.meta.env.VITE_API_URL
-    const platform = leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource
-    const rankType = leagueInfo.rankType === 'dynasty' ? 'dynasty' : 'redraft'
-    
-    console.log('🔍 Loading player mapping from ranks API...')
-    const response = await axios.get(`${apiUrl}/ranks`, {
-      params: {
-        platform: platform
-      }
-    })
-    
-    if (response.data && Array.isArray(response.data)) {
-      const mapping = new Map()
-      response.data.forEach(player => {
-        if (player.player_full_name && player.ktc_player_id) {
-          mapping.set(player.player_full_name, player.ktc_player_id)
-        }
-      })
-      playerNameToKtcId.value = mapping
-      console.log(`✅ Loaded ${mapping.size} player name to KTC ID mappings`)
-    }
-  } catch (error) {
-    console.error('❌ Failed to load player name to KTC ID mapping:', error)
-  }
-}
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  console.log('🔍 LeagueDetailView - Original player data:', player)
-  console.log('🔍 LeagueDetailView - Player IDs available:', {
-    ktc_player_id: player.ktc_player_id,
-    player_id: player.player_id,
-    sleeper_id: player.sleeper_id
-  })
-  
-  // Try to get ktc_player_id from name mapping if not directly available
-  let ktcPlayerId = player.ktc_player_id || player.player_id
-  if (!ktcPlayerId && player.full_name && playerNameToKtcId.value.has(player.full_name)) {
-    ktcPlayerId = playerNameToKtcId.value.get(player.full_name)
-    console.log(`🔍 Found KTC ID via name mapping: ${player.full_name} -> ${ktcPlayerId}`)
-  } else if (!ktcPlayerId) {
-    ktcPlayerId = player.sleeper_id // Fallback to sleeper_id as last resort
-  }
-  
-  // Debug info
-  console.log(`🔍 Player: ${player.full_name} | Final KTC ID: ${ktcPlayerId} | Source: ${
-    player.ktc_player_id ? 'direct ktc_player_id' :
-    player.player_id ? 'player_id' :
-    playerNameToKtcId.value.has(player.full_name || '') ? 'name mapping' :
-    'sleeper_id fallback'
-  }`)
-  
-  // Transform player data to match the modal's expected format
-  const transformedPlayer = {
-    player_full_name: player.full_name,
-    _position: player.player_position,
-    team: player.team,
-    age: player.age,
-    player_value: player.player_value,
-    _rownum: player.pos_ranked || '—',
-    pos_ranked: player.pos_ranked || '—',
-    ktc_player_id: ktcPlayerId
-  }
-  
-  console.log('🔍 LeagueDetailView - Transformed player data:', transformedPlayer)
-  console.log('🔍 LeagueDetailView - Final ktc_player_id used:', transformedPlayer.ktc_player_id)
-  
-  if (playerModalRef.value) {
-    playerModalRef.value.showModal(transformedPlayer)
+  if (playerModalRef.value && player.ktc_player_id) {
+    playerModalRef.value.showModal(player.ktc_player_id)
   }
 }
 const handlePlayerModalOk = () => {

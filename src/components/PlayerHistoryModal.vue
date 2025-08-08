@@ -7,7 +7,7 @@
     width="420px"
     class="modern-player-modal"
   >
-    <div v-if="selectedPlayer" class="player-modal-content">
+    <div v-if="selectedPlayer && !isPlayerDataLoading" class="player-modal-content">
       <div class="player-header-compact">
         <div class="player-avatar-small">
           <UserOutlined />
@@ -63,7 +63,7 @@
     </div>
     <div v-else class="loading-state">
       <a-spin size="large" />
-      <p>Loading player details...</p>
+      <p>{{ isPlayerDataLoading ? 'Loading player details...' : 'Loading player details...' }}</p>
     </div>
   </a-modal>
 </template>
@@ -79,6 +79,7 @@ import { Line } from '@antv/g2plot'
 const props = defineProps<{
   isSuperflex: boolean
   isDynasty: boolean
+  platform: string
 }>()
 
 // Emits
@@ -91,13 +92,111 @@ const isVisible = ref(false)
 const selectedPlayer = ref(null)
 const playerValueHistory = ref([])
 const isChartLoading = ref(false)
+const isPlayerDataLoading = ref(false)
 let chartInstance = null
 
-// Show modal function
-const showModal = async (player) => {
-  selectedPlayer.value = player
+// Fetch current player data from ranks API
+const fetchPlayerData = async (ktcPlayerId) => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const requiredRankType = props.isDynasty ? 'dynasty' : 'redraft'
+    const requiredRosterType = props.isSuperflex ? 'sf_value' : 'one_qb_value'
+    
+    console.log(`🔍 Fetching player data for KTC ID: ${ktcPlayerId}`)
+    console.log(`🔍 League settings - rank_type: ${requiredRankType}, roster_type: ${requiredRosterType}`)
+    
+    const response = await axios.get(`${apiUrl}/ranks`, {
+      params: {
+        platform: props.platform
+      }
+    })
+    
+    if (response.data && Array.isArray(response.data)) {
+      console.log(`🔍 Total players in ranks API: ${response.data.length}`)
+      
+      // Filter for the exact league type and roster type - no fallbacks
+      const matchingPlayers = response.data.filter(p => 
+        p.rank_type === requiredRankType && 
+        p.roster_type === requiredRosterType
+      )
+      
+      console.log(`🔍 Players matching league criteria (${requiredRankType} + ${requiredRosterType}): ${matchingPlayers.length}`)
+      
+      // First try direct KTC ID match
+      let player = matchingPlayers.find(p => String(p.ktc_player_id) === String(ktcPlayerId))
+      
+      if (player) {
+        console.log(`✅ Found player by KTC ID: ${player.player_full_name} (rank_type: ${player.rank_type}, roster_type: ${player.roster_type})`)
+        return {
+          player_full_name: player.player_full_name,
+          _position: player._position,
+          team: player.team,
+          age: player.age,
+          player_value: player.player_value,
+          _rownum: player._rownum,
+          pos_ranked: player.pos_rank,
+          ktc_player_id: player.ktc_player_id
+        }
+      } else {
+        console.warn(`❌ Direct KTC ID match failed for ${ktcPlayerId} in ${requiredRankType}/${requiredRosterType}`)
+        
+        // Strategy: Find player by name from any league type, then look for them in the required league type
+        const playerAnyType = response.data.find(p => String(p.ktc_player_id) === String(ktcPlayerId))
+        if (playerAnyType) {
+          console.log(`🔍 Found player in different league type: ${playerAnyType.player_full_name} (${playerAnyType.rank_type}/${playerAnyType.roster_type})`)
+          
+          // Now search for the same player name in the required league type
+          const playerByName = matchingPlayers.find(p => p.player_full_name === playerAnyType.player_full_name)
+          
+          if (playerByName) {
+            console.log(`✅ Found player by name mapping: ${playerByName.player_full_name} with KTC ID ${playerByName.ktc_player_id} (${playerByName.rank_type}/${playerByName.roster_type})`)
+            console.log(`🔄 KTC ID mapping: ${ktcPlayerId} (${playerAnyType.rank_type}/${playerAnyType.roster_type}) → ${playerByName.ktc_player_id} (${playerByName.rank_type}/${playerByName.roster_type})`)
+            
+            return {
+              player_full_name: playerByName.player_full_name,
+              _position: playerByName._position,
+              team: playerByName.team,
+              age: playerByName.age,
+              player_value: playerByName.player_value,
+              _rownum: playerByName._rownum,
+              pos_ranked: playerByName.pos_rank,
+              ktc_player_id: playerByName.ktc_player_id
+            }
+          } else {
+            console.warn(`❌ Player ${playerAnyType.player_full_name} not found in required league type ${requiredRankType}/${requiredRosterType}`)
+          }
+        } else {
+          console.warn(`❌ Player with KTC ID ${ktcPlayerId} does not exist in any league type combination`)
+        }
+        
+        // Debug: Show some example KTC IDs from the matching league criteria
+        const sampleIds = matchingPlayers.slice(0, 5).map(p => ({ 
+          ktc_id: p.ktc_player_id, 
+          name: p.player_full_name 
+        }))
+        console.log(`🔍 Sample KTC IDs from matching league criteria:`, sampleIds)
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('Error fetching player data:', error)
+    return null
+  }
+}
+
+// Show modal function - now takes just ktc_player_id
+const showModal = async (ktcPlayerId) => {
+  console.log(`🚀 PlayerHistoryModal.showModal called with KTC ID: ${ktcPlayerId} (type: ${typeof ktcPlayerId})`)
+  
+  if (!ktcPlayerId) {
+    message.error('Cannot load player data: Player ID missing.')
+    return
+  }
+
   isVisible.value = true
+  isPlayerDataLoading.value = true
   isChartLoading.value = true
+  selectedPlayer.value = null
   playerValueHistory.value = []
 
   if (chartInstance) {
@@ -105,83 +204,53 @@ const showModal = async (player) => {
     chartInstance = null
   }
 
-  console.log('🔍 Player data received:', player)
-  console.log('🔍 Available player IDs:', {
-    ktc_player_id: player.ktc_player_id,
-    player_id: player.player_id,
-    sleeper_id: player.sleeper_id
-  })
-
-  // Determine the player ID to use - prioritize actual ktc_player_id
-  const playerIdToUse = player.ktc_player_id || player.player_id || player.sleeper_id
-  
-  if (!playerIdToUse) {
-    console.error('No valid player ID found for:', player.player_full_name)
-    console.error('Full player data:', player)
-    message.error('Cannot load value history: No valid player ID found.')
-    isChartLoading.value = false
-    await nextTick()
-    const container = document.getElementById('player-value-chart-container')
-    if (container) container.innerHTML = ''
-    return
-  }
-
-  console.log(`🔍 Using player ID: ${playerIdToUse} (type: ${
-    player.ktc_player_id ? 'ktc_player_id' : 
-    player.player_id ? 'player_id' : 'sleeper_id'
-  })`)
-
-  const apiUrl = import.meta.env.VITE_API_URL
-  const currentRankType = props.isDynasty ? 'dynasty' : 'redraft'
-  
   try {
-    console.log(
-      `🔍 Fetching value history for player ID: ${playerIdToUse} with rank_type=${currentRankType}`
-    )
+    // Fetch current player data
+    const playerData = await fetchPlayerData(ktcPlayerId)
+    if (!playerData) {
+      message.error('Could not load player information.')
+      isPlayerDataLoading.value = false
+      isChartLoading.value = false
+      return
+    }
+
+    selectedPlayer.value = playerData
+    isPlayerDataLoading.value = false
+
+    // Fetch historical data
+    const apiUrl = import.meta.env.VITE_API_URL
+    const currentRankType = props.isDynasty ? 'dynasty' : 'redraft'
+    
     const response = await axios.get(`${apiUrl}/player_values`, {
       params: {
-        player_id: playerIdToUse,
+        player_id: ktcPlayerId,
         rank_type: currentRankType
       }
     })
-
-    console.log('🔍 API Response:', response.data)
     
     if (response.data && Array.isArray(response.data)) {
       playerValueHistory.value = response.data
-      console.log(`✅ Fetched ${response.data.length} history points for player: ${player.player_full_name}`)
-      
-      if (response.data.length === 0) {
-        console.warn(`⚠️  No historical data found for player ID: ${playerIdToUse}`)
-        console.warn(`⚠️  This could mean:`)
-        console.warn(`   1. Player ID is incorrect (sleeper_id used instead of ktc_player_id)`)
-        console.warn(`   2. Player has no historical data in the database`)
-        console.warn(`   3. Player name mismatch in database join`)
-      }
     } else {
-      console.warn('❌ Received unexpected data format for player value history:', response.data)
       playerValueHistory.value = []
     }
 
     await nextTick()
     renderPlayerValueChart()
   } catch (error) {
-    console.error('❌ Error fetching player value history:', error)
-    console.error(`❌ Failed for player: ${player.player_full_name}`)
-    console.error(`❌ Player ID used: ${playerIdToUse}`)
+    console.error('Error loading player data:', error)
     
     if (error.response) {
-      console.error('❌ API Response Status:', error.response.status)
-      console.error('❌ API Response Data:', error.response.data)
-      message.error(`Could not load player value history: ${error.response.status} error`)
+      message.error(`Could not load player data: ${error.response.status} error`)
     } else {
-      message.error('Could not load player value history: Network error')
+      message.error('Could not load player data: Network error')
     }
     
+    selectedPlayer.value = null
     playerValueHistory.value = []
     await nextTick()
     renderPlayerValueChart()
   } finally {
+    isPlayerDataLoading.value = false
     isChartLoading.value = false
   }
 }
