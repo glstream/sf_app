@@ -123,8 +123,9 @@
               >
                 <div
                   :bordered="false"
-                  class="player-item"
+                  class="player-item clickable-player"
                   :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
+                  @click="showPlayerModal(player)"
                 >
                   <div class="player-details-wrapper">
                     <div class="player-name-info">
@@ -143,7 +144,7 @@
                       <div class="player-value">
                         {{ state.checked1 ? player.sf_value : player.one_qb_value }}
                       </div>
-                      <button class="remove-player" @click="removePlayer1(index)">
+                      <button class="remove-player" @click.stop="removePlayer1(index)">
                         <MinusCircleTwoTone two-tone-color="#f5222d" />
                       </button>
                     </div>
@@ -244,8 +245,9 @@
                 <div
                   size="small"
                   :bordered="false"
-                  class="player-item"
+                  class="player-item clickable-player"
                   :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
+                  @click="showPlayerModal(player)"
                 >
                   <div class="player-details-wrapper">
                     <div class="player-name-info">
@@ -264,7 +266,7 @@
                       <div class="player-value">
                         {{ state.checked1 ? player.sf_value : player.one_qb_value }}
                       </div>
-                      <button class="remove-player" @click="removePlayer2(index)">
+                      <button class="remove-player" @click.stop="removePlayer2(index)">
                         <MinusCircleTwoTone two-tone-color="#f5222d" />
                       </button>
                     </div>
@@ -332,7 +334,7 @@
               >
                 <div class="player-details-wrapper">
                   <div class="player-name-info">
-                    <div class="player-name">{{ player.player_full_name }}</div>
+                    <div class="player-name clickable-player" @click.stop="showPlayerModal(player)">{{ player.player_full_name }}</div>
                     <div class="player-meta">
                       <span
                         class="player-position"
@@ -392,6 +394,13 @@
         </p>
       </a-modal>
 
+      <!-- Player History Modal -->
+      <PlayerHistoryModal 
+        ref="playerModalRef"
+        :isSuperflex="state.checked1" 
+        :isDynasty="rankType === 'dynasty'" 
+      />
+
       <AppFooter />
     </a-layout-content>
   </a-layout>
@@ -405,6 +414,7 @@ import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
 import TradeBalanceVisualizer from '@/components/TradeBalanceVisualizer.vue' // Import the new component
+import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
 
 //  Custom Utils
 
@@ -447,6 +457,9 @@ const ranksData = ref([{}])
 const platform = ref('sf')
 const rankType = ref('dynasty')
 const tepCheck = ref(false)
+
+// Player modal ref
+const playerModalRef = ref(null)
 const dropDownValue1 = ref('12')
 const open = ref<boolean>(false)
 let bpv_value: number | null = null // Ensure this line is present at the top level of <script setup>
@@ -1359,6 +1372,25 @@ function getCardPositionColor(position: string): string {
     return 'rgb(0, 0, 0, .08)'
   }
 }
+
+// Show player modal function
+const showPlayerModal = (player) => {
+  // Transform player data to match the modal's expected format
+  const transformedPlayer = {
+    player_full_name: player.player_full_name,
+    _position: player._position,
+    team: player.team,
+    age: player.age,
+    player_value: state.checked1 ? player.sf_value : player.one_qb_value,
+    _rownum: player.pos_ranked || '—',
+    pos_ranked: player.pos_ranked || '—',
+    ktc_player_id: player.ktc_player_id || player.player_id
+  }
+  
+  if (playerModalRef.value) {
+    playerModalRef.value.showModal(transformedPlayer)
+  }
+}
 </script>
 
 <style scoped>
@@ -1848,5 +1880,22 @@ function getCardPositionColor(position: string): string {
 .view-more {
   text-align: center;
   margin-top: 16px;
+}
+
+/* Clickable player cards and names */
+.clickable-player {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.player-item.clickable-player:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-background-soft);
+}
+
+.player-name.clickable-player:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 </style>

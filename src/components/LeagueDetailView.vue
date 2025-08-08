@@ -2238,47 +2238,12 @@
             </div>
           </a-modal>
 
-          <!-- Player Detail Modal -->
-          <a-modal
-            v-model:open="isPlayerModalVisible"
-            :title="selectedPlayer?.full_name || 'Player Details'"
-            @ok="handlePlayerModalOk"
-            :footer="null"
-            width="400px"
-          >
-            <!-- ... existing player detail modal content ... -->
-            <div v-if="selectedPlayer" class="player-modal-content">
-              <div class="player-modal-header">
-                <div class="player-image-placeholder">
-                  <UserOutlined style="font-size: 48px; color: #ccc" />
-                </div>
-                <div class="player-modal-info">
-                  <h2>{{ selectedPlayer.full_name }}</h2>
-                  <p>
-                    <a-tag :style="getPositionTagList(selectedPlayer.player_position)">{{
-                      selectedPlayer.player_position
-                    }}</a-tag>
-                    <span v-if="selectedPlayer.team"> &bull; {{ selectedPlayer.team }}</span>
-                    <span v-if="selectedPlayer.age"> &bull; {{ selectedPlayer.age }} yrs</span>
-                  </p>
-                </div>
-              </div>
-              <div class="player-modal-details">
-                <p>
-                  <strong>Value</strong>
-                  {{
-                    selectedPlayer.player_value === -1
-                      ? 'N/A'
-                      : selectedPlayer.player_value?.toLocaleString()
-                  }}
-                </p>
-                <p><strong>Manager</strong> {{ selectedPlayer.display_name }}</p>
-              </div>
-            </div>
-            <div v-else>
-              <p>Loading player details...</p>
-            </div>
-          </a-modal>
+          <!-- Player History Modal -->
+          <PlayerHistoryModal 
+            ref="playerModalRef"
+            :isSuperflex="leagueInfo.rosterType === 'sf_value'" 
+            :isDynasty="leagueInfo.rankType === 'dynasty'" 
+          />
         </a-spin>
       </div>
     </a-layout-content>
@@ -2339,6 +2304,9 @@ import ddLogo from '@/assets/sourceLogos/dd.svg'
 import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
 
+// Components
+import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
+
 // Icons
 import {
   PlusCircleTwoTone,
@@ -2387,6 +2355,7 @@ const clickedManager = ref('') // Tracks clicked manager for highlighting in Pos
 const overallFilter = ref('all') // Player filter: 'all' or 'STARTER'
 const value1 = ref('espn') // Selected projection source (e.g., 'espn', 'cbs')
 const selectedPlayer = ref(null) // Holds data for the player modal
+const playerModalRef = ref(null) // Reference to PlayerHistoryModal component
 const selectedUser = ref(null) // Holds data for the selected manager in certain tabs
 
 // League Information (from route params)
@@ -2409,6 +2378,9 @@ const leagueInfo = reactive({
 const summaryData = ref([])
 const detailData = ref([{}])
 const projDetailData = ref([{}])
+
+// Player ID mapping for player history modal  
+const playerNameToKtcId = ref(new Map())
 const projSummaryData = ref([{}])
 const tradesDetailData = ref([{}])
 const tradesSummaryData = ref([{}])
@@ -2790,6 +2762,8 @@ onMounted(() => {
     leagueInfo.userId
   ) {
     insertLeagueDetials()
+    // Load player name to KTC ID mapping for player history modal
+    loadPlayerNameToKtcIdMapping()
   }
 })
 
@@ -3284,10 +3258,79 @@ const getLeagueSummary = async () => {
   }
 }
 
+// Player ID mapping functions
+const loadPlayerNameToKtcIdMapping = async () => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL
+    const platform = leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource
+    const rankType = leagueInfo.rankType === 'dynasty' ? 'dynasty' : 'redraft'
+    
+    console.log('🔍 Loading player mapping from ranks API...')
+    const response = await axios.get(`${apiUrl}/ranks`, {
+      params: {
+        platform: platform
+      }
+    })
+    
+    if (response.data && Array.isArray(response.data)) {
+      const mapping = new Map()
+      response.data.forEach(player => {
+        if (player.player_full_name && player.ktc_player_id) {
+          mapping.set(player.player_full_name, player.ktc_player_id)
+        }
+      })
+      playerNameToKtcId.value = mapping
+      console.log(`✅ Loaded ${mapping.size} player name to KTC ID mappings`)
+    }
+  } catch (error) {
+    console.error('❌ Failed to load player name to KTC ID mapping:', error)
+  }
+}
+
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  selectedPlayer.value = player
-  isPlayerModalVisible.value = true
+  console.log('🔍 LeagueDetailView - Original player data:', player)
+  console.log('🔍 LeagueDetailView - Player IDs available:', {
+    ktc_player_id: player.ktc_player_id,
+    player_id: player.player_id,
+    sleeper_id: player.sleeper_id
+  })
+  
+  // Try to get ktc_player_id from name mapping if not directly available
+  let ktcPlayerId = player.ktc_player_id || player.player_id
+  if (!ktcPlayerId && player.full_name && playerNameToKtcId.value.has(player.full_name)) {
+    ktcPlayerId = playerNameToKtcId.value.get(player.full_name)
+    console.log(`🔍 Found KTC ID via name mapping: ${player.full_name} -> ${ktcPlayerId}`)
+  } else if (!ktcPlayerId) {
+    ktcPlayerId = player.sleeper_id // Fallback to sleeper_id as last resort
+  }
+  
+  // Debug info
+  console.log(`🔍 Player: ${player.full_name} | Final KTC ID: ${ktcPlayerId} | Source: ${
+    player.ktc_player_id ? 'direct ktc_player_id' :
+    player.player_id ? 'player_id' :
+    playerNameToKtcId.value.has(player.full_name || '') ? 'name mapping' :
+    'sleeper_id fallback'
+  }`)
+  
+  // Transform player data to match the modal's expected format
+  const transformedPlayer = {
+    player_full_name: player.full_name,
+    _position: player.player_position,
+    team: player.team,
+    age: player.age,
+    player_value: player.player_value,
+    _rownum: player.pos_ranked || '—',
+    pos_ranked: player.pos_ranked || '—',
+    ktc_player_id: ktcPlayerId
+  }
+  
+  console.log('🔍 LeagueDetailView - Transformed player data:', transformedPlayer)
+  console.log('🔍 LeagueDetailView - Final ktc_player_id used:', transformedPlayer.ktc_player_id)
+  
+  if (playerModalRef.value) {
+    playerModalRef.value.showModal(transformedPlayer)
+  }
 }
 const handlePlayerModalOk = () => {
   isPlayerModalVisible.value = false
