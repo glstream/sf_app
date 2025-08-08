@@ -448,7 +448,7 @@
       <!-- About Section for Google AdSense Approval -->
       <div
         class="about-site-section"
-        style="margin: 40px 0 24px 0; background: #f8f9fa; border-radius: 8px; padding: 18px 20px"
+        style="margin: 40px 0 24px 0; border-radius: 8px; padding: 18px 20px"
       >
         <h1 style="font-size: 1.5em; margin-bottom: 8px">About Fantasy Navigator</h1>
         <p>
@@ -461,7 +461,7 @@
           positions. Our projection data from ESPN, NFL, and CBS helps you prepare for upcoming
           matchups with confidence.
         </p>
-        <p style="font-size: 0.95em; color: #888">
+        <p class="disclaimer-text">
           Fantasy Navigator is an independent project and is not affiliated with the NFL, Sleeper,
           ESPN, Yahoo, or any official fantasy sports provider. All analysis and projections are
           meant for informational purposes to enhance your fantasy football experience.
@@ -848,7 +848,8 @@ function getColorByRank(rank) {
 <style>
 .layout {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: var(--color-background, #f5f7fa);
+  color: var(--color-text, #000000);
 }
 
 .tags-vertical {
@@ -910,8 +911,19 @@ function getColorByRank(rank) {
 }
 
 .tag-hover:hover {
-  background-color: #f0f0f0;
+  background-color: var(--color-fill-secondary, #f0f0f0);
 }
+
+.about-site-section {
+  background: var(--color-fill-secondary, #f8f9fa);
+  border: 1px solid var(--color-border, #d9d9d9);
+}
+
+.disclaimer-text {
+  font-size: 0.95em;
+  color: var(--color-text-secondary, #888);
+}
+
 .summary-badge {
   margin-left: 15px;
   align-items: center;
@@ -946,5 +958,38 @@ function getColorByRank(rank) {
 
 :where(.css-dev-only-do-not-override-iwmiiu) .ant-card .ant-card-head-title {
   flex: none;
+}
+
+/* Dark theme overrides */
+html.dark .layout {
+  background-color: #0f1419;
+  color: #ffffff;
+}
+
+html.dark .about-site-section {
+  background: #1f2937;
+  border: 1px solid #374151;
+}
+
+html.dark .disclaimer-text {
+  color: #9ca3af;
+}
+
+html.dark .tag-hover:hover {
+  background-color: #374151;
+}
+
+html.dark .grey-tag {
+  background-color: #4b5563;
+  border-color: #6b7280;
+}
+
+html.dark .gray-tag {
+  background-color: #6b7280;
+  border-color: #9ca3af;
+}
+
+html.dark .league-logo {
+  border: 1px solid #6b7280;
 }
 </style>
