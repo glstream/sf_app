@@ -1359,160 +1359,174 @@
                   </a-col>
                 </a-row>
 
-                <div v-if="selectedUser" class="mirrored-user">
-                  <div class="user-card">
-                    <a-row>
-                      <a-col :span="9">
-                        <div class="gutter-box">
-                          <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
-                            :size="24"
-                            class="avatar-bordered"
-                          />
-                        </div>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">QB</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">RB</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">WR</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">TE</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">Picks</span>
-                      </a-col>
-                    </a-row>
-                    <a-row>
-                      <a-col :span="9">
-                        <h4>{{ selectedUser.display_name }}</h4>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <a-tag
-                          :style="
-                            getCellStyle(
-                              overallFilter === 'all'
-                                ? Number(selectedUser.qb_rank)
-                                : Number(selectedUser.qb_starter_rank)
-                            )
-                          "
-                        >
-                          {{
-                            addOrdinalSuffix(
-                              overallFilter === 'all'
-                                ? selectedUser.qb_rank
-                                : selectedUser.qb_starter_rank
-                            )
-                          }}
-                        </a-tag>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <a-tag
-                          :style="
-                            getCellStyle(
-                              overallFilter === 'all'
-                                ? Number(selectedUser.rb_rank)
-                                : Number(selectedUser.rb_starter_rank)
-                            )
-                          "
-                        >
-                          {{
-                            addOrdinalSuffix(
-                              overallFilter === 'all'
-                                ? selectedUser.rb_rank
-                                : selectedUser.rb_starter_rank
-                            )
-                          }}
-                        </a-tag>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <a-tag
-                          :style="
-                            getCellStyle(
-                              overallFilter === 'all'
-                                ? Number(selectedUser.wr_rank)
-                                : Number(selectedUser.wr_starter_rank)
-                            )
-                          "
-                        >
-                          {{
-                            addOrdinalSuffix(
-                              overallFilter === 'all'
-                                ? selectedUser.wr_rank
-                                : selectedUser.wr_starter_rank
-                            )
-                          }}
-                        </a-tag>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <a-tag
-                          :style="
-                            getCellStyle(
-                              overallFilter === 'all'
-                                ? Number(selectedUser.te_rank)
-                                : Number(selectedUser.te_starter_rank)
-                            )
-                          "
-                        >
-                          {{
-                            addOrdinalSuffix(
-                              overallFilter === 'all'
-                                ? selectedUser.te_rank
-                                : selectedUser.te_starter_rank
-                            )
-                          }}
-                        </a-tag>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
-                        <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
-                          {{ addOrdinalSuffix(selectedUser.picks_rank) }}
-                        </a-tag>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
-                        <a-tag> -- </a-tag>
-                      </a-col>
-                    </a-row>
+                <!-- User Card and KPI Strip Container -->
+                <div class="user-kpi-container">
+                  <div v-if="selectedUser" class="mirrored-user">
+                    <div class="user-card">
+                      <a-row>
+                        <a-col :span="9">
+                          <div class="gutter-box">
+                            <a-avatar
+                              :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                              :size="24"
+                              class="avatar-bordered"
+                            />
+                          </div>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">QB</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">RB</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">WR</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">TE</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">Picks</span>
+                        </a-col>
+                      </a-row>
+                      <a-row>
+                        <a-col :span="9">
+                          <h4>{{ selectedUser.display_name }}</h4>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <a-tag
+                            :style="
+                              getCellStyle(
+                                overallFilter === 'all'
+                                  ? Number(selectedUser.qb_rank)
+                                  : Number(selectedUser.qb_starter_rank)
+                              )
+                            "
+                          >
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all'
+                                  ? selectedUser.qb_rank
+                                  : selectedUser.qb_starter_rank
+                              )
+                            }}
+                          </a-tag>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <a-tag
+                            :style="
+                              getCellStyle(
+                                overallFilter === 'all'
+                                  ? Number(selectedUser.rb_rank)
+                                  : Number(selectedUser.rb_starter_rank)
+                              )
+                            "
+                          >
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all'
+                                  ? selectedUser.rb_rank
+                                  : selectedUser.rb_starter_rank
+                              )
+                            }}
+                          </a-tag>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <a-tag
+                            :style="
+                              getCellStyle(
+                                overallFilter === 'all'
+                                  ? Number(selectedUser.wr_rank)
+                                  : Number(selectedUser.wr_starter_rank)
+                              )
+                            "
+                          >
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all'
+                                  ? selectedUser.wr_rank
+                                  : selectedUser.wr_starter_rank
+                              )
+                            }}
+                          </a-tag>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <a-tag
+                            :style="
+                              getCellStyle(
+                                overallFilter === 'all'
+                                  ? Number(selectedUser.te_rank)
+                                  : Number(selectedUser.te_starter_rank)
+                              )
+                            "
+                          >
+                            {{
+                              addOrdinalSuffix(
+                                overallFilter === 'all'
+                                  ? selectedUser.te_rank
+                                  : selectedUser.te_starter_rank
+                              )
+                            }}
+                          </a-tag>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3" v-if="overallFilter === 'all'">
+                          <a-tag :style="getCellStyle(Number(selectedUser.picks_rank))">
+                            {{ addOrdinalSuffix(selectedUser.picks_rank) }}
+                          </a-tag>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3" v-if="overallFilter !== 'all'">
+                          <a-tag> -- </a-tag>
+                        </a-col>
+                      </a-row>
+                    </div>
                   </div>
-                </div>
 
-                <div v-else class="mirrored-user">
-                  <div class="user-card">
-                    <a-row>
-                      <a-col :span="9">
-                        <div class="gutter-box">
-                          <a-avatar :size="24" class="avatar-bordered" />
-                        </div>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">QB</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">RB</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">WR</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">TE</span>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3">
-                        <span class="font-bold">Picks</span>
-                      </a-col>
-                    </a-row>
-                    <a-row>
-                      <a-col :span="9">
-                        <h4>Select Team</h4>
-                      </a-col>
-                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
-                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                      <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
-                    </a-row>
+                  <div v-else class="mirrored-user">
+                    <div class="user-card">
+                      <a-row>
+                        <a-col :span="9">
+                          <div class="gutter-box">
+                            <a-avatar :size="24" class="avatar-bordered" />
+                          </div>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">QB</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">RB</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">WR</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">TE</span>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3">
+                          <span class="font-bold">Picks</span>
+                        </a-col>
+                      </a-row>
+                      <a-row>
+                        <a-col :span="9">
+                          <h4>Select Team</h4>
+                        </a-col>
+                        <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                        <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                        <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag></a-col>
+                        <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                        <a-col class="gutter-box-stats" :span="3"> <a-tag>-/-</a-tag> </a-col>
+                      </a-row>
+                    </div>
+                  </div>
+
+                  <!-- KPI Strip for Asset Count by Round Groups -->
+                  <div class="asset-kpi-strip" v-if="selectedUser">
+                    <div class="kpi-title">Assets</div>
+                    <div class="kpi-items">
+                      <div v-for="group in assetKpiData" :key="group.label" class="kpi-item">
+                        <div class="kpi-count">{{ group.count }}</div>
+                        <div class="kpi-label">{{ group.label }}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="legend">
@@ -2618,13 +2632,20 @@ const projColumns = computed(() => [
   ...createPositionColumnsConfig(overallFilter.value)
 ])
 
-// Player data sorted for "League Assets" tab, chunked for display
+// Player data sorted for "League Assets" tab, with picks integrated by value
 const sortedFilteredData = computed(() => {
   const players = filteredData.value.filter((a) => a.player_position !== 'PICKS')
   const picks = filteredData.value.filter((a) => a.player_position === 'PICKS')
   const sortedPlayers = [...players].sort((a, b) => b.player_value - a.player_value)
   const sortedPicks = sortPicks(picks)
-  return [...sortedPlayers, ...sortedPicks]
+
+  // Combine and sort all assets by value, treating -1 as 0 for picks
+  const allAssets = [...sortedPlayers, ...sortedPicks]
+  return allAssets.sort((a, b) => {
+    const valueA = a.player_value === -1 ? 0 : a.player_value
+    const valueB = b.player_value === -1 ? 0 : b.player_value
+    return valueB - valueA
+  })
 })
 
 // Players grouped by position for "Position Groups" tab
@@ -2683,6 +2704,41 @@ const leagueAssetRounds = computed(() => {
   }
 
   return rounds
+})
+
+// KPI data for round groupings (top 3, top 6, top 9, etc.) filtered by selected manager
+const assetKpiData = computed(() => {
+  if (!selectedUser.value) return []
+
+  const managerCount = summaryData.value.length || 12
+
+  // Filter assets to only include those belonging to the selected manager
+  const selectedManagerAssets = sortedFilteredData.value.filter(
+    (asset) => asset.display_name === selectedUser.value.display_name
+  )
+
+  // Calculate how many of this manager's assets fall within each round range
+  const getAssetsInRounds = (maxRounds) => {
+    const maxAssets = managerCount * maxRounds
+    return selectedManagerAssets.filter((asset) => {
+      // Find this asset's position in the overall league ranking
+      const assetPosition = sortedFilteredData.value.findIndex(
+        (leagueAsset) =>
+          leagueAsset.sleeper_id === asset.sleeper_id &&
+          leagueAsset.display_name === asset.display_name
+      )
+      return assetPosition !== -1 && assetPosition < maxAssets
+    }).length
+  }
+
+  const groups = [
+    { label: 'Rounds 1-3', count: getAssetsInRounds(3) },
+    { label: 'Rounds 4-6', count: getAssetsInRounds(6) - getAssetsInRounds(3) },
+    { label: 'Rounds 7-9', count: getAssetsInRounds(9) - getAssetsInRounds(6) },
+    { label: 'Rounds 10-12', count: getAssetsInRounds(12) - getAssetsInRounds(9) }
+  ]
+
+  return groups.filter((group) => group.count > 0)
 })
 
 // Grouped best available players for "Waivers" tab
@@ -5590,6 +5646,7 @@ const getPositionRank = (manager, position) => {
   .mirrored-user {
     margin: 16px 0;
     max-width: 100%;
+    width: 400px;
   }
 
   .user-card {
@@ -5817,6 +5874,110 @@ h4 {
 .dimmed-text {
   color: #aaa !important;
   /* color: var(--league-details-primary-card) !important; */
+}
+
+/* User KPI Container - Responsive Layout */
+.user-kpi-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+@media (max-width: 768px) {
+  .user-kpi-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+/* Asset KPI Strip */
+.asset-kpi-strip {
+  position: relative;
+  margin: 20px 0;
+  padding: 24px 16px 16px;
+  background: var(--color-bg-container);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100px;
+}
+
+.kpi-title {
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  background: var(--color-bg-container);
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  z-index: 2;
+  line-height: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.kpi-items {
+  display: flex;
+  gap: 20px;
+}
+
+.kpi-item {
+  text-align: center;
+  min-width: 100px;
+}
+
+.kpi-count {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .asset-kpi-strip {
+    padding: 24px 12px 12px;
+    min-height: 48px;
+    width: 375px;
+  }
+
+  .kpi-title {
+    left: 16px;
+    font-size: 11px;
+    padding: 0 8px;
+    height: 11px;
+    line-height: 11px;
+  }
+
+  .kpi-items {
+    gap: 12px;
+  }
+
+  .kpi-item {
+    min-width: 80px;
+  }
+
+  .kpi-count {
+    font-size: 20px;
+  }
+
+  .kpi-label {
+    font-size: 11px;
+  }
 }
 
 /* League Assets Round Boxes */
