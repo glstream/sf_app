@@ -114,6 +114,14 @@ const fetchPlayerData = async (ktcPlayerId) => {
     if (response.data && Array.isArray(response.data)) {
       console.log(`🔍 Total players in ranks API: ${response.data.length}`)
       
+      // Debug: Show all records for this player name (if it looks like Jayden Daniels)
+      if (ktcPlayerId === '1456' || ktcPlayerId === '1549') {
+        const allJaydenRecords = response.data.filter(p => 
+          p.player_full_name && p.player_full_name.toLowerCase().includes('jayden')
+        )
+        console.log(`🔍 All Jayden Daniels records in API:`, allJaydenRecords)
+      }
+      
       // Filter for the exact league type and roster type - no fallbacks
       const matchingPlayers = response.data.filter(p => 
         p.rank_type === requiredRankType && 
@@ -127,7 +135,7 @@ const fetchPlayerData = async (ktcPlayerId) => {
       
       if (player) {
         console.log(`✅ Found player by KTC ID: ${player.player_full_name} (rank_type: ${player.rank_type}, roster_type: ${player.roster_type})`)
-        return {
+        const playerData = {
           player_full_name: player.player_full_name,
           _position: player._position,
           team: player.team,
@@ -137,6 +145,8 @@ const fetchPlayerData = async (ktcPlayerId) => {
           pos_ranked: player.pos_rank,
           ktc_player_id: player.ktc_player_id
         }
+        console.log(`📊 Player data being returned for modal display:`, playerData)
+        return playerData
       } else {
         console.warn(`❌ Direct KTC ID match failed for ${ktcPlayerId} in ${requiredRankType}/${requiredRosterType}`)
         
@@ -152,7 +162,7 @@ const fetchPlayerData = async (ktcPlayerId) => {
             console.log(`✅ Found player by name mapping: ${playerByName.player_full_name} with KTC ID ${playerByName.ktc_player_id} (${playerByName.rank_type}/${playerByName.roster_type})`)
             console.log(`🔄 KTC ID mapping: ${ktcPlayerId} (${playerAnyType.rank_type}/${playerAnyType.roster_type}) → ${playerByName.ktc_player_id} (${playerByName.rank_type}/${playerByName.roster_type})`)
             
-            return {
+            const mappedPlayerData = {
               player_full_name: playerByName.player_full_name,
               _position: playerByName._position,
               team: playerByName.team,
@@ -162,6 +172,8 @@ const fetchPlayerData = async (ktcPlayerId) => {
               pos_ranked: playerByName.pos_rank,
               ktc_player_id: playerByName.ktc_player_id
             }
+            console.log(`📊 Mapped player data being returned for modal display:`, mappedPlayerData)
+            return mappedPlayerData
           } else {
             console.warn(`❌ Player ${playerAnyType.player_full_name} not found in required league type ${requiredRankType}/${requiredRosterType}`)
           }
@@ -187,6 +199,11 @@ const fetchPlayerData = async (ktcPlayerId) => {
 // Show modal function - now takes just ktc_player_id
 const showModal = async (ktcPlayerId) => {
   console.log(`🚀 PlayerHistoryModal.showModal called with KTC ID: ${ktcPlayerId} (type: ${typeof ktcPlayerId})`)
+  console.log(`🔧 PlayerHistoryModal props:`, {
+    isDynasty: props.isDynasty,
+    isSuperflex: props.isSuperflex,
+    platform: props.platform
+  })
   
   if (!ktcPlayerId) {
     message.error('Cannot load player data: Player ID missing.')

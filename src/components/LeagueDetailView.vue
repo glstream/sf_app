@@ -2241,8 +2241,8 @@
           <!-- Player History Modal -->
           <PlayerHistoryModal 
             ref="playerModalRef"
-            :isSuperflex="leagueInfo.rosterType === 'sf_value'" 
-            :isDynasty="leagueInfo.rankType === 'dynasty'" 
+            :isSuperflex="leagueInfo.rosterType === 'sf_value' || leagueInfo.rosterType === 'Superflex'" 
+            :isDynasty="leagueInfo.rankType === 'dynasty' || leagueInfo.rankType === 'Dynasty'" 
             :platform="leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource"
           />
         </a-spin>
@@ -3258,6 +3258,14 @@ const getLeagueSummary = async () => {
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
+  console.log(`🔍 LeagueDetailView showPlayerModal called with player:`, player)
+  console.log(`🔍 LeagueDetailView leagueInfo:`, {
+    rosterType: leagueInfo.rosterType,
+    rankType: leagueInfo.rankType,
+    apiSource: leagueInfo.apiSource,
+    calculatedIsSuperflex: leagueInfo.rosterType === 'sf_value',
+    calculatedIsDynasty: leagueInfo.rankType === 'dynasty'
+  })
   if (playerModalRef.value && player.ktc_player_id) {
     playerModalRef.value.showModal(player.ktc_player_id)
   }
