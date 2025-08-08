@@ -68,11 +68,7 @@
               <div v-if="playersLoading" class="skeleton-overlay">
                 <a-spin size="large" tip="Loading players...">
                   <div class="skeleton-content">
-                    <div
-                      v-for="n in 5"
-                      :key="'skeleton-' + n"
-                      class="skeleton-group"
-                    >
+                    <div v-for="n in 5" :key="'skeleton-' + n" class="skeleton-group">
                       <div class="skeleton-header">
                         <div class="skeleton skeleton-title"></div>
                         <div class="skeleton skeleton-value"></div>
@@ -120,7 +116,7 @@
                       <a-auto-complete
                         v-model:value="slot.searchValue"
                         :options="getFilteredOptions()"
-                        :placeholder="`Click to see top ${group.label} or type to search...`"
+                        :placeholder="`Select ${group.label}`"
                         :filter-option="false"
                         :disabled="playersLoading"
                         @search="(value) => handlePlayerSearch(value, group.position)"
@@ -154,7 +150,9 @@
                           - {{ slot.player.team }}
                         </span>
                       </div>
-                      <div class="player-value-compact">{{ (slot.player.value || 0).toLocaleString() }}</div>
+                      <div class="player-value-compact">
+                        {{ (slot.player.value || 0).toLocaleString() }}
+                      </div>
                       <a-button
                         type="text"
                         size="small"
@@ -176,7 +174,9 @@
           <div class="team-score-card">
             <h3>Team Score</h3>
             <div class="score-display">
-              <div class="score-number">{{ isRosterComplete() ? teamScore + '/100' : '– –/100' }}</div>
+              <div class="score-number">
+                {{ isRosterComplete() ? teamScore + '/100' : '– –/100' }}
+              </div>
               <div class="score-grade">{{ isRosterComplete() ? getScoreGrade() : '– –' }}</div>
             </div>
             <div class="score-message">
@@ -184,12 +184,11 @@
             </div>
 
             <!-- Draft Analysis Toggle -->
-            <div v-if="draftScore && getSelectedPlayers().length >= 1" class="draft-analysis-toggle">
-              <a-button 
-                type="link" 
-                @click="showDraftAnalysis = !showDraftAnalysis"
-                size="small"
-              >
+            <div
+              v-if="draftScore && getSelectedPlayers().length >= 1"
+              class="draft-analysis-toggle"
+            >
+              <a-button type="link" @click="showDraftAnalysis = !showDraftAnalysis" size="small">
                 <span v-if="!showDraftAnalysis">📊 Show Draft Analysis</span>
                 <span v-else>📊 Hide Draft Analysis</span>
               </a-button>
@@ -201,7 +200,7 @@
               <div class="draft-summary">
                 <div class="draft-explanation">{{ draftScore.explanation }}</div>
               </div>
-              
+
               <div class="pick-analysis">
                 <div
                   v-for="(analysis, index) in draftScore.pickAnalysis"
@@ -215,7 +214,7 @@
                 >
                   <div class="pick-header">
                     <span class="pick-player">{{ analysis.player.full_name }}</span>
-                    <span 
+                    <span
                       class="pick-position"
                       :style="{ color: getPositionColor(analysis.player.position) }"
                     >
@@ -229,11 +228,13 @@
                     </span>
                     <span class="pick-stat">
                       <span class="stat-label">Position:</span>
-                      <span class="stat-value">{{ analysis.player.position }}{{ analysis.positionalRank }}</span>
+                      <span class="stat-value"
+                        >{{ analysis.player.position }}{{ analysis.positionalRank }}</span
+                      >
                     </span>
                     <span class="pick-stat">
                       <span class="stat-label">Round:</span>
-                      <span class="stat-value">{{ analysis.roundPosition }}</span>
+                      <span class="stat-value">{{ addOrdinalSuffix(analysis.roundPosition) }}</span>
                     </span>
                   </div>
                 </div>
@@ -256,7 +257,9 @@
                   {{ group.label }}
                 </span>
                 <span class="position-score">
-                  {{ getPositionGroupValue(group.position).toLocaleString() }} ({{ getPositionalGrade(group.position) }})
+                  {{ getPositionGroupValue(group.position).toLocaleString() }} ({{
+                    getPositionalGrade(group.position)
+                  }})
                 </span>
               </div>
             </div>
@@ -310,7 +313,6 @@ const rankType = ref('dynasty')
 const isSuperflex = ref(true)
 const showPositionEditor = ref(false)
 const playersLoading = ref(false)
-
 
 // Roster configuration - editable positions
 const defaultRosterConfiguration = [
@@ -564,7 +566,7 @@ const fetchPlayers = async () => {
     console.log(`✅ Sample transformed player:`, allPlayers.value[0])
     console.log(`✅ QB players count:`, allPlayers.value.filter((p) => p.position === 'QB').length)
     console.log(`✅ RB players count:`, allPlayers.value.filter((p) => p.position === 'RB').length)
-    
+
     // Initialize draft simulator
     draftSimulator.value = new DraftSimulator(allPlayers.value)
     console.log('🏈 Draft simulator initialized')
@@ -630,17 +632,17 @@ const getPositionGroupValue = (position) => {
 // Get fantasy positional grade
 const getPositionalGrade = (position) => {
   if (!rosterSlots[position]) return '–'
-  
-  const slots = rosterSlots[position].filter(slot => slot.player)
+
+  const slots = rosterSlots[position].filter((slot) => slot.player)
   if (slots.length === 0) return '–'
-  
+
   const totalValue = slots.reduce((sum, slot) => sum + (slot.player?.value || 0), 0)
   const avgValue = totalValue / slots.length
-  
+
   // Position-specific grading thresholds
   let thresholds
   if (position === 'QB') {
-    thresholds = isSuperflex.value 
+    thresholds = isSuperflex.value
       ? { A: 4500, B: 3500, C: 2500, D: 1500, F: 0 }
       : { A: 3000, B: 2200, C: 1500, D: 800, F: 0 }
   } else if (position === 'RB') {
@@ -655,7 +657,7 @@ const getPositionalGrade = (position) => {
   } else {
     return '–'
   }
-  
+
   // Calculate grade based on average value
   if (avgValue >= thresholds.A) return 'A'
   if (avgValue >= thresholds.B) return 'B'
@@ -668,18 +670,18 @@ const getPositionalGrade = (position) => {
 const getTotalRosterValue = () => {
   let totalValue = 0
   const breakdown = {}
-  
+
   Object.keys(rosterSlots).forEach((position) => {
     const positionValue = getPositionGroupValue(position)
     breakdown[position] = positionValue
     totalValue += positionValue
   })
-  
+
   console.log('💰 Team value breakdown:', {
     breakdown,
     total: totalValue
   })
-  
+
   return totalValue
 }
 
@@ -689,9 +691,9 @@ const updateDraftAnalysis = () => {
   console.log('🔍 Draft analysis check:', {
     playerCount: selectedPlayers.length,
     hasSimulator: !!draftSimulator.value,
-    players: selectedPlayers.map(p => p.full_name)
+    players: selectedPlayers.map((p) => p.full_name)
   })
-  
+
   if (selectedPlayers.length >= 1 && draftSimulator.value) {
     try {
       draftScore.value = draftSimulator.value.analyzeUserTeam(selectedPlayers)
@@ -714,13 +716,13 @@ const teamScore = computed(() => {
   // Get traditional value-based score
   let totalValue = getTotalRosterValue()
   let valueBasedScore = getValueBasedScore(totalValue)
-  
+
   // Combine value-based and draft-based scores if available
   if (draftScore.value) {
     // Weight: 60% value-based, 40% draft analysis
     return Math.round(valueBasedScore * 0.6 + draftScore.value.totalScore * 0.4)
   }
-  
+
   return valueBasedScore
 })
 
@@ -804,7 +806,7 @@ const getValueBasedScore = (totalValue) => {
 // Get score grade
 const getScoreGrade = () => {
   const score = teamScore.value
-  
+
   // Updated grade scale to match exact specifications
   if (score >= 97) return 'A+'
   if (score >= 93) return 'A'
@@ -825,9 +827,9 @@ const getScoreMessage = () => {
   const score = teamScore.value
   const totalValue = getTotalRosterValue()
   const selectedPlayers = getSelectedPlayers()
-  
+
   let baseMessage = ''
-  
+
   if (score >= 95)
     baseMessage = `Elite championship roster! Total value of ${totalValue.toLocaleString()} puts you in the top tier.`
   else if (score >= 90)
@@ -840,33 +842,35 @@ const getScoreMessage = () => {
     baseMessage = `Competitive team with some strong pieces. Target specific position upgrades.`
   else if (score >= 70)
     baseMessage = `Average roster that needs strategic improvements to compete consistently.`
-  else if (score >= 65) 
+  else if (score >= 65)
     baseMessage = `Below average team. Consider trading aging assets for younger talent.`
-  else if (score >= 60) 
+  else if (score >= 60)
     baseMessage = `Weak roster needs significant upgrades across multiple positions.`
   else if (score >= 50)
     baseMessage = `Poor team in rebuilding mode. Focus on accumulating picks and young assets.`
-  else if (score >= 25) 
+  else if (score >= 25)
     baseMessage = `Deep rebuild required. Trade all valuable aging assets for future picks.`
   else
-    baseMessage = 'Complete roster overhaul needed. Start fresh with a long-term rebuilding strategy.'
+    baseMessage =
+      'Complete roster overhaul needed. Start fresh with a long-term rebuilding strategy.'
 
   // Add draft analysis insights
   if (draftScore.value && selectedPlayers.length >= 1) {
     const playerCount = draftScore.value.pickAnalysis.length
-    const avgExpectedRound = draftScore.value.pickAnalysis.reduce((sum, pick) => {
-      // Convert string expectedRound back to number for calculation (treat "16+" as 16)
-      const roundValue = pick.expectedRound === '16+' ? 16 : parseInt(pick.expectedRound)
-      return sum + roundValue
-    }, 0) / playerCount
-    
+    const avgExpectedRound =
+      draftScore.value.pickAnalysis.reduce((sum, pick) => {
+        // Convert string expectedRound back to number for calculation (treat "16+" as 16)
+        const roundValue = pick.expectedRound === '16+' ? 16 : parseInt(pick.expectedRound)
+        return sum + roundValue
+      }, 0) / playerCount
+
     if (avgExpectedRound <= 3) {
       baseMessage += ` Strong early-round talent with average expected round of ${avgExpectedRound.toFixed(1)}.`
     } else if (avgExpectedRound >= 6) {
       baseMessage += ` Good value picks with average expected round of ${avgExpectedRound.toFixed(1)}.`
     }
   }
-  
+
   return baseMessage
 }
 
@@ -875,6 +879,30 @@ const savePositionConfiguration = () => {
   rosterConfiguration.value = [...editableRosterConfiguration.value]
   initializeRosterSlots()
   showPositionEditor.value = false
+}
+
+// Add ordinal suffix to round numbers (1st, 2nd, 3rd, etc.)
+const addOrdinalSuffix = (num) => {
+  const numStr = num.toString()
+  const lastDigit = parseInt(numStr.slice(-1))
+  const secondToLastDigit = parseInt(numStr.slice(-2, -1))
+  
+  // Handle special cases for 11th, 12th, 13th
+  if (secondToLastDigit === 1) {
+    return numStr + 'th'
+  }
+  
+  // Handle regular cases
+  switch (lastDigit) {
+    case 1:
+      return numStr + 'st'
+    case 2:
+      return numStr + 'nd'
+    case 3:
+      return numStr + 'rd'
+    default:
+      return numStr + 'th'
+  }
 }
 
 // Position color functions (more muted)
@@ -1078,7 +1106,6 @@ onMounted(() => {
   background: var(--color-background-mute);
   transition: all 0.2s ease;
 }
-
 
 .position-header {
   display: flex;
@@ -1298,9 +1325,9 @@ onMounted(() => {
 
 /* Compact Autocomplete Styles */
 .player-slot-autocomplete {
-  min-width: 200px;
-  flex: 0 1 280px;
-  max-width: 280px;
+  min-width: 240px;
+  flex: 0 1 55px;
+  max-width: 320px;
 }
 
 .empty-slot-autocomplete {
@@ -1321,7 +1348,6 @@ onMounted(() => {
   min-height: 40px;
   transition: all 0.2s ease;
 }
-
 
 .player-info-compact {
   flex: 1;
@@ -1423,7 +1449,12 @@ onMounted(() => {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--color-border) 25%, rgba(255,255,255,0.1) 50%, var(--color-border) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    var(--color-border) 75%
+  );
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
   border-radius: 4px;
@@ -1454,13 +1485,392 @@ onMounted(() => {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* Small phones and up */
+@media (max-width: 480px) {
+  .responsive-padding {
+    padding: 6px;
+  }
+
+  /* Page header - much more compact */
+  .page-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  /* Settings section - ultra compact */
+  .settings-section {
+    margin-bottom: 16px;
+  }
+
+  .settings-card {
+    border-radius: 6px;
+    padding: 0;
+  }
+
+  .settings-card .ant-card-body {
+    padding: 12px;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+  }
+
+  .settings-group {
+    width: 100%;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .settings-group label {
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+  }
+
+  /* Roster builder mobile optimization */
+  .roster-builder {
+    padding: 8px;
+  }
+
+  .roster-header {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+  }
+
+  .roster-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  /* Position groups - ULTRA COMPACT */
+  .position-groups {
+    gap: 8px;
+  }
+
+  .position-group {
+    padding: 4px 6px;
+    border-radius: 4px;
+    margin-bottom: 0;
+  }
+
+  .position-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 0;
+  }
+
+  .position-header h4 {
+    font-size: 0.8rem;
+    margin: 0;
+    line-height: 1;
+  }
+
+  .position-grade {
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  /* Player slots - MINIMAL spacing */
+  .player-slots {
+    justify-content: stretch;
+    flex-direction: column;
+    gap: 3px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .player-slot-autocomplete {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Empty slot autocomplete - TINY */
+  .empty-slot-autocomplete {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Autocomplete input - ULTRA TINY */
+  .player-autocomplete {
+    width: 100%;
+    height: 20px !important;
+  }
+
+  .player-autocomplete .ant-select {
+    font-size: 0.65rem !important;
+    height: 20px !important;
+  }
+
+  .player-autocomplete .ant-select-selector {
+    padding: 0 4px !important;
+    min-height: 20px !important;
+    height: 20px !important;
+    border-radius: 2px !important;
+    line-height: 18px !important;
+  }
+
+  .player-autocomplete .ant-select-selection-placeholder {
+    font-size: 0.65rem !important;
+    line-height: 18px !important;
+    color: #999 !important;
+  }
+
+  .player-autocomplete .ant-select-selection-search {
+    height: 18px !important;
+  }
+
+  .player-autocomplete .ant-select-selection-search-input {
+    height: 18px !important;
+    font-size: 0.65rem !important;
+  }
+
+  /* Allow dropdown to overlap other elements */
+  .player-autocomplete .ant-select-dropdown {
+    z-index: 9999 !important;
+  }
+
+  /* Selected player cards - MATCH autocomplete height */
+  .selected-player-compact {
+    padding: 1px 4px;
+    min-height: 45px;
+    height: 20px;
+    border-radius: 2px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .player-info-compact {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .player-name-compact {
+    font-size: 0.7rem;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+  }
+
+  .player-details-compact {
+    font-size: 0.6rem;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+  }
+
+  .player-value-compact {
+    font-size: 0.7rem;
+    margin: 0 2px;
+    padding: 0;
+    align-self: center;
+  }
+
+  .remove-btn-compact {
+    padding: 0;
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.55rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-btn-compact .anticon {
+    font-size: 0.55rem;
+  }
+
+  /* Loading indicator - smaller */
+  .loading-indicator {
+    font-size: 0.7rem;
+    padding: 1px;
+    margin: 0;
+  }
+
+  /* Team score card mobile */
+  .team-score-card {
+    padding: 12px;
+    position: static;
+    margin-top: 16px;
+  }
+
+  .team-score-card h3 {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+
+  .score-display {
+    margin-bottom: 12px;
+  }
+
+  .score-number {
+    font-size: 2.2rem;
+  }
+
+  .score-grade {
+    font-size: 1.1rem;
+  }
+
+  .score-message {
+    padding: 8px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  /* Score breakdown - more compact */
+  .score-breakdown {
+    padding-top: 12px;
+  }
+
+  .score-breakdown h4 {
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .breakdown-item {
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .position-name {
+    font-size: 0.8rem;
+  }
+
+  .position-score {
+    font-size: 0.8rem;
+  }
+
+  /* Draft analysis mobile */
+  .draft-analysis-toggle {
+    margin: 12px 0;
+    padding: 6px 0;
+  }
+
+  .draft-analysis {
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+
+  .draft-analysis h4 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+
+  .draft-summary {
+    padding: 8px;
+    margin-bottom: 12px;
+  }
+
+  .draft-explanation {
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .pick-analysis {
+    max-height: 250px;
+    gap: 4px;
+  }
+
+  .pick-item {
+    padding: 6px;
+    border-radius: 4px;
+  }
+
+  .pick-header {
+    margin-bottom: 4px;
+  }
+
+  .pick-player {
+    font-size: 0.8rem;
+  }
+
+  .pick-position {
+    font-size: 0.7rem;
+    padding: 1px 3px;
+  }
+
+  .pick-details {
+    gap: 10px;
+  }
+
+  .pick-stat {
+    min-width: 50px;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+    margin-bottom: 1px;
+  }
+
+  .stat-value {
+    font-size: 0.75rem;
+  }
+
+  /* Position editor mobile */
+  .position-editor {
+    gap: 10px;
+  }
+
+  .position-edit-row {
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .position-label {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  /* Theme toggle button positioning - ensure it's visible */
+  .layout :deep(theme-toggle-button) {
+    position: fixed !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 1000 !important;
+  }
+}
+
+/* Tablets and up */
+@media (max-width: 768px) and (min-width: 481px) {
   .responsive-padding {
     padding: 12px;
   }
 
   .page-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .roster-builder {
+    padding: 16px;
   }
 
   .roster-header {
@@ -1485,6 +1895,16 @@ onMounted(() => {
     min-width: auto;
     max-width: none;
     width: 100%;
+  }
+
+  .team-score-card {
+    position: static;
+    margin-top: 24px;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    gap: 20px;
   }
 }
 </style>
