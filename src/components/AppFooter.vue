@@ -14,6 +14,8 @@
         <router-link to="/privacy-policy">Privacy Policy</router-link>
         <span class="separator" aria-hidden="true">|</span>
         <router-link to="/terms-of-service">Terms of Service</router-link>
+        <span class="separator" aria-hidden="true">|</span>
+        <router-link to="/contact">Contact</router-link>
       </nav>
       <div class="data-attribution">
         Data provided by 
