@@ -367,7 +367,7 @@
                                 >
                                   <div class="player-info">
                                     <div class="player-name-team">
-                                      <span class="player-name">{{ player?.full_name }}</span>
+                                      <span class="player-name">{{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
                                       <span
                                         v-if="player.player_position !== 'PICKS'"
                                         class="player-team"
@@ -646,7 +646,7 @@
                                 >
                                   <div class="player-info">
                                     <div class="player-name-team">
-                                      <span class="player-name">{{ player.full_name }}</span>
+                                      <span class="player-name">{{ player.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
                                       <span class="player-team" v-if="player.team">{{
                                         player.team
                                       }}</span>
@@ -865,7 +865,7 @@
                               :class="{ 'asset-in-trade': isAssetInTrade(asset, 1) }"
                             >
                               <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-name">{{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}</div>
                                 <div class="trade-asset-meta">
                                   <span v-if="asset.team" class="trade-asset-team">{{
                                     asset.team
@@ -908,7 +908,7 @@
                             <div class="player-details-wrapper">
                               <div class="player-name-info">
                                 <div class="player-name">
-                                  {{ player.player_full_name || player.full_name }}
+                                  {{ (player.player_full_name || player.full_name)?.replace(/\bMid\s*/g, '').trim() }}
                                 </div>
                                 <div>
                                   <span
@@ -1102,7 +1102,7 @@
                               :class="{ 'asset-in-trade': isAssetInTrade(asset, 2) }"
                             >
                               <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name }}</div>
+                                <div class="trade-asset-name">{{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}</div>
                                 <div class="trade-asset-meta">
                                   <span v-if="asset.team" class="trade-asset-team">{{
                                     asset.team
@@ -1145,7 +1145,7 @@
                             <div class="player-details-wrapper">
                               <div class="player-name-info">
                                 <div class="player-name">
-                                  {{ player.player_full_name || player.full_name }}
+                                  {{ (player.player_full_name || player.full_name)?.replace(/\bMid\s*/g, '').trim() }}
                                 </div>
                                 <div>
                                   <span
@@ -1235,7 +1235,7 @@
                           <div class="player-details-wrapper">
                             <div class="player-name-info">
                               <div class="player-name">
-                                {{ player.player_full_name }}
+                                {{ player.player_full_name?.replace(/\bMid\s*/g, '').trim() }}
                               </div>
                               <div>
                                 <span
@@ -1581,7 +1581,7 @@
                               clickedManager !== '' && clickedManager !== player.display_name
                           }"
                         >
-                          {{ round.startIndex + index + 1 }}. {{ player?.full_name }} &bull;
+                          {{ round.startIndex + index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} &bull;
                           {{
                             player.player_value === -1
                               ? 'N/A'
@@ -1879,7 +1879,7 @@
                             }"
                             class="player-name"
                           >
-                            {{ index + 1 }}. {{ player?.full_name }} {{ player?.team }}
+                            {{ index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} {{ player?.team }}
                             <span class="font-size-11">{{ player?.age }}yrs</span>
                           </span>
                           <span class="player-value-display"
@@ -1922,7 +1922,7 @@
                             }"
                             class="pick-name"
                           >
-                            {{ index + 1 }}. {{ player?.full_name }}
+                            {{ index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}
                           </span>
                           <span class="pick-value">
                             {{
@@ -2103,7 +2103,7 @@
                           "
                         >
                           <span class="asset-index">{{ index + 1 }}.</span>
-                          <span class="asset-name">{{ player.full_name }}</span>
+                          <span class="asset-name">{{ player.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
                           <span class="asset-team">{{ player.team }}</span>
                           <a-tag :style="getPositionTagList(player.player_position)">{{
                             player.player_position
@@ -2155,7 +2155,7 @@
                               "
                             >
                               <span>
-                                {{ player?.full_name }} &bull;
+                                {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} &bull;
                                 {{
                                   player.player_value === -1
                                     ? 'N/A'
