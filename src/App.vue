@@ -1,11 +1,13 @@
 <template>
   <RouterView />
+  <CookieConsent />
   <a-config-provider :theme="currentTheme" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useThemeStore } from '@/stores/theme'
+import CookieConsent from '@/components/CookieConsent.vue'
 
 const themeStore = useThemeStore()
 import { theme } from 'ant-design-vue'

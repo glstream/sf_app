@@ -71,7 +71,14 @@ const router = createRouter({
     {
       path: '/privacy-policy',
       name: 'privacy',
-      component: () => import('../components/PrivacyPolicyView.vue')
+      component: () => import('../components/PrivacyPolicyView.vue'),
+      beforeEnter: logNavigation
+    },
+    {
+      path: '/terms-of-service',
+      name: 'terms',
+      component: () => import('../components/TermsOfServiceView.vue'),
+      beforeEnter: logNavigation
     },
     {
       path: '/:pathMatch(.*)*', // Catch all undefined routes
