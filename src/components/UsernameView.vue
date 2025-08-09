@@ -110,12 +110,16 @@
 
         <div class="hero-stats">
           <div class="stat-item">
-            <span class="stat-number">50K+</span>
+            <span class="stat-number">500K+</span>
             <span class="stat-label">Leagues Analyzed</span>
           </div>
           <div class="stat-item">
-            <span class="stat-number">4</span>
+            <span class="stat-number">5</span>
             <span class="stat-label">Ranking Sources</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">3</span>
+            <span class="stat-label">Projection Sources</span>
           </div>
           <div class="stat-item">
             <span class="stat-number">Real-time</span>
@@ -430,7 +434,7 @@ const onFinishFailed = (errorInfo: any) => {
 useMeta({
   title: 'Fantasy Navigator - Optimize Your Sleeper Fantasy Football Teams',
   description:
-    'Analyze your Sleeper fantasy football leagues with rankings from FantasyCalc, DynastyDaddy, KTC, and Dynasty Process. Get trade insights, roster optimization and projections from CBS, NFL and ESPN.',
+    'Analyze your Sleeper fantasy football leagues with rankings from 5 sources including FantasyCalc, DynastyDaddy, KTC, and Dynasty Process. Get trade insights, roster optimization and projections from 3 projection sources: CBS, NFL and ESPN.',
   meta: [
     {
       name: 'keywords',
@@ -444,7 +448,7 @@ useMeta({
     {
       property: 'og:description',
       content:
-        'Analyze your Sleeper fantasy football leagues with rankings from multiple sources. Discover trade opportunities and optimize your roster.'
+        'Analyze your Sleeper fantasy football leagues with rankings from 5 sources and 3 projection systems. 500K+ leagues analyzed with comprehensive trade opportunities and roster optimization.'
     },
     { property: 'og:type', content: 'website' },
     {
@@ -456,7 +460,7 @@ useMeta({
     {
       name: 'twitter:description',
       content:
-        'Optimize your fantasy football teams with comprehensive analysis and trade insights.'
+        'Optimize your fantasy football teams with 500K+ league analysis, 5 ranking sources, and 3 projection systems for comprehensive trade insights.'
     }
   ]
 })
@@ -474,7 +478,7 @@ const structuredData = {
     priceCurrency: 'USD'
   },
   description:
-    'A fantasy football analysis tool for Sleeper leagues with rankings from FantasyCalc, DynastyDaddy, Keep Trade Cut, and Dynasty Process along with projections from CBS, NFL and ESPN.',
+    'A fantasy football analysis tool for Sleeper leagues with 500K+ leagues analyzed across 5 ranking sources (FantasyCalc, DynastyDaddy, Keep Trade Cut, Dynasty Process, and FantasyNavigator) and 3 projection sources (CBS, NFL and ESPN).',
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: '4.8',
