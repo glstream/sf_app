@@ -11,7 +11,7 @@
            target="_blank" 
            rel="noopener noreferrer">Donate</a>
         <span class="separator" aria-hidden="true">|</span>
-        <router-link to="/privacy">Privacy Policy</router-link>
+        <router-link to="/privacy-policy">Privacy Policy</router-link>
         <span class="separator" aria-hidden="true">|</span>
         <router-link to="/terms-of-service">Terms of Service</router-link>
       </nav>
