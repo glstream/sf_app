@@ -1,10 +1,10 @@
 <template>
-  <div class="header-container">
+  <header class="header-container">
     <a-layout-header class="header">
       <a-row align="middle" class="header-row">
         <a-col :xs="4" :sm="4" :md="5" :lg="5">
           <router-link to="/" class="logo-link">
-            <img :src="logoImg" alt="Logo" class="logo" />
+            <img :src="logoImg" alt="Fantasy Navigator Logo - Fantasy football analytics and tools" class="logo" />
           </router-link>
         </a-col>
         <a-col :xs="20" :sm="20" :md="19" :lg="19">
@@ -41,7 +41,7 @@
         @click="handleMenuClick"
       />
     </a-drawer>
-  </div>
+  </header>
 </template>
 
 <script lang="ts" setup>

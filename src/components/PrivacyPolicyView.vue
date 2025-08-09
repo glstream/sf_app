@@ -3,6 +3,7 @@
     <theme-toggle-button />
     <AppHeader />
     <a-layout-content class="responsive-padding">
+      <BreadcrumbNavigation />
       <div class="policy-container">
         <h1>Privacy Policy</h1>
         <p>Last updated: {{ currentDate }}</p>
@@ -23,13 +24,27 @@
 
         <h2>Cookies and Third-Party Advertising</h2>
         <p>
-          Our website uses cookies to enhance your browsing experience. We also use third-party
-          vendors, including Google, who use cookies to serve ads based on your prior visits to our
-          website or other websites.
+          Our website uses cookies to enhance your browsing experience and provide personalized content. 
+          We use different types of cookies as described below:
         </p>
+        
+        <h3>Types of Cookies We Use:</h3>
+        <ul>
+          <li><strong>Essential Cookies:</strong> These are necessary for the website to function properly and cannot be disabled.</li>
+          <li><strong>Analytics Cookies:</strong> We use Google Analytics to understand how visitors interact with our website. This helps us improve our service.</li>
+          <li><strong>Advertising Cookies:</strong> We use Google AdSense to display relevant advertisements. These cookies help serve ads based on your interests.</li>
+        </ul>
+
+        <h3>Cookie Consent</h3>
+        <p>
+          When you first visit our website, you'll see a cookie consent banner that allows you to choose which types of cookies you accept. 
+          You can change your cookie preferences at any time by clicking the cookie settings in the banner or by clearing your browser's cookies.
+        </p>
+
         <p>
           Google's use of advertising cookies enables it and its partners to serve ads to users
-          based on their visit to our site and/or other sites on the Internet.
+          based on their visit to our site and/or other sites on the Internet. You can control 
+          these cookies through our cookie consent banner.
         </p>
 
         <h2>Opting Out</h2>
@@ -74,6 +89,7 @@ import { ref } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import BreadcrumbNavigation from '@/components/BreadcrumbNavigation.vue'
 
 // Format current date for the "Last updated" section
 const currentDate = new Date().toLocaleDateString('en-US', {
@@ -114,6 +130,23 @@ h2 {
   font-size: 1.3rem;
   margin-top: 24px;
   margin-bottom: 12px;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--color-text);
+}
+
+ul {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+li {
+  margin-bottom: 8px;
+  line-height: 1.6;
 }
 
 p {

@@ -3,10 +3,11 @@
     <theme-toggle-button />
     <AppHeader />
     <a-layout-content class="responsive-padding">
+      <BreadcrumbNavigation />
       <div class="about-container">
         <div class="about-header">
           <h1 class="title">About Fantasy Navigator</h1>
-          <p class="subtitle">The premie tool for fantasy football analytics and decision-making</p>
+          <p class="subtitle">The premier tool for fantasy football analytics and decision-making</p>
         </div>
 
         <div class="feature-grid">
@@ -33,6 +34,28 @@
           </div>
         </div>
 
+        <div class="content-section">
+          <h2>Why Choose Fantasy Navigator?</h2>
+          <div class="benefits-grid">
+            <div class="benefit-item">
+              <h4>Data-Driven Decisions</h4>
+              <p>Make informed choices with rankings and analysis based on multiple expert sources and real-world trade data.</p>
+            </div>
+            <div class="benefit-item">
+              <h4>Time-Saving Tools</h4>
+              <p>Quickly evaluate trades, analyze your team's strengths and weaknesses, and identify the best available players.</p>
+            </div>
+            <div class="benefit-item">
+              <h4>Competitive Advantage</h4>
+              <p>Stay ahead of your league mates with advanced analytics and insights not found in basic fantasy tools.</p>
+            </div>
+            <div class="benefit-item">
+              <h4>User-Friendly Interface</h4>
+              <p>Complex data made simple with intuitive visualizations and easy-to-understand rankings.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="faq-section">
           <h2>Frequently Asked Questions</h2>
           <a-collapse
@@ -41,6 +64,24 @@
             class="custom-collapse"
             expand-icon-position="right"
           >
+            <a-collapse-panel key="1" header="What data sources do you use?">
+              <div class="panel-content">
+                <p>
+                  Fantasy Navigator aggregates data from the most trusted sources in fantasy football including:
+                </p>
+                <ul>
+                  <li><strong>Sleeper:</strong> Live league data and player information</li>
+                  <li><strong>Keep Trade Cut:</strong> Crowdsourced dynasty values and trade data</li>
+                  <li><strong>Fantasy Calc:</strong> Expert dynasty rankings and analysis</li>
+                  <li><strong>Dynasty Daddy:</strong> Comprehensive dynasty valuations</li>
+                  <li><strong>Dynasty Process:</strong> Data-driven dynasty insights</li>
+                  <li><strong>ESPN & NFL:</strong> Current season projections</li>
+                </ul>
+                <p>
+                  This multi-source approach provides a more accurate and comprehensive view of player values than any single source alone.
+                </p>
+              </div>
+            </a-collapse-panel>
             <a-collapse-panel key="4" header="How are composite SuperFlex ranks created?">
               <div class="panel-content">
                 <p v-for="(paragraph, index) in sfRankingsParagraphs" :key="index">
@@ -82,7 +123,41 @@
                 </p>
               </div>
             </a-collapse-panel>
+            <a-collapse-panel key="7" header="Is Fantasy Navigator free to use?">
+              <div class="panel-content">
+                <p>
+                  Yes! Fantasy Navigator is completely free to use. We support the platform through 
+                  non-intrusive advertisements and optional donations from users who find value in our tools.
+                </p>
+                <p>
+                  Our goal is to make advanced fantasy football analytics accessible to everyone, 
+                  regardless of budget. All core features including rankings, trade calculator, 
+                  and team analysis tools are available at no cost.
+                </p>
+              </div>
+            </a-collapse-panel>
           </a-collapse>
+        </div>
+
+        <div class="getting-started-section">
+          <h2>Getting Started</h2>
+          <div class="steps-grid">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <h4>Enter Your Username</h4>
+              <p>Start by entering your Sleeper username to connect your leagues and teams.</p>
+            </div>
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <h4>Select Your League</h4>
+              <p>Choose from your active leagues to begin analyzing your team and opponents.</p>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <h4>Explore Your Data</h4>
+              <p>Use our tools to analyze trades, view power rankings, and optimize your roster.</p>
+            </div>
+          </div>
         </div>
       </div>
     </a-layout-content>
@@ -101,6 +176,7 @@ const themeStore = useThemeStore()
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import BreadcrumbNavigation from '@/components/BreadcrumbNavigation.vue'
 
 const activeKeyCalculator = ref(['1'])
 const activeKeyRankings = ref(['4'])
@@ -221,8 +297,94 @@ watch(activeKeyRankings, (val) => {
   line-height: 1.6;
 }
 
+.content-section {
+  margin: 64px 0;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.benefit-item {
+  padding: 24px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.benefit-item h4 {
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.benefit-item p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.getting-started-section {
+  margin: 64px 0;
+  padding: 32px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.step-item {
+  text-align: center;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0 auto 16px;
+}
+
+.step-item h4 {
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.step-item p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
 .faq-section {
   margin-top: 48px;
+}
+
+.faq-section ul {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.faq-section li {
+  margin-bottom: 8px;
+  line-height: 1.6;
 }
 
 .faq-section h2 {
