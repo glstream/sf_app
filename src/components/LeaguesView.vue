@@ -54,8 +54,57 @@
         </a-flex>
       </div>
       <a-spin :spinning="isLoading">
-        <div v-if="!isLoading && filteredData.length === 0">
-          <div class="no-leagues-card">No complete leagues found for this year...</div>
+        <!-- Loading State Content -->
+        <div v-if="isLoading" class="loading-content">
+          <div class="loading-info">
+            <h3>Analyzing Your Fantasy Football Leagues</h3>
+            <p>We're fetching your league data from Sleeper and preparing detailed analytics...</p>
+            <div class="loading-features">
+              <div class="loading-feature">
+                <strong>Power Rankings:</strong> Compare team strengths across multiple expert sources
+              </div>
+              <div class="loading-feature">
+                <strong>Trade Analysis:</strong> Identify optimal trade opportunities with data-driven insights
+              </div>
+              <div class="loading-feature">
+                <strong>Player Values:</strong> Real-time valuations from Keep Trade Cut, Fantasy Calc, and more
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State Content -->
+        <div v-if="!isLoading && filteredData.length === 0" class="empty-state">
+          <div class="empty-state-header">
+            <h3>No Leagues Found for {{ leagueYear }}</h3>
+            <p>Don't worry! Here are some things you can try:</p>
+          </div>
+          
+          <div class="empty-state-suggestions">
+            <div class="suggestion-card">
+              <h4>Check Your Username</h4>
+              <p>Make sure your Sleeper username is spelled correctly. Usernames are case-sensitive.</p>
+            </div>
+            <div class="suggestion-card">
+              <h4>Try Different Year</h4>
+              <p>Your leagues might be from a different season. Try changing the year filter above.</p>
+            </div>
+            <div class="suggestion-card">
+              <h4>League Requirements</h4>
+              <p>We only show completed leagues with at least 8 teams and standard scoring settings.</p>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h4>New to Fantasy Navigator?</h4>
+            <p>Fantasy Navigator works with Sleeper leagues to provide:</p>
+            <ul>
+              <li>Comprehensive power rankings using multiple expert sources</li>
+              <li>Advanced trade calculator with position scarcity factors</li>
+              <li>Player value tracking across dynasty and redraft formats</li>
+              <li>League-specific analytics tailored to your scoring settings</li>
+            </ul>
+          </div>
         </div>
         <div>
           <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
@@ -616,6 +665,135 @@ const getCurrentYear = async () => {
 .layout {
   min-height: 100vh;
   background-color: var(--color-background-soft); /* Use theme variable */
+}
+
+/* Loading State Styles */
+.loading-content {
+  padding: 40px 20px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading-info h3 {
+  color: var(--color-text);
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+}
+
+.loading-info p {
+  color: var(--color-text-secondary);
+  margin-bottom: 24px;
+  font-size: 1.1rem;
+}
+
+.loading-features {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.loading-feature {
+  padding: 16px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  text-align: left;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.loading-feature strong {
+  color: var(--color-primary);
+}
+
+/* Empty State Styles */
+.empty-state {
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.empty-state-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.empty-state-header h3 {
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+}
+
+.empty-state-header p {
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+}
+
+.empty-state-suggestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.suggestion-card {
+  padding: 20px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.suggestion-card h4 {
+  color: var(--color-text);
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.suggestion-card p {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.help-section {
+  padding: 24px;
+  background: var(--color-background-soft);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.help-section h4 {
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+}
+
+.help-section p {
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+}
+
+.help-section ul {
+  color: var(--color-text-secondary);
+  padding-left: 20px;
+}
+
+.help-section li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .loading-content,
+  .empty-state {
+    padding: 24px 16px;
+  }
+  
+  .empty-state-suggestions {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 .table-section {
   display: flex;
