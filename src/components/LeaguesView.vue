@@ -454,6 +454,11 @@ import 'primeicons/primeicons.css'
 
 import axios from 'axios'
 import { useUserStore } from '@/stores/userStore'
+import { useLeaguesStore } from '@/stores/leaguesStore'
+
+// Initialize stores
+const userStore = useUserStore()
+const leaguesStore = useLeaguesStore()
 
 // Custom Utils
 import { addOrdinalSuffix } from '../utils/suffix'
@@ -468,9 +473,10 @@ import fcLogo from '@/assets/sourceLogos/fc.png'
 import ddLogo from '@/assets/sourceLogos/dd.svg'
 
 // configs
-const leaguesData = ref([])
 const route = useRoute()
-const isLoading = ref(false)
+// Use leagues store data and loading state
+const leaguesData = computed(() => leaguesStore.leagues)
+const isLoading = computed(() => leaguesStore.isLoading)
 const router = useRouter()
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -499,12 +505,19 @@ const leagueInfo = reactive({
 onMounted(() => {
   // Scroll to top immediately when component mounts
   window.scrollTo(0, 0)
-
-  const userName = route.params.userName as string
-  const leagueYear = route.params.leagueYear as string
-  const guid = route.params.guid as string
-  if (leagueYear && userName && guid) {
-    fetchData(leagueYear, userName, guid)
+  
+  // Check if we already have leagues data, if not fetch it
+  if (leaguesStore.leagues.length === 0) {
+    console.log('LeaguesView onMounted - No leagues in store, fetching...')
+    const leagueYear = route.params.leagueYear as string
+    const userName = route.params.userName as string
+    const guid = route.params.guid as string
+    
+    if (leagueYear && userName && guid) {
+      fetchData(leagueYear, userName, guid)
+    }
+  } else {
+    console.log('LeaguesView onMounted - Using existing leagues from store:', leaguesStore.leagues.length)
   }
 })
 
@@ -562,21 +575,22 @@ const rosterOptions = ref<SelectProps['options']>([
 ])
 
 async function fetchData(leagueYear: string, userName: string, guid: string) {
-  isLoading.value = true
-  try {
-    const response = await axios.get(`${apiUrl}/leagues`, {
-      params: {
-        league_year: leagueYear,
-        user_name: userName,
-        guid: guid
-      }
-    })
-    leaguesData.value = response.data // Assuming the server response format matches your table data format
-  } catch (error) {
-    console.error('There was an error fetching the leagues data:', error)
-  } finally {
-    isLoading.value = false
-  }
+  // Use the leagues store to fetch data, which has the correct platform logic
+  console.log('LeaguesView fetchData - userStore state:', {
+    platform: userStore.platform,
+    leagueId: userStore.leagueId,
+    userName: userStore.userName,
+    leagueYear: userStore.leagueYear
+  })
+  
+  // Use leagues store fetchLeagues method which has correct platform handling
+  await leaguesStore.fetchLeagues(
+    leagueYear, 
+    userName, 
+    guid, 
+    userStore.platform || 'sleeper', 
+    userStore.leagueId || ''
+  )
 }
 
 const handleMenuClick = (e, league) => {

@@ -13,7 +13,7 @@
         <div class="hero-text">
           <h1 class="hero-title">Your Fantasy Football League Dashboard</h1>
           <p class="hero-subtitle">
-            Connect your Sleeper account to unlock deep league analytics, discover optimal trades,
+            Connect your Sleeper or Fleaflicker account to unlock deep league analytics, discover optimal trades,
             and dominate your competition with data-driven insights.
           </p>
         </div>
@@ -29,13 +29,39 @@
           >
             <div class="form-inputs-row">
               <a-form-item
+                name="platform"
+                :rules="[{ required: true, message: 'Please select a platform' }]"
+                class="form-item-platform"
+              >
+                <a-select
+                  v-model:value="formState.platform"
+                  placeholder="Platform"
+                  size="large"
+                  class="platform-select"
+                >
+                  <a-select-option value="sleeper">
+                    <span class="platform-option">
+                      <span class="platform-icon">🛌</span>
+                      Sleeper
+                    </span>
+                  </a-select-option>
+                  <a-select-option value="fleaflicker">
+                    <span class="platform-option">
+                      <span class="platform-icon">🏃</span>
+                      Fleaflicker
+                    </span>
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+
+              <a-form-item
                 name="userName"
-                :rules="[{ required: true, message: 'Please enter your Sleeper username' }]"
+                :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'Fleaflicker username' : 'Sleeper username'}` }]"
                 class="form-item-username"
               >
                 <a-input
                   v-model:value="formState.userName"
-                  placeholder="Enter your Sleeper username"
+                  :placeholder="formState.platform === 'fleaflicker' ? 'Enter your Fleaflicker username' : 'Enter your Sleeper username'"
                   size="large"
                   class="username-input"
                 >
@@ -63,6 +89,29 @@
                   <a-select-option value="2021">2021</a-select-option>
                 </a-select>
               </a-form-item>
+            </div>
+
+            <!-- Fleaflicker League ID input -->
+            <div v-if="formState.platform === 'fleaflicker'" class="form-league-row">
+              <a-form-item
+                name="leagueId"
+                :rules="[{ required: true, message: 'Please enter your Fleaflicker league ID' }]"
+                class="form-item-league"
+              >
+                <a-input
+                  v-model:value="formState.leagueId"
+                  placeholder="Enter league ID (e.g. 349505)"
+                  size="large"
+                  class="league-input"
+                >
+                  <template #prefix>
+                    <TeamOutlined class="input-icon" />
+                  </template>
+                </a-input>
+              </a-form-item>
+              <div class="league-help-text">
+                Find your league ID in the URL: fleaflicker.com/nfl/leagues/<strong>349505</strong>
+              </div>
             </div>
 
             <div class="form-actions-row">
@@ -96,12 +145,19 @@
             <div class="form-info">
               <a-button type="text" @click="showModal" class="info-btn">
                 <InfoCircleOutlined />
-                <span>Sleeper leagues only</span>
+                <span>Supports Sleeper and Fleaflicker leagues</span>
               </a-button>
               <a-modal v-model:open="open" @ok="handleOk" title="Platform Support">
                 <p>
-                  Fantasy Navigator is currently optimized for Sleeper leagues, with support for
-                  both dynasty and redraft formats.
+                  Fantasy Navigator supports both Sleeper and Fleaflicker fantasy football platforms.
+                  Features include:
+                </p>
+                <ul>
+                  <li><strong>Sleeper:</strong> Full dynasty and redraft support with draft pick tracking</li>
+                  <li><strong>Fleaflicker:</strong> League analysis, rosters, standings, and transactions (requires league ID)</li>
+                </ul>
+                <p>
+                  Select your platform above and enter your credentials to get started.
                 </p>
               </a-modal>
             </div>
@@ -297,7 +353,8 @@ import {
   LockOutlined,
   InfoCircleOutlined,
   HomeOutlined,
-  RightOutlined
+  RightOutlined,
+  TeamOutlined
 } from '@ant-design/icons-vue'
 
 import { message } from 'ant-design-vue'
@@ -337,6 +394,8 @@ const currentTheme = computed(() => {
 interface FormState {
   userName: string
   leagueYear: string
+  platform: string
+  leagueId?: string
 }
 
 onMounted(() => {
@@ -374,7 +433,9 @@ async function updateUserDetails(year, name, guid) {
 
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
-  leagueYear: userStore.leagueYear || '2025'
+  leagueYear: userStore.leagueYear || '2025',
+  platform: userStore.platform || 'sleeper',
+  leagueId: userStore.leagueId || ''
 })
 
 const onFinish = async (values) => {
@@ -383,30 +444,92 @@ const onFinish = async (values) => {
 
   while (retryCount < 3) {
     try {
-      const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
-      const data = await response.json()
+      // Platform-specific validation
+      if (formState.platform === 'sleeper') {
+        const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
+        const data = await response.json()
 
-      if (data === null || Object.keys(data).length === 0) {
-        throw new Error('Invalid username!')
+        if (data === null || Object.keys(data).length === 0) {
+          throw new Error('Invalid Sleeper username!')
+        }
+      } else if (formState.platform === 'fleaflicker') {
+        // Clean and validate Fleaflicker username
+        formState.userName = formState.userName.trim()
+        formState.leagueId = formState.leagueId.trim()
+        
+        if (!formState.userName || formState.userName.length < 1) {
+          throw new Error('Please enter your Fleaflicker username!')
+        }
+        if (!formState.leagueId || formState.leagueId.length < 1) {
+          throw new Error('Please enter your Fleaflicker league ID!')
+        }
       }
 
       const { getOrCreateGUID } = useGuid()
       const userGuid = getOrCreateGUID()
 
-      // Make a POST request to your backend server
-      await axios.post(`${apiUrl}/user_details`, {
+      // Make a POST request to your backend server with platform
+      const requestData: any = {
         league_year: formState.leagueYear,
         user_name: formState.userName,
-        guid: userGuid
-      })
+        guid: userGuid,
+        platform: formState.platform
+      }
+      
+      // Add league ID for Fleaflicker
+      if (formState.platform === 'fleaflicker') {
+        requestData.league_ids = [formState.leagueId]
+      }
+      
+      await axios.post(`${apiUrl}/user_details`, requestData)
 
       console.log('Username submission successful')
 
-      store.setUserDetails(formState.leagueYear, formState.userName, userGuid)
-      await fetchLeagues(formState.leagueYear, formState.userName, userGuid)
+      store.setUserDetails(formState.leagueYear, formState.userName, userGuid, formState.platform, formState.leagueId)
+      
+      // Debug: Log fetchLeagues parameters
+      console.log('UsernameView - formState.leagueId value:', formState.leagueId)
+      console.log('UsernameView - formState.leagueId type:', typeof formState.leagueId)
+      console.log('UsernameView - formState.leagueId empty check:', !formState.leagueId)
+      console.log('UsernameView - Calling fetchLeagues with params:', {
+        leagueYear: formState.leagueYear,
+        userName: formState.userName,
+        userGuid: userGuid,
+        platform: formState.platform,
+        leagueId: formState.leagueId
+      })
+      
+      await fetchLeagues(formState.leagueYear, formState.userName, userGuid, formState.platform, formState.leagueId)
 
-      // Redirect to the /leagues endpoint
-      router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
+      // Debug: Log the current state
+      console.log('UsernameView redirect logic - Platform:', formState.platform)
+      console.log('UsernameView redirect logic - Leagues Store:', leagueStore.leagues)
+      console.log('UsernameView redirect logic - Leagues Count:', leagueStore.leagues?.length || 0)
+
+      // For Fleaflicker users, redirect directly to LeagueDetailView since they provided a specific league ID
+      if (formState.platform === 'fleaflicker') {
+        console.log('UsernameView - Platform is Fleaflicker, checking leagues...')
+        const leagues = leagueStore.leagues
+        console.log('UsernameView - Leagues from store:', leagues)
+        if (leagues && leagues.length > 0) {
+          console.log('UsernameView - Found leagues, proceeding with LeagueDetailView redirect')
+          const league = leagues[0] // Should be the single league they provided
+          // Route: /league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/:leagueStarters/:leagueSize
+          const rosterType = league.roster_type === 'Single QB' ? 'SingleQB' : league.roster_type.replace(/ /g, '')
+          const avatar = league.avatar || 'default'
+          const leagueDetailUrl = `/league/${league.league_id}/fleaflicker/dynasty/${userGuid}/${formState.leagueYear}/${formState.userName}/${encodeURIComponent(league.league_name)}/${rosterType}/${formState.userName}/${avatar}/${league.starter_cnt}/${league.total_roster_cnt}`
+          console.log('Fleaflicker user - redirecting to LeagueDetailView:', leagueDetailUrl)
+          router.push(leagueDetailUrl)
+        } else {
+          // Fallback to leagues view if no league data
+          console.log('UsernameView - No leagues found in store, falling back to LeaguesView')
+          router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
+        }
+      } else {
+        // Sleeper users go to leagues list view
+        console.log('UsernameView - Platform is not Fleaflicker, redirecting to LeaguesView')
+        router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
+      }
 
       // Break out of the retry loop if successful
       break
@@ -620,8 +743,13 @@ html.dark .hero-form-container {
   display: flex;
   gap: 16px;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   align-items: flex-start;
+}
+
+.form-item-platform {
+  flex: 0 0 140px;
+  margin-bottom: 0 !important;
 }
 
 .form-item-username {
@@ -630,8 +758,70 @@ html.dark .hero-form-container {
 }
 
 .form-item-year {
-  flex: 0 0 120px;
+  flex: 0 0 100px;
   margin-bottom: 0 !important;
+}
+
+.platform-select .ant-select-selector {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.platform-select:hover .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.1);
+}
+
+.platform-select.ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.15);
+}
+
+.platform-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.platform-icon {
+  font-size: 16px;
+}
+
+.form-league-row {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 16px;
+}
+
+.form-item-league {
+  margin-bottom: 8px !important;
+}
+
+.league-input {
+  border-radius: 12px;
+  border: 2px solid var(--color-border);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.league-input:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.1);
+}
+
+.league-input:focus,
+.league-input.ant-input-focused {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.15);
+}
+
+.league-help-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  text-align: center;
 }
 
 .username-input {

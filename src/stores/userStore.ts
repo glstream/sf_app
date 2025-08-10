@@ -6,13 +6,17 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     leagueYear: '',
     userName: '',
-    guid: ''
+    guid: '',
+    platform: 'sleeper', // Default to sleeper for backward compatibility
+    leagueId: '' // For Fleaflicker league ID
   }),
   actions: {
-    setUserDetails(year, name, guid) {
+    setUserDetails(year, name, guid, platform = 'sleeper', leagueId = '') {
       this.leagueYear = year
       this.userName = name
       this.guid = guid
+      this.platform = platform
+      this.leagueId = leagueId
     }
   },
   persist: {
