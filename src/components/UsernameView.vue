@@ -56,12 +56,12 @@
 
               <a-form-item
                 name="userName"
-                :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'Fleaflicker username' : 'Sleeper username'}` }]"
+                :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'email address' : 'Sleeper username'}` }]"
                 class="form-item-username"
               >
                 <a-input
                   v-model:value="formState.userName"
-                  :placeholder="formState.platform === 'fleaflicker' ? 'Enter your Fleaflicker username' : 'Enter your Sleeper username'"
+                  :placeholder="formState.platform === 'fleaflicker' ? 'Enter your email address' : 'Enter your Sleeper username'"
                   size="large"
                   class="username-input"
                 >
@@ -91,28 +91,6 @@
               </a-form-item>
             </div>
 
-            <!-- Fleaflicker League ID input -->
-            <div v-if="formState.platform === 'fleaflicker'" class="form-league-row">
-              <a-form-item
-                name="leagueId"
-                :rules="[{ required: true, message: 'Please enter your Fleaflicker league ID' }]"
-                class="form-item-league"
-              >
-                <a-input
-                  v-model:value="formState.leagueId"
-                  placeholder="Enter league ID (e.g. 349505)"
-                  size="large"
-                  class="league-input"
-                >
-                  <template #prefix>
-                    <TeamOutlined class="input-icon" />
-                  </template>
-                </a-input>
-              </a-form-item>
-              <div class="league-help-text">
-                Find your league ID in the URL: fleaflicker.com/nfl/leagues/<strong>349505</strong>
-              </div>
-            </div>
 
             <div class="form-actions-row">
               <a-form-item class="form-item-primary">
@@ -154,7 +132,7 @@
                 </p>
                 <ul>
                   <li><strong>Sleeper:</strong> Full dynasty and redraft support with draft pick tracking</li>
-                  <li><strong>Fleaflicker:</strong> League analysis, rosters, standings, and transactions (requires league ID)</li>
+                  <li><strong>Fleaflicker:</strong> League analysis, rosters, standings, and transactions (just enter your email)</li>
                 </ul>
                 <p>
                   Select your platform above and enter your credentials to get started.
@@ -395,7 +373,6 @@ interface FormState {
   userName: string
   leagueYear: string
   platform: string
-  leagueId?: string
 }
 
 onMounted(() => {
@@ -434,18 +411,24 @@ async function updateUserDetails(year, name, guid) {
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2025',
-  platform: userStore.platform || 'sleeper',
-  leagueId: userStore.leagueId || ''
+  platform: userStore.platform || 'sleeper'
 })
 
 const onFinish = async (values) => {
+  console.log('onFinish called with values:', values)
+  console.log('formState:', formState)
+  console.log('apiUrl:', apiUrl)
+  
   formIsLoading.value = true
   let retryCount = 0
 
   while (retryCount < 3) {
     try {
+      console.log('Starting form submission - attempt', retryCount + 1)
+      
       // Platform-specific validation
       if (formState.platform === 'sleeper') {
+        console.log('Validating Sleeper username:', formState.userName)
         const response = await fetch(`https://api.sleeper.app/v1/user/${formState.userName}`)
         const data = await response.json()
 
@@ -453,20 +436,34 @@ const onFinish = async (values) => {
           throw new Error('Invalid Sleeper username!')
         }
       } else if (formState.platform === 'fleaflicker') {
-        // Clean and validate Fleaflicker username
+        console.log('Validating Fleaflicker input:', formState.userName)
+        // Clean input
         formState.userName = formState.userName.trim()
-        formState.leagueId = formState.leagueId.trim()
         
         if (!formState.userName || formState.userName.length < 1) {
-          throw new Error('Please enter your Fleaflicker username!')
+          throw new Error('Please enter your email address!')
         }
-        if (!formState.leagueId || formState.leagueId.length < 1) {
-          throw new Error('Please enter your Fleaflicker league ID!')
+        
+        // Check if it's an email address or numeric ID
+        if (formState.userName.includes('@')) {
+          // Email validation
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          if (!emailRegex.test(formState.userName)) {
+            throw new Error('Please enter a valid email address!')
+          }
+          console.log('Fleaflicker email validation passed')
+        } else {
+          // Numeric ID validation (legacy support)
+          if (!/^\d+$/.test(formState.userName)) {
+            throw new Error('Please enter either your email address or numeric user ID!')
+          }
+          console.log('Fleaflicker numeric ID validation passed')
         }
       }
 
       const { getOrCreateGUID } = useGuid()
       const userGuid = getOrCreateGUID()
+      console.log('Generated GUID:', userGuid)
 
       // Make a POST request to your backend server with platform
       const requestData: any = {
@@ -476,65 +473,33 @@ const onFinish = async (values) => {
         platform: formState.platform
       }
       
-      // Add league ID for Fleaflicker
-      if (formState.platform === 'fleaflicker') {
-        requestData.league_ids = [formState.leagueId]
-      }
+      console.log('Sending POST request to:', `${apiUrl}/user_details`)
+      console.log('Request data:', requestData)
       
       await axios.post(`${apiUrl}/user_details`, requestData)
 
       console.log('Username submission successful')
 
-      store.setUserDetails(formState.leagueYear, formState.userName, userGuid, formState.platform, formState.leagueId)
+      store.setUserDetails(formState.leagueYear, formState.userName, userGuid, formState.platform)
       
-      // Debug: Log fetchLeagues parameters
-      console.log('UsernameView - formState.leagueId value:', formState.leagueId)
-      console.log('UsernameView - formState.leagueId type:', typeof formState.leagueId)
-      console.log('UsernameView - formState.leagueId empty check:', !formState.leagueId)
-      console.log('UsernameView - Calling fetchLeagues with params:', {
-        leagueYear: formState.leagueYear,
-        userName: formState.userName,
-        userGuid: userGuid,
-        platform: formState.platform,
-        leagueId: formState.leagueId
-      })
-      
-      await fetchLeagues(formState.leagueYear, formState.userName, userGuid, formState.platform, formState.leagueId)
+      console.log('Fetching leagues...')
+      await fetchLeagues(formState.leagueYear, formState.userName, userGuid, formState.platform)
 
       // Debug: Log the current state
       console.log('UsernameView redirect logic - Platform:', formState.platform)
       console.log('UsernameView redirect logic - Leagues Store:', leagueStore.leagues)
       console.log('UsernameView redirect logic - Leagues Count:', leagueStore.leagues?.length || 0)
 
-      // For Fleaflicker users, redirect directly to LeagueDetailView since they provided a specific league ID
-      if (formState.platform === 'fleaflicker') {
-        console.log('UsernameView - Platform is Fleaflicker, checking leagues...')
-        const leagues = leagueStore.leagues
-        console.log('UsernameView - Leagues from store:', leagues)
-        if (leagues && leagues.length > 0) {
-          console.log('UsernameView - Found leagues, proceeding with LeagueDetailView redirect')
-          const league = leagues[0] // Should be the single league they provided
-          // Route: /league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/:leagueStarters/:leagueSize
-          const rosterType = league.roster_type === 'Single QB' ? 'SingleQB' : league.roster_type.replace(/ /g, '')
-          const avatar = league.avatar || 'default'
-          const leagueDetailUrl = `/league/${league.league_id}/fleaflicker/dynasty/${userGuid}/${formState.leagueYear}/${formState.userName}/${encodeURIComponent(league.league_name)}/${rosterType}/${formState.userName}/${avatar}/${league.starter_cnt}/${league.total_roster_cnt}`
-          console.log('Fleaflicker user - redirecting to LeagueDetailView:', leagueDetailUrl)
-          router.push(leagueDetailUrl)
-        } else {
-          // Fallback to leagues view if no league data
-          console.log('UsernameView - No leagues found in store, falling back to LeaguesView')
-          router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
-        }
-      } else {
-        // Sleeper users go to leagues list view
-        console.log('UsernameView - Platform is not Fleaflicker, redirecting to LeaguesView')
-        router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
-      }
+      // Both Fleaflicker and Sleeper users now go to LeaguesView
+      console.log('UsernameView - Redirecting to LeaguesView for platform:', formState.platform)
+      router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
 
       // Break out of the retry loop if successful
       break
     } catch (error) {
-      console.error('Error:', error.message)
+      console.error('Error in onFinish:', error)
+      console.error('Error stack:', error.stack)
+      console.error('Error message:', error.message)
 
       if (retryCount === 2) {
         message.error('Failed to submit username. Please try again later.')

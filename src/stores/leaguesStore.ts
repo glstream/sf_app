@@ -9,11 +9,11 @@ export const useLeaguesStore = defineStore('leagues', {
     isLoading: false
   }),
   actions: {
-    async fetchLeagues(leagueYear: string, userName: string, guid: string, platform: string = 'sleeper', leagueId: string = '') {
+    async fetchLeagues(leagueYear: string, userName: string, guid: string, platform: string = 'sleeper') {
       this.isLoading = true
       try {
         console.log('LeaguesStore.fetchLeagues - Called with params:', {
-          leagueYear, userName, guid, platform, leagueId
+          leagueYear, userName, guid, platform
         })
         
         const params: any = {
@@ -21,21 +21,6 @@ export const useLeaguesStore = defineStore('leagues', {
           user_name: userName,
           guid: guid,
           platform: platform
-        }
-        
-        // Add league_ids for Fleaflicker
-        console.log('LeaguesStore.fetchLeagues - Checking condition:', {
-          'platform === fleaflicker': platform === 'fleaflicker',
-          'leagueId truthy': !!leagueId,
-          'leagueId value': leagueId,
-          'leagueId type': typeof leagueId
-        })
-        
-        if (platform === 'fleaflicker' && leagueId) {
-          params.league_ids = leagueId // Single league ID or comma-separated for multiple
-          console.log('LeaguesStore.fetchLeagues - Added league_ids for Fleaflicker:', leagueId)
-        } else {
-          console.log('LeaguesStore.fetchLeagues - NOT adding league_ids. Platform:', platform, 'LeagueId:', leagueId)
         }
         
         console.log('LeaguesStore.fetchLeagues - Final API params:', params)

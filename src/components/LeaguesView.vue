@@ -119,7 +119,7 @@
                     <div class="league-header-content">
                       <img
                         class="league-logo"
-                        :src="`https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
+                        :src="league.platform === 'fleaflicker' ? defaultimage : `https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
                         @error="(event) => (event.target.src = defaultimage)"
                       />
                       <div class="league-title-section">
@@ -611,26 +611,78 @@ const handlePlatformClick = (platformKey, league) => {
 
 const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
+    console.log('getLeagueDetail - league data:', league)
+    console.log('getLeagueDetail - platform key:', e.key)
+    
     const leagueId = league.league_id
-    const guid = league.session_id
+    const guid = league.session_id || league.guid // Fallback to guid if session_id missing
     const leagueYear = league.league_year
     const userName = encodeURIComponent(league.user_name)
     const leagueName = encodeURIComponent(league.league_name)
     const userId = league.user_id
-    const avatar = league.avatar
-    const rankType = league.league_type
+    const avatar = league.avatar || 'default' // Default to 'default' if missing to avoid empty URL segment
+    
+    // Fix rankType - convert numeric league_type to string if needed
+    let rankType = league.league_type
+    if (typeof rankType === 'number') {
+      // league_type might be numeric (1=Dynasty, 2=Keeper, 3=Redraft)
+      // But we need to check the actual mapping used
+      rankType = 'Dynasty' // Default to Dynasty for now
+    } else if (!rankType) {
+      rankType = 'Dynasty'
+    }
+    
     const rosterType = league.roster_type
     const platform = e.key
-    const starterCnt = league.starter_cnt
+    const starterCnt = league.starter_cnt || league.starter_count || 0
     const totalRosters = league.total_rosters
-    console.log('e', e)
-    router.push(
-      `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}`
-    )
-
+    
+    // Log all values before navigation
+    console.log('Navigation params:', {
+      leagueId,
+      platform,
+      rankType,
+      guid,
+      leagueYear,
+      userName,
+      leagueName,
+      rosterType,
+      userId,
+      avatar,
+      starterCnt,
+      totalRosters
+    })
+    
+    // Check for any undefined values
+    const params = [leagueId, platform, rankType, guid, leagueYear, userName, leagueName, rosterType, userId, avatar, starterCnt, totalRosters]
+    const hasUndefined = params.some(param => param === undefined || param === null)
+    
+    if (hasUndefined) {
+      console.error('Missing required parameters for navigation:', {
+        leagueId: leagueId === undefined ? 'MISSING' : leagueId,
+        platform: platform === undefined ? 'MISSING' : platform,
+        rankType: rankType === undefined ? 'MISSING' : rankType,
+        guid: guid === undefined ? 'MISSING' : guid,
+        leagueYear: leagueYear === undefined ? 'MISSING' : leagueYear,
+        userName: userName === undefined ? 'MISSING' : userName,
+        leagueName: leagueName === undefined ? 'MISSING' : leagueName,
+        rosterType: rosterType === undefined ? 'MISSING' : rosterType,
+        userId: userId === undefined ? 'MISSING' : userId,
+        avatar: avatar === undefined ? 'MISSING' : avatar,
+        starterCnt: starterCnt === undefined ? 'MISSING' : starterCnt,
+        totalRosters: totalRosters === undefined ? 'MISSING' : totalRosters
+      })
+      return
+    }
+    
+    const url = `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}`
+    console.log('Navigating to URL:', url)
+    
+    router.push(url)
     console.log('Sending to League details')
   } catch (error) {
     console.error('Failed to load league details:', error)
+    console.error('Error stack:', error.stack)
     // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
     console.log('complete')
