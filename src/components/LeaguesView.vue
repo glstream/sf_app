@@ -633,7 +633,7 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     }
     
     const rosterType = league.roster_type
-    const platform = e.key
+    const platform = league.platform || e.key  // Use league's actual platform, fallback to menu key
     const starterCnt = league.starter_cnt || league.starter_count || 0
     const totalRosters = league.total_rosters
     
