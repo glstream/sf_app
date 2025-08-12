@@ -191,7 +191,8 @@
                   </div>
                 </a-col>
               </a-row>
-              <div class="leagues-stats-container">
+              <!-- Hide rankings comparison for Fleaflicker leagues due to email/user_id mapping complexity -->
+              <div v-if="league.platform !== 'fleaflicker'" class="leagues-stats-container">
                 <div class="stats-header">
                   <h3>Power Rankings Comparison</h3>
                   <p>Compare your team's rankings across multiple platforms</p>
@@ -406,6 +407,25 @@
                     </div></a-col
                   >
                 </a-row>
+              </div>
+              
+              <!-- Alternative section for Fleaflicker leagues -->
+              <div v-if="league.platform === 'fleaflicker'" class="fleaflicker-info-section">
+                <div class="fleaflicker-info-header">
+                  <h3>Fleaflicker League</h3>
+                  <p>Access detailed league analysis by clicking into individual league views</p>
+                </div>
+                <div class="fleaflicker-features">
+                  <div class="feature-item">
+                    <strong>✓ League Summary:</strong> Full roster analysis and team comparisons
+                  </div>
+                  <div class="feature-item">
+                    <strong>✓ Player Rankings:</strong> Individual player values and position rankings  
+                  </div>
+                  <div class="feature-item">
+                    <strong>✓ Draft Picks:</strong> Future pick valuations and trade analysis
+                  </div>
+                </div>
               </div>
             </div>
           </a-row>
@@ -917,6 +937,49 @@ const getCurrentYear = async () => {
   margin: 5px 5px 10px; /* Added bottom margin */
   background-color: var(--color-background-soft); /* Use theme variable */
   padding: 5px;
+}
+
+.fleaflicker-info-section {
+  border-radius: 8px;
+  margin: 8px 8px 16px;
+  background: var(--color-background-soft);
+  padding: 16px;
+  border: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
+  transition: all 0.3s ease;
+}
+
+.fleaflicker-info-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.fleaflicker-info-header h3 {
+  color: var(--ant-primary-color, rgb(39, 125, 161));
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.fleaflicker-info-header p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.fleaflicker-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feature-item {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  padding: 4px 0;
+}
+
+.feature-item strong {
+  color: var(--ant-primary-color, rgb(39, 125, 161));
 }
 
 .gutter-box {
