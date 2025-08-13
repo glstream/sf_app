@@ -41,13 +41,13 @@
                 >
                   <a-select-option value="sleeper">
                     <span class="platform-option">
-                      <span class="platform-icon">🛌</span>
+                      <img src="@/assets/platformLogos/sleeper.png" alt="Sleeper" class="platform-logo" />
                       Sleeper
                     </span>
                   </a-select-option>
                   <a-select-option value="fleaflicker">
                     <span class="platform-option">
-                      <span class="platform-icon">🏃</span>
+                      <img src="@/assets/platformLogos/fleaflicker.jpg" alt="Fleaflicker" class="platform-logo" />
                       Fleaflicker
                     </span>
                   </a-select-option>
@@ -56,7 +56,7 @@
 
               <a-form-item
                 name="userName"
-                :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'email address' : 'Sleeper username'}` }]"
+                :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'Fleaflicker email address' : 'Sleeper username'}` }]"
                 class="form-item-username"
               >
                 <a-input
@@ -315,7 +315,7 @@
   </a-layout>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, onMounted, onUnmounted, computed } from 'vue'
+import { reactive, ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMeta } from '@/composables/useMeta'
 
@@ -412,6 +412,13 @@ const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2025',
   platform: userStore.platform || 'sleeper'
+})
+
+// Clear username when platform changes
+watch(() => formState.platform, (newPlatform, oldPlatform) => {
+  if (oldPlatform && newPlatform !== oldPlatform) {
+    formState.userName = ''
+  }
 })
 
 const onFinish = async (values) => {
@@ -750,8 +757,10 @@ html.dark .hero-form-container {
   gap: 8px;
 }
 
-.platform-icon {
-  font-size: 16px;
+.platform-logo {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .form-league-row {

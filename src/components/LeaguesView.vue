@@ -415,17 +415,6 @@
                   <h3>Fleaflicker League</h3>
                   <p>Access detailed league analysis by clicking into individual league views</p>
                 </div>
-                <div class="fleaflicker-features">
-                  <div class="feature-item">
-                    <strong>✓ League Summary:</strong> Full roster analysis and team comparisons
-                  </div>
-                  <div class="feature-item">
-                    <strong>✓ Player Rankings:</strong> Individual player values and position rankings  
-                  </div>
-                  <div class="feature-item">
-                    <strong>✓ Draft Picks:</strong> Future pick valuations and trade analysis
-                  </div>
-                </div>
               </div>
             </div>
           </a-row>
@@ -966,21 +955,6 @@ const getCurrentYear = async () => {
   font-size: 0.9rem;
 }
 
-.fleaflicker-features {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.feature-item {
-  font-size: 0.9rem;
-  color: var(--color-text);
-  padding: 4px 0;
-}
-
-.feature-item strong {
-  color: var(--ant-primary-color, rgb(39, 125, 161));
-}
 
 .gutter-box {
   padding: 8px 5px;
