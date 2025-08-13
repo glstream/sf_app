@@ -148,33 +148,34 @@
                     >
                   </div>
                 </a-col>
-                <a-col :span="8">
+                <a-col :span="12">
                   <div class="gutter-box-refresh">
                     <a-tooltip>
                       <template #title>View detailed power rankings and analysis</template>
-                      <a-dropdown-button size="default" type="primary" class="power-ranks-button">
-                        <template #icon><BarChartOutlined /></template>
-                        Power Ranks
-                        <template #overlay>
-                          <a-menu
-                            @click="(e) => handleMenuClick(e, league)"
-                            class="power-ranks-menu"
-                          >
-                            <a-menu-item
-                              v-for="source in sources"
-                              :key="source.key"
-                              class="rank-menu-item"
-                            >
-                              <img class="rank-logos" :src="source.logo" />{{ source.name }}
-                            </a-menu-item>
-                            <a-menu-divider />
-                            <a-menu-item key="summary" class="summary-menu-item">
-                              <FileSearchOutlined />
-                              League Summary
-                            </a-menu-item>
-                          </a-menu>
-                        </template>
-                      </a-dropdown-button>
+                      <a-select
+                        placeholder="📊 Power Ranks"
+                        size="default"
+                        class="power-ranks-select"
+                        @change="(value) => handleSelectChange(value, league)"
+                        :value="null"
+                      >
+                        <a-select-option
+                          v-for="source in sources"
+                          :key="source.key"
+                          :value="source.key"
+                        >
+                          <span class="rank-option">
+                            <img :src="source.logo" alt="source.name" class="rank-source-logo" />
+                            {{ source.name }}
+                          </span>
+                        </a-select-option>
+                        <a-select-option key="summary" value="summary">
+                          <span class="rank-option">
+                            <FileSearchOutlined class="summary-icon" />
+                            League Summary
+                          </span>
+                        </a-select-option>
+                      </a-select>
                     </a-tooltip>
                   </div>
                 </a-col>
@@ -612,6 +613,17 @@ const handleMenuClick = (e, league) => {
   }
 }
 
+const handleSelectChange = (value, league) => {
+  console.log('Selected value:', value)
+  console.log('league', league)
+  if (value === 'summary') {
+    getLeagueSummary(league)
+  } else {
+    const mockEvent = { key: value }
+    getLeagueDetail(mockEvent, league)
+  }
+}
+
 const handlePlatformClick = (platformKey, league) => {
   // Create an event object similar to the menu click event
   const mockEvent = { key: platformKey }
@@ -1022,13 +1034,6 @@ const getCurrentYear = async () => {
   margin-bottom: 5px;
 }
 
-.rank-logos {
-  width: 24px;
-  height: 20px;
-  vertical-align: middle;
-  border-radius: 3px;
-  margin-right: 3px; /* Small spacing after logo */
-}
 
 .max-width-container {
   max-width: 380px; /* Slightly wider for better spacing */
@@ -1155,41 +1160,46 @@ a-tag:hover {
   font-weight: 500;
 }
 
-/* Enhanced Power Ranks Button */
-.power-ranks-button {
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.3s ease !important;
+/* Power Ranks Select - Using UsernameView.vue styling */
+.power-ranks-select {
+  width: 100%;
 }
 
-.power-ranks-button:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+.power-ranks-select .ant-select-selector {
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-/* Enhanced Rankings Menu */
-.power-ranks-menu {
-  border-radius: 8px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+.power-ranks-select:hover .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.1);
 }
 
-.rank-menu-item {
-  padding: 12px 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  transition: all 0.2s ease !important;
+.power-ranks-select.ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(39, 125, 161, 0.15);
 }
 
-.rank-menu-item:hover {
-  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.08) !important;
+.rank-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.summary-menu-item {
-  padding: 12px 16px !important;
-  font-weight: 500 !important;
-  color: var(--ant-primary-color, #277da1) !important;
+.rank-source-logo {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.summary-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Enhanced Stats Section */
@@ -1309,18 +1319,12 @@ a-tag:hover {
 }
 
 /* Enhanced Rank Logos */
-.rank-logos {
-  width: 28px;
-  height: 24px;
-  vertical-align: middle;
-  border-radius: 4px;
-  margin-right: 8px;
-  object-fit: contain;
+.rank-source-logo {
   transition: transform 0.2s ease;
 }
 
-.rank-logos:hover {
-  transform: scale(1.1);
+.rank-source-logo:hover {
+  transform: scale(1.05);
 }
 
 /* Clickable Platform Rows */

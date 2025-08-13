@@ -22,8 +22,9 @@
                 <h2 class="league-title">
                   <img
                     class="league-logo"
-                    :src="`https://sleepercdn.com/avatars/thumbs/${leagueInfo.avatar}`"
+                    :src="getLeagueAvatarUrl(leagueInfo.avatar)"
                     alt="League Logo"
+                    @error="(e) => e.target.src = getFallbackAvatar()"
                   />
                   {{ leagueInfo.leagueName }}
                 </h2>
@@ -150,9 +151,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -417,9 +420,10 @@
                     <!-- Manager Info: Avatar and Name -->
                     <div class="manager-info-line-mobile">
                       <a-avatar
-                        :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                        :src="getAvatarUrl(user)"
                         :size="24"
                         class="margin-right-8"
+                        @error="(e) => e.target.src = getFallbackAvatar()"
                       />
                       <span class="manager-name-mobile font-bold">{{ user.display_name }}</span>
                     </div>
@@ -786,9 +790,10 @@
                           >
                             <div class="manager-option">
                               <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
+                                @error="(e) => e.target.src = getFallbackAvatar()"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -1023,9 +1028,10 @@
                           >
                             <div class="manager-option">
                               <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
+                                @error="(e) => e.target.src = getFallbackAvatar()"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -1334,9 +1340,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -1367,9 +1375,10 @@
                         <a-col :span="9">
                           <div class="gutter-box">
                             <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                              :src="getAvatarUrl(selectedUser)"
                               :size="24"
                               class="avatar-bordered"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
                             />
                           </div>
                         </a-col>
@@ -1620,9 +1629,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -1677,9 +1688,10 @@
                       <a-col :span="9">
                         <div class="gutter-box">
                           <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                            :src="getAvatarUrl(selectedUser)"
                             :size="24"
                             class="avatar-bordered"
+                            @error="(e) => e.target.src = getFallbackAvatar()"
                           />
                         </div>
                       </a-col>
@@ -1966,9 +1978,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -2063,7 +2077,7 @@
                       <div class="team-card-header">
                         <img
                           class="manager-logos"
-                          :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                          :src="getAvatarUrl(manager)"
                           alt="League Logo"
                         />
                         <div class="team-card-title">
@@ -2304,6 +2318,7 @@ import fcLogo from '@/assets/sourceLogos/fc.png'
 import ddLogo from '@/assets/sourceLogos/dd.svg'
 import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
+import fleaflickerLogo from '@/assets/platformLogos/fleaflicker.jpg'
 
 // Components
 import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
@@ -4203,6 +4218,35 @@ const getPositionStrengthClass = (manager, position) => {
   } else {
     return 'position-weak'
   }
+}
+
+// Generate avatar URL based on platform with fallback handling
+const getAvatarUrl = (user) => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    // Try the actual Fleaflicker profile picture first
+    return `https://s3.amazonaws.com/fleaflicker/u${user.user_id}_200x200.jpg`
+  }
+  // Default to Sleeper avatar
+  return `https://sleepercdn.com/avatars/thumbs/${user.avatar}`
+}
+
+// Get fallback avatar for failed loads
+const getFallbackAvatar = () => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    return fleaflickerLogo
+  }
+  return `https://sleepercdn.com/avatars/thumbs/default.jpg` // Sleeper default
+}
+
+// Generate league avatar URL based on platform
+const getLeagueAvatarUrl = (leagueAvatar) => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    // For Fleaflicker leagues, try to use the avatar if available
+    // Otherwise will fallback to Fleaflicker logo via error handler
+    return leagueAvatar ? `https://sleepercdn.com/avatars/thumbs/${leagueAvatar}` : fleaflickerLogo
+  }
+  // Default to Sleeper avatar
+  return `https://sleepercdn.com/avatars/thumbs/${leagueAvatar}`
 }
 
 // Get position rank for a manager
