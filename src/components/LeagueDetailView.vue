@@ -2078,7 +2078,9 @@
                         <img
                           class="manager-logos"
                           :src="getAvatarUrl(manager)"
-                          alt="League Logo"
+                          @error="(e) => e.target.src = getFallbackAvatar()"
+                          style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                          alt="Manager Avatar"
                         />
                         <div class="team-card-title">
                           <span class="manager-name">{{ manager.display_name }}</span>
@@ -2462,19 +2464,24 @@ const OverallScatterPlotData = computed(() => {
 
 // Sorted summary data for manager lists, respects showProjections and overallFilter
 const sortedSummaryData = computed(() => {
+  console.log('sortedSummaryData computed - showProjections:', showProjections.value, 'summaryData length:', summaryData.value.length, 'projSummaryData length:', projSummaryData.value.length)
   if (showProjections.value && projSummaryData.value.length > 0) {
-    return [...projSummaryData.value].sort((a, b) =>
+    const sorted = [...projSummaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
+    console.log('Returning sorted projSummaryData:', sorted.length, 'items')
+    return sorted
   }
   if (summaryData.value.length > 0) {
-    return [...summaryData.value].sort((a, b) =>
+    const sorted = [...summaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
+    console.log('Returning sorted summaryData:', sorted.length, 'items, first item total_value:', sorted[0]?.total_value)
+    return sorted
   }
   return []
 })
@@ -2487,13 +2494,21 @@ const sources = [
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
   { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
 ]
-const selectedSource = ref(sources.find((s) => s.key === leagueInfo.platform) || sources[0])
+// Initialize with sf (FantasyNavigator) as default ranking source regardless of league platform
+const selectedSource = ref(sources[0])  // sources[0] is sf
+// Set apiSource to the selected ranking source, not the league platform
+leagueInfo.apiSource = selectedSource.value.key
 
 // Filtered sources based on league type (Dynasty vs. Redraft)
 const filteredSources = computed(() => {
-  if (leagueInfo.rankType !== 'Dynasty') {
+  // For Dynasty or Keeper leagues, show all sources
+  const isDynastyOrKeeper = leagueInfo.rankType === 'Dynasty' || leagueInfo.rankType === 'Keeper'
+  
+  if (!isDynastyOrKeeper) {
+    // For Redraft leagues, only show sources that support redraft rankings
     return sources.filter((s) => ['fc', 'ktc', 'sf'].includes(s.key))
   }
+  // For Dynasty/Keeper leagues, show all sources
   return sources
 })
 
@@ -2758,10 +2773,17 @@ watch(overallFilter, () => {
 })
 
 // Watch for changes in selectedSource to handle tab switching
-watch(selectedSource, (newSource) => {
+watch(selectedSource, (newSource, oldSource) => {
+  console.log('selectedSource changed from', oldSource?.key, 'to', newSource.key)
+  
   if (activeKey.value === '6' && newSource.key !== 'sf') {
     activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
     message.info('Trade Calculator is only available when using FantasyNavigator rankings')
+  }
+  
+  // Ensure reactive updates by explicitly triggering data refresh if needed
+  if (oldSource && oldSource.key !== newSource.key) {
+    console.log('Ranking source changed, data should update automatically via handleMenuClick')
   }
 })
 
@@ -2972,10 +2994,14 @@ async function fetchSummaryData(
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     const cachedData = cacheStore.get(cacheKey)
-    summaryData.value = cachedData
+    // Clear the array first to ensure reactivity
+    summaryData.value.splice(0)
+    // Then assign cached data
+    summaryData.value.push(...cachedData)
     updateBchartData(cachedData)
     summaryIsLoading.value = false
-    console.log('Using cached summary data.')
+    console.log('Using cached summary data for platform:', platform)
+    console.log('Loaded cached summaryData with', cachedData.length, 'records')
     return
   }
 
@@ -2990,6 +3016,7 @@ async function fetchSummaryData(
     roster_type: rosterType,
     league_type: leagueType
   }
+  console.log('Sending API request to /league_summary with params:', params)
   if (cacheBuster) params._cb = cacheBuster
 
   try {
@@ -3003,9 +3030,14 @@ async function fetchSummaryData(
           picks_percent: item.total_value ? (item.picks_sum / item.total_value) * 100 : 0
         }))
         cacheStore.set(cacheKey, processedData)
-        summaryData.value = processedData
+        // Clear the array first to ensure reactivity
+        summaryData.value.splice(0)
+        // Then assign new data
+        summaryData.value.push(...processedData)
         updateBchartData(rawData)
-        console.log('League summary data fetched successfully.')
+        console.log('League summary data fetched successfully for platform:', platform)
+        console.log('Updated summaryData with', processedData.length, 'records')
+        console.log('First record total_value:', processedData[0]?.total_value)
         break
       } catch (error) {
         console.error(`Error fetching league summary (Attempt ${retryCount + 1}):`, error.message)
@@ -3044,9 +3076,13 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
   const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
-    detailData.value = cacheStore.get(cacheKey)
+    const cachedData = cacheStore.get(cacheKey)
+    // Clear the array first to ensure reactivity
+    detailData.value.splice(0)
+    // Then assign cached data
+    detailData.value.push(...cachedData)
     detailIsLoading.value = false
-    console.log('Using cached detail data.')
+    console.log('Using cached detail data for platform:', platform)
     return
   }
 
@@ -3060,6 +3096,7 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
     guid,
     roster_type: rosterType
   }
+  console.log('Sending API request to /league_detail with params:', params)
   if (cacheBuster) params._cb = cacheBuster
 
   try {
@@ -3067,8 +3104,11 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
       try {
         const response = await axios.get(`${API_URL}/league_detail`, { params })
         cacheStore.set(cacheKey, response.data)
-        detailData.value = response.data
-        console.log('League detail data fetched successfully.')
+        // Clear the array first to ensure reactivity
+        detailData.value.splice(0)
+        // Then assign new data
+        detailData.value.push(...response.data)
+        console.log('League detail data fetched successfully for platform:', platform)
         break
       } catch (error) {
         console.error(`Error fetching league detail (Attempt ${retryCount + 1}):`, error.message)
@@ -3173,10 +3213,18 @@ async function fetchTrades(leagueId, platformApi, rosterType, leagueYear, rankTy
 
 const handleMenuClick = (e) => {
   const newPlatform = e.key
+  console.log('handleMenuClick called with platform:', newPlatform)
+  console.log('Current selectedSource:', selectedSource.value?.key)
+  
   selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
   leagueInfo.apiSource = newPlatform
+  
+  console.log('Updated selectedSource to:', selectedSource.value?.key)
+  console.log('Updated leagueInfo.apiSource to:', leagueInfo.apiSource)
 
   const cacheBuster = Date.now().toString()
+  console.log('Fetching data with new platform:', newPlatform, 'cacheBuster:', cacheBuster)
+  
   fetchSummaryData(
     leagueInfo.leagueId,
     newPlatform,
