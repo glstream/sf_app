@@ -22,8 +22,9 @@
                 <h2 class="league-title">
                   <img
                     class="league-logo"
-                    :src="`https://sleepercdn.com/avatars/thumbs/${leagueInfo.avatar}`"
+                    :src="getLeagueAvatarUrl(leagueInfo.avatar)"
                     alt="League Logo"
+                    @error="(e) => e.target.src = getFallbackAvatar()"
                   />
                   {{ leagueInfo.leagueName }}
                 </h2>
@@ -150,9 +151,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -163,9 +166,14 @@
                                 >{{ showProjections ? 'Proj' : 'Value' }}:
                                 {{
                                   (showProjections
-                                    ? projSummaryData.find((p) => p.user_id === user.user_id)
-                                        ?.total_value || 0
-                                    : user.total_value
+                                    ? overallFilter === 'all'
+                                      ? projSummaryData.find((p) => p.user_id === user.user_id)
+                                          ?.total_value || 0
+                                      : projSummaryData.find((p) => p.user_id === user.user_id)
+                                          ?.starters_sum || 0
+                                    : overallFilter === 'all'
+                                      ? user.total_value
+                                      : user.starters_sum || 0
                                   ).toLocaleString()
                                 }}</span
                               >
@@ -417,9 +425,10 @@
                     <!-- Manager Info: Avatar and Name -->
                     <div class="manager-info-line-mobile">
                       <a-avatar
-                        :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
+                        :src="getAvatarUrl(user)"
                         :size="24"
                         class="margin-right-8"
+                        @error="(e) => e.target.src = getFallbackAvatar()"
                       />
                       <span class="manager-name-mobile font-bold">{{ user.display_name }}</span>
                     </div>
@@ -786,9 +795,10 @@
                           >
                             <div class="manager-option">
                               <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
+                                @error="(e) => e.target.src = getFallbackAvatar()"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -1023,9 +1033,10 @@
                           >
                             <div class="manager-option">
                               <a-avatar
-                                :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
+                                :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
+                                @error="(e) => e.target.src = getFallbackAvatar()"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -1334,9 +1345,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -1367,9 +1380,10 @@
                         <a-col :span="9">
                           <div class="gutter-box">
                             <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                              :src="getAvatarUrl(selectedUser)"
                               :size="24"
                               class="avatar-bordered"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
                             />
                           </div>
                         </a-col>
@@ -1620,9 +1634,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -1677,9 +1693,10 @@
                       <a-col :span="9">
                         <div class="gutter-box">
                           <a-avatar
-                            :src="`https://sleepercdn.com/avatars/thumbs/${selectedUser.avatar}`"
+                            :src="getAvatarUrl(selectedUser)"
                             :size="24"
                             class="avatar-bordered"
+                            @error="(e) => e.target.src = getFallbackAvatar()"
                           />
                         </div>
                       </a-col>
@@ -1966,9 +1983,11 @@
                           @click="handleUserClick(user)"
                         >
                           <div class="manager-avatar">
-                            <a-avatar
-                              :src="`https://sleepercdn.com/avatars/thumbs/${user.avatar}`"
-                              :size="45"
+                            <img
+                              :src="getAvatarUrl(user)"
+                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
                           </div>
@@ -2063,8 +2082,10 @@
                       <div class="team-card-header">
                         <img
                           class="manager-logos"
-                          :src="`https://sleepercdn.com/avatars/thumbs/${manager.avatar}`"
-                          alt="League Logo"
+                          :src="getAvatarUrl(manager)"
+                          @error="(e) => e.target.src = getFallbackAvatar()"
+                          style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                          alt="Manager Avatar"
                         />
                         <div class="team-card-title">
                           <span class="manager-name">{{ manager.display_name }}</span>
@@ -2129,46 +2150,80 @@
 
               <!-- Waivers Tab -->
               <a-tab-pane key="5" tab="Waivers">
-                <div>
-                  <h2>Best Available</h2>
-                  <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                    <a-col
-                      v-for="(players, position) in groupedPlayers"
-                      :key="position"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                    >
-                      <a-card>
-                        <template #title>
-                          <span class="font-size-18 font-bolder">{{ position }}</span>
-                        </template>
-                        <span v-for="player in players" :key="player.sleeper_id">
-                          <ul class="no-padding-ul no-list-style">
-                            <li
-                              :key="player.sleeper_id"
-                              :style="getPositionTagList(player.player_position, 0.2)"
-                              class="waiver-player-item"
-                              @click="
-                                player.player_position !== 'PICKS' ? showPlayerModal(player) : null
-                              "
+                <h2 class="tab-sub-header">Best Available Players</h2>
+                
+                <!-- Waivers Header Card -->
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" style="margin-bottom: 20px;">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="waivers-header-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">Available Free Agents</span>
+                        </div>
+                      </template>
+                      <div class="waivers-summary">
+                        <a-row :gutter="16">
+                          <a-col v-for="(players, position) in groupedPlayers" :key="position" :span="6">
+                            <div class="position-summary">
+                              <div class="position-count">{{ players.length }}</div>
+                              <div class="position-label">{{ position }}</div>
+                            </div>
+                          </a-col>
+                        </a-row>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
+
+                <!-- Position-based Player Cards -->
+                <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                  <a-col
+                    v-for="(players, position) in groupedPlayers"
+                    :key="position"
+                    :xs="24"
+                    :sm="12"
+                    :md="8"
+                    :lg="6"
+                  >
+                    <a-card :bordered="false" class="modern-card waiver-position-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title position-title">
+                            <a-tag 
+                              :color="getPositionColor(position)" 
+                              class="position-tag"
                             >
-                              <span>
-                                {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} &bull;
+                              {{ position }}
+                            </a-tag>
+                            <span class="player-count">({{ players.length }})</span>
+                          </span>
+                        </div>
+                      </template>
+                      
+                      <div class="waiver-players-list">
+                        <div
+                          v-for="(player, index) in players"
+                          :key="player.sleeper_id"
+                          class="waiver-player-card"
+                        >
+                          <div class="player-rank">{{ index + 1 }}</div>
+                          <div class="player-info">
+                            <div class="player-name">{{ player?.full_name }}</div>
+                            <div class="player-value">
+                              <span class="value-amount" :class="getValueClass(player.player_value)">
                                 {{
-                                  player.player_value === -1
+                                  player.player_value === -1 || player.player_value === null
                                     ? 'N/A'
                                     : player.player_value?.toLocaleString()
                                 }}
                               </span>
-                            </li>
-                          </ul>
-                        </span>
-                      </a-card>
-                    </a-col>
-                  </a-row>
-                </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
               </a-tab-pane>
             </a-tabs>
             <!-- Info Button for Tab Guide -->
@@ -2304,6 +2359,7 @@ import fcLogo from '@/assets/sourceLogos/fc.png'
 import ddLogo from '@/assets/sourceLogos/dd.svg'
 import xLogo from '@/assets/socialLogos/x.png'
 import redditLogo from '@/assets/socialLogos/reddit.png'
+import fleaflickerLogo from '@/assets/platformLogos/fleaflicker.jpg'
 
 // Components
 import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
@@ -2372,7 +2428,8 @@ const leagueInfo = reactive({
   rosterType: route.params.rosterType,
   avatar: route.params.avatar,
   leagueType: route.params.leagueType,
-  apiSource: route.params.platform
+  apiSource: route.params.platform,
+  rankingSource: route.params.rankingSource || 'sf' // Default to FantasyNavigator if not provided
 })
 
 // Data Holders
@@ -2381,8 +2438,8 @@ const detailData = ref([{}])
 const projDetailData = ref([{}])
 
 const projSummaryData = ref([{}])
-const tradesDetailData = ref([{}])
-const tradesSummaryData = ref([{}])
+// const tradesDetailData = ref([{}]) // Removed - trades no longer tracked
+// const tradesSummaryData = ref([{}]) // Removed - trades no longer tracked
 const bestAvailableData = ref([{}])
 
 // Chart Data
@@ -2447,19 +2504,24 @@ const OverallScatterPlotData = computed(() => {
 
 // Sorted summary data for manager lists, respects showProjections and overallFilter
 const sortedSummaryData = computed(() => {
+  // console.log removed for production
   if (showProjections.value && projSummaryData.value.length > 0) {
-    return [...projSummaryData.value].sort((a, b) =>
+    const sorted = [...projSummaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
+    // console.log removed for production
+    return sorted
   }
   if (summaryData.value.length > 0) {
-    return [...summaryData.value].sort((a, b) =>
+    const sorted = [...summaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
+    // console.log removed for production
+    return sorted
   }
   return []
 })
@@ -2472,13 +2534,24 @@ const sources = [
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
   { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
 ]
-const selectedSource = ref(sources.find((s) => s.key === leagueInfo.platform) || sources[0])
+// Initialize selectedSource from route parameter or default to sf (FantasyNavigator)
+const initialRankingSource = leagueInfo.rankingSource || 'sf'
+const selectedSource = ref(sources.find(s => s.key === initialRankingSource) || sources[0])
+// Set apiSource to the selected ranking source, not the league platform
+leagueInfo.apiSource = selectedSource.value.key
+
+// console.log removed for production
 
 // Filtered sources based on league type (Dynasty vs. Redraft)
 const filteredSources = computed(() => {
-  if (leagueInfo.rankType !== 'Dynasty') {
+  // For Dynasty or Keeper leagues, show all sources
+  const isDynastyOrKeeper = leagueInfo.rankType === 'Dynasty' || leagueInfo.rankType === 'Keeper'
+  
+  if (!isDynastyOrKeeper) {
+    // For Redraft leagues, only show sources that support redraft rankings
     return sources.filter((s) => ['fc', 'ktc', 'sf'].includes(s.key))
   }
+  // For Dynasty/Keeper leagues, show all sources
   return sources
 })
 
@@ -2743,10 +2816,17 @@ watch(overallFilter, () => {
 })
 
 // Watch for changes in selectedSource to handle tab switching
-watch(selectedSource, (newSource) => {
+watch(selectedSource, (newSource, oldSource) => {
+  // console.log removed for production
+  
   if (activeKey.value === '6' && newSource.key !== 'sf') {
     activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
     message.info('Trade Calculator is only available when using FantasyNavigator rankings')
+  }
+  
+  // Ensure reactive updates by explicitly triggering data refresh if needed
+  if (oldSource && oldSource.key !== newSource.key) {
+    // console.log removed for production
   }
 })
 
@@ -2837,7 +2917,7 @@ const insertLeagueDetials = async (leagueIdParam) => {
   isLoading.value = true
   detailIsLoading.value = true
   summaryIsLoading.value = true
-  console.log('Attempting to insert/update rosters for league:', currentLeagueId)
+  // console.log removed for production
 
   const cacheBuster = Date.now().toString()
 
@@ -2848,7 +2928,7 @@ const insertLeagueDetials = async (leagueIdParam) => {
       guid: leagueInfo.guid,
       league_year: leagueInfo.leagueYear
     })
-    console.log('Rosters loading initiated...')
+    // console.log removed for production
   } catch (error) {
     console.error('Error posting roster data:', error)
     message.error('Failed to update rosters. Data shown might be outdated.')
@@ -2862,7 +2942,8 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.guid,
       leagueInfo.rosterType,
       leagueInfo.leagueType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
     fetchDetailData(
       leagueInfo.leagueId,
@@ -2870,7 +2951,8 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
     fetchBaData(
       leagueInfo.leagueId,
@@ -2878,16 +2960,10 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
-    fetchTrades(
-      leagueInfo.leagueId,
-      leagueInfo.apiSource,
-      leagueInfo.rosterType,
-      leagueInfo.leagueYear,
-      leagueInfo.rankType,
-      cacheBuster
-    )
+    // fetchTrades removed - trades no longer tracked
     fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster)
   }
 }
@@ -2903,7 +2979,7 @@ async function fetchProjectionData(leagueId, projectionSource, guid, cacheBuster
 
   while (retryCount < maxRetries) {
     try {
-      console.log(`Fetching projection data (Attempt ${retryCount + 1})...`)
+      // console.log removed for production
       const [summaryResponse, detailResponse] = await Promise.all([
         axios.get(`${API_URL}/contender_league_summary`, { params }),
         axios.get(`${API_URL}/contender_league_detail`, { params })
@@ -2927,7 +3003,7 @@ async function fetchProjectionData(leagueId, projectionSource, guid, cacheBuster
         bench_sum: item.bench_sum
       }))
 
-      console.log('Projection data fetched successfully.')
+      // console.log removed for production
       isProjectionLoading.value = false
       return
     } catch (error) {
@@ -2950,17 +3026,21 @@ async function fetchSummaryData(
   guid,
   rosterType,
   leagueType,
-  cacheBuster
+  cacheBuster,
+  rankingSource = 'sf'
 ) {
   summaryIsLoading.value = true
-  const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
+  const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     const cachedData = cacheStore.get(cacheKey)
-    summaryData.value = cachedData
+    // Clear the array first to ensure reactivity
+    summaryData.value.splice(0)
+    // Then assign cached data
+    summaryData.value.push(...cachedData)
     updateBchartData(cachedData)
     summaryIsLoading.value = false
-    console.log('Using cached summary data.')
+    // console.log removed for production
     return
   }
 
@@ -2975,12 +3055,13 @@ async function fetchSummaryData(
     roster_type: rosterType,
     league_type: leagueType
   }
+  // console.log removed for production
   if (cacheBuster) params._cb = cacheBuster
 
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/league_summary`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/summary`, { params })
         const rawData = response.data
         const processedData = rawData.map((item) => ({
           ...item,
@@ -2988,9 +3069,12 @@ async function fetchSummaryData(
           picks_percent: item.total_value ? (item.picks_sum / item.total_value) * 100 : 0
         }))
         cacheStore.set(cacheKey, processedData)
-        summaryData.value = processedData
+        // Clear the array first to ensure reactivity
+        summaryData.value.splice(0)
+        // Then assign new data
+        summaryData.value.push(...processedData)
         updateBchartData(rawData)
-        console.log('League summary data fetched successfully.')
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching league summary (Attempt ${retryCount + 1}):`, error.message)
@@ -3024,14 +3108,18 @@ async function fetchSummaryData(
   }
 }
 
-async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
+async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
   detailIsLoading.value = true
-  const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+  const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
-    detailData.value = cacheStore.get(cacheKey)
+    const cachedData = cacheStore.get(cacheKey)
+    // Clear the array first to ensure reactivity
+    detailData.value.splice(0)
+    // Then assign cached data
+    detailData.value.push(...cachedData)
     detailIsLoading.value = false
-    console.log('Using cached detail data.')
+    // console.log removed for production
     return
   }
 
@@ -3045,15 +3133,19 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
     guid,
     roster_type: rosterType
   }
+  // console.log removed for production
   if (cacheBuster) params._cb = cacheBuster
 
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/league_detail`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/details`, { params })
         cacheStore.set(cacheKey, response.data)
-        detailData.value = response.data
-        console.log('League detail data fetched successfully.')
+        // Clear the array first to ensure reactivity
+        detailData.value.splice(0)
+        // Then assign new data
+        detailData.value.push(...response.data)
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching league detail (Attempt ${retryCount + 1}):`, error.message)
@@ -3070,14 +3162,14 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
   }
 }
 
-async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
+async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
   baIsLoading.value = true
-  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     bestAvailableData.value = cacheStore.get(cacheKey)
     baIsLoading.value = false
-    console.log('Using cached best available data.')
+    // console.log removed for production
     return
   }
 
@@ -3096,10 +3188,10 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/best_available`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/best_available`, { params })
         cacheStore.set(cacheKey, response.data)
         bestAvailableData.value = response.data
-        console.log('Best available data fetched successfully.')
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching best available (Attempt ${retryCount + 1}):`, error.message)
@@ -3116,85 +3208,52 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
   }
 }
 
-async function fetchTrades(leagueId, platformApi, rosterType, leagueYear, rankType, cacheBuster) {
-  let retryCount = 0
-  const maxRetries = 3
-  const retryDelay = 500
-  const params = {
-    league_id: leagueId,
-    platform: platformApi,
-    roster_type: rosterType,
-    league_year: leagueYear,
-    rank_type: rankType
-  }
-  if (cacheBuster) params._cb = cacheBuster
-
-  try {
-    while (retryCount < maxRetries) {
-      try {
-        console.log(`Fetching trades data (Attempt ${retryCount + 1})...`)
-        const [summaryResponse, detailResponse] = await Promise.all([
-          axios.get(`${API_URL}/trades_summary`, { params }),
-          axios.get(`${API_URL}/trades_detail`, { params })
-        ])
-        tradesSummaryData.value = summaryResponse.data
-        tradesDetailData.value = detailResponse.data
-        console.log('Trade data fetched successfully.')
-        return
-      } catch (error) {
-        console.error('Error fetching trades data:', error)
-        retryCount++
-        if (retryCount < maxRetries) await sleep(retryDelay)
-        else throw error
-      }
-    }
-  } catch (error) {
-    console.error('Failed to fetch trade data after retries.')
-    message.error('Failed to load trade data. Please try again.')
-  }
-}
+// fetchTrades function removed - trades no longer tracked
 
 // --- Event Handlers ---
 
 const handleMenuClick = (e) => {
-  const newPlatform = e.key
-  selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
-  leagueInfo.apiSource = newPlatform
+  const newRankingSource = e.key
+  // console.log removed for production
+  
+  selectedSource.value = sources.find((s) => s.key === newRankingSource) || sources[0]
+  leagueInfo.apiSource = newRankingSource
+  leagueInfo.rankingSource = newRankingSource // Update the ranking source in leagueInfo
+  
+  // console.log removed for production
 
   const cacheBuster = Date.now().toString()
+  // console.log removed for production
+  
   fetchSummaryData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
     leagueInfo.leagueType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
   fetchDetailData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
   fetchBaData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
-  fetchTrades(
-    leagueInfo.leagueId,
-    newPlatform,
-    leagueInfo.rosterType,
-    leagueInfo.leagueYear,
-    leagueInfo.rankType,
-    cacheBuster
-  )
+  // fetchTrades removed - trades no longer tracked
 
   message.success(`Ranking source changed to ${selectedSource.value.name}`)
 }
@@ -3258,16 +3317,13 @@ const getLeagueSummary = async () => {
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  console.log(`🔍 LeagueDetailView showPlayerModal called with player:`, player)
-  console.log(`🔍 LeagueDetailView leagueInfo:`, {
-    rosterType: leagueInfo.rosterType,
-    rankType: leagueInfo.rankType,
-    apiSource: leagueInfo.apiSource,
-    calculatedIsSuperflex: leagueInfo.rosterType === 'sf_value',
-    calculatedIsDynasty: leagueInfo.rankType === 'dynasty'
-  })
-  if (playerModalRef.value && player.ktc_player_id) {
-    playerModalRef.value.showModal(player.ktc_player_id)
+  // Debug info available: rosterType, rankType, apiSource
+  // Handle both ktc_player_id (from most tabs) and sleeper_id (from waivers/best available)
+  const playerId = player.ktc_player_id || player.sleeper_id || player.player_id
+  if (playerModalRef.value && playerId) {
+    playerModalRef.value.showModal(playerId)
+  } else {
+    // console.warn removed for production
   }
 }
 const handlePlayerModalOk = () => {
@@ -3378,6 +3434,25 @@ function getPositionTagList(position, opacity = 0.6) {
     'border-color': color,
     border: `1px solid ${color}, ${opacity + 0.2})`
   }
+}
+
+// Helper methods for modern waivers design
+function getPositionColor(position) {
+  const colorMap = {
+    QB: 'blue',
+    RB: 'green', 
+    WR: 'cyan',
+    TE: 'orange',
+    PICKS: 'default'
+  }
+  return colorMap[position] || 'default'
+}
+
+function getValueClass(value) {
+  if (value === -1 || value === null || value === undefined) return 'value-na'
+  if (value >= 5000) return 'value-high'
+  if (value >= 1000) return 'value-medium'
+  return 'value-low'
 }
 
 const positionTitles = {
@@ -4205,6 +4280,35 @@ const getPositionStrengthClass = (manager, position) => {
   }
 }
 
+// Generate avatar URL based on platform with fallback handling
+const getAvatarUrl = (user) => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    // Try the actual Fleaflicker profile picture first
+    return `https://s3.amazonaws.com/fleaflicker/u${user.user_id}_200x200.jpg`
+  }
+  // Default to Sleeper avatar
+  return `https://sleepercdn.com/avatars/thumbs/${user.avatar}`
+}
+
+// Get fallback avatar for failed loads
+const getFallbackAvatar = () => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    return fleaflickerLogo
+  }
+  return `https://sleepercdn.com/avatars/thumbs/default.jpg` // Sleeper default
+}
+
+// Generate league avatar URL based on platform
+const getLeagueAvatarUrl = (leagueAvatar) => {
+  if (leagueInfo.platform === 'fleaflicker') {
+    // For Fleaflicker leagues, try to use the avatar if available
+    // Otherwise will fallback to Fleaflicker logo via error handler
+    return leagueAvatar ? `https://sleepercdn.com/avatars/thumbs/${leagueAvatar}` : fleaflickerLogo
+  }
+  // Default to Sleeper avatar
+  return `https://sleepercdn.com/avatars/thumbs/${leagueAvatar}`
+}
+
 // Get position rank for a manager
 const getPositionRank = (manager, position) => {
   const positionKey = position.toLowerCase()
@@ -4290,6 +4394,211 @@ const getPositionRank = (manager, position) => {
 .waiver-player-item {
   margin-bottom: 2px;
   border-radius: 2px;
+}
+
+/* Modern Waivers Tab Styling */
+.waivers-header-card {
+  background-color: var(--league-details-primary-card);
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.waivers-summary {
+  padding: 8px 0;
+}
+
+.position-summary {
+  text-align: center;
+  padding: 12px;
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.position-summary:hover {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
+  transform: translateY(-2px);
+}
+
+.position-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ant-primary-color, #277da1);
+  line-height: 1;
+}
+
+.position-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.waiver-position-card {
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.waiver-position-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.position-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.position-tag {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.player-count {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.waiver-players-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.waiver-players-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.waiver-players-list::-webkit-scrollbar-track {
+  background: var(--color-background-soft);
+  border-radius: 2px;
+}
+
+.waiver-players-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.waiver-players-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ant-primary-color, #277da1);
+}
+
+.waiver-player-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+
+
+.waiver-player-card:last-child {
+  margin-bottom: 0;
+}
+
+.player-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--ant-primary-color, #277da1);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.value-amount {
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.value-amount.value-high {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.value-amount.value-medium {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.value-amount.value-low {
+  background: rgba(158, 158, 158, 0.1);
+  color: #9e9e9e;
+}
+
+.value-amount.value-na {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+/* Responsive adjustments for waivers */
+@media (max-width: 768px) {
+  .waivers-summary .ant-col {
+    margin-bottom: 8px;
+  }
+  
+  .position-summary {
+    padding: 8px;
+  }
+  
+  .position-count {
+    font-size: 20px;
+  }
+  
+  .waiver-player-card {
+    padding: 10px;
+  }
+  
+  .player-name {
+    font-size: 13px;
+  }
+  
+  .waiver-position-card:hover {
+    transform: none;
+  }
+  
 }
 
 .team-card-column {

@@ -1,5 +1,5 @@
 export function addOrdinalSuffix(number: any) {
-  if (number === null) {
+  if (number === null || number === undefined || number === '' || isNaN(number)) {
     return '-/-'
   }
   const j = number % 10,
