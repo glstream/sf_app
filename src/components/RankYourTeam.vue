@@ -20,7 +20,7 @@
               <label>League Type:</label>
               <a-radio-group v-model:value="rankType" @change="handleSettingsChange">
                 <a-radio-button value="dynasty">Dynasty</a-radio-button>
-                <a-radio-button value="redraft" disabled>Redraft</a-radio-button>
+                <a-radio-button value="redraft">Redraft</a-radio-button>
               </a-radio-group>
             </div>
 
@@ -438,9 +438,7 @@ const handlePlayerSearch = (searchValue, position) => {
   // Convert Map values to array and limit results to top 40
   playerOptions.value = Array.from(uniquePlayerMap.values()).slice(0, 40)
 
-  console.log(
-    `🔍 Search for "${searchValue}" (${position}): Found ${playerOptions.value.length} results (sorted by value)`
-  )
+  // console.log removed for production
 }
 
 // Select player from autocomplete dropdown (matching TradeCalculatorView pattern)
@@ -462,9 +460,9 @@ const selectPlayerFromDropdown = (playerId, position, index) => {
     if (!isAlreadySelected || hasSpecialYear) {
       rosterSlots[position][index].player = { ...player }
       rosterSlots[position][index].searchValue = player.full_name
-      console.log(`✅ Selected player: ${player.full_name} for ${position} slot ${index}`)
+      // console.log removed for production
     } else {
-      console.log(`⚠️ Player ${player.full_name} already selected in ${position}`)
+      // console.log removed for production
     }
 
     // Clear the options dropdown
@@ -498,7 +496,7 @@ const getTopPlayersByPosition = (position, limit = 40) => {
 const handleSearchFocus = (position) => {
   // Show top players immediately when focusing
   playerOptions.value = getTopPlayersByPosition(position, 40)
-  console.log(`🎯 Focus on ${position} search - showing top ${playerOptions.value.length} players`)
+  // console.log removed for production
 }
 
 // Handle search blur - clear options when clicking away
@@ -522,7 +520,7 @@ const clearEntireTeam = () => {
       slot.searchValue = ''
     })
   })
-  console.log('🗑️ Entire team cleared')
+  // console.log removed for production
 }
 
 // Get total players count
@@ -549,7 +547,7 @@ const isRosterComplete = () => {
 // Fetch players from API (using FantasyNavigator only)
 const fetchPlayers = async () => {
   playersLoading.value = true
-  console.log(`📡 Fetching players - Platform: sf, Type: ${rankType.value}`)
+  // console.log removed for production
 
   try {
     const response = await axios.get(`${apiUrl}/trade_calculator`, {
@@ -559,8 +557,7 @@ const fetchPlayers = async () => {
       }
     })
 
-    console.log(`📊 Received ${response.data.length} players from API`)
-    console.log(`📊 Sample player data:`, response.data[0])
+    // console.log removed for production
 
     // Transform the data to match our interface
     allPlayers.value = response.data.map((player) => ({
@@ -574,14 +571,11 @@ const fetchPlayers = async () => {
       value: getCurrentPlayerValue(player)
     }))
 
-    console.log(`✅ Loaded ${allPlayers.value.length} players successfully`)
-    console.log(`✅ Sample transformed player:`, allPlayers.value[0])
-    console.log(`✅ QB players count:`, allPlayers.value.filter((p) => p.position === 'QB').length)
-    console.log(`✅ RB players count:`, allPlayers.value.filter((p) => p.position === 'RB').length)
+    // console.log removed for production
 
     // Initialize draft simulator
     draftSimulator.value = new DraftSimulator(allPlayers.value)
-    console.log('🏈 Draft simulator initialized')
+    // console.log removed for production
   } catch (error) {
     console.error('❌ Error fetching players:', error)
     if (error.response) {
@@ -600,9 +594,7 @@ const getCurrentPlayerValue = (player) => {
 
 // Handle settings change (format or league type)
 const handleSettingsChange = async () => {
-  console.log(
-    `⚙️ Settings changed - League: ${rankType.value}, Format: ${isSuperflex.value ? 'SF' : '1QB'}`
-  )
+  // console.log removed for production
 
   // If league type changed, refetch data (this gets new data for dynasty vs redraft)
   await fetchPlayers()
@@ -610,7 +602,7 @@ const handleSettingsChange = async () => {
   // Update existing selected players' values
   updateSelectedPlayersValues()
 
-  console.log(`✅ Settings updated successfully`)
+  // console.log removed for production
 }
 
 // Update values for already selected players based on new data
@@ -689,10 +681,7 @@ const getTotalRosterValue = () => {
     totalValue += positionValue
   })
 
-  console.log('💰 Team value breakdown:', {
-    breakdown,
-    total: totalValue
-  })
+  // console.log removed for production
 
   return totalValue
 }
@@ -700,25 +689,18 @@ const getTotalRosterValue = () => {
 // Update draft analysis when players change
 const updateDraftAnalysis = () => {
   const selectedPlayers = getSelectedPlayers()
-  console.log('🔍 Draft analysis check:', {
-    playerCount: selectedPlayers.length,
-    hasSimulator: !!draftSimulator.value,
-    players: selectedPlayers.map((p) => p.full_name)
-  })
+  // console.log removed for production
 
   if (selectedPlayers.length >= 1 && draftSimulator.value) {
     try {
       draftScore.value = draftSimulator.value.analyzeUserTeam(selectedPlayers)
-      console.log('📊 Draft analysis generated:', {
-        totalScore: draftScore.value.totalScore,
-        pickCount: draftScore.value.pickAnalysis.length
-      })
+      // console.log removed for production
     } catch (error) {
-      console.warn('⚠️ Draft analysis failed:', error)
+      // console.warn removed for production
       draftScore.value = null
     }
   } else {
-    console.log('❌ Draft analysis not triggered - need 1+ players and simulator')
+    // console.log removed for production
     draftScore.value = null
   }
 }
@@ -974,17 +956,21 @@ const getStrongCardPositionColor = (position) => {
 }
 
 watch(rankType, (newType, oldType) => {
-  console.log(`👀 Rank type watcher triggered: ${oldType} → ${newType}`)
+  // console.log removed for production
+  
+  // When switching to redraft, default to OneQB format
+  if (newType === 'redraft' && oldType === 'dynasty') {
+    isSuperflex.value = false
+    // console.log removed for production
+  }
 })
 
 watch(isSuperflex, (newFormat, oldFormat) => {
-  console.log(
-    `👀 Format watcher triggered: ${oldFormat ? 'SF' : '1QB'} → ${newFormat ? 'SF' : '1QB'}`
-  )
+  // console.log removed for production
 })
 
 watch(teamScore, (newScore, oldScore) => {
-  console.log(`📊 Team score updated: ${oldScore} → ${newScore}`)
+  // console.log removed for production
 })
 
 // Watch for roster changes to update draft analysis
@@ -1005,9 +991,7 @@ const showPlayerModal = (player) => {
 }
 
 onMounted(() => {
-  console.log('🚀 RankYourTeam component mounted')
-  console.log('🔗 API URL:', apiUrl)
-  console.log('⚙️ Environment:', import.meta.env)
+  // console.log removed for production
   initializeRosterSlots()
 
   // Load initial data

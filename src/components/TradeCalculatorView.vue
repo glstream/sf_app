@@ -123,9 +123,12 @@
               >
                 <div
                   :bordered="false"
-                  class="player-item clickable-player"
-                  :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
-                  @click="showPlayerModal(player)"
+                  :class="['player-item', { 'clickable-player': !isPick(player) }]"
+                  :style="{ 
+                    borderLeft: `4px solid ${getPositionColor(player._position)}`,
+                    cursor: isPick(player) ? 'default' : 'pointer'
+                  }"
+                  @click="!isPick(player) && showPlayerModal(player)"
                 >
                   <div class="player-details-wrapper">
                     <div class="player-name-info">
@@ -245,9 +248,12 @@
                 <div
                   size="small"
                   :bordered="false"
-                  class="player-item clickable-player"
-                  :style="{ borderLeft: `4px solid ${getPositionColor(player._position)}` }"
-                  @click="showPlayerModal(player)"
+                  :class="['player-item', { 'clickable-player': !isPick(player) }]"
+                  :style="{ 
+                    borderLeft: `4px solid ${getPositionColor(player._position)}`,
+                    cursor: isPick(player) ? 'default' : 'pointer'
+                  }"
+                  @click="!isPick(player) && showPlayerModal(player)"
                 >
                   <div class="player-details-wrapper">
                     <div class="player-name-info">
@@ -334,7 +340,11 @@
               >
                 <div class="player-details-wrapper">
                   <div class="player-name-info">
-                    <div class="player-name clickable-player" @click.stop="showPlayerModal(player)">{{ player.player_full_name }}</div>
+                    <div 
+                      :class="['player-name', { 'clickable-player': !isPick(player) }]" 
+                      :style="{ cursor: isPick(player) ? 'default' : 'pointer' }"
+                      @click.stop="!isPick(player) && showPlayerModal(player)"
+                    >{{ player.player_full_name }}</div>
                     <div class="player-meta">
                       <span
                         class="player-position"
@@ -1374,8 +1384,16 @@ function getCardPositionColor(position: string): string {
   }
 }
 
-// Show player modal function
+// Helper function to check if an item is a pick
+const isPick = (player) => {
+  return player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+}
+
+// Show player modal function (only for players, not picks)
 const showPlayerModal = (player) => {
+  if (isPick(player)) {
+    return // Don't show modal for picks
+  }
   const ktcPlayerId = player.ktc_player_id || player.player_id
   if (playerModalRef.value && ktcPlayerId) {
     playerModalRef.value.showModal(ktcPlayerId)
@@ -1887,5 +1905,15 @@ const showPlayerModal = (player) => {
 .player-name.clickable-player:hover {
   color: var(--color-primary);
   text-decoration: underline;
+}
+
+/* Draft picks styling - make them appear non-interactive */
+.player-item:not(.clickable-player) {
+  opacity: 0.8;
+}
+
+.player-name:not(.clickable-player) {
+  color: var(--color-text-muted);
+  cursor: default !important;
 }
 </style>

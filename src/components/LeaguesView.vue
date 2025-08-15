@@ -577,7 +577,7 @@ onMounted(() => {
   
   // Check if we already have leagues data, if not fetch it
   if (leaguesStore.leagues.length === 0) {
-    console.log('LeaguesView onMounted - No leagues in store, fetching...')
+    // console.log removed for production
     const leagueYear = route.params.leagueYear as string
     const userName = route.params.userName as string
     const guid = route.params.guid as string
@@ -586,7 +586,7 @@ onMounted(() => {
       fetchData(leagueYear, userName, guid)
     }
   } else {
-    console.log('LeaguesView onMounted - Using existing leagues from store:', leaguesStore.leagues.length)
+    // console.log removed for production
   }
 })
 
@@ -645,12 +645,7 @@ const rosterOptions = ref<SelectProps['options']>([
 
 async function fetchData(leagueYear: string, userName: string, guid: string) {
   // Use the leagues store to fetch data, which has the correct platform logic
-  console.log('LeaguesView fetchData - userStore state:', {
-    platform: userStore.platform,
-    leagueId: userStore.leagueId,
-    userName: userStore.userName,
-    leagueYear: userStore.leagueYear
-  })
+  // Fetch data using leagues store
   
   // Use leagues store fetchLeagues method which has correct platform handling
   await leaguesStore.fetchLeagues(
@@ -663,8 +658,7 @@ async function fetchData(leagueYear: string, userName: string, guid: string) {
 }
 
 const handleMenuClick = (e, league) => {
-  console.log('e', e)
-  console.log('league', league)
+  // console.log removed for production
   if (e.key === 'summary') {
     getLeagueSummary(league)
   } else {
@@ -673,8 +667,7 @@ const handleMenuClick = (e, league) => {
 }
 
 const handleSelectChange = (value, league) => {
-  console.log('Selected value:', value)
-  console.log('league', league)
+  // console.log removed for production
   if (value === 'summary') {
     getLeagueSummary(league)
   } else {
@@ -691,9 +684,7 @@ const handlePlatformClick = (platformKey, league) => {
 
 const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
-    console.log('getLeagueDetail - league data:', league)
-    console.log('getLeagueDetail - platform key:', e.key)
-    console.log('getLeagueDetail - ranking source:', e.rankingSource)
+    // console.log removed for production
     
     const leagueId = league.league_id
     const guid = league.session_id || league.guid // Fallback to guid if session_id missing
@@ -722,21 +713,7 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     const rankingSource = e.rankingSource || 'sf'
     
     // Log all values before navigation
-    console.log('Navigation params:', {
-      leagueId,
-      platform,
-      rankType,
-      guid,
-      leagueYear,
-      userName,
-      leagueName,
-      rosterType,
-      userId,
-      avatar,
-      starterCnt,
-      totalRosters,
-      rankingSource
-    })
+    // Navigation params ready
     
     // Check for any undefined values
     const params = [leagueId, platform, rankType, guid, leagueYear, userName, leagueName, rosterType, userId, avatar, starterCnt, totalRosters, rankingSource]
@@ -762,16 +739,16 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     }
     
     const url = `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}/${rankingSource}`
-    console.log('Navigating to URL:', url)
+    // console.log removed for production
     
     router.push(url)
-    console.log('Sending to League details')
+    // console.log removed for production
   } catch (error) {
     console.error('Failed to load league details:', error)
     console.error('Error stack:', error.stack)
     // Optionally, update leagueDetails to indicate an error or show an error message
   } finally {
-    console.log('complete')
+    // Cleanup if needed
   }
 }
 

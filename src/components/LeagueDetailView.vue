@@ -2504,14 +2504,14 @@ const OverallScatterPlotData = computed(() => {
 
 // Sorted summary data for manager lists, respects showProjections and overallFilter
 const sortedSummaryData = computed(() => {
-  console.log('sortedSummaryData computed - showProjections:', showProjections.value, 'summaryData length:', summaryData.value.length, 'projSummaryData length:', projSummaryData.value.length)
+  // console.log removed for production
   if (showProjections.value && projSummaryData.value.length > 0) {
     const sorted = [...projSummaryData.value].sort((a, b) =>
       overallFilter.value === 'all'
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
-    console.log('Returning sorted projSummaryData:', sorted.length, 'items')
+    // console.log removed for production
     return sorted
   }
   if (summaryData.value.length > 0) {
@@ -2520,7 +2520,7 @@ const sortedSummaryData = computed(() => {
         ? a.total_rank - b.total_rank
         : a.starters_rank - b.starters_rank
     )
-    console.log('Returning sorted summaryData:', sorted.length, 'items, first item total_value:', sorted[0]?.total_value)
+    // console.log removed for production
     return sorted
   }
   return []
@@ -2540,7 +2540,7 @@ const selectedSource = ref(sources.find(s => s.key === initialRankingSource) || 
 // Set apiSource to the selected ranking source, not the league platform
 leagueInfo.apiSource = selectedSource.value.key
 
-console.log('Initialized selectedSource:', selectedSource.value.key, 'from route param:', leagueInfo.rankingSource)
+// console.log removed for production
 
 // Filtered sources based on league type (Dynasty vs. Redraft)
 const filteredSources = computed(() => {
@@ -2817,7 +2817,7 @@ watch(overallFilter, () => {
 
 // Watch for changes in selectedSource to handle tab switching
 watch(selectedSource, (newSource, oldSource) => {
-  console.log('selectedSource changed from', oldSource?.key, 'to', newSource.key)
+  // console.log removed for production
   
   if (activeKey.value === '6' && newSource.key !== 'sf') {
     activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
@@ -2826,7 +2826,7 @@ watch(selectedSource, (newSource, oldSource) => {
   
   // Ensure reactive updates by explicitly triggering data refresh if needed
   if (oldSource && oldSource.key !== newSource.key) {
-    console.log('Ranking source changed, data should update automatically via handleMenuClick')
+    // console.log removed for production
   }
 })
 
@@ -2917,7 +2917,7 @@ const insertLeagueDetials = async (leagueIdParam) => {
   isLoading.value = true
   detailIsLoading.value = true
   summaryIsLoading.value = true
-  console.log('Attempting to insert/update rosters for league:', currentLeagueId)
+  // console.log removed for production
 
   const cacheBuster = Date.now().toString()
 
@@ -2928,7 +2928,7 @@ const insertLeagueDetials = async (leagueIdParam) => {
       guid: leagueInfo.guid,
       league_year: leagueInfo.leagueYear
     })
-    console.log('Rosters loading initiated...')
+    // console.log removed for production
   } catch (error) {
     console.error('Error posting roster data:', error)
     message.error('Failed to update rosters. Data shown might be outdated.')
@@ -2979,7 +2979,7 @@ async function fetchProjectionData(leagueId, projectionSource, guid, cacheBuster
 
   while (retryCount < maxRetries) {
     try {
-      console.log(`Fetching projection data (Attempt ${retryCount + 1})...`)
+      // console.log removed for production
       const [summaryResponse, detailResponse] = await Promise.all([
         axios.get(`${API_URL}/contender_league_summary`, { params }),
         axios.get(`${API_URL}/contender_league_detail`, { params })
@@ -3003,7 +3003,7 @@ async function fetchProjectionData(leagueId, projectionSource, guid, cacheBuster
         bench_sum: item.bench_sum
       }))
 
-      console.log('Projection data fetched successfully.')
+      // console.log removed for production
       isProjectionLoading.value = false
       return
     } catch (error) {
@@ -3040,8 +3040,7 @@ async function fetchSummaryData(
     summaryData.value.push(...cachedData)
     updateBchartData(cachedData)
     summaryIsLoading.value = false
-    console.log('Using cached summary data for platform:', platform)
-    console.log('Loaded cached summaryData with', cachedData.length, 'records')
+    // console.log removed for production
     return
   }
 
@@ -3056,7 +3055,7 @@ async function fetchSummaryData(
     roster_type: rosterType,
     league_type: leagueType
   }
-  console.log('Sending API request to /league_summary with params:', params)
+  // console.log removed for production
   if (cacheBuster) params._cb = cacheBuster
 
   try {
@@ -3075,9 +3074,7 @@ async function fetchSummaryData(
         // Then assign new data
         summaryData.value.push(...processedData)
         updateBchartData(rawData)
-        console.log('League summary data fetched successfully for platform:', platform)
-        console.log('Updated summaryData with', processedData.length, 'records')
-        console.log('First record total_value:', processedData[0]?.total_value)
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching league summary (Attempt ${retryCount + 1}):`, error.message)
@@ -3122,7 +3119,7 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
     // Then assign cached data
     detailData.value.push(...cachedData)
     detailIsLoading.value = false
-    console.log('Using cached detail data for platform:', platform)
+    // console.log removed for production
     return
   }
 
@@ -3136,7 +3133,7 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
     guid,
     roster_type: rosterType
   }
-  console.log('Sending API request to /league_detail with params:', params)
+  // console.log removed for production
   if (cacheBuster) params._cb = cacheBuster
 
   try {
@@ -3148,7 +3145,7 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
         detailData.value.splice(0)
         // Then assign new data
         detailData.value.push(...response.data)
-        console.log('League detail data fetched successfully for platform:', platform)
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching league detail (Attempt ${retryCount + 1}):`, error.message)
@@ -3172,7 +3169,7 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     bestAvailableData.value = cacheStore.get(cacheKey)
     baIsLoading.value = false
-    console.log('Using cached best available data.')
+    // console.log removed for production
     return
   }
 
@@ -3194,7 +3191,7 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
         const response = await axios.get(`${API_URL}/${rankingSource}/best_available`, { params })
         cacheStore.set(cacheKey, response.data)
         bestAvailableData.value = response.data
-        console.log('Best available data fetched successfully.')
+        // console.log removed for production
         break
       } catch (error) {
         console.error(`Error fetching best available (Attempt ${retryCount + 1}):`, error.message)
@@ -3217,19 +3214,16 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
 
 const handleMenuClick = (e) => {
   const newRankingSource = e.key
-  console.log('handleMenuClick called with ranking source:', newRankingSource)
-  console.log('Current selectedSource:', selectedSource.value?.key)
+  // console.log removed for production
   
   selectedSource.value = sources.find((s) => s.key === newRankingSource) || sources[0]
   leagueInfo.apiSource = newRankingSource
   leagueInfo.rankingSource = newRankingSource // Update the ranking source in leagueInfo
   
-  console.log('Updated selectedSource to:', selectedSource.value?.key)
-  console.log('Updated leagueInfo.apiSource to:', leagueInfo.apiSource)
-  console.log('Updated leagueInfo.rankingSource to:', leagueInfo.rankingSource)
+  // console.log removed for production
 
   const cacheBuster = Date.now().toString()
-  console.log('Fetching data with new ranking source:', newRankingSource, 'cacheBuster:', cacheBuster)
+  // console.log removed for production
   
   fetchSummaryData(
     leagueInfo.leagueId,
@@ -3323,20 +3317,13 @@ const getLeagueSummary = async () => {
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  console.log(`🔍 LeagueDetailView showPlayerModal called with player:`, player)
-  console.log(`🔍 LeagueDetailView leagueInfo:`, {
-    rosterType: leagueInfo.rosterType,
-    rankType: leagueInfo.rankType,
-    apiSource: leagueInfo.apiSource,
-    calculatedIsSuperflex: leagueInfo.rosterType === 'sf_value',
-    calculatedIsDynasty: leagueInfo.rankType === 'dynasty'
-  })
+  // Debug info available: rosterType, rankType, apiSource
   // Handle both ktc_player_id (from most tabs) and sleeper_id (from waivers/best available)
   const playerId = player.ktc_player_id || player.sleeper_id || player.player_id
   if (playerModalRef.value && playerId) {
     playerModalRef.value.showModal(playerId)
   } else {
-    console.warn('No valid player ID found for modal. Available fields:', Object.keys(player))
+    // console.warn removed for production
   }
 }
 const handlePlayerModalOk = () => {
