@@ -106,13 +106,12 @@
             </ul>
           </div>
         </div>
-        <div>
-          <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-            <div
-              class="leagues-container max-width-container"
-              v-for="league in filteredData"
-              :key="league.league_id"
-            >
+        <div class="leagues-grid-container">
+          <div
+            class="leagues-container"
+            v-for="league in filteredData"
+            :key="league.league_id"
+          >
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
                 <a-col class="gutter-row" :span="24">
                   <div class="gutter-box-header">
@@ -476,8 +475,7 @@
                   </template>
                 </a-row>
               </div>
-            </div>
-          </a-row>
+          </div>
         </div>
       </a-spin>
     </a-layout-content>
@@ -517,7 +515,6 @@ import {
   DownOutlined,
   UserOutlined
 } from '@ant-design/icons-vue'
-import type { SelectProps, MenuProps } from 'ant-design-vue'
 
 import 'primeicons/primeicons.css'
 
@@ -617,7 +614,7 @@ const handleRosterChange = (value: string) => {
   selectedRosterType.value = value
 }
 
-const leagueOptions = ref<SelectProps['options']>([
+const leagueOptions = ref([
   {
     value: 'Dynasty',
     label: 'Dynasty'
@@ -632,7 +629,7 @@ const leagueOptions = ref<SelectProps['options']>([
   }
 ])
 
-const rosterOptions = ref<SelectProps['options']>([
+const rosterOptions = ref([
   {
     value: 'Superflex',
     label: 'Superflex'
@@ -682,7 +679,7 @@ const handlePlatformClick = (platformKey, league) => {
   getLeagueDetail(mockEvent, league)
 }
 
-const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
+const getLeagueDetail = (e, league) => {
   try {
     // console.log removed for production
     
@@ -1110,10 +1107,19 @@ const getCurrentYear = async () => {
 }
 
 
-.max-width-container {
-  max-width: 380px; /* Slightly wider for better spacing */
+/* Grid container for responsive league cards */
+.leagues-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+  max-width: 100%;
+}
+
+/* Ensure league containers fill the grid cells properly */
+.leagues-container {
   width: 100%;
-  margin: 15px 10px; /* More top/bottom margin */
+  margin: 0;
 }
 
 .no-leagues-card {
@@ -1466,7 +1472,20 @@ a-tag:hover {
 }
 
 /* Enhanced Responsive Design */
+@media (max-width: 1200px) {
+  .leagues-grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
+  .leagues-grid-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px 0;
+  }
+
   .filters-container {
     flex-direction: column;
     align-items: center;
@@ -1496,6 +1515,18 @@ a-tag:hover {
 
   .clickable-platform-row:hover {
     transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .leagues-grid-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  
+  .leagues-container {
+    border-radius: 8px;
   }
 }
 </style>

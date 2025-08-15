@@ -63,6 +63,12 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
+      path: '/contact',
+      name: 'Contact',
+      component: () => import('../components/ContactView.vue'),
+      beforeEnter: logNavigation
+    },
+    {
       path: '/:catchAll(.*)',
       name: 'NotFound',
       component: () => import('../components/UsernameView.vue'),
