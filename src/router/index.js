@@ -33,7 +33,7 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
-      path: '/league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/:leagueStarters/:leagueSize',
+      path: '/league/:leagueId/:platform/:rankType/:guid/:leagueYear/:userName/:leagueName/:rosterType/:userId/:avatar/:leagueStarters/:leagueSize/:rankingSource?',
       component: () => import('../components/LeagueDetailView.vue'),
       beforeEnter: logNavigation
     },

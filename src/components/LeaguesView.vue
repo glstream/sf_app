@@ -678,14 +678,14 @@ const handleSelectChange = (value, league) => {
   if (value === 'summary') {
     getLeagueSummary(league)
   } else {
-    const mockEvent = { key: value }
+    const mockEvent = { key: value, rankingSource: value }
     getLeagueDetail(mockEvent, league)
   }
 }
 
 const handlePlatformClick = (platformKey, league) => {
-  // Create an event object similar to the menu click event
-  const mockEvent = { key: platformKey }
+  // Create an event object similar to the menu click event, but add ranking source
+  const mockEvent = { key: platformKey, rankingSource: platformKey }
   getLeagueDetail(mockEvent, league)
 }
 
@@ -693,6 +693,7 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
   try {
     console.log('getLeagueDetail - league data:', league)
     console.log('getLeagueDetail - platform key:', e.key)
+    console.log('getLeagueDetail - ranking source:', e.rankingSource)
     
     const leagueId = league.league_id
     const guid = league.session_id || league.guid // Fallback to guid if session_id missing
@@ -717,6 +718,9 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
     const starterCnt = league.starter_cnt || league.starter_count || 0
     const totalRosters = league.total_rosters
     
+    // Get ranking source from event or default to 'sf' (FantasyNavigator)
+    const rankingSource = e.rankingSource || 'sf'
+    
     // Log all values before navigation
     console.log('Navigation params:', {
       leagueId,
@@ -730,11 +734,12 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
       userId,
       avatar,
       starterCnt,
-      totalRosters
+      totalRosters,
+      rankingSource
     })
     
     // Check for any undefined values
-    const params = [leagueId, platform, rankType, guid, leagueYear, userName, leagueName, rosterType, userId, avatar, starterCnt, totalRosters]
+    const params = [leagueId, platform, rankType, guid, leagueYear, userName, leagueName, rosterType, userId, avatar, starterCnt, totalRosters, rankingSource]
     const hasUndefined = params.some(param => param === undefined || param === null)
     
     if (hasUndefined) {
@@ -750,12 +755,13 @@ const getLeagueDetail: MenuProps['onClick'] = (e, league) => {
         userId: userId === undefined ? 'MISSING' : userId,
         avatar: avatar === undefined ? 'MISSING' : avatar,
         starterCnt: starterCnt === undefined ? 'MISSING' : starterCnt,
-        totalRosters: totalRosters === undefined ? 'MISSING' : totalRosters
+        totalRosters: totalRosters === undefined ? 'MISSING' : totalRosters,
+        rankingSource: rankingSource === undefined ? 'MISSING' : rankingSource
       })
       return
     }
     
-    const url = `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}`
+    const url = `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}/${rankingSource}`
     console.log('Navigating to URL:', url)
     
     router.push(url)

@@ -2428,7 +2428,8 @@ const leagueInfo = reactive({
   rosterType: route.params.rosterType,
   avatar: route.params.avatar,
   leagueType: route.params.leagueType,
-  apiSource: route.params.platform
+  apiSource: route.params.platform,
+  rankingSource: route.params.rankingSource || 'sf' // Default to FantasyNavigator if not provided
 })
 
 // Data Holders
@@ -2437,8 +2438,8 @@ const detailData = ref([{}])
 const projDetailData = ref([{}])
 
 const projSummaryData = ref([{}])
-const tradesDetailData = ref([{}])
-const tradesSummaryData = ref([{}])
+// const tradesDetailData = ref([{}]) // Removed - trades no longer tracked
+// const tradesSummaryData = ref([{}]) // Removed - trades no longer tracked
 const bestAvailableData = ref([{}])
 
 // Chart Data
@@ -2533,10 +2534,13 @@ const sources = [
   { key: 'fc', name: 'FantasyCalc', logo: fcLogo },
   { key: 'dd', name: 'DynastyDaddy', logo: ddLogo }
 ]
-// Initialize with sf (FantasyNavigator) as default ranking source regardless of league platform
-const selectedSource = ref(sources[0])  // sources[0] is sf
+// Initialize selectedSource from route parameter or default to sf (FantasyNavigator)
+const initialRankingSource = leagueInfo.rankingSource || 'sf'
+const selectedSource = ref(sources.find(s => s.key === initialRankingSource) || sources[0])
 // Set apiSource to the selected ranking source, not the league platform
 leagueInfo.apiSource = selectedSource.value.key
+
+console.log('Initialized selectedSource:', selectedSource.value.key, 'from route param:', leagueInfo.rankingSource)
 
 // Filtered sources based on league type (Dynasty vs. Redraft)
 const filteredSources = computed(() => {
@@ -2938,7 +2942,8 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.guid,
       leagueInfo.rosterType,
       leagueInfo.leagueType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
     fetchDetailData(
       leagueInfo.leagueId,
@@ -2946,7 +2951,8 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
     fetchBaData(
       leagueInfo.leagueId,
@@ -2954,16 +2960,10 @@ const insertLeagueDetials = async (leagueIdParam) => {
       leagueInfo.rankType,
       leagueInfo.guid,
       leagueInfo.rosterType,
-      cacheBuster
+      cacheBuster,
+      leagueInfo.rankingSource
     )
-    fetchTrades(
-      leagueInfo.leagueId,
-      leagueInfo.apiSource,
-      leagueInfo.rosterType,
-      leagueInfo.leagueYear,
-      leagueInfo.rankType,
-      cacheBuster
-    )
+    // fetchTrades removed - trades no longer tracked
     fetchProjectionData(leagueInfo.leagueId, value1.value, leagueInfo.guid, cacheBuster)
   }
 }
@@ -3026,10 +3026,11 @@ async function fetchSummaryData(
   guid,
   rosterType,
   leagueType,
-  cacheBuster
+  cacheBuster,
+  rankingSource = 'sf'
 ) {
   summaryIsLoading.value = true
-  const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}`
+  const cacheKey = `summary_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${leagueType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     const cachedData = cacheStore.get(cacheKey)
@@ -3061,7 +3062,7 @@ async function fetchSummaryData(
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/league_summary`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/summary`, { params })
         const rawData = response.data
         const processedData = rawData.map((item) => ({
           ...item,
@@ -3110,9 +3111,9 @@ async function fetchSummaryData(
   }
 }
 
-async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
+async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
   detailIsLoading.value = true
-  const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+  const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     const cachedData = cacheStore.get(cacheKey)
@@ -3141,7 +3142,7 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/league_detail`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/details`, { params })
         cacheStore.set(cacheKey, response.data)
         // Clear the array first to ensure reactivity
         detailData.value.splice(0)
@@ -3164,9 +3165,9 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
   }
 }
 
-async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster) {
+async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
   baIsLoading.value = true
-  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}`
+  const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
   if (!cacheBuster && cacheStore.has(cacheKey)) {
     bestAvailableData.value = cacheStore.get(cacheKey)
@@ -3190,7 +3191,7 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
   try {
     while (retryCount < maxRetries) {
       try {
-        const response = await axios.get(`${API_URL}/best_available`, { params })
+        const response = await axios.get(`${API_URL}/${rankingSource}/best_available`, { params })
         cacheStore.set(cacheKey, response.data)
         bestAvailableData.value = response.data
         console.log('Best available data fetched successfully.')
@@ -3210,93 +3211,55 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
   }
 }
 
-async function fetchTrades(leagueId, platformApi, rosterType, leagueYear, rankType, cacheBuster) {
-  let retryCount = 0
-  const maxRetries = 3
-  const retryDelay = 500
-  const params = {
-    league_id: leagueId,
-    platform: platformApi,
-    roster_type: rosterType,
-    league_year: leagueYear,
-    rank_type: rankType
-  }
-  if (cacheBuster) params._cb = cacheBuster
-
-  try {
-    while (retryCount < maxRetries) {
-      try {
-        console.log(`Fetching trades data (Attempt ${retryCount + 1})...`)
-        const [summaryResponse, detailResponse] = await Promise.all([
-          axios.get(`${API_URL}/trades_summary`, { params }),
-          axios.get(`${API_URL}/trades_detail`, { params })
-        ])
-        tradesSummaryData.value = summaryResponse.data
-        tradesDetailData.value = detailResponse.data
-        console.log('Trade data fetched successfully.')
-        return
-      } catch (error) {
-        console.error('Error fetching trades data:', error)
-        retryCount++
-        if (retryCount < maxRetries) await sleep(retryDelay)
-        else throw error
-      }
-    }
-  } catch (error) {
-    console.error('Failed to fetch trade data after retries.')
-    message.error('Failed to load trade data. Please try again.')
-  }
-}
+// fetchTrades function removed - trades no longer tracked
 
 // --- Event Handlers ---
 
 const handleMenuClick = (e) => {
-  const newPlatform = e.key
-  console.log('handleMenuClick called with platform:', newPlatform)
+  const newRankingSource = e.key
+  console.log('handleMenuClick called with ranking source:', newRankingSource)
   console.log('Current selectedSource:', selectedSource.value?.key)
   
-  selectedSource.value = sources.find((s) => s.key === newPlatform) || sources[0]
-  leagueInfo.apiSource = newPlatform
+  selectedSource.value = sources.find((s) => s.key === newRankingSource) || sources[0]
+  leagueInfo.apiSource = newRankingSource
+  leagueInfo.rankingSource = newRankingSource // Update the ranking source in leagueInfo
   
   console.log('Updated selectedSource to:', selectedSource.value?.key)
   console.log('Updated leagueInfo.apiSource to:', leagueInfo.apiSource)
+  console.log('Updated leagueInfo.rankingSource to:', leagueInfo.rankingSource)
 
   const cacheBuster = Date.now().toString()
-  console.log('Fetching data with new platform:', newPlatform, 'cacheBuster:', cacheBuster)
+  console.log('Fetching data with new ranking source:', newRankingSource, 'cacheBuster:', cacheBuster)
   
   fetchSummaryData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
     leagueInfo.leagueType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
   fetchDetailData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
   fetchBaData(
     leagueInfo.leagueId,
-    newPlatform,
+    leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
     leagueInfo.rankType,
     leagueInfo.guid,
     leagueInfo.rosterType,
-    cacheBuster
+    cacheBuster,
+    leagueInfo.rankingSource
   )
-  fetchTrades(
-    leagueInfo.leagueId,
-    newPlatform,
-    leagueInfo.rosterType,
-    leagueInfo.leagueYear,
-    leagueInfo.rankType,
-    cacheBuster
-  )
+  // fetchTrades removed - trades no longer tracked
 
   message.success(`Ranking source changed to ${selectedSource.value.name}`)
 }
