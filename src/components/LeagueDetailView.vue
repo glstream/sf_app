@@ -2145,46 +2145,80 @@
 
               <!-- Waivers Tab -->
               <a-tab-pane key="5" tab="Waivers">
-                <div>
-                  <h2>Best Available</h2>
-                  <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
-                    <a-col
-                      v-for="(players, position) in groupedPlayers"
-                      :key="position"
-                      :xs="24"
-                      :sm="12"
-                      :md="8"
-                      :lg="6"
-                    >
-                      <a-card>
-                        <template #title>
-                          <span class="font-size-18 font-bolder">{{ position }}</span>
-                        </template>
-                        <span v-for="player in players" :key="player.sleeper_id">
-                          <ul class="no-padding-ul no-list-style">
-                            <li
-                              :key="player.sleeper_id"
-                              :style="getPositionTagList(player.player_position, 0.2)"
-                              class="waiver-player-item"
-                              @click="
-                                player.player_position !== 'PICKS' ? showPlayerModal(player) : null
-                              "
+                <h2 class="tab-sub-header">Best Available Players</h2>
+                
+                <!-- Waivers Header Card -->
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" style="margin-bottom: 20px;">
+                  <a-col :span="24">
+                    <a-card :bordered="false" class="waivers-header-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title">Available Free Agents</span>
+                        </div>
+                      </template>
+                      <div class="waivers-summary">
+                        <a-row :gutter="16">
+                          <a-col v-for="(players, position) in groupedPlayers" :key="position" :span="6">
+                            <div class="position-summary">
+                              <div class="position-count">{{ players.length }}</div>
+                              <div class="position-label">{{ position }}</div>
+                            </div>
+                          </a-col>
+                        </a-row>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
+
+                <!-- Position-based Player Cards -->
+                <a-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 32 }">
+                  <a-col
+                    v-for="(players, position) in groupedPlayers"
+                    :key="position"
+                    :xs="24"
+                    :sm="12"
+                    :md="8"
+                    :lg="6"
+                  >
+                    <a-card :bordered="false" class="modern-card waiver-position-card">
+                      <template #title>
+                        <div class="card-header">
+                          <span class="chart-title position-title">
+                            <a-tag 
+                              :color="getPositionColor(position)" 
+                              class="position-tag"
                             >
-                              <span>
-                                {{ player?.full_name }} &bull;
+                              {{ position }}
+                            </a-tag>
+                            <span class="player-count">({{ players.length }})</span>
+                          </span>
+                        </div>
+                      </template>
+                      
+                      <div class="waiver-players-list">
+                        <div
+                          v-for="(player, index) in players"
+                          :key="player.sleeper_id"
+                          class="waiver-player-card"
+                        >
+                          <div class="player-rank">{{ index + 1 }}</div>
+                          <div class="player-info">
+                            <div class="player-name">{{ player?.full_name }}</div>
+                            <div class="player-value">
+                              <span class="value-amount" :class="getValueClass(player.player_value)">
                                 {{
-                                  player.player_value === -1
+                                  player.player_value === -1 || player.player_value === null
                                     ? 'N/A'
                                     : player.player_value?.toLocaleString()
                                 }}
                               </span>
-                            </li>
-                          </ul>
-                        </span>
-                      </a-card>
-                    </a-col>
-                  </a-row>
-                </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
               </a-tab-pane>
             </a-tabs>
             <!-- Info Button for Tab Guide -->
@@ -3329,8 +3363,12 @@ const showPlayerModal = (player) => {
     calculatedIsSuperflex: leagueInfo.rosterType === 'sf_value',
     calculatedIsDynasty: leagueInfo.rankType === 'dynasty'
   })
-  if (playerModalRef.value && player.ktc_player_id) {
-    playerModalRef.value.showModal(player.ktc_player_id)
+  // Handle both ktc_player_id (from most tabs) and sleeper_id (from waivers/best available)
+  const playerId = player.ktc_player_id || player.sleeper_id || player.player_id
+  if (playerModalRef.value && playerId) {
+    playerModalRef.value.showModal(playerId)
+  } else {
+    console.warn('No valid player ID found for modal. Available fields:', Object.keys(player))
   }
 }
 const handlePlayerModalOk = () => {
@@ -3441,6 +3479,25 @@ function getPositionTagList(position, opacity = 0.6) {
     'border-color': color,
     border: `1px solid ${color}, ${opacity + 0.2})`
   }
+}
+
+// Helper methods for modern waivers design
+function getPositionColor(position) {
+  const colorMap = {
+    QB: 'blue',
+    RB: 'green', 
+    WR: 'cyan',
+    TE: 'orange',
+    PICKS: 'default'
+  }
+  return colorMap[position] || 'default'
+}
+
+function getValueClass(value) {
+  if (value === -1 || value === null || value === undefined) return 'value-na'
+  if (value >= 5000) return 'value-high'
+  if (value >= 1000) return 'value-medium'
+  return 'value-low'
 }
 
 const positionTitles = {
@@ -4382,6 +4439,211 @@ const getPositionRank = (manager, position) => {
 .waiver-player-item {
   margin-bottom: 2px;
   border-radius: 2px;
+}
+
+/* Modern Waivers Tab Styling */
+.waivers-header-card {
+  background-color: var(--league-details-primary-card);
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.waivers-summary {
+  padding: 8px 0;
+}
+
+.position-summary {
+  text-align: center;
+  padding: 12px;
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.position-summary:hover {
+  background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
+  transform: translateY(-2px);
+}
+
+.position-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ant-primary-color, #277da1);
+  line-height: 1;
+}
+
+.position-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.waiver-position-card {
+  height: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.waiver-position-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.position-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.position-tag {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.player-count {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.waiver-players-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.waiver-players-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.waiver-players-list::-webkit-scrollbar-track {
+  background: var(--color-background-soft);
+  border-radius: 2px;
+}
+
+.waiver-players-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.waiver-players-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ant-primary-color, #277da1);
+}
+
+.waiver-player-card {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+
+
+.waiver-player-card:last-child {
+  margin-bottom: 0;
+}
+
+.player-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--ant-primary-color, #277da1);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.value-amount {
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.value-amount.value-high {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.value-amount.value-medium {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.value-amount.value-low {
+  background: rgba(158, 158, 158, 0.1);
+  color: #9e9e9e;
+}
+
+.value-amount.value-na {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+/* Responsive adjustments for waivers */
+@media (max-width: 768px) {
+  .waivers-summary .ant-col {
+    margin-bottom: 8px;
+  }
+  
+  .position-summary {
+    padding: 8px;
+  }
+  
+  .position-count {
+    font-size: 20px;
+  }
+  
+  .waiver-player-card {
+    padding: 10px;
+  }
+  
+  .player-name {
+    font-size: 13px;
+  }
+  
+  .waiver-position-card:hover {
+    transform: none;
+  }
+  
 }
 
 .team-card-column {

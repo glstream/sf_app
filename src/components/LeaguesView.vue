@@ -192,8 +192,8 @@
                   </div>
                 </a-col>
               </a-row>
-              <!-- Hide rankings comparison for Fleaflicker leagues due to email/user_id mapping complexity -->
-              <div v-if="league.platform !== 'fleaflicker'" class="leagues-stats-container">
+              <!-- Power Rankings Comparison for all leagues including Fleaflicker -->
+              <div class="leagues-stats-container">
                 <div class="stats-header">
                   <h3>Power Rankings Comparison</h3>
                   <p>Compare your team's rankings across multiple platforms</p>
@@ -408,14 +408,6 @@
                     </div></a-col
                   >
                 </a-row>
-              </div>
-              
-              <!-- Alternative section for Fleaflicker leagues -->
-              <div v-if="league.platform === 'fleaflicker'" class="fleaflicker-info-section">
-                <div class="fleaflicker-info-header">
-                  <h3>Fleaflicker League</h3>
-                  <p>Access detailed league analysis by clicking into individual league views</p>
-                </div>
               </div>
             </div>
           </a-row>
