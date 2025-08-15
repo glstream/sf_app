@@ -166,9 +166,14 @@
                                 >{{ showProjections ? 'Proj' : 'Value' }}:
                                 {{
                                   (showProjections
-                                    ? projSummaryData.find((p) => p.user_id === user.user_id)
-                                        ?.total_value || 0
-                                    : user.total_value
+                                    ? overallFilter === 'all'
+                                      ? projSummaryData.find((p) => p.user_id === user.user_id)
+                                          ?.total_value || 0
+                                      : projSummaryData.find((p) => p.user_id === user.user_id)
+                                          ?.starters_sum || 0
+                                    : overallFilter === 'all'
+                                      ? user.total_value
+                                      : user.starters_sum || 0
                                   ).toLocaleString()
                                 }}</span
                               >
