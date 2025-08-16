@@ -61,13 +61,16 @@
             <p>We're fetching your league data from Sleeper and preparing detailed analytics...</p>
             <div class="loading-features">
               <div class="loading-feature">
-                <strong>Power Rankings:</strong> Compare team strengths across multiple expert sources
+                <strong>Power Rankings:</strong> Compare team strengths across multiple expert
+                sources
               </div>
               <div class="loading-feature">
-                <strong>Trade Analysis:</strong> Identify optimal trade opportunities with data-driven insights
+                <strong>Trade Analysis:</strong> Identify optimal trade opportunities with
+                data-driven insights
               </div>
               <div class="loading-feature">
-                <strong>Player Values:</strong> Real-time valuations from Keep Trade Cut, Fantasy Calc, and more
+                <strong>Player Values:</strong> Real-time valuations from Keep Trade Cut, Fantasy
+                Calc, and more
               </div>
             </div>
           </div>
@@ -79,19 +82,25 @@
             <h3>No Leagues Found for {{ leagueYear }}</h3>
             <p>Don't worry! Here are some things you can try:</p>
           </div>
-          
+
           <div class="empty-state-suggestions">
             <div class="suggestion-card">
               <h4>Check Your Username</h4>
-              <p>Make sure your Sleeper username is spelled correctly. Usernames are case-sensitive.</p>
+              <p>
+                Make sure your Sleeper username is spelled correctly. Usernames are case-sensitive.
+              </p>
             </div>
             <div class="suggestion-card">
               <h4>Try Different Year</h4>
-              <p>Your leagues might be from a different season. Try changing the year filter above.</p>
+              <p>
+                Your leagues might be from a different season. Try changing the year filter above.
+              </p>
             </div>
             <div class="suggestion-card">
               <h4>League Requirements</h4>
-              <p>We only show completed leagues with at least 8 teams and standard scoring settings.</p>
+              <p>
+                We only show completed leagues with at least 8 teams and standard scoring settings.
+              </p>
             </div>
           </div>
 
@@ -107,374 +116,392 @@
           </div>
         </div>
         <div class="leagues-grid-container">
-          <div
-            class="leagues-container"
-            v-for="league in filteredData"
-            :key="league.league_id"
-          >
-              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="24">
-                  <div class="gutter-box-header">
-                    <div class="league-header-content">
-                      <img
-                        class="league-logo"
-                        :src="league.platform === 'fleaflicker' ? defaultimage : `https://sleepercdn.com/avatars/thumbs/${league.avatar}`"
-                        @error="(event) => (event.target.src = defaultimage)"
-                      />
-                      <div class="league-title-section">
-                        <span class="league-name">{{ league.league_name }}</span>
-                        <span class="league-year">{{ league.league_year }} Season</span>
-                      </div>
+          <div class="leagues-container" v-for="league in filteredData" :key="league.league_id">
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="24">
+                <div class="gutter-box-header">
+                  <div class="league-header-content">
+                    <img
+                      class="league-logo"
+                      :src="
+                        league.platform === 'fleaflicker'
+                          ? defaultimage
+                          : `https://sleepercdn.com/avatars/thumbs/${league.avatar}`
+                      "
+                      @error="(event) => (event.target.src = defaultimage)"
+                    />
+                    <div class="league-title-section">
+                      <span class="league-name">{{ league.league_name }}</span>
+                      <span class="league-year">{{ league.league_year }} Season</span>
                     </div>
                   </div>
-                </a-col>
-              </a-row>
-              <a-row justify="space-between" :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="12">
-                  <div class="gutter-box">
-                    <a-tag> {{ league.roster_type }}</a-tag>
-                    <a-tag
-                      style="margin-left: 10px"
-                      :color="
-                        league.league_type === 'Dynasty'
-                          ? 'cyan'
-                          : league.league_type === 'Redraft'
-                            ? 'green'
-                            : 'red'
-                      "
-                    >
-                      {{ league.league_type }}</a-tag
-                    >
-                  </div>
-                </a-col>
-                <a-col :span="12">
-                  <div class="gutter-box-refresh">
-                    <a-tooltip>
-                      <template #title>View detailed power rankings and analysis</template>
-                      <a-select
-                        placeholder="📊 Power Ranks"
-                        size="default"
-                        class="power-ranks-select"
-                        @change="(value) => handleSelectChange(value, league)"
-                        :value="null"
-                      >
-                        <a-select-option
-                          v-for="source in sources"
-                          :key="source.key"
-                          :value="source.key"
-                        >
-                          <span class="rank-option">
-                            <img :src="source.logo" alt="source.name" class="rank-source-logo" />
-                            {{ source.name }}
-                          </span>
-                        </a-select-option>
-                        <a-select-option key="summary" value="summary">
-                          <span class="rank-option">
-                            <FileSearchOutlined class="summary-icon" />
-                            League Summary
-                          </span>
-                        </a-select-option>
-                      </a-select>
-                    </a-tooltip>
-                  </div>
-                </a-col>
-              </a-row>
-              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
-                <a-col class="gutter-row" :span="24">
-                  <div class="gutter-box">
-                    <span style="padding-right: 5px">League Size</span>
-                    <a-tag class="standard-tag">{{ league.total_rosters }}</a-tag>
-                    <span style="padding-right: 5px">Starters</span>
-                    <a-tag class="standard-tag">{{ league.starter_cnt }}</a-tag>
-                    <span style="padding-right: 5px">Roster Size</span>
-                    <a-tag class="standard-tag">{{ league.total_roster_cnt }}</a-tag>
-                  </div>
-                </a-col>
-              </a-row>
-              <!-- Power Rankings Comparison or External Links for Fleaflicker -->
-              <div class="leagues-stats-container">
-                <div class="stats-header" :class="{ 'stats-header-compact': league.platform === 'fleaflicker' }">
-                  <h3 v-if="league.platform === 'fleaflicker'">Available Ranking Sources</h3>
-                  <h3 v-else>Power Rankings Comparison</h3>
-                  <p v-if="league.platform !== 'fleaflicker'">Compare your team's rankings across multiple platforms</p>
                 </div>
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="stats-table-header">
-                  <a-col class="gutter-row" :span="8"> </a-col>
-                  <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
-                    <div class="gutter-box-stats column-header">Overall</div></a-col
+              </a-col>
+            </a-row>
+            <a-row justify="space-between" :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="12">
+                <div class="gutter-box">
+                  <a-tag> {{ league.roster_type }}</a-tag>
+                  <a-tag
+                    style="margin-left: 10px"
+                    :color="
+                      league.league_type === 'Dynasty'
+                        ? 'cyan'
+                        : league.league_type === 'Redraft'
+                          ? 'green'
+                          : 'red'
+                    "
                   >
-                  <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
-                    <div class="gutter-box-stats column-header">Starters</div></a-col
+                    {{ league.league_type }}</a-tag
                   >
-                  <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
-                    <div class="gutter-box-stats column-header">Bench</div></a-col
-                  >
-                  <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
-                    <div class="gutter-box-stats column-header">Picks</div></a-col
-                  >
-                  <!-- No column header text for Fleaflicker leagues -->
-                  <a-col class="gutter-row" :span="16" v-if="league.platform === 'fleaflicker'"></a-col
-                  >
-                </a-row>
-                <a-row
-                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
-                  class="clickable-platform-row"
-                  @click="handlePlatformClick('sf', league)"
-                >
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header clickable-platform-header">
-                      FantasyNavigator
-                    </div></a-col
-                  >
-                  <!-- Show rankings for non-Fleaflicker leagues -->
-                  <template v-if="league.platform !== 'fleaflicker'">
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(league.sf_power_rank)">{{
-                          addOrdinalSuffix(league.sf_power_rank)
-                        }}</a-tag>
-                      </div></a-col
+                </div>
+              </a-col>
+              <a-col :span="12">
+                <div class="gutter-box-refresh">
+                  <a-tooltip>
+                    <template #title>View detailed power rankings and analysis</template>
+                    <a-select
+                      placeholder="📊 Power Ranks"
+                      size="default"
+                      class="power-ranks-select"
+                      @change="(value) => handleSelectChange(value, league)"
+                      :value="null"
                     >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.sf_starters_rank))">{{
-                          addOrdinalSuffix(league.sf_starters_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.sf_bench_rank))">{{
-                          addOrdinalSuffix(league.sf_bench_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.sf_picks_rank))">{{
-                          addOrdinalSuffix(league.sf_picks_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                  </template>
-                  <!-- Show ranking source info for Fleaflicker leagues -->
-                  <template v-else>
-                    <a-col class="gutter-row" :span="16">
-                      <div class="gutter-box-stats ranking-source-card">
-                        <img :src="fnLogo" alt="FantasyNavigator" class="ranking-source-logo" />
-                        <span class="ranking-source-name">FantasyNavigator</span>
-                        <span class="ranking-source-action">→</span>
-                      </div></a-col
-                    >
-                  </template>
-                </a-row>
-                <a-row
-                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
-                  class="clickable-platform-row"
-                  @click="handlePlatformClick('ktc', league)"
-                >
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header clickable-platform-header">
-                      KeepTradeCut
-                    </div></a-col
-                  >
-                  <!-- Show rankings for non-Fleaflicker leagues -->
-                  <template v-if="league.platform !== 'fleaflicker'">
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(league.ktc_power_rank)">{{
-                          addOrdinalSuffix(league.ktc_power_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.ktc_starters_rank))">{{
-                          addOrdinalSuffix(league.ktc_starters_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.ktc_bench_rank))">{{
-                          addOrdinalSuffix(league.ktc_bench_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.ktc_picks_rank))">{{
-                          addOrdinalSuffix(league.ktc_picks_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                  </template>
-                  <!-- Show ranking source info for Fleaflicker leagues -->
-                  <template v-else>
-                    <a-col class="gutter-row" :span="16">
-                      <div class="gutter-box-stats ranking-source-card">
-                        <img :src="ktcLogo" alt="KeepTradeCut" class="ranking-source-logo" />
-                        <span class="ranking-source-name">KeepTradeCut</span>
-                        <span class="ranking-source-action">→</span>
-                      </div></a-col
-                    >
-                  </template>
-                </a-row>
-                <a-row
-                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
-                  class="clickable-platform-row"
-                  @click="handlePlatformClick('dp', league)"
-                >
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header clickable-platform-header">
-                      DynastyProcess
-                    </div></a-col
-                  >
-                  <!-- Show rankings for non-Fleaflicker leagues -->
-                  <template v-if="league.platform !== 'fleaflicker'">
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(league.dp_power_rank)">{{
-                          addOrdinalSuffix(league.dp_power_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dp_starters_rank))">{{
-                          addOrdinalSuffix(league.dp_starters_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dp_bench_rank))">{{
-                          addOrdinalSuffix(league.dp_bench_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dp_picks_rank))">{{
-                          addOrdinalSuffix(league.dp_picks_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                  </template>
-                  <!-- Show ranking source info for Fleaflicker leagues -->
-                  <template v-else>
-                    <a-col class="gutter-row" :span="16">
-                      <div class="gutter-box-stats ranking-source-card">
-                        <img :src="dpLogo" alt="DynastyProcess" class="ranking-source-logo" />
-                        <span class="ranking-source-name">DynastyProcess</span>
-                        <span class="ranking-source-action">→</span>
-                      </div></a-col
-                    >
-                  </template>
-                </a-row>
-                <a-row
-                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
-                  class="clickable-platform-row"
-                  @click="handlePlatformClick('fc', league)"
-                >
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header clickable-platform-header">
-                      FantasyCalc
-                    </div></a-col
-                  >
-                  <!-- Show rankings for non-Fleaflicker leagues -->
-                  <template v-if="league.platform !== 'fleaflicker'">
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(league.fc_power_rank)">{{
-                          addOrdinalSuffix(league.fc_power_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.fc_starters_rank))">{{
-                          addOrdinalSuffix(league.fc_starters_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.fc_bench_rank))">{{
-                          addOrdinalSuffix(league.fc_bench_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.fc_picks_rank))">{{
-                          addOrdinalSuffix(league.fc_picks_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                  </template>
-                  <!-- Show ranking source info for Fleaflicker leagues -->
-                  <template v-else>
-                    <a-col class="gutter-row" :span="16">
-                      <div class="gutter-box-stats ranking-source-card">
-                        <img :src="fcLogo" alt="FantasyCalc" class="ranking-source-logo" />
-                        <span class="ranking-source-name">FantasyCalc</span>
-                        <span class="ranking-source-action">→</span>
-                      </div></a-col
-                    >
-                  </template>
-                </a-row>
-                <a-row
-                  :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
-                  class="clickable-platform-row"
-                  @click="handlePlatformClick('dd', league)"
-                >
-                  <a-col class="gutter-row" :span="8">
-                    <div class="gutter-box-stats-header clickable-platform-header">
-                      DynastyDaddy
-                    </div></a-col
-                  >
-                  <template v-if="league.platform !== 'fleaflicker'">
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(league.dd_power_rank)">{{
-                          addOrdinalSuffix(league.dd_power_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dd_starters_rank))">{{
-                          addOrdinalSuffix(league.dd_starters_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dd_bench_rank))">{{
-                          addOrdinalSuffix(league.dd_bench_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                    <a-col class="gutter-row" :span="4">
-                      <div class="gutter-box-stats">
-                        <a-tag :style="getCellStyle(Number(league.dd_picks_rank))">{{
-                          addOrdinalSuffix(league.dd_picks_rank)
-                        }}</a-tag>
-                      </div></a-col
-                    >
-                  </template>
-                  <template v-else>
-                    <a-col class="gutter-row" :span="16">
-                      <div class="gutter-box-stats ranking-source-card">
-                        <img :src="ddLogo" alt="DynastyDaddy" class="ranking-source-logo" />
-                        <span class="ranking-source-name">DynastyDaddy</span>
-                        <span class="ranking-source-action">→</span>
-                      </div></a-col
-                    >
-                  </template>
-                </a-row>
+                      <a-select-option
+                        v-for="source in sources"
+                        :key="source.key"
+                        :value="source.key"
+                      >
+                        <span class="rank-option">
+                          <img :src="source.logo" alt="source.name" class="rank-source-logo" />
+                          {{ source.name }}
+                        </span>
+                      </a-select-option>
+                      <a-select-option key="summary" value="summary">
+                        <span class="rank-option">
+                          <FileSearchOutlined class="summary-icon" />
+                          League Summary
+                        </span>
+                      </a-select-option>
+                    </a-select>
+                  </a-tooltip>
+                </div>
+              </a-col>
+            </a-row>
+            <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }">
+              <a-col class="gutter-row" :span="24">
+                <div class="gutter-box">
+                  <span style="padding-right: 5px">League Size</span>
+                  <a-tag class="standard-tag">{{ league.total_rosters }}</a-tag>
+                  <span style="padding-right: 5px">Starters</span>
+                  <a-tag class="standard-tag">{{ league.starter_cnt }}</a-tag>
+                  <span style="padding-right: 5px">Roster Size</span>
+                  <a-tag class="standard-tag">{{ league.total_roster_cnt }}</a-tag>
+                </div>
+              </a-col>
+            </a-row>
+            <!-- Power Rankings Comparison or External Links for Fleaflicker -->
+            <div class="leagues-stats-container">
+              <div
+                class="stats-header"
+                :class="{ 'stats-header-compact': league.platform === 'fleaflicker' }"
+              >
+                <h3 v-if="league.platform === 'fleaflicker'">Available Ranking Sources</h3>
+                <h3 v-else>Power Rankings Comparison</h3>
+                <p v-if="league.platform !== 'fleaflicker'">
+                  Compare your team's rankings across multiple platforms
+                </p>
               </div>
+              <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="stats-table-header">
+                <a-col class="gutter-row" :span="8"> </a-col>
+                <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
+                  <div class="gutter-box-stats column-header">Overall</div></a-col
+                >
+                <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
+                  <div class="gutter-box-stats column-header">Starters</div></a-col
+                >
+                <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
+                  <div class="gutter-box-stats column-header">Bench</div></a-col
+                >
+                <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
+                  <div class="gutter-box-stats column-header">Picks</div></a-col
+                >
+                <!-- No column header text for Fleaflicker leagues -->
+                <a-col
+                  class="gutter-row"
+                  :span="8"
+                  v-if="league.platform === 'fleaflicker'"
+                ></a-col>
+                <a-col
+                  class="gutter-row"
+                  :span="8"
+                  v-if="league.platform === 'fleaflicker'"
+                ></a-col>
+              </a-row>
+              <a-row
+                :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                class="clickable-platform-row"
+                @click="handlePlatformClick('sf', league)"
+              >
+                <a-col class="gutter-row" :span="8">
+                  <div class="gutter-box-stats-header clickable-platform-header">
+                    FantasyNavigator
+                  </div></a-col
+                >
+                <!-- Show rankings for non-Fleaflicker leagues -->
+                <template v-if="league.platform !== 'fleaflicker'">
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.sf_power_rank)">{{
+                        addOrdinalSuffix(league.sf_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.sf_starters_rank))">{{
+                        addOrdinalSuffix(league.sf_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.sf_bench_rank))">{{
+                        addOrdinalSuffix(league.sf_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.sf_picks_rank))">{{
+                        addOrdinalSuffix(league.sf_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </template>
+                <!-- Show ranking source info for Fleaflicker leagues -->
+                <template v-else>
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats ranking-source-card">
+                      <img :src="fnLogo" alt="FantasyNavigator" class="ranking-source-logo" />
+                      <span class="ranking-source-name">FantasyNavigator</span>
+                      <span class="ranking-source-action">→</span>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="8"></a-col>
+                </template>
+              </a-row>
+              <a-row
+                :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                class="clickable-platform-row"
+                @click="handlePlatformClick('ktc', league)"
+              >
+                <a-col class="gutter-row" :span="8">
+                  <div class="gutter-box-stats-header clickable-platform-header">
+                    KeepTradeCut
+                  </div></a-col
+                >
+                <!-- Show rankings for non-Fleaflicker leagues -->
+                <template v-if="league.platform !== 'fleaflicker'">
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.ktc_power_rank)">{{
+                        addOrdinalSuffix(league.ktc_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.ktc_starters_rank))">{{
+                        addOrdinalSuffix(league.ktc_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.ktc_bench_rank))">{{
+                        addOrdinalSuffix(league.ktc_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.ktc_picks_rank))">{{
+                        addOrdinalSuffix(league.ktc_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </template>
+                <!-- Show ranking source info for Fleaflicker leagues -->
+                <template v-else>
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats ranking-source-card">
+                      <img :src="ktcLogo" alt="KeepTradeCut" class="ranking-source-logo" />
+                      <span class="ranking-source-name">KeepTradeCut</span>
+                      <span class="ranking-source-action">→</span>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="8"></a-col>
+                </template>
+              </a-row>
+              <a-row
+                :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                class="clickable-platform-row"
+                @click="handlePlatformClick('dp', league)"
+              >
+                <a-col class="gutter-row" :span="8">
+                  <div class="gutter-box-stats-header clickable-platform-header">
+                    DynastyProcess
+                  </div></a-col
+                >
+                <!-- Show rankings for non-Fleaflicker leagues -->
+                <template v-if="league.platform !== 'fleaflicker'">
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.dp_power_rank)">{{
+                        addOrdinalSuffix(league.dp_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dp_starters_rank))">{{
+                        addOrdinalSuffix(league.dp_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dp_bench_rank))">{{
+                        addOrdinalSuffix(league.dp_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dp_picks_rank))">{{
+                        addOrdinalSuffix(league.dp_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </template>
+                <!-- Show ranking source info for Fleaflicker leagues -->
+                <template v-else>
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats ranking-source-card">
+                      <img :src="dpLogo" alt="DynastyProcess" class="ranking-source-logo" />
+                      <span class="ranking-source-name">DynastyProcess</span>
+                      <span class="ranking-source-action">→</span>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="8"></a-col>
+                </template>
+              </a-row>
+              <a-row
+                :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                class="clickable-platform-row"
+                @click="handlePlatformClick('fc', league)"
+              >
+                <a-col class="gutter-row" :span="8">
+                  <div class="gutter-box-stats-header clickable-platform-header">
+                    FantasyCalc
+                  </div></a-col
+                >
+                <!-- Show rankings for non-Fleaflicker leagues -->
+                <template v-if="league.platform !== 'fleaflicker'">
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.fc_power_rank)">{{
+                        addOrdinalSuffix(league.fc_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.fc_starters_rank))">{{
+                        addOrdinalSuffix(league.fc_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.fc_bench_rank))">{{
+                        addOrdinalSuffix(league.fc_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.fc_picks_rank))">{{
+                        addOrdinalSuffix(league.fc_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </template>
+                <!-- Show ranking source info for Fleaflicker leagues -->
+                <template v-else>
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats ranking-source-card">
+                      <img :src="fcLogo" alt="FantasyCalc" class="ranking-source-logo" />
+                      <span class="ranking-source-name">FantasyCalc</span>
+                      <span class="ranking-source-action">→</span>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="8"></a-col>
+                </template>
+              </a-row>
+              <a-row
+                :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }"
+                class="clickable-platform-row"
+                @click="handlePlatformClick('dd', league)"
+              >
+                <a-col class="gutter-row" :span="8">
+                  <div class="gutter-box-stats-header clickable-platform-header">
+                    DynastyDaddy
+                  </div></a-col
+                >
+                <template v-if="league.platform !== 'fleaflicker'">
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(league.dd_power_rank)">{{
+                        addOrdinalSuffix(league.dd_power_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_starters_rank))">{{
+                        addOrdinalSuffix(league.dd_starters_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_bench_rank))">{{
+                        addOrdinalSuffix(league.dd_bench_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="4">
+                    <div class="gutter-box-stats">
+                      <a-tag :style="getCellStyle(Number(league.dd_picks_rank))">{{
+                        addOrdinalSuffix(league.dd_picks_rank)
+                      }}</a-tag>
+                    </div></a-col
+                  >
+                </template>
+                <template v-else>
+                  <a-col class="gutter-row" :span="8">
+                    <div class="gutter-box-stats ranking-source-card">
+                      <img :src="ddLogo" alt="DynastyDaddy" class="ranking-source-logo" />
+                      <span class="ranking-source-name">DynastyDaddy</span>
+                      <span class="ranking-source-action">→</span>
+                    </div></a-col
+                  >
+                  <a-col class="gutter-row" :span="8"></a-col>
+                </template>
+              </a-row>
+            </div>
           </div>
         </div>
       </a-spin>
@@ -571,14 +598,14 @@ const leagueInfo = reactive({
 onMounted(() => {
   // Scroll to top immediately when component mounts
   window.scrollTo(0, 0)
-  
+
   // Check if we already have leagues data, if not fetch it
   if (leaguesStore.leagues.length === 0) {
     // console.log removed for production
     const leagueYear = route.params.leagueYear as string
     const userName = route.params.userName as string
     const guid = route.params.guid as string
-    
+
     if (leagueYear && userName && guid) {
       fetchData(leagueYear, userName, guid)
     }
@@ -643,13 +670,13 @@ const rosterOptions = ref([
 async function fetchData(leagueYear: string, userName: string, guid: string) {
   // Use the leagues store to fetch data, which has the correct platform logic
   // Fetch data using leagues store
-  
+
   // Use leagues store fetchLeagues method which has correct platform handling
   await leaguesStore.fetchLeagues(
-    leagueYear, 
-    userName, 
-    guid, 
-    userStore.platform || 'sleeper', 
+    leagueYear,
+    userName,
+    guid,
+    userStore.platform || 'sleeper',
     userStore.leagueId || ''
   )
 }
@@ -682,7 +709,7 @@ const handlePlatformClick = (platformKey, league) => {
 const getLeagueDetail = (e, league) => {
   try {
     // console.log removed for production
-    
+
     const leagueId = league.league_id
     const guid = league.session_id || league.guid // Fallback to guid if session_id missing
     const leagueYear = league.league_year
@@ -690,7 +717,7 @@ const getLeagueDetail = (e, league) => {
     const leagueName = encodeURIComponent(league.league_name)
     const userId = league.user_id
     const avatar = league.avatar || 'default' // Default to 'default' if missing to avoid empty URL segment
-    
+
     // Fix rankType - convert numeric league_type to string if needed
     let rankType = league.league_type
     if (typeof rankType === 'number') {
@@ -700,22 +727,36 @@ const getLeagueDetail = (e, league) => {
     } else if (!rankType) {
       rankType = 'Dynasty'
     }
-    
+
     const rosterType = league.roster_type
-    const platform = league.platform || e.key  // Use league's actual platform, fallback to menu key
+    const platform = league.platform || e.key // Use league's actual platform, fallback to menu key
     const starterCnt = league.starter_cnt || league.starter_count || 0
     const totalRosters = league.total_rosters
-    
+
     // Get ranking source from event or default to 'sf' (FantasyNavigator)
     const rankingSource = e.rankingSource || 'sf'
-    
+
     // Log all values before navigation
     // Navigation params ready
-    
+
     // Check for any undefined values
-    const params = [leagueId, platform, rankType, guid, leagueYear, userName, leagueName, rosterType, userId, avatar, starterCnt, totalRosters, rankingSource]
-    const hasUndefined = params.some(param => param === undefined || param === null)
-    
+    const params = [
+      leagueId,
+      platform,
+      rankType,
+      guid,
+      leagueYear,
+      userName,
+      leagueName,
+      rosterType,
+      userId,
+      avatar,
+      starterCnt,
+      totalRosters,
+      rankingSource
+    ]
+    const hasUndefined = params.some((param) => param === undefined || param === null)
+
     if (hasUndefined) {
       console.error('Missing required parameters for navigation:', {
         leagueId: leagueId === undefined ? 'MISSING' : leagueId,
@@ -734,10 +775,10 @@ const getLeagueDetail = (e, league) => {
       })
       return
     }
-    
+
     const url = `/league/${leagueId}/${platform}/${rankType}/${guid}/${leagueYear}/${userName}/${leagueName}/${rosterType}/${userId}/${avatar}/${starterCnt}/${totalRosters}/${rankingSource}`
     // console.log removed for production
-    
+
     router.push(url)
     // console.log removed for production
   } catch (error) {
@@ -915,7 +956,7 @@ const getCurrentYear = async () => {
   .empty-state {
     padding: 24px 16px;
   }
-  
+
   .empty-state-suggestions {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -1006,7 +1047,6 @@ const getCurrentYear = async () => {
   font-size: 0.9rem;
 }
 
-
 .gutter-box {
   padding: 8px 5px;
 }
@@ -1051,30 +1091,31 @@ const getCurrentYear = async () => {
 .ranking-source-card {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 4px 8px;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 2px 6px;
   transition: all 0.3s ease;
-  min-height: 28px;
+  min-height: 20px;
+  max-height: 28px;
 }
 
 .ranking-source-logo {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
 }
 
 .ranking-source-name {
   font-weight: 500;
   color: var(--color-text);
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .ranking-source-action {
   color: var(--color-primary, #277da1);
   font-weight: 600;
   margin-left: auto;
-  font-size: 16px;
+  font-size: 12px;
 }
 
 .clickable-platform-row:hover .ranking-source-action {
@@ -1106,11 +1147,10 @@ const getCurrentYear = async () => {
   margin-bottom: 5px;
 }
 
-
 /* Grid container for responsive league cards */
 .leagues-grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   padding: 20px 0;
   max-width: 100%;
@@ -1450,7 +1490,9 @@ a-tag:hover {
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 18px 20px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .about-site-title {
@@ -1474,7 +1516,7 @@ a-tag:hover {
 /* Enhanced Responsive Design */
 @media (max-width: 1200px) {
   .leagues-grid-container {
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 }
@@ -1524,7 +1566,7 @@ a-tag:hover {
     gap: 12px;
     padding: 12px 0;
   }
-  
+
   .leagues-container {
     border-radius: 8px;
   }
