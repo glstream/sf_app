@@ -3,6 +3,17 @@
     <theme-toggle-button />
     <AppHeader />
 
+    <!-- Announcement Toast -->
+    <div v-if="showAnnouncement" class="announcement-toast">
+      <div class="announcement-content">
+        <span class="announcement-badge">NEW</span>
+        <span class="announcement-text">Fleaflicker leagues now available with full power rankings support!</span>
+        <a-button type="text" size="small" @click="dismissAnnouncement" class="announcement-close">
+          <CloseOutlined />
+        </a-button>
+      </div>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-background">
@@ -336,7 +347,8 @@ import {
   InfoCircleOutlined,
   HomeOutlined,
   RightOutlined,
-  TeamOutlined
+  TeamOutlined,
+  CloseOutlined
 } from '@ant-design/icons-vue'
 
 import { message } from 'ant-design-vue'
@@ -362,6 +374,7 @@ const open = ref<boolean>(false)
 const formIsLoading = ref(false)
 const demoFormIsLoading = ref(false)
 const apiUrl = import.meta.env.VITE_API_URL
+const showAnnouncement = ref(true)
 
 import { theme } from 'ant-design-vue'
 const { useToken } = theme
@@ -400,6 +413,9 @@ const navigateToDemoPage = () => {
 }
 const handleOk = (e: MouseEvent) => {
   open.value = false
+}
+const dismissAnnouncement = () => {
+  showAnnouncement.value = false
 }
 
 const userStore = useUserStore()
@@ -586,6 +602,66 @@ const structuredData = {
 }
 </script>
 <style scoped>
+/* Announcement Toast Styles */
+.announcement-toast {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.announcement-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+}
+
+.announcement-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.announcement-text {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.announcement-close {
+  position: absolute;
+  right: 0;
+  color: white !important;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.announcement-close:hover {
+  opacity: 1;
+}
+
 /* Hero Section Styles */
 .hero-section {
   min-height: 600px;
@@ -1061,6 +1137,24 @@ html.dark :deep(.ant-card) {
 }
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
+  .announcement-toast {
+    padding: 10px 12px;
+  }
+
+  .announcement-content {
+    gap: 8px;
+    padding-right: 40px;
+  }
+
+  .announcement-text {
+    font-size: 13px;
+  }
+
+  .announcement-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
   .hero-section {
     min-height: 500px;
     padding: 60px 16px 40px;
