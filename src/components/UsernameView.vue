@@ -156,6 +156,10 @@
             <span class="stat-label">Projection Sources</span>
           </div>
           <div class="stat-item">
+            <span class="stat-number">2</span>
+            <span class="stat-label">Fantasy Platforms</span>
+          </div>
+          <div class="stat-item">
             <span class="stat-number">Real-time</span>
             <span class="stat-label">Trade Analysis</span>
           </div>
@@ -1074,31 +1078,56 @@ html.dark :deep(.ant-card) {
   }
 
   .hero-form-container {
-    padding: 32px 24px;
-    margin-bottom: 32px;
+    padding: 24px 16px;
+    margin-bottom: 24px;
+  }
+
+  .landing-form {
+    gap: 16px;
   }
 
   .form-inputs-row {
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
     max-width: 100%;
   }
 
+  .form-item-platform,
   .form-item-username,
   .form-item-year {
     flex: 1;
+    width: 100%;
+  }
+
+  .form-item-platform .ant-form-item-control-input,
+  .form-item-username .ant-form-item-control-input,
+  .form-item-year .ant-form-item-control-input {
+    width: 100%;
+  }
+
+  .platform-select,
+  .username-input,
+  .year-select {
+    width: 100%;
   }
 
   .form-actions-row {
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
     width: 100%;
+  }
+
+  .form-item-primary,
+  .form-item-demo {
+    flex: 1;
   }
 
   .cta-btn-primary,
   .demo-btn {
     width: 100%;
     justify-content: center;
+    padding: 10px 16px;
+    font-size: 14px;
   }
 
   .hero-stats {
@@ -1111,6 +1140,14 @@ html.dark :deep(.ant-card) {
 
   .stat-label {
     font-size: 0.8rem;
+  }
+
+  .form-info {
+    margin-top: 8px;
+  }
+
+  .info-btn {
+    font-size: 12px;
   }
 }
 
