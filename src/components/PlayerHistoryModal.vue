@@ -297,13 +297,78 @@ const renderPlayerValueChart = () => {
 
   const valueField = props.isSuperflex ? 'superflex_player_value' : 'one_qb_player_value'
 
-  const formattedData = playerValueHistory.value
+  // First, sort all data by date
+  const allData = playerValueHistory.value
     .map((item) => ({
       date: item.value_date,
       value: item[valueField]
     }))
     .filter((item) => item.value != null)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  // Sample data uniformly - aim for twice weekly intervals
+  const sampleDataUniformly = (data) => {
+    if (data.length <= 30) return data // If we have 30 or fewer points, use them all
+    
+    const result = []
+    const firstDate = new Date(data[0].date)
+    const lastDate = new Date(data[data.length - 1].date)
+    const daysDiff = Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24))
+    
+    // Determine sampling interval based on date range - showing more frequent data points
+    let intervalDays = 3.5 // Default to twice weekly (every 3-4 days)
+    if (daysDiff <= 14) intervalDays = 1 // Daily for 2 weeks view
+    else if (daysDiff <= 30) intervalDays = 2 // Every 2 days for month view
+    else if (daysDiff <= 60) intervalDays = 3 // Every 3 days for 2 months
+    else if (daysDiff <= 90) intervalDays = 3.5 // Twice weekly for 3 months
+    else if (daysDiff <= 180) intervalDays = 7 // Weekly for 6 months
+    else if (daysDiff <= 365) intervalDays = 10 // Every 10 days for a year
+    else intervalDays = 14 // Bi-weekly for longer periods
+    
+    // Always include first point
+    result.push(data[0])
+    
+    let currentTargetDate = new Date(firstDate)
+    currentTargetDate.setDate(currentTargetDate.getDate() + intervalDays)
+    
+    for (let i = 1; i < data.length - 1; i++) {
+      const pointDate = new Date(data[i].date)
+      const nextPointDate = i < data.length - 1 ? new Date(data[i + 1].date) : null
+      
+      // Check if this point is closest to our target date
+      if (nextPointDate) {
+        const diffToCurrent = Math.abs(pointDate - currentTargetDate)
+        const diffToNext = Math.abs(nextPointDate - currentTargetDate)
+        
+        if (diffToCurrent <= diffToNext) {
+          // This point is closest to our target
+          result.push(data[i])
+          currentTargetDate = new Date(pointDate)
+          currentTargetDate.setDate(currentTargetDate.getDate() + intervalDays)
+        }
+      }
+    }
+    
+    // Always include last point
+    if (data.length > 1) {
+      result.push(data[data.length - 1])
+    }
+    
+    // Ensure we don't have duplicate dates
+    const uniqueResult = []
+    const seenDates = new Set()
+    for (const point of result) {
+      const dateStr = point.date
+      if (!seenDates.has(dateStr)) {
+        uniqueResult.push(point)
+        seenDates.add(dateStr)
+      }
+    }
+    
+    return uniqueResult
+  }
+
+  const formattedData = sampleDataUniformly(allData)
 
   if (formattedData.length === 0) {
     console.log('No valid data points to plot after formatting.')
@@ -333,7 +398,7 @@ const renderPlayerValueChart = () => {
     },
     xAxis: {
       type: 'time',
-      tickCount: 3,
+      tickCount: 5,
       line: null,
       tickLine: null,
       subTickLine: null,
