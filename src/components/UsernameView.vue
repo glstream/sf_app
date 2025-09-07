@@ -62,10 +62,17 @@
                       Fleaflicker
                     </span>
                   </a-select-option>
+                  <a-select-option value="mfl">
+                    <span class="platform-option">
+                      <img src="@/assets/platformLogos/mfl.png" alt="MyFantasyLeague" class="platform-logo" />
+                      MyFantasyLeague
+                    </span>
+                  </a-select-option>
                 </a-select>
               </a-form-item>
 
               <a-form-item
+                v-if="formState.platform !== 'mfl'"
                 name="userName"
                 :rules="[{ required: true, message: `Please enter your ${formState.platform === 'fleaflicker' ? 'Fleaflicker email address' : 'Sleeper username'}` }]"
                 class="form-item-username"
@@ -78,6 +85,24 @@
                 >
                   <template #prefix>
                     <UserOutlined class="input-icon" />
+                  </template>
+                </a-input>
+              </a-form-item>
+
+              <a-form-item
+                v-if="formState.platform === 'mfl'"
+                name="leagueId"
+                :rules="[{ required: true, message: 'Please enter your MFL League ID' }]"
+                class="form-item-username"
+              >
+                <a-input
+                  v-model:value="formState.leagueId"
+                  placeholder="Enter your MFL League ID"
+                  size="large"
+                  class="username-input"
+                >
+                  <template #prefix>
+                    <TeamOutlined class="input-icon" />
                   </template>
                 </a-input>
               </a-form-item>
@@ -431,13 +456,15 @@ async function updateUserDetails(year, name, guid) {
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
   leagueYear: userStore.leagueYear || '2025',
-  platform: userStore.platform || 'sleeper'
+  platform: userStore.platform || 'sleeper',
+  leagueId: ''
 })
 
-// Clear username when platform changes
+// Clear username/leagueId when platform changes
 watch(() => formState.platform, (newPlatform, oldPlatform) => {
   if (oldPlatform && newPlatform !== oldPlatform) {
     formState.userName = ''
+    formState.leagueId = ''
   }
 })
 
@@ -486,40 +513,78 @@ const onFinish = async (values) => {
           }
           console.log('Fleaflicker numeric ID validation passed')
         }
+      } else if (formState.platform === 'mfl') {
+        console.log('Validating MFL League ID:', formState.leagueId)
+        // Clean input
+        formState.leagueId = formState.leagueId.trim()
+        
+        if (!formState.leagueId || formState.leagueId.length < 1) {
+          throw new Error('Please enter your MFL League ID!')
+        }
+        
+        // MFL league IDs are typically numeric
+        if (!/^\d+$/.test(formState.leagueId)) {
+          throw new Error('Please enter a valid MFL League ID (numeric)!')
+        }
+        console.log('MFL League ID validation passed')
       }
 
       const { getOrCreateGUID } = useGuid()
       const userGuid = getOrCreateGUID()
       console.log('Generated GUID:', userGuid)
 
-      // Make a POST request to your backend server with platform
-      const requestData: any = {
-        league_year: formState.leagueYear,
-        user_name: formState.userName,
-        guid: userGuid,
-        platform: formState.platform
+      // Handle MFL differently - go directly to league detail
+      if (formState.platform === 'mfl') {
+        const mflRequestData = {
+          league_id: formState.leagueId,
+          league_year: formState.leagueYear,
+          guid: userGuid,
+          platform: 'mfl'
+        }
+        
+        console.log('Sending MFL POST request to:', `${apiUrl}/mfl_league`)
+        console.log('MFL Request data:', mflRequestData)
+        
+        const response = await axios.post(`${apiUrl}/mfl_league`, mflRequestData)
+        console.log('MFL league submission successful:', response.data)
+        
+        // Store MFL details
+        store.setUserDetails(formState.leagueYear, formState.leagueId, userGuid, 'mfl')
+        
+        // For MFL, go directly to league detail view
+        console.log('MFL - Redirecting directly to LeagueDetailView')
+        router.push(`/league/${formState.leagueId}/mfl/dynasty/${userGuid}/Superflex`)
+        
+      } else {
+        // Original flow for Sleeper and Fleaflicker
+        const requestData: any = {
+          league_year: formState.leagueYear,
+          user_name: formState.userName,
+          guid: userGuid,
+          platform: formState.platform
+        }
+        
+        console.log('Sending POST request to:', `${apiUrl}/user_details`)
+        console.log('Request data:', requestData)
+        
+        await axios.post(`${apiUrl}/user_details`, requestData)
+
+        console.log('Username submission successful')
+
+        store.setUserDetails(formState.leagueYear, formState.userName, userGuid, formState.platform)
+        
+        console.log('Fetching leagues...')
+        await fetchLeagues(formState.leagueYear, formState.userName, userGuid, formState.platform)
+
+        // Debug: Log the current state
+        console.log('UsernameView redirect logic - Platform:', formState.platform)
+        console.log('UsernameView redirect logic - Leagues Store:', leagueStore.leagues)
+        console.log('UsernameView redirect logic - Leagues Count:', leagueStore.leagues?.length || 0)
+
+        // Both Fleaflicker and Sleeper users now go to LeaguesView
+        console.log('UsernameView - Redirecting to LeaguesView for platform:', formState.platform)
+        router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
       }
-      
-      console.log('Sending POST request to:', `${apiUrl}/user_details`)
-      console.log('Request data:', requestData)
-      
-      await axios.post(`${apiUrl}/user_details`, requestData)
-
-      console.log('Username submission successful')
-
-      store.setUserDetails(formState.leagueYear, formState.userName, userGuid, formState.platform)
-      
-      console.log('Fetching leagues...')
-      await fetchLeagues(formState.leagueYear, formState.userName, userGuid, formState.platform)
-
-      // Debug: Log the current state
-      console.log('UsernameView redirect logic - Platform:', formState.platform)
-      console.log('UsernameView redirect logic - Leagues Store:', leagueStore.leagues)
-      console.log('UsernameView redirect logic - Leagues Count:', leagueStore.leagues?.length || 0)
-
-      // Both Fleaflicker and Sleeper users now go to LeaguesView
-      console.log('UsernameView - Redirecting to LeaguesView for platform:', formState.platform)
-      router.push(`/leagues/${formState.leagueYear}/${formState.userName}/${userGuid}`)
 
       // Break out of the retry loop if successful
       break
