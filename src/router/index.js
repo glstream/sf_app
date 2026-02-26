@@ -87,6 +87,24 @@ const router = createRouter({
       beforeEnter: logNavigation
     },
     {
+      path: '/blog',
+      name: 'blog',
+      component: () => import('../components/BlogView.vue'),
+      beforeEnter: logNavigation
+    },
+    {
+      path: '/faq',
+      name: 'faq',
+      component: () => import('../components/FAQView.vue'),
+      beforeEnter: logNavigation
+    },
+    {
+      path: '/how-to-guide',
+      name: 'guide',
+      component: () => import('../components/HowToGuideView.vue'),
+      beforeEnter: logNavigation
+    },
+    {
       path: '/:pathMatch(.*)*', // Catch all undefined routes
       redirect: { name: 'trade-calculator' } // Redirect to the trade calculator page
       // Or, if 'trade-calculator' is not a named route, you can use path:

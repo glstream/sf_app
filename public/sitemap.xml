@@ -50,6 +50,28 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- Educational Content -->
+  <url>
+    <loc>https://fantasynavigator.app/blog</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://fantasynavigator.app/faq</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://fantasynavigator.app/how-to-guide</loc>
+    <lastmod>2026-02-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Legal Pages -->
   <url>
     <loc>https://fantasynavigator.app/privacy-policy</loc>

@@ -58,7 +58,10 @@ import {
   OrderedListOutlined,
   QuestionCircleOutlined,
   MenuOutlined,
-  StarOutlined
+  StarOutlined,
+  BookOutlined,
+  FileTextOutlined,
+  BulbOutlined
 } from '@ant-design/icons-vue'
 
 import { useLeaguesStore } from '@/stores/leaguesStore'
@@ -91,6 +94,9 @@ function updateActiveKey() {
   else if (path.includes('/ranks')) activeKey.value = ['ranks']
   else if (path.includes('/ratemyteam')) activeKey.value = ['rateMyTeam']
   else if (path.includes('/about')) activeKey.value = ['about']
+  else if (path.includes('/blog')) activeKey.value = ['blog']
+  else if (path.includes('/faq')) activeKey.value = ['faq']
+  else if (path.includes('/how-to-guide')) activeKey.value = ['guide']
   else if (path.includes('/league/')) activeKey.value = ['leagues']
 }
 
@@ -214,6 +220,27 @@ const items = computed(() => {
       label: 'About',
       title: 'About',
       onClick: () => router.push('/about')
+    },
+    {
+      key: 'blog',
+      icon: () => h(BookOutlined),
+      label: 'Strategy Blog',
+      title: 'Fantasy Football Strategy & Analysis',
+      onClick: () => router.push('/blog')
+    },
+    {
+      key: 'faq',
+      icon: () => h(FileTextOutlined),
+      label: 'FAQ',
+      title: 'Frequently Asked Questions',
+      onClick: () => router.push('/faq')
+    },
+    {
+      key: 'guide',
+      icon: () => h(BulbOutlined),
+      label: 'How-To Guide',
+      title: 'How to Use Fantasy Navigator',
+      onClick: () => router.push('/how-to-guide')
     }
   ]
   return baseItems
@@ -256,6 +283,27 @@ const mobileItems = computed(() => {
       label: 'About',
       title: 'About',
       onClick: () => router.push('/about')
+    },
+    {
+      key: 'blog',
+      icon: () => h(BookOutlined),
+      label: 'Strategy Blog',
+      title: 'Fantasy Football Strategy & Analysis',
+      onClick: () => router.push('/blog')
+    },
+    {
+      key: 'faq',
+      icon: () => h(FileTextOutlined),
+      label: 'FAQ',
+      title: 'Frequently Asked Questions',
+      onClick: () => router.push('/faq')
+    },
+    {
+      key: 'guide',
+      icon: () => h(BulbOutlined),
+      label: 'How-To Guide',
+      title: 'How to Use Fantasy Navigator',
+      onClick: () => router.push('/how-to-guide')
     }
   ]
 
