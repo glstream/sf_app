@@ -616,6 +616,12 @@ onMounted(() => {
 
 const filteredData = computed(() => {
   return leaguesData.value.filter((league) => {
+    // ignore any 2026 league that has already been rolled over to the new year
+    // (backend may set `rolled_over` or similar – adjust if different)
+    if (league.league_year === '2026' && league.rolled_over) {
+      return false
+    }
+
     const matchesLeagueType =
       selectedLeagueType.value.length === 0 || selectedLeagueType.value.includes(league.league_type)
     const matchesRosterType =

@@ -29,7 +29,7 @@
       </div>
       <div class="copyright">
         All trademarks and copyrights are the property of their respective owners.<br />
-        <span>&copy; 2025 FantasyNavigator</span>
+        <span>&copy; 2026 FantasyNavigator</span>
       </div>
     </a-layout-footer>
   </footer>

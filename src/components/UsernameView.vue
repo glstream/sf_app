@@ -118,6 +118,7 @@
                   size="large"
                   class="year-select"
                 >
+                  <a-select-option value="2026">2026</a-select-option>
                   <a-select-option value="2025">2025</a-select-option>
                   <a-select-option value="2024">2024</a-select-option>
                   <a-select-option value="2023">2023</a-select-option>
@@ -434,7 +435,7 @@ const showModal = () => {
   open.value = true
 }
 const navigateToDemoPage = () => {
-  router.push('/leagues/2025/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
+  router.push('/leagues/2026/gray_matter/b114010d-ca3c-4150-b7ac-3b926a1737b1')
 }
 const handleOk = (e: MouseEvent) => {
   open.value = false
@@ -455,7 +456,7 @@ async function updateUserDetails(year, name, guid) {
 
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
-  leagueYear: userStore.leagueYear || '2025',
+  leagueYear: userStore.leagueYear || '2026',
   platform: userStore.platform || 'sleeper',
   leagueId: ''
 })
