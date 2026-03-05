@@ -62,8 +62,8 @@
       </div>
     </div>
     <div v-else class="loading-state">
-      <a-spin size="large" />
-      <p>{{ isPlayerDataLoading ? 'Loading player details...' : 'Loading player details...' }}</p>
+      <a-spin size="large" v-if="isPlayerDataLoading" />
+      <p>{{ isPlayerDataLoading ? 'Loading player details...' : 'Player data not available.' }}</p>
     </div>
   </a-modal>
 </template>
