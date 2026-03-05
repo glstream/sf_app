@@ -4606,6 +4606,7 @@ const getPositionRank = (manager, position) => {
 .heatmap-table-container {
   width: 100%;
   max-width: 1200px;
+  margin: 0 auto 24px;
   background: var(--color-background);
   border-radius: 16px;
   padding: 20px;
@@ -4614,7 +4615,6 @@ const getPositionRank = (manager, position) => {
     0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.06));
   backdrop-filter: blur(10px);
-  margin-bottom: 24px;
 }
 
 .full-width-table {
