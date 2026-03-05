@@ -47,14 +47,5 @@ export const useLeaguesStore = defineStore('leagues', {
         this.isLoading = false
       }
     }
-  },
-  persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'leagues',
-        storage: window.localStorage
-      }
-    ]
   }
 })

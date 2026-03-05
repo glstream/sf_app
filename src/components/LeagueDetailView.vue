@@ -3717,7 +3717,7 @@ const searchPlayer2 = (searchText) => {
 const selectPlayer1 = (playerId) => {
   const player = tradeRanksData.value.find((item) => item.player_id === playerId)
   const isAlreadySelected = selectedPlayers1.value.some((p) => p.player_id === player?.player_id)
-  const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
+  const hasSpecialYear = player?.player_full_name.match(/\b(2026|2027|2028)\b/)
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers1.value.push(player)
   }
@@ -3727,7 +3727,7 @@ const selectPlayer1 = (playerId) => {
 const selectPlayer2 = (playerId) => {
   const player = tradeRanksData.value.find((item) => item.player_id === playerId)
   const isAlreadySelected = selectedPlayers2.value.some((p) => p.player_id === player?.player_id)
-  const hasSpecialYear = player?.player_full_name.match(/\b(2025|2026|2027)\b/)
+  const hasSpecialYear = player?.player_full_name.match(/\b(2026|2027|2028)\b/)
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers2.value.push(player)
   }
@@ -3874,7 +3874,7 @@ const addPlayerToTrade = (player) => {
   const sideToAdd =
     player.ownerId === selectedTradeManagerA.value ? selectedPlayers1 : selectedPlayers2
 
-  const isPick = player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+  const isPick = player.player_full_name.match(/\b(2026|2027|2028)\b/)
   const existingPlayer = sideToAdd.value.find(
     (p) => !isPick && p.player_full_name === player.player_full_name
   )

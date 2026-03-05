@@ -791,9 +791,9 @@ const selectPlayer1 = (playerId: string) => {
 
   const isAlreadySelected = selectedPlayers1.value.some((p) => p.player_id === player?.player_id)
   const hasSpecialYear =
-    player?.player_full_name.includes('2025') ||
     player?.player_full_name.includes('2026') ||
-    player?.player_full_name.includes('2027')
+    player?.player_full_name.includes('2027') ||
+    player?.player_full_name.includes('2028')
 
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers1.value.push(player)
@@ -806,9 +806,9 @@ const selectPlayer2 = (playerId: string) => {
 
   const isAlreadySelected = selectedPlayers2.value.some((p) => p.player_id === player?.player_id)
   const hasSpecialYear =
-    player?.player_full_name.includes('2025') ||
     player?.player_full_name.includes('2026') ||
-    player?.player_full_name.includes('2027')
+    player?.player_full_name.includes('2027') ||
+    player?.player_full_name.includes('2028')
 
   if (player && (!isAlreadySelected || hasSpecialYear)) {
     selectedPlayers2.value.push(player)
@@ -841,7 +841,7 @@ const addPlayerToTrade = (player) => {
   const sideToAdd =
     totalValueSideA.value <= totalValueSideB.value ? selectedPlayers1 : selectedPlayers2
 
-  const isPick = player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+  const isPick = player.player_full_name.match(/\b(2026|2027|2028)\b/)
   const existingPlayer = sideToAdd.value.find(
     (p) => !isPick && p.player_full_name === player.player_full_name
   )
@@ -1386,7 +1386,7 @@ function getCardPositionColor(position: string): string {
 
 // Helper function to check if an item is a pick
 const isPick = (player) => {
-  return player.player_full_name.match(/\b(2024|2025|2026|2027)\b/)
+  return player.player_full_name.match(/\b(2026|2027|2028)\b/)
 }
 
 // Show player modal function (only for players, not picks)

@@ -453,9 +453,9 @@ const selectPlayerFromDropdown = (playerId, position, index) => {
 
     // Allow special years (draft picks) to be selected multiple times
     const hasSpecialYear =
-      player.full_name.includes('2025') ||
       player.full_name.includes('2026') ||
-      player.full_name.includes('2027')
+      player.full_name.includes('2027') ||
+      player.full_name.includes('2028')
 
     if (!isAlreadySelected || hasSpecialYear) {
       rosterSlots[position][index].player = { ...player }
