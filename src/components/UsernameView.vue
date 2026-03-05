@@ -416,6 +416,7 @@ interface FormState {
   userName: string
   leagueYear: string
   platform: string
+  leagueId: string
 }
 
 onMounted(() => {
@@ -456,7 +457,7 @@ async function updateUserDetails(year, name, guid) {
 
 const formState = reactive<FormState>({
   userName: userStore.userName || '',
-  leagueYear: userStore.leagueYear || '2026',
+  leagueYear: '2026',
   platform: userStore.platform || 'sleeper',
   leagueId: ''
 })
