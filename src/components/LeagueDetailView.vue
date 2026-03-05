@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="layout">
+  <a-layout class="layout" :class="{ 'no-player-modal': leagueInfo.rankingSource !== 'sf' }">
     <AppHeader />
     <theme-toggle-button />
 
@@ -3317,13 +3317,10 @@ const getLeagueSummary = async () => {
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
-  // Debug info available: rosterType, rankType, apiSource
-  // Handle both ktc_player_id (from most tabs) and sleeper_id (from waivers/best available)
+  if (leagueInfo.rankingSource !== 'sf') return
   const playerId = player.ktc_player_id || player.sleeper_id || player.player_id
   if (playerModalRef.value && playerId) {
     playerModalRef.value.showModal(playerId)
-  } else {
-    // console.warn removed for production
   }
 }
 const handlePlayerModalOk = () => {
@@ -5149,6 +5146,10 @@ const getPositionRank = (manager, position) => {
   overflow: hidden;
   cursor: pointer;
   backdrop-filter: blur(10px);
+}
+
+.no-player-modal .player-card {
+  cursor: default;
 }
 
 .player-card::after {
