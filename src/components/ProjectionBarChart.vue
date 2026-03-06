@@ -1,5 +1,5 @@
 <template>
-  <div ref="chartContainer" style="width: 100%; height: 500px"></div>
+  <div ref="chartContainer" style="width: 100%; height: 380px"></div>
 </template>
 
 <script setup>

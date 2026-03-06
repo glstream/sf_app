@@ -208,9 +208,13 @@ watch(activeKeyRankings, (val) => {
 }
 
 .responsive-padding {
-  padding: 0 100px;
+  padding: 0 20px;
   margin-top: 20px;
   margin-bottom: 40px;
+  max-width: var(--max-content-width);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .about-container {
@@ -450,10 +454,6 @@ html.dark :deep(.custom-collapse) {
 }
 
 @media (max-width: 1024px) {
-  .responsive-padding {
-    padding: 0 40px;
-  }
-
   .title {
     font-size: 2rem;
   }
@@ -464,10 +464,6 @@ html.dark :deep(.custom-collapse) {
 }
 
 @media (max-width: 768px) {
-  .responsive-padding {
-    padding: 0 24px;
-  }
-
   .title {
     font-size: 1.75rem;
   }
@@ -482,9 +478,6 @@ html.dark :deep(.custom-collapse) {
 }
 
 @media (max-width: 480px) {
-  .responsive-padding {
-    padding: 0 16px;
-  }
 
   .about-header {
     margin-bottom: 32px;

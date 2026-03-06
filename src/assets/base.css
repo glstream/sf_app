@@ -51,6 +51,7 @@
   --card-outline-reverse: var(--primary-card-outline-reverse-light);
 
   --section-gap: 160px;
+  --max-content-width: 1440px;
 }
 
 /* Explicit light mode class-based theme to override system preferences */
