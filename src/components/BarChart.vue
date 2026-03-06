@@ -83,7 +83,6 @@ onUnmounted(() => {
 })
 
 onMounted(() => {
-  const maxValue = Math.max(...props.chartData.map((item) => item.value))
   // Initialize the chart with an empty data set initially
   stackedBarPlot = new Bar(chartContainer.value, {
     data: sortedChartData.value,
@@ -106,23 +105,38 @@ onMounted(() => {
       layout: [{ type: 'interval-adjust-position' }, { type: 'interval-hide-overlap' }]
     },
 
-    // tooltip: {
-    //   // Define custom content function
-    //   customContent: (title, items) => {
-    //     if (items && items.length > 0) {
-    //       const item = items[0] // Access the first item if there are multiple (for stacked)
-    //       return `<div class="custom-tooltip">
-    //               <h5>${item.data.display_name} - Detailed Info</h5>
-    //               <ul>
-    //                 <li>Value: ${item.value}</li>
-    //                 <li>Position: ${item.data.position}</li>
-    //                 ${item.data.rank ? `<li>Rank: ${item.data.rank}</li>` : ''}
-    //               </ul>
-    //             </div>`
-    //     }
-    //     return ''
-    //   }
-    // },
+    tooltip: {
+      showMarkers: false,
+      customContent: (_title, items) => {
+        if (!items || items.length === 0) return ''
+        const displayName = items[0].data.display_name
+        const total = items.reduce((sum, i) => sum + (i.data.value || 0), 0)
+        const rows = positionOrder
+          .map((pos) => items.find((i) => i.data.position === pos))
+          .filter(Boolean)
+          .map((item) => {
+            const color = positionColors[item.data.position] ?? '#888'
+            return `
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                <span style="font-size:12px;color:#888;flex:1;">${item.data.position}</span>
+                <span style="font-size:12px;font-weight:600;">${item.data.value?.toLocaleString()}</span>
+                ${item.data.rank ? `<span style="font-size:11px;color:#bbb;min-width:26px;text-align:right;">${addOrdinalSuffix(item.data.rank)}</span>` : ''}
+              </div>`
+          }).join('')
+        return `
+          <div style="padding:12px 16px;min-width:220px;max-width:300px;font-family:inherit;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(128,128,128,0.15);word-break:break-word;white-space:normal;line-height:1.4;">
+              ${displayName}
+            </div>
+            ${rows}
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(128,128,128,0.15);display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:#888;">Total</span>
+              <span style="font-size:13px;font-weight:700;">${total.toLocaleString()}</span>
+            </div>
+          </div>`
+      }
+    },
     legend: {
       position: window.innerWidth < 600 ? 'top' : 'bottom',
       itemSpacing: 8,
