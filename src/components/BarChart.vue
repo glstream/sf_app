@@ -14,7 +14,7 @@ const props = defineProps({
 })
 
 const chartHeight = computed(() => {
-  return window.innerHeight > window.innerWidth ? '60vh' : '50vh'
+  return window.innerHeight > window.innerWidth ? '45vh' : '38vh'
 })
 
 const chartContainer = ref(null)
@@ -147,6 +147,6 @@ watchEffect(() => {
 <style scoped>
 #chart-container {
   width: 100%; /* Ensures it fills the container */
-  max-height: 60vh; /* Limits height on larger devices */
+  max-height: 45vh; /* Limits height on larger devices */
 }
 </style>

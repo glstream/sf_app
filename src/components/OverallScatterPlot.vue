@@ -17,23 +17,33 @@ let scatterPlot = null
 // Theme support
 const themeStore = useThemeStore()
 
+// Modern muted palette — less saturated, more refined
+const QUADRANT = {
+  elite:      { fill: '#52b788', region: 'rgba(82, 183, 136, 0.09)',   label: '#2d7a56' },
+  contenders: { fill: '#5b8db8', region: 'rgba(91, 141, 184, 0.09)',  label: '#2e5f8a' },
+  teardown:   { fill: '#c97064', region: 'rgba(201, 112, 100, 0.09)', label: '#943f34' },
+  rebuilding: { fill: '#d4a843', region: 'rgba(212, 168, 67, 0.09)',  label: '#8c6a1a' },
+}
+
 // Theme-responsive colors
 const themeColors = computed(() => {
   if (themeStore.isDarkMode) {
     return {
-      gridStroke: '#404040',
-      textColor: '#e5e5e5',
-      pointStroke: '#555',
+      gridStroke: '#333333',
+      textColor: '#aaaaaa',
+      pointStroke: '#1a1a1a',
       tooltipBackground: '#2a2a2a',
-      tooltipBorder: '#444'
+      tooltipBorder: '#444',
+      medianStroke: '#505050',
     }
   } else {
     return {
-      gridStroke: '#e0e0e0',
-      textColor: '#333',
-      pointStroke: '#fff',
+      gridStroke: '#ebebeb',
+      textColor: '#888888',
+      pointStroke: '#ffffff',
       tooltipBackground: '#fff',
-      tooltipBorder: '#e0e0e0'
+      tooltipBorder: '#e0e0e0',
+      medianStroke: '#cccccc',
     }
   }
 })
@@ -54,11 +64,11 @@ function calculateMedian(numbers) {
 
 // Responsive chart dimensions
 const chartHeight = computed(() => {
-  return window.innerHeight > window.innerWidth ? '60vh' : '50vh'
+  return window.innerHeight > window.innerWidth ? '45vh' : '38vh'
 })
-// Increase point size to make bubbles larger
+
 const pointSize = computed(() => (window.innerWidth < 600 ? 12 : 8))
-const textSize = computed(() => (window.innerWidth < 600 ? 10 : 16))
+const textSize = computed(() => (window.innerWidth < 600 ? 10 : 13))
 
 // Get the min and max values for configuring quadrants
 const getDataExtents = () => {
@@ -69,7 +79,6 @@ const getDataExtents = () => {
   const xValues = props.scatterPlotData.map((d) => d.Value)
   const yValues = props.scatterPlotData.map((d) => d.Projection)
 
-  // Add 5% padding to make sure points aren't right at the edges
   const minX = Math.min(...xValues) * 0.95
   const maxX = Math.max(...xValues) * 1.05
   const minY = Math.min(...yValues) * 0.95
@@ -83,216 +92,121 @@ const getPointColor = (record) => {
   const mX = medianX.value
   const mY = medianY.value
 
-  if (record.Value >= mX && record.Projection >= mY) {
-    return '#3FA34D' // Elite - green
-  } else if (record.Value < mX && record.Projection >= mY) {
-    return '#4285F4' // Contenders - blue
-  } else if (record.Value < mX && record.Projection < mY) {
-    return '#DB4437' // Teardown - red
-  } else {
-    return '#F4B400' // Rebuilding - yellow/amber
-  }
+  if (record.Value >= mX && record.Projection >= mY)  return QUADRANT.elite.fill
+  if (record.Value < mX  && record.Projection >= mY)  return QUADRANT.contenders.fill
+  if (record.Value < mX  && record.Projection < mY)   return QUADRANT.teardown.fill
+  return QUADRANT.rebuilding.fill
 }
+
+const buildAnnotations = (minX, maxX, minY, maxY, mX, mY) => [
+  // Quadrant backgrounds — very subtle tint
+  { type: 'region', start: [mX, mY],   end: [maxX, maxY], style: { fill: QUADRANT.elite.region } },
+  { type: 'region', start: [minX, mY], end: [mX, maxY],   style: { fill: QUADRANT.contenders.region } },
+  { type: 'region', start: [minX, minY], end: [mX, mY],   style: { fill: QUADRANT.teardown.region } },
+  { type: 'region', start: [mX, minY], end: [maxX, mY],   style: { fill: QUADRANT.rebuilding.region } },
+
+  // Median lines — thin, muted
+  {
+    type: 'line',
+    start: [mX, minY],
+    end: [mX, maxY],
+    style: { stroke: themeColors.value.medianStroke, lineWidth: 1, lineDash: [4, 4], opacity: 0.7 }
+  },
+  {
+    type: 'line',
+    start: [minX, mY],
+    end: [maxX, mY],
+    style: { stroke: themeColors.value.medianStroke, lineWidth: 1, lineDash: [4, 4], opacity: 0.7 }
+  },
+
+  // Quadrant labels — muted, lighter weight
+  {
+    type: 'text',
+    position: [mX + (maxX - mX) / 2, mY + (maxY - mY) / 2],
+    content: 'ELITE',
+    style: { textAlign: 'center', textBaseline: 'middle', fill: QUADRANT.elite.label, fontWeight: '600', fontSize: textSize.value, opacity: 0.55 }
+  },
+  {
+    type: 'text',
+    position: [minX + (mX - minX) / 2, mY + (maxY - mY) / 2],
+    content: 'CONTENDERS',
+    style: { textAlign: 'center', textBaseline: 'middle', fill: QUADRANT.contenders.label, fontWeight: '600', fontSize: textSize.value, opacity: 0.55 }
+  },
+  {
+    type: 'text',
+    position: [minX + (mX - minX) / 2, minY + (mY - minY) / 2],
+    content: 'TEARDOWN',
+    style: { textAlign: 'center', textBaseline: 'middle', fill: QUADRANT.teardown.label, fontWeight: '600', fontSize: textSize.value, opacity: 0.55 }
+  },
+  {
+    type: 'text',
+    position: [mX + (maxX - mX) / 2, minY + (mY - minY) / 2],
+    content: 'REBUILDING',
+    style: { textAlign: 'center', textBaseline: 'middle', fill: QUADRANT.rebuilding.label, fontWeight: '600', fontSize: textSize.value, opacity: 0.55 }
+  },
+]
+
+const buildChartConfig = (minX, maxX, minY, maxY, mX, mY) => ({
+  data: props.scatterPlotData,
+  xField: 'Value',
+  yField: 'Projection',
+  colorField: 'Manager',
+  shape: 'circle',
+  size: pointSize.value,
+  pixelRatio: window.devicePixelRatio,
+  color: (record) => getPointColor(record),
+  pointStyle: {
+    lineWidth: 2,
+    stroke: themeColors.value.pointStroke,
+  },
+  legend: false,
+  tooltip: {
+    showMarkers: false,
+    shared: true,
+    formatter: (datum) => ({
+      name: datum.Manager,
+      value: `Value: ${datum.Value.toLocaleString()}, Projection: ${datum.Projection.toLocaleString()}`
+    })
+  },
+  xAxis: {
+    title: {
+      text: 'Team Value',
+      style: { fontSize: 12, fontWeight: 500, fill: themeColors.value.textColor }
+    },
+    label: { style: { fill: themeColors.value.textColor, fontSize: 11 } },
+    grid: {
+      line: { style: { stroke: themeColors.value.gridStroke, lineWidth: 1, lineDash: [3, 3] } }
+    }
+  },
+  yAxis: {
+    title: {
+      text: 'Team Projection',
+      style: { fontSize: 12, fontWeight: 500, fill: themeColors.value.textColor }
+    },
+    label: { style: { fill: themeColors.value.textColor, fontSize: 11 } },
+    grid: {
+      line: { style: { stroke: themeColors.value.gridStroke, lineWidth: 1, lineDash: [3, 3] } }
+    }
+  },
+  interactions: [
+    {
+      type: 'tooltip',
+      cfg: {
+        start: [{ trigger: 'plot:mousemove', action: 'tooltip:show' }],
+        end:   [{ trigger: 'plot:mouseleave', action: 'tooltip:hide' }]
+      }
+    },
+    { type: 'element-active' }
+  ],
+  annotations: buildAnnotations(minX, maxX, minY, maxY, mX, mY)
+})
 
 onMounted(() => {
   const { minX, maxX, minY, maxY } = getDataExtents()
   const mX = medianX.value
   const mY = medianY.value
 
-  scatterPlot = new Scatter(container.value, {
-    data: props.scatterPlotData,
-    xField: 'Value',
-    yField: 'Projection',
-    colorField: 'Manager', // This allows us to customize colors
-    shape: 'circle',
-    size: pointSize.value,
-    pixelRatio: window.devicePixelRatio,
-    color: (record) => getPointColor(record),
-    pointStyle: {
-      lineWidth: 1,
-      stroke: themeColors.value.pointStroke
-    },
-    // Disable the legend
-    legend: false,
-    tooltip: {
-      showMarkers: false,
-      shared: true,
-      formatter: (datum) => {
-        return {
-          name: datum.Manager,
-          value: `Value: ${datum.Value.toLocaleString()}, Projection: ${datum.Projection.toLocaleString()}`
-        }
-      }
-    },
-    xAxis: {
-      title: {
-        text: 'Team Value',
-        style: {
-          fontSize: 14,
-          fontWeight: 500,
-          fill: themeColors.value.textColor
-        }
-      },
-      label: {
-        style: {
-          fill: themeColors.value.textColor
-        }
-      },
-      grid: {
-        line: {
-          style: {
-            stroke: themeColors.value.gridStroke,
-            lineWidth: 1,
-            lineDash: [4, 4]
-          }
-        }
-      }
-    },
-    yAxis: {
-      title: {
-        text: 'Team Projection',
-        style: {
-          fontSize: 14,
-          fontWeight: 500,
-          fill: themeColors.value.textColor
-        }
-      },
-      label: {
-        style: {
-          fill: themeColors.value.textColor
-        }
-      },
-      grid: {
-        line: {
-          style: {
-            stroke: themeColors.value.gridStroke,
-            lineWidth: 1,
-            lineDash: [4, 4]
-          }
-        }
-      }
-    },
-    interactions: [
-      {
-        type: 'tooltip',
-        cfg: {
-          start: [{ trigger: 'plot:mousemove', action: 'tooltip:show' }],
-          end: [{ trigger: 'plot:mouseleave', action: 'tooltip:hide' }]
-        }
-      },
-      {
-        type: 'element-active'
-      }
-    ],
-    annotations: [
-      // Quadrant background colors with increased opacity
-      {
-        type: 'region',
-        start: [mX, mY],
-        end: [maxX, maxY],
-        style: {
-          fill: 'rgba(63, 163, 77, 0.2)' // Elite - light green with increased opacity
-        }
-      },
-      {
-        type: 'region',
-        start: [minX, mY],
-        end: [mX, maxY],
-        style: {
-          fill: 'rgba(66, 133, 244, 0.2)' // Contenders - light blue with increased opacity
-        }
-      },
-      {
-        type: 'region',
-        start: [minX, minY],
-        end: [mX, mY],
-        style: {
-          fill: 'rgba(219, 68, 55, 0.2)' // Teardown - light red with increased opacity
-        }
-      },
-      {
-        type: 'region',
-        start: [mX, minY],
-        end: [maxX, mY],
-        style: {
-          fill: 'rgba(244, 180, 0, 0.2)' // Rebuilding - light yellow with increased opacity
-        }
-      },
-      // Median lines
-      {
-        type: 'line',
-        start: [mX, minY],
-        end: [mX, maxY],
-        style: {
-          stroke: '#666',
-          lineWidth: 2,
-          lineDash: [6, 4],
-          opacity: 0.8
-        }
-      },
-      {
-        type: 'line',
-        start: [minX, mY],
-        end: [maxX, mY],
-        style: {
-          stroke: '#666',
-          lineWidth: 2,
-          lineDash: [6, 4],
-          opacity: 0.8
-        }
-      },
-      // Quadrant Labels
-      {
-        type: 'text',
-        position: [mX + (maxX - mX) / 2, mY + (maxY - mY) / 2],
-        content: 'Elite',
-        style: {
-          textAlign: 'center',
-          textBaseline: 'middle',
-          fill: '#3FA34D',
-          fontWeight: 'bold',
-          fontSize: textSize.value
-        }
-      },
-      {
-        type: 'text',
-        position: [minX + (mX - minX) / 2, mY + (maxY - mY) / 2],
-        content: 'Contenders',
-        style: {
-          textAlign: 'center',
-          textBaseline: 'middle',
-          fill: '#4285F4',
-          fontWeight: 'bold',
-          fontSize: textSize.value
-        }
-      },
-      {
-        type: 'text',
-        position: [minX + (mX - minX) / 2, minY + (mY - minY) / 2],
-        content: 'Teardown',
-        style: {
-          textAlign: 'center',
-          textBaseline: 'middle',
-          fill: '#DB4437',
-          fontWeight: 'bold',
-          fontSize: textSize.value
-        }
-      },
-      {
-        type: 'text',
-        position: [mX + (maxX - mX) / 2, minY + (mY - minY) / 2],
-        content: 'Rebuilding',
-        style: {
-          textAlign: 'center',
-          textBaseline: 'middle',
-          fill: '#F4B400',
-          fontWeight: 'bold',
-          fontSize: textSize.value
-        }
-      }
-    ]
-  })
-
+  scatterPlot = new Scatter(container.value, buildChartConfig(minX, maxX, minY, maxY, mX, mY))
   scatterPlot.render()
 })
 
@@ -302,99 +216,10 @@ const handleResize = () => {
     const mX = medianX.value
     const mY = medianY.value
 
-    // Update the chart with new dimensions and configurations
     scatterPlot.update({
       size: pointSize.value,
       pixelRatio: window.devicePixelRatio,
-      annotations: [
-        // Update quadrant regions with increased opacity
-        {
-          type: 'region',
-          start: [mX, mY],
-          end: [maxX, maxY],
-          style: { fill: 'rgba(63, 163, 77, 0.2)' }
-        },
-        {
-          type: 'region',
-          start: [minX, mY],
-          end: [mX, maxY],
-          style: { fill: 'rgba(66, 133, 244, 0.2)' }
-        },
-        {
-          type: 'region',
-          start: [minX, minY],
-          end: [mX, mY],
-          style: { fill: 'rgba(219, 68, 55, 0.2)' }
-        },
-        {
-          type: 'region',
-          start: [mX, minY],
-          end: [maxX, mY],
-          style: { fill: 'rgba(244, 180, 0, 0.2)' }
-        },
-        // Update median lines
-        {
-          type: 'line',
-          start: [mX, minY],
-          end: [mX, maxY],
-          style: { stroke: '#666', lineWidth: 2, lineDash: [6, 4], opacity: 0.8 }
-        },
-        {
-          type: 'line',
-          start: [minX, mY],
-          end: [maxX, mY],
-          style: { stroke: '#666', lineWidth: 2, lineDash: [6, 4], opacity: 0.8 }
-        },
-        // Update quadrant labels with new sizes
-        {
-          type: 'text',
-          position: [mX + (maxX - mX) / 2, mY + (maxY - mY) / 2],
-          content: 'Elite',
-          style: {
-            textAlign: 'center',
-            textBaseline: 'middle',
-            fill: '#3FA34D',
-            fontWeight: 'bold',
-            fontSize: textSize.value
-          }
-        },
-        {
-          type: 'text',
-          position: [minX + (mX - minX) / 2, mY + (maxY - mY) / 2],
-          content: 'Contenders',
-          style: {
-            textAlign: 'center',
-            textBaseline: 'middle',
-            fill: '#4285F4',
-            fontWeight: 'bold',
-            fontSize: textSize.value
-          }
-        },
-        {
-          type: 'text',
-          position: [minX + (mX - minX) / 2, minY + (mY - minY) / 2],
-          content: 'Teardown',
-          style: {
-            textAlign: 'center',
-            textBaseline: 'middle',
-            fill: '#DB4437',
-            fontWeight: 'bold',
-            fontSize: textSize.value
-          }
-        },
-        {
-          type: 'text',
-          position: [mX + (maxX - mX) / 2, minY + (mY - minY) / 2],
-          content: 'Rebuilding',
-          style: {
-            textAlign: 'center',
-            textBaseline: 'middle',
-            fill: '#F4B400',
-            fontWeight: 'bold',
-            fontSize: textSize.value
-          }
-        }
-      ]
+      annotations: buildAnnotations(minX, maxX, minY, maxY, mX, mY)
     })
   }
 }
@@ -415,12 +240,6 @@ watch(
   (newData) => {
     if (scatterPlot && newData && newData.length > 0) {
       scatterPlot.changeData(newData)
-      // Recalculate everything when data changes
-      const { minX, maxX, minY, maxY } = getDataExtents()
-      const mX = medianX.value
-      const mY = medianY.value
-
-      // Update annotations to match new data
       handleResize()
     }
   },
@@ -434,205 +253,12 @@ watch(
     if (scatterPlot) {
       scatterPlot.destroy()
       scatterPlot = null
-      // Recreate chart with new theme
       setTimeout(() => {
         const { minX, maxX, minY, maxY } = getDataExtents()
         const mX = medianX.value
         const mY = medianY.value
 
-        scatterPlot = new Scatter(container.value, {
-          data: props.scatterPlotData,
-          xField: 'Value',
-          yField: 'Projection',
-          colorField: 'Manager',
-          shape: 'circle',
-          size: pointSize.value,
-          pixelRatio: window.devicePixelRatio,
-          color: (record) => getPointColor(record),
-          pointStyle: {
-            lineWidth: 1,
-            stroke: themeColors.value.pointStroke
-          },
-          legend: false,
-          tooltip: {
-            showMarkers: false,
-            shared: true,
-            formatter: (datum) => {
-              return {
-                name: datum.Manager,
-                value: `Value: ${datum.Value.toLocaleString()}, Projection: ${datum.Projection.toLocaleString()}`
-              }
-            }
-          },
-          xAxis: {
-            title: {
-              text: 'Team Value',
-              style: {
-                fontSize: 14,
-                fontWeight: 500,
-                fill: themeColors.value.textColor
-              }
-            },
-            label: {
-              style: {
-                fill: themeColors.value.textColor
-              }
-            },
-            grid: {
-              line: {
-                style: {
-                  stroke: themeColors.value.gridStroke,
-                  lineWidth: 1,
-                  lineDash: [4, 4]
-                }
-              }
-            }
-          },
-          yAxis: {
-            title: {
-              text: 'Team Projection',
-              style: {
-                fontSize: 14,
-                fontWeight: 500,
-                fill: themeColors.value.textColor
-              }
-            },
-            label: {
-              style: {
-                fill: themeColors.value.textColor
-              }
-            },
-            grid: {
-              line: {
-                style: {
-                  stroke: themeColors.value.gridStroke,
-                  lineWidth: 1,
-                  lineDash: [4, 4]
-                }
-              }
-            }
-          },
-          interactions: [
-            {
-              type: 'tooltip',
-              cfg: {
-                start: [{ trigger: 'plot:mousemove', action: 'tooltip:show' }],
-                end: [{ trigger: 'plot:mouseleave', action: 'tooltip:hide' }]
-              }
-            },
-            {
-              type: 'element-active'
-            }
-          ],
-          annotations: [
-            // Quadrant regions with slightly increased opacity
-            {
-              type: 'region',
-              start: [mX, mY],
-              end: [maxX, maxY],
-              style: {
-                fill: 'rgba(63, 163, 77, 0.2)'
-              }
-            },
-            {
-              type: 'region',
-              start: [minX, mY],
-              end: [mX, maxY],
-              style: {
-                fill: 'rgba(66, 133, 244, 0.2)'
-              }
-            },
-            {
-              type: 'region',
-              start: [minX, minY],
-              end: [mX, mY],
-              style: {
-                fill: 'rgba(219, 68, 55, 0.2)'
-              }
-            },
-            {
-              type: 'region',
-              start: [mX, minY],
-              end: [maxX, mY],
-              style: {
-                fill: 'rgba(244, 180, 0, 0.2)'
-              }
-            },
-            // Median lines
-            {
-              type: 'line',
-              start: [mX, minY],
-              end: [mX, maxY],
-              style: {
-                stroke: themeColors.value.gridStroke,
-                lineWidth: 2,
-                lineDash: [6, 4],
-                opacity: 0.8
-              }
-            },
-            {
-              type: 'line',
-              start: [minX, mY],
-              end: [maxX, mY],
-              style: {
-                stroke: themeColors.value.gridStroke,
-                lineWidth: 2,
-                lineDash: [6, 4],
-                opacity: 0.8
-              }
-            },
-            // Quadrant Labels
-            {
-              type: 'text',
-              position: [mX + (maxX - mX) / 2, mY + (maxY - mY) / 2],
-              content: 'Elite',
-              style: {
-                textAlign: 'center',
-                textBaseline: 'middle',
-                fill: '#3FA34D',
-                fontWeight: 'bold',
-                fontSize: textSize.value
-              }
-            },
-            {
-              type: 'text',
-              position: [minX + (mX - minX) / 2, mY + (maxY - mY) / 2],
-              content: 'Contenders',
-              style: {
-                textAlign: 'center',
-                textBaseline: 'middle',
-                fill: '#4285F4',
-                fontWeight: 'bold',
-                fontSize: textSize.value
-              }
-            },
-            {
-              type: 'text',
-              position: [minX + (mX - minX) / 2, minY + (mY - minY) / 2],
-              content: 'Teardown',
-              style: {
-                textAlign: 'center',
-                textBaseline: 'middle',
-                fill: '#DB4437',
-                fontWeight: 'bold',
-                fontSize: textSize.value
-              }
-            },
-            {
-              type: 'text',
-              position: [mX + (maxX - mX) / 2, minY + (mY - minY) / 2],
-              content: 'Rebuilding',
-              style: {
-                textAlign: 'center',
-                textBaseline: 'middle',
-                fill: '#F4B400',
-                fontWeight: 'bold',
-                fontSize: textSize.value
-              }
-            }
-          ]
-        })
-
+        scatterPlot = new Scatter(container.value, buildChartConfig(minX, maxX, minY, maxY, mX, mY))
         scatterPlot.render()
       }, 100)
     }
@@ -642,17 +268,15 @@ watch(
 
 <style scoped>
 div {
-  height: 400px;
-  background: var(--color-background-mute);
+  background: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
   padding: 16px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Dark theme specific adjustments */
 html.dark div {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 </style>

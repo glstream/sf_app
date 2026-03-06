@@ -4322,12 +4322,15 @@ const getPositionRank = (manager, position) => {
 }
 
 .responsive-padding {
-  padding: 0 10px;
+  padding: 0 16px;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  width: 100%;
 }
 
-@media (min-width: 440px) {
+@media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 100px;
+    padding: 0 32px;
   }
 }
 

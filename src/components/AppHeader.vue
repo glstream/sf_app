@@ -1,29 +1,31 @@
 <template>
   <header class="header-container">
     <a-layout-header class="header">
-      <a-row align="middle" class="header-row">
-        <a-col :xs="4" :sm="4" :md="5" :lg="5">
-          <router-link to="/" class="logo-link">
-            <img :src="logoImg" alt="Fantasy Navigator Logo - Fantasy football analytics and tools" class="logo" />
-          </router-link>
-        </a-col>
-        <a-col :xs="20" :sm="20" :md="19" :lg="19">
-          <div class="menu-container">
-            <!-- Desktop Menu -->
-            <a-menu
-              v-model:selectedKeys="activeKey"
-              mode="horizontal"
-              :items="items"
-              class="desktop-menu"
-            />
+      <div class="header-inner">
+        <a-row align="middle" class="header-row">
+          <a-col :xs="4" :sm="4" :md="5" :lg="5">
+            <router-link to="/" class="logo-link">
+              <img :src="logoImg" alt="Fantasy Navigator Logo - Fantasy football analytics and tools" class="logo" />
+            </router-link>
+          </a-col>
+          <a-col :xs="20" :sm="20" :md="19" :lg="19">
+            <div class="menu-container">
+              <!-- Desktop Menu -->
+              <a-menu
+                v-model:selectedKeys="activeKey"
+                mode="horizontal"
+                :items="items"
+                class="desktop-menu"
+              />
 
-            <!-- Mobile Menu Button -->
-            <a-button @click="mobileMenuVisible = !mobileMenuVisible" class="mobile-menu-button">
-              <MenuOutlined />
-            </a-button>
-          </div>
-        </a-col>
-      </a-row>
+              <!-- Mobile Menu Button -->
+              <a-button @click="mobileMenuVisible = !mobileMenuVisible" class="mobile-menu-button">
+                <MenuOutlined />
+              </a-button>
+            </div>
+          </a-col>
+        </a-row>
+      </div>
     </a-layout-header>
 
     <!-- Mobile Menu Drawer -->
@@ -366,7 +368,7 @@ const mobileItems = computed(() => {
   background: var(--color-background);
   border-bottom: 1px solid var(--color-border);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  padding: 0 20px;
+  padding: 0;
   height: 64px;
   line-height: 64px;
   position: sticky;
@@ -383,8 +385,18 @@ html.dark .header {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.header-inner {
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
 .header-row {
   height: 100%;
+  width: 100%;
 }
 
 .logo-link {
@@ -509,9 +521,12 @@ html.dark .header {
   }
 
   .header {
-    padding: 0 12px;
     height: 56px;
     line-height: 56px;
+  }
+
+  .header-inner {
+    padding: 0 12px;
   }
 
   .logo {

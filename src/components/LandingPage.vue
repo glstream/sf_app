@@ -329,7 +329,10 @@ html.dark .feature-card:hover {
 }
 
 .responsive-padding {
-  padding: 0 30px;
+  padding: 0 20px;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* Responsive adjustments */
@@ -363,15 +366,9 @@ html.dark .feature-card:hover {
   }
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
+@media (min-width: 768px) {
   .responsive-padding {
-    padding: 0 50px;
-  }
-}
-
-@media (min-width: 992px) {
-  .responsive-padding {
-    padding: 0 100px;
+    padding: 0 40px;
   }
 }
 </style>
