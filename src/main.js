@@ -7,8 +7,6 @@ import piniaPluginPersist from 'pinia-plugin-persist'
 import Antd from 'ant-design-vue'
 import PrimeVue from 'primevue/config'
 
-import 'primevue/resources/themes/aura-light-green/theme.css'
-
 import VueGtag from 'vue-gtag'
 
 const gtag = import.meta.env.VITE_GTAG

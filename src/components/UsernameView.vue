@@ -18,7 +18,6 @@
     <section class="hero-section">
       <div class="hero-background">
         <div class="hero-gradient"></div>
-        <div class="hero-pattern"></div>
       </div>
       <div class="hero-content">
         <div class="hero-text">
@@ -671,7 +670,7 @@ const structuredData = {
 <style scoped>
 /* Announcement Toast Styles */
 .announcement-toast {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #277DA1 0%, #1f5a7e 100%);
   padding: 12px 20px;
   position: sticky;
   top: 0;
@@ -764,26 +763,6 @@ const structuredData = {
   transition: background 0.3s ease;
 }
 
-.hero-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-  animation: float 8s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(1deg);
-  }
-}
 
 /* Theme-specific hero gradients */
 .hero-section {
@@ -813,14 +792,10 @@ html.dark .hero-section {
 .hero-title {
   font-size: 3.5rem;
   font-weight: 900;
-  color: var(--color-text);
+  color: #277DA1;
   margin-bottom: 24px;
   letter-spacing: -2px;
   line-height: 1.1;
-  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-primary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
   transition: all 0.3s ease;
 }
 
@@ -835,20 +810,17 @@ html.dark .hero-section {
 }
 
 .hero-form-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
   border-radius: 24px;
   padding: 40px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   margin-bottom: 48px;
   transition: all 0.3s ease;
 }
 
 html.dark .hero-form-container {
-  background: rgba(30, 41, 59, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .landing-form {

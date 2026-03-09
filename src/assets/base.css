@@ -9,6 +9,8 @@
 
   --vt-c-indigo: #2c3e50;
 
+  --font-family: 'Inter', sans-serif;
+
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
   --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
@@ -43,7 +45,7 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
   --color-text-secondary: var(--vt-c-text-light-2);
-  --color-primary: #3b82f6;
+  --color-primary: #277DA1;
 
   --primary-text-color: var(--primary-color-theme-light);
   --league-details-primary-card: var(--league-details-primary-card-light);
@@ -66,7 +68,7 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
   --color-text-secondary: var(--vt-c-text-light-2);
-  --color-primary: #3b82f6;
+  --color-primary: #277DA1;
 
   --primary-text-color: var(--primary-color-theme-light);
   --league-details-primary-card: var(--league-details-primary-card-light);
@@ -85,7 +87,7 @@
   --color-heading: var(--vt-c-text-dark-1);
   --color-text: var(--vt-c-text-dark-2);
   --color-text-secondary: var(--vt-c-text-dark-2);
-  --color-primary: #60a5fa;
+  --color-primary: #4da6c8;
 
   --primary-text-color: var(--primary-color-theme-dark);
   --league-details-primary-card: var(--league-details-primary-card-dark);
@@ -141,8 +143,8 @@ body {
     color 0.5s,
     background-color 0.5s;
   line-height: 1.6;
-  font-family: 'Titillium Web', sans-serif !important;
-  font-size: 18px;
+  font-family: var(--font-family) !important;
+  font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
