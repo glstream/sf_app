@@ -26,10 +26,6 @@
       </a-breadcrumb>
 
       <div class="filters-section">
-        <div class="filters-header">
-          <h2>Filter Leagues</h2>
-          <p>Customize your view by league and roster type</p>
-        </div>
         <a-flex :gap="20" class="filters-container">
           <a-select
             placeholder="Select League Type"
@@ -202,16 +198,6 @@
             </a-row>
             <!-- Power Rankings Comparison or External Links for Fleaflicker -->
             <div class="leagues-stats-container">
-              <div
-                class="stats-header"
-                :class="{ 'stats-header-compact': league.platform === 'fleaflicker' }"
-              >
-                <h3 v-if="league.platform === 'fleaflicker'">Available Ranking Sources</h3>
-                <h3 v-else>Power Rankings Comparison</h3>
-                <p v-if="league.platform !== 'fleaflicker'">
-                  Compare your team's rankings across multiple platforms
-                </p>
-              </div>
               <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" class="stats-table-header">
                 <a-col class="gutter-row" :span="8"> </a-col>
                 <a-col class="gutter-row" :span="4" v-if="league.platform !== 'fleaflicker'">
@@ -1052,7 +1038,7 @@ const getCurrentYear = async () => {
 }
 
 .gutter-box-header {
-  padding: 12px 10px; /* More padding */
+  padding: 8px 10px;
   background: linear-gradient(
     to right,
     rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1),
@@ -1146,7 +1132,7 @@ const getCurrentYear = async () => {
 .leagues-grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 16px;
   padding: 20px 0;
   max-width: 100%;
 }
@@ -1212,7 +1198,7 @@ a-tag:hover {
 
 /* Filters Section */
 .filters-section {
-  padding: 30px 0 40px;
+  padding: 12px 0 16px;
   background: linear-gradient(
     135deg,
     rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05),
@@ -1220,24 +1206,6 @@ a-tag:hover {
   );
   border-radius: 12px;
   margin-bottom: 20px;
-}
-
-.filters-header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.filters-header h2 {
-  margin: 0 0 8px;
-  font-size: 1.5em;
-  font-weight: 600;
-  color: var(--color-heading);
-}
-
-.filters-header p {
-  margin: 0;
-  color: var(--color-text-secondary, #666);
-  font-size: 0.95em;
 }
 
 .filters-container {
@@ -1318,43 +1286,6 @@ a-tag:hover {
   justify-content: center;
 }
 
-/* Enhanced Stats Section */
-.stats-header {
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 16px;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.03),
-    transparent
-  );
-  border-radius: 8px;
-}
-
-.stats-header h3 {
-  margin: 0 0 6px;
-  font-size: 1.2em;
-  font-weight: 600;
-  color: var(--color-heading);
-}
-
-.stats-header p {
-  margin: 0;
-  font-size: 0.9em;
-  color: var(--color-text-secondary, #666);
-}
-
-.stats-header-compact {
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  background: none;
-}
-
-.stats-header-compact h3 {
-  font-size: 1.1em;
-  margin: 0;
-}
-
 .stats-table-header {
   background: rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.05);
   border-radius: 6px;
@@ -1407,9 +1338,9 @@ a-tag:hover {
 /* Enhanced Stats Container */
 .leagues-stats-container {
   border-radius: 8px;
-  margin: 8px 8px 16px;
+  margin: 6px 6px 10px;
   background: var(--color-background-soft);
-  padding: 16px 8px;
+  padding: 8px 6px;
   border: 1px solid rgba(var(--ant-primary-color-rgb, 39, 125, 161), 0.1);
 }
 
@@ -1460,7 +1391,7 @@ a-tag:hover {
   transition: all 0.2s ease !important;
   border-radius: 6px;
   margin: 2px 0;
-  padding: 4px 0;
+  padding: 3px 0;
 }
 
 .clickable-platform-row:hover {
