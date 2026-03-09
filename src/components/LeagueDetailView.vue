@@ -4635,12 +4635,8 @@ const getPositionRank = (manager, position) => {
 .heatmap-title {
   font-size: 28px;
   font-weight: 700;
-  color: var(--color-text, #262626);
+  color: #277DA1;
   margin: 0 0 8px 0;
-  background: linear-gradient(135deg, var(--color-primary, #1890ff), var(--color-success, #52c41a));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: -0.02em;
 }
 
@@ -4822,11 +4818,11 @@ const getPositionRank = (manager, position) => {
 .manager-item::before {
   content: '';
   position: absolute;
-  top: 0;
   left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #277DA1;
   opacity: 0;
   transition: opacity 0.3s ease;
 }

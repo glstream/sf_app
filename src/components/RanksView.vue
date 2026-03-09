@@ -374,10 +374,7 @@ const handlePlayerModalClose = () => {
   font-size: 32px;
   font-weight: 800;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #277DA1;
   letter-spacing: -0.02em;
 }
 
@@ -394,12 +391,11 @@ const handlePlayerModalClose = () => {
   flex-direction: column;
   gap: 20px;
   margin-bottom: 28px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background: var(--color-background);
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
 }
 
 
@@ -437,12 +433,11 @@ const handlePlayerModalClose = () => {
 
 .rankings-table {
   width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
+  background: var(--color-background);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
 }
 
 

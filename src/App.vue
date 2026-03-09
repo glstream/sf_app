@@ -19,14 +19,14 @@ const currentTheme = computed(() => {
         algorithm: theme.darkAlgorithm,
         token: {
           colorPrimary: '#277DA1',
-          fontFamily: 'Titillium Web'
+          fontFamily: 'Inter'
         }
       }
     : {
         algorithm: theme.defaultAlgorithm,
         token: {
           colorPrimary: '#277DA1',
-          fontFamily: 'Titillium Web'
+          fontFamily: 'Inter'
         }
       }
 })

@@ -253,7 +253,7 @@ html.dark .layout {
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-3px);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
