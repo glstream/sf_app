@@ -19,14 +19,14 @@ const currentTheme = computed(() => {
         algorithm: theme.darkAlgorithm,
         token: {
           colorPrimary: '#277DA1',
-          fontFamily: 'Inter'
+          fontFamily: 'DM Sans'
         }
       }
     : {
         algorithm: theme.defaultAlgorithm,
         token: {
           colorPrimary: '#277DA1',
-          fontFamily: 'Inter'
+          fontFamily: 'DM Sans'
         }
       }
 })
