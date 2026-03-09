@@ -24,7 +24,7 @@
                     class="league-logo"
                     :src="getLeagueAvatarUrl(leagueInfo.avatar)"
                     alt="League Logo"
-                    @error="(e) => e.target.src = getFallbackAvatar()"
+                    @error="(e) => (e.target.src = getFallbackAvatar())"
                   />
                   {{ leagueInfo.leagueName }}
                 </h2>
@@ -68,6 +68,7 @@
                       checked-children="Projections"
                       un-checked-children="Overall"
                       @change="handleViewToggle"
+                      :disabled="true"
                     />
                   </div>
                 </a-col>
@@ -153,8 +154,14 @@
                           <div class="manager-avatar">
                             <img
                               :src="getAvatarUrl(user)"
-                              @error="(e) => e.target.src = getFallbackAvatar()"
-                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              @error="(e) => (e.target.src = getFallbackAvatar())"
+                              style="
+                                width: 45px;
+                                height: 45px;
+                                border-radius: 50%;
+                                object-fit: cover;
+                                border: 1px solid #d9d9d9;
+                              "
                               alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
@@ -162,8 +169,7 @@
                           <div class="manager-details">
                             <div class="manager-name">{{ user.display_name }}</div>
                             <div class="manager-stats">
-                              <span class="manager-value-label"
-                                >{{ showProjections ? 'Proj' : 'Value' }}:
+                              <span class="manager-value-label">
                                 {{
                                   (showProjections
                                     ? overallFilter === 'all'
@@ -375,18 +381,15 @@
                                 >
                                   <div class="player-info">
                                     <div class="player-name-team">
-                                      <span class="player-name">{{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
-                                      <span
-                                        v-if="player.player_position !== 'PICKS'"
-                                        class="player-team"
-                                        >{{ player?.team }}</span
-                                      >
+                                      <span class="player-name">{{
+                                        player?.full_name?.replace(/\bMid\s*/g, '').trim()
+                                      }}</span>
                                     </div>
                                     <div class="player-meta">
                                       <span
                                         v-if="player.player_position !== 'PICKS'"
-                                        class="player-age"
-                                        >{{ player?.age }}y</span
+                                        class="player-team"
+                                        >{{ player?.team }}</span
                                       >
                                       <span class="player-value">{{
                                         player.player_value === -1
@@ -428,7 +431,7 @@
                         :src="getAvatarUrl(user)"
                         :size="24"
                         class="margin-right-8"
-                        @error="(e) => e.target.src = getFallbackAvatar()"
+                        @error="(e) => (e.target.src = getFallbackAvatar())"
                       />
                       <span class="manager-name-mobile font-bold">{{ user.display_name }}</span>
                     </div>
@@ -602,7 +605,6 @@
                                 </template>
                               </template>
                               <template v-else>
-                                <span class="value-label">Value:</span>
                                 <span class="value-amount">--</span>
                                 <template v-if="position !== 'PICKS'">
                                   <span class="age-label">Avg Age</span>
@@ -655,7 +657,9 @@
                                 >
                                   <div class="player-info">
                                     <div class="player-name-team">
-                                      <span class="player-name">{{ player.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
+                                      <span class="player-name">{{
+                                        player.full_name?.replace(/\bMid\s*/g, '').trim()
+                                      }}</span>
                                       <span class="player-team" v-if="player.team">{{
                                         player.team
                                       }}</span>
@@ -798,7 +802,7 @@
                                 :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
-                                @error="(e) => e.target.src = getFallbackAvatar()"
+                                @error="(e) => (e.target.src = getFallbackAvatar())"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -875,7 +879,9 @@
                               :class="{ 'asset-in-trade': isAssetInTrade(asset, 1) }"
                             >
                               <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}</div>
+                                <div class="trade-asset-name">
+                                  {{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}
+                                </div>
                                 <div class="trade-asset-meta">
                                   <span v-if="asset.team" class="trade-asset-team">{{
                                     asset.team
@@ -918,7 +924,11 @@
                             <div class="player-details-wrapper">
                               <div class="player-name-info">
                                 <div class="player-name">
-                                  {{ (player.player_full_name || player.full_name)?.replace(/\bMid\s*/g, '').trim() }}
+                                  {{
+                                    (player.player_full_name || player.full_name)
+                                      ?.replace(/\bMid\s*/g, '')
+                                      .trim()
+                                  }}
                                 </div>
                                 <div>
                                   <span
@@ -1036,7 +1046,7 @@
                                 :src="getAvatarUrl(manager)"
                                 :size="24"
                                 class="manager-avatar-small"
-                                @error="(e) => e.target.src = getFallbackAvatar()"
+                                @error="(e) => (e.target.src = getFallbackAvatar())"
                               />
                               <span class="manager-name-option">{{ manager.display_name }}</span>
                             </div>
@@ -1113,7 +1123,9 @@
                               :class="{ 'asset-in-trade': isAssetInTrade(asset, 2) }"
                             >
                               <div class="trade-asset-details">
-                                <div class="trade-asset-name">{{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}</div>
+                                <div class="trade-asset-name">
+                                  {{ asset.full_name?.replace(/\bMid\s*/g, '').trim() }}
+                                </div>
                                 <div class="trade-asset-meta">
                                   <span v-if="asset.team" class="trade-asset-team">{{
                                     asset.team
@@ -1156,7 +1168,11 @@
                             <div class="player-details-wrapper">
                               <div class="player-name-info">
                                 <div class="player-name">
-                                  {{ (player.player_full_name || player.full_name)?.replace(/\bMid\s*/g, '').trim() }}
+                                  {{
+                                    (player.player_full_name || player.full_name)
+                                      ?.replace(/\bMid\s*/g, '')
+                                      .trim()
+                                  }}
                                 </div>
                                 <div>
                                   <span
@@ -1347,8 +1363,14 @@
                           <div class="manager-avatar">
                             <img
                               :src="getAvatarUrl(user)"
-                              @error="(e) => e.target.src = getFallbackAvatar()"
-                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              @error="(e) => (e.target.src = getFallbackAvatar())"
+                              style="
+                                width: 45px;
+                                height: 45px;
+                                border-radius: 50%;
+                                object-fit: cover;
+                                border: 1px solid #d9d9d9;
+                              "
                               alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
@@ -1356,8 +1378,7 @@
                           <div class="manager-details">
                             <div class="manager-name">{{ user.display_name }}</div>
                             <div class="manager-stats">
-                              <span class="manager-value-label"
-                                >{{ overallFilter === 'all' ? 'Overall' : 'Starters' }}:
+                              <span class="manager-value-label">
                                 {{
                                   addOrdinalSuffix(
                                     overallFilter === 'all' ? user.total_rank : user.starters_rank
@@ -1383,7 +1404,7 @@
                               :src="getAvatarUrl(selectedUser)"
                               :size="24"
                               class="avatar-bordered"
-                              @error="(e) => e.target.src = getFallbackAvatar()"
+                              @error="(e) => (e.target.src = getFallbackAvatar())"
                             />
                           </div>
                         </a-col>
@@ -1595,7 +1616,8 @@
                               clickedManager !== '' && clickedManager !== player.display_name
                           }"
                         >
-                          {{ round.startIndex + index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} &bull;
+                          {{ round.startIndex + index + 1 }}.
+                          {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} &bull;
                           {{
                             player.player_value === -1
                               ? 'N/A'
@@ -1636,8 +1658,14 @@
                           <div class="manager-avatar">
                             <img
                               :src="getAvatarUrl(user)"
-                              @error="(e) => e.target.src = getFallbackAvatar()"
-                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              @error="(e) => (e.target.src = getFallbackAvatar())"
+                              style="
+                                width: 45px;
+                                height: 45px;
+                                border-radius: 50%;
+                                object-fit: cover;
+                                border: 1px solid #d9d9d9;
+                              "
                               alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
@@ -1696,7 +1724,7 @@
                             :src="getAvatarUrl(selectedUser)"
                             :size="24"
                             class="avatar-bordered"
-                            @error="(e) => e.target.src = getFallbackAvatar()"
+                            @error="(e) => (e.target.src = getFallbackAvatar())"
                           />
                         </div>
                       </a-col>
@@ -1896,7 +1924,9 @@
                             }"
                             class="player-name"
                           >
-                            {{ index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }} {{ player?.team }}
+                            {{ index + 1 }}.
+                            {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}
+                            {{ player?.team }}
                             <span class="font-size-11">{{ player?.age }}yrs</span>
                           </span>
                           <span class="player-value-display"
@@ -1939,7 +1969,8 @@
                             }"
                             class="pick-name"
                           >
-                            {{ index + 1 }}. {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}
+                            {{ index + 1 }}.
+                            {{ player?.full_name?.replace(/\bMid\s*/g, '').trim() }}
                           </span>
                           <span class="pick-value">
                             {{
@@ -1985,8 +2016,14 @@
                           <div class="manager-avatar">
                             <img
                               :src="getAvatarUrl(user)"
-                              @error="(e) => e.target.src = getFallbackAvatar()"
-                              style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                              @error="(e) => (e.target.src = getFallbackAvatar())"
+                              style="
+                                width: 45px;
+                                height: 45px;
+                                border-radius: 50%;
+                                object-fit: cover;
+                                border: 1px solid #d9d9d9;
+                              "
                               alt="Manager Avatar"
                             />
                             <span class="manager-rank">{{ getRank(user) }}</span>
@@ -2083,8 +2120,14 @@
                         <img
                           class="manager-logos"
                           :src="getAvatarUrl(manager)"
-                          @error="(e) => e.target.src = getFallbackAvatar()"
-                          style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid #d9d9d9;"
+                          @error="(e) => (e.target.src = getFallbackAvatar())"
+                          style="
+                            width: 45px;
+                            height: 45px;
+                            border-radius: 50%;
+                            object-fit: cover;
+                            border: 1px solid #d9d9d9;
+                          "
                           alt="Manager Avatar"
                         />
                         <div class="team-card-title">
@@ -2124,7 +2167,9 @@
                           "
                         >
                           <span class="asset-index">{{ index + 1 }}.</span>
-                          <span class="asset-name">{{ player.full_name?.replace(/\bMid\s*/g, '').trim() }}</span>
+                          <span class="asset-name">{{
+                            player.full_name?.replace(/\bMid\s*/g, '').trim()
+                          }}</span>
                           <span class="asset-team">{{ player.team }}</span>
                           <a-tag :style="getPositionTagList(player.player_position)">{{
                             player.player_position
@@ -2151,9 +2196,9 @@
               <!-- Waivers Tab -->
               <a-tab-pane key="5" tab="Waivers">
                 <h2 class="tab-sub-header">Best Available Players</h2>
-                
+
                 <!-- Waivers Header Card -->
-                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" style="margin-bottom: 20px;">
+                <a-row :gutter="{ xs: 2, sm: 8, md: 24, lg: 32 }" style="margin-bottom: 20px">
                   <a-col :span="24">
                     <a-card :bordered="false" class="waivers-header-card">
                       <template #title>
@@ -2163,7 +2208,11 @@
                       </template>
                       <div class="waivers-summary">
                         <a-row :gutter="16">
-                          <a-col v-for="(players, position) in groupedPlayers" :key="position" :span="6">
+                          <a-col
+                            v-for="(players, position) in groupedPlayers"
+                            :key="position"
+                            :span="6"
+                          >
                             <div class="position-summary">
                               <div class="position-count">{{ players.length }}</div>
                               <div class="position-label">{{ position }}</div>
@@ -2189,17 +2238,14 @@
                       <template #title>
                         <div class="card-header">
                           <span class="chart-title position-title">
-                            <a-tag 
-                              :color="getPositionColor(position)" 
-                              class="position-tag"
-                            >
+                            <a-tag :color="getPositionColor(position)" class="position-tag">
                               {{ position }}
                             </a-tag>
                             <span class="player-count">({{ players.length }})</span>
                           </span>
                         </div>
                       </template>
-                      
+
                       <div class="waiver-players-list">
                         <div
                           v-for="(player, index) in players"
@@ -2210,7 +2256,10 @@
                           <div class="player-info">
                             <div class="player-name">{{ player?.full_name }}</div>
                             <div class="player-value">
-                              <span class="value-amount" :class="getValueClass(player.player_value)">
+                              <span
+                                class="value-amount"
+                                :class="getValueClass(player.player_value)"
+                              >
                                 {{
                                   player.player_value === -1 || player.player_value === null
                                     ? 'N/A'
@@ -2294,10 +2343,12 @@
           </a-modal>
 
           <!-- Player History Modal -->
-          <PlayerHistoryModal 
+          <PlayerHistoryModal
             ref="playerModalRef"
-            :isSuperflex="leagueInfo.rosterType === 'sf_value' || leagueInfo.rosterType === 'Superflex'" 
-            :isDynasty="leagueInfo.rankType === 'dynasty' || leagueInfo.rankType === 'Dynasty'" 
+            :isSuperflex="
+              leagueInfo.rosterType === 'sf_value' || leagueInfo.rosterType === 'Superflex'
+            "
+            :isDynasty="leagueInfo.rankType === 'dynasty' || leagueInfo.rankType === 'Dynasty'"
             :platform="leagueInfo.apiSource === 'sf' ? 'sf' : leagueInfo.apiSource"
           />
         </a-spin>
@@ -2536,7 +2587,7 @@ const sources = [
 ]
 // Initialize selectedSource from route parameter or default to sf (FantasyNavigator)
 const initialRankingSource = leagueInfo.rankingSource || 'sf'
-const selectedSource = ref(sources.find(s => s.key === initialRankingSource) || sources[0])
+const selectedSource = ref(sources.find((s) => s.key === initialRankingSource) || sources[0])
 // Set apiSource to the selected ranking source, not the league platform
 leagueInfo.apiSource = selectedSource.value.key
 
@@ -2546,7 +2597,7 @@ leagueInfo.apiSource = selectedSource.value.key
 const filteredSources = computed(() => {
   // For Dynasty or Keeper leagues, show all sources
   const isDynastyOrKeeper = leagueInfo.rankType === 'Dynasty' || leagueInfo.rankType === 'Keeper'
-  
+
   if (!isDynastyOrKeeper) {
     // For Redraft leagues, only show sources that support redraft rankings
     return sources.filter((s) => ['fc', 'ktc', 'sf'].includes(s.key))
@@ -2818,12 +2869,12 @@ watch(overallFilter, () => {
 // Watch for changes in selectedSource to handle tab switching
 watch(selectedSource, (newSource, oldSource) => {
   // console.log removed for production
-  
+
   if (activeKey.value === '6' && newSource.key !== 'sf') {
     activeKey.value = '1' // Switch to Power Rankings tab if Trade Calculator is not available
     message.info('Trade Calculator is only available when using FantasyNavigator rankings')
   }
-  
+
   // Ensure reactive updates by explicitly triggering data refresh if needed
   if (oldSource && oldSource.key !== newSource.key) {
     // console.log removed for production
@@ -3108,7 +3159,15 @@ async function fetchSummaryData(
   }
 }
 
-async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
+async function fetchDetailData(
+  leagueId,
+  platform,
+  rankType,
+  guid,
+  rosterType,
+  cacheBuster,
+  rankingSource = 'sf'
+) {
   detailIsLoading.value = true
   const cacheKey = `detail_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
@@ -3162,7 +3221,15 @@ async function fetchDetailData(leagueId, platform, rankType, guid, rosterType, c
   }
 }
 
-async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cacheBuster, rankingSource = 'sf') {
+async function fetchBaData(
+  leagueId,
+  platform,
+  rankType,
+  guid,
+  rosterType,
+  cacheBuster,
+  rankingSource = 'sf'
+) {
   baIsLoading.value = true
   const cacheKey = `ba_${leagueId}_${platform}_${rankType}_${guid}_${rosterType}_${rankingSource}`
 
@@ -3215,16 +3282,16 @@ async function fetchBaData(leagueId, platform, rankType, guid, rosterType, cache
 const handleMenuClick = (e) => {
   const newRankingSource = e.key
   // console.log removed for production
-  
+
   selectedSource.value = sources.find((s) => s.key === newRankingSource) || sources[0]
   leagueInfo.apiSource = newRankingSource
   leagueInfo.rankingSource = newRankingSource // Update the ranking source in leagueInfo
-  
+
   // console.log removed for production
 
   const cacheBuster = Date.now().toString()
   // console.log removed for production
-  
+
   fetchSummaryData(
     leagueInfo.leagueId,
     leagueInfo.platform, // Use actual league platform (sleeper/fleaflicker)
@@ -3313,7 +3380,6 @@ const getLeagueSummary = async () => {
     message.error('Could not open league summary.')
   }
 }
-
 
 // Player Modal Handlers
 const showPlayerModal = (player) => {
@@ -3437,7 +3503,7 @@ function getPositionTagList(position, opacity = 0.6) {
 function getPositionColor(position) {
   const colorMap = {
     QB: 'blue',
-    RB: 'green', 
+    RB: 'green',
     WR: 'cyan',
     TE: 'orange',
     PICKS: 'default'
@@ -4502,8 +4568,6 @@ const getPositionRank = (manager, position) => {
   position: relative;
 }
 
-
-
 .waiver-player-card:last-child {
   margin-bottom: 0;
 }
@@ -4578,27 +4642,26 @@ const getPositionRank = (manager, position) => {
   .waivers-summary .ant-col {
     margin-bottom: 8px;
   }
-  
+
   .position-summary {
     padding: 8px;
   }
-  
+
   .position-count {
     font-size: 20px;
   }
-  
+
   .waiver-player-card {
     padding: 10px;
   }
-  
+
   .player-name {
     font-size: 13px;
   }
-  
+
   .waiver-position-card:hover {
     transform: none;
   }
-  
 }
 
 .team-card-column {
@@ -4635,7 +4698,7 @@ const getPositionRank = (manager, position) => {
 .heatmap-title {
   font-size: 28px;
   font-weight: 700;
-  color: #277DA1;
+  color: #277da1;
   margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
@@ -4822,7 +4885,7 @@ const getPositionRank = (manager, position) => {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #277DA1;
+  background: #277da1;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -5182,17 +5245,15 @@ const getPositionRank = (manager, position) => {
 
 .player-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   font-size: 13px;
-  gap: 12px;
+  gap: 8px;
 }
 
 .player-name-team {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  flex: 1;
+  width: 100%;
   gap: 2px;
 }
 
@@ -5200,10 +5261,9 @@ const getPositionRank = (manager, position) => {
   font-weight: 600;
   font-size: 14px;
   color: var(--color-text, #262626);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
   letter-spacing: 0.01em;
+  word-break: break-word;
 }
 
 .player-team {
@@ -5216,16 +5276,17 @@ const getPositionRank = (manager, position) => {
 
 .player-meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  min-width: 50px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .player-value {
   font-weight: 700;
   font-size: 13px;
-  color: var(--color-primary, #1890ff);
+  color: var(--color-primary, #277DA1);
 }
 
 .player-position {
@@ -6802,7 +6863,7 @@ li {
 .player-value {
   font-size: 16px;
   font-weight: 700;
-  color: #1890ff;
+  color: #277DA1;
   padding: 2px 8px;
   border-radius: 12px;
   white-space: nowrap;
