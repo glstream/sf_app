@@ -1378,13 +1378,13 @@
                           <div class="manager-details">
                             <div class="manager-name">{{ user.display_name }}</div>
                             <div class="manager-stats">
-                              <span class="manager-value-label">
+                              <!-- <span class="manager-value-label">
                                 {{
                                   addOrdinalSuffix(
                                     overallFilter === 'all' ? user.total_rank : user.starters_rank
                                   )
                                 }}</span
-                              >
+                              > -->
                             </div>
                           </div>
                         </div>
@@ -1675,7 +1675,7 @@
                             <div class="manager-stats">
                               <div class="position-badges">
                                 <span class="position-badge qb-badge"
-                                  >QB:
+                                  >QB
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.qb_rank : user.qb_starter_rank
@@ -1683,7 +1683,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge rb-badge"
-                                  >RB:
+                                  >RB
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.rb_rank : user.rb_starter_rank
@@ -1691,7 +1691,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge wr-badge"
-                                  >WR:
+                                  >WR
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.wr_rank : user.wr_starter_rank
@@ -1699,7 +1699,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge te-badge"
-                                  >TE:
+                                  >TE
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.te_rank : user.te_starter_rank
@@ -2033,7 +2033,7 @@
                             <div class="manager-stats">
                               <div class="position-badges">
                                 <span class="position-badge qb-badge"
-                                  >QB:
+                                  >QB
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.qb_rank : user.qb_starter_rank
@@ -2041,7 +2041,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge rb-badge"
-                                  >RB:
+                                  >RB
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.rb_rank : user.rb_starter_rank
@@ -2049,7 +2049,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge wr-badge"
-                                  >WR:
+                                  >WR
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.wr_rank : user.wr_starter_rank
@@ -2057,7 +2057,7 @@
                                   }}</span
                                 >
                                 <span class="position-badge te-badge"
-                                  >TE:
+                                  >TE
                                   {{
                                     addOrdinalSuffix(
                                       overallFilter === 'all' ? user.te_rank : user.te_starter_rank
@@ -5286,7 +5286,7 @@ const getPositionRank = (manager, position) => {
 .player-value {
   font-weight: 700;
   font-size: 13px;
-  color: var(--color-primary, #277DA1);
+  color: var(--color-primary, #277da1);
 }
 
 .player-position {
@@ -6863,7 +6863,7 @@ li {
 .player-value {
   font-size: 16px;
   font-weight: 700;
-  color: #277DA1;
+  color: #277da1;
   padding: 2px 8px;
   border-radius: 12px;
   white-space: nowrap;
