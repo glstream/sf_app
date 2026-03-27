@@ -60,12 +60,84 @@
         </div>
       </div>
 
+      <!-- Tier Legend -->
+      <div class="tier-legend">
+        <div class="legend-items">
+          <a-button
+            class="tier-filter-btn tier-elite-legend"
+            :class="{ active: tierFilters.includes('tier-elite') }"
+            @click="toggleTierFilter('tier-elite')"
+          >
+            Elite
+          </a-button>
+          <a-button
+            class="tier-filter-btn tier-1-legend"
+            :class="{ active: tierFilters.includes('tier-1') }"
+            @click="toggleTierFilter('tier-1')"
+          >
+            Tier 1
+          </a-button>
+          <a-button
+            class="tier-filter-btn tier-2-legend"
+            :class="{ active: tierFilters.includes('tier-2') }"
+            @click="toggleTierFilter('tier-2')"
+          >
+            Tier 2
+          </a-button>
+          <a-button
+            class="tier-filter-btn tier-3-legend"
+            :class="{ active: tierFilters.includes('tier-3') }"
+            @click="toggleTierFilter('tier-3')"
+          >
+            Tier 3
+          </a-button>
+          <a-button
+            class="tier-filter-btn tier-4-legend"
+            :class="{ active: tierFilters.includes('tier-4') }"
+            @click="toggleTierFilter('tier-4')"
+          >
+            Tier 4
+          </a-button>
+          <a-button
+            class="tier-filter-btn tier-depth-legend"
+            :class="{ active: tierFilters.includes('tier-depth') }"
+            @click="toggleTierFilter('tier-depth')"
+          >
+            Depth
+          </a-button>
+        </div>
+        <div class="legend-search-container">
+          <a-auto-complete
+            v-model:value="playerSearchInput"
+            :options="searchOptions"
+            :allow-clear="true"
+            placeholder="Search and filter by player..."
+            @select="selectPlayer"
+            @search="searchPlayers"
+            @keydown.enter="selectPlayerByEnter"
+            size="large"
+          >
+            <template #prefix>
+              <SearchOutlined style="color: rgba(0, 0, 0, 0.25)" />
+            </template>
+          </a-auto-complete>
+          <a-button
+            v-if="selectedPlayerFilter"
+            @click="clearPlayerFilter"
+            type="default"
+            size="large"
+            class="clear-filter-btn"
+          >
+            Clear Filter
+          </a-button>
+        </div>
+      </div>
+
       <!-- Rankings table -->
       <a-spin :spinning="isLoading">
         <div class="rankings-table">
           <div class="rankings-header">
             <div class="cell cell-rank"></div>
-            <div class="cell cell-tier">Tier</div>
             <div class="cell cell-player">Player</div>
             <div class="cell cell-team">Team</div>
             <div class="cell cell-age">Age</div>
@@ -80,11 +152,6 @@
             @click="showPlayerModal(asset)"
           >
             <div class="cell cell-rank">{{ (currentPage - 1) * perPage + index + 1 }}</div>
-            <div class="cell cell-tier">
-              <div class="tier-indicator" :class="getTierClass(asset.player_value)">
-                {{ getTierLabel(asset.player_value) }}
-              </div>
-            </div>
             <div class="cell cell-player">
               <div class="player-container">
                 <div class="position-tag" :style="getPositionTag(asset._position)">
@@ -122,7 +189,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, watchEffect, watch, nextTick } from 'vue'
+import { ref, reactive, onMounted, computed, watchEffect, watch } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
@@ -132,7 +199,7 @@ import PlayerHistoryModal from '@/components/PlayerHistoryModal.vue'
 // 3rd Party imports
 import axios from 'axios'
 import { message } from 'ant-design-vue'
-import { DownloadOutlined, UserOutlined } from '@ant-design/icons-vue'
+import { DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import 'ant-design-vue/dist/reset.css'
 
 
@@ -141,6 +208,10 @@ const isLoading = ref(false)
 const rankType = ref('dynasty')
 const currentPage = ref(1)
 const perPage = ref(75)
+const tierFilters = ref(['tier-elite', 'tier-1', 'tier-2', 'tier-3', 'tier-4', 'tier-depth'])
+const playerSearchInput = ref('')
+const searchOptions = ref([])
+const selectedPlayerFilter = ref('')
 
 
 const plainOptions = ['QB', 'RB', 'WR', 'TE']
@@ -179,6 +250,93 @@ watchEffect(() => {
   rankType.value = state.checked2 ? 'dynasty' : 'redraft'
 })
 
+function toggleTierFilter(tier) {
+  const index = tierFilters.value.indexOf(tier)
+  if (index > -1) {
+    tierFilters.value.splice(index, 1)
+  } else {
+    tierFilters.value.push(tier)
+  }
+  currentPage.value = 1
+}
+
+function searchPlayers(searchText) {
+  if (!searchText || searchText.trim().length === 0) {
+    // Show top 3 value players when search is empty
+    const topPlayers = ranksData.value.slice(0, 3)
+    const uniquePlayerMap = new Map()
+
+    topPlayers.forEach((player) => {
+      const uniqueKey = `${player.player_id}`
+      const teamInfo = player.team ? ` - ${player.team}` : ''
+      const ageInfo = player.age ? ` (${player.age})` : ''
+      const positionInfo = player._position || ''
+      const label = `${player.player_full_name} - ${positionInfo}${teamInfo}${ageInfo}`
+      uniquePlayerMap.set(uniqueKey, {
+        label: label,
+        value: player.player_full_name,
+        data: player
+      })
+    })
+
+    searchOptions.value = Array.from(uniquePlayerMap.values())
+    return
+  }
+
+  // Get filtered players that match the search text
+  const matchingPlayers = ranksData.value.filter((item) =>
+    item.player_full_name.toLowerCase().includes(searchText.toLowerCase())
+  )
+
+  // Sort by player value (highest first)
+  const valueKey = state.checked1 ? 'sf_value' : 'one_qb_value'
+  matchingPlayers.sort((a, b) => (b[valueKey] || 0) - (a[valueKey] || 0))
+
+  // Create a Map to ensure unique player selection
+  const uniquePlayerMap = new Map()
+
+  // Limit to top 3 matches
+  matchingPlayers.slice(0, 3).forEach((player) => {
+    const uniqueKey = `${player.player_id}`
+    const teamInfo = player.team ? ` - ${player.team}` : ''
+    const ageInfo = player.age ? ` (${player.age})` : ''
+    const positionInfo = player._position || ''
+    const label = `${player.player_full_name} - ${positionInfo}${teamInfo}${ageInfo}`
+
+    uniquePlayerMap.set(uniqueKey, {
+      label: label,
+      value: player.player_full_name,
+      data: player
+    })
+  })
+
+  searchOptions.value = Array.from(uniquePlayerMap.values())
+}
+
+function selectPlayer(playerName) {
+  selectedPlayerFilter.value = playerName
+  playerSearchInput.value = ''
+  searchOptions.value = []
+  currentPage.value = 1
+}
+
+function selectPlayerByEnter(event) {
+  const inputValue = playerSearchInput.value
+  if (inputValue && inputValue.trim().length > 0) {
+    selectedPlayerFilter.value = inputValue
+    playerSearchInput.value = ''
+    searchOptions.value = []
+    currentPage.value = 1
+  }
+}
+
+function clearPlayerFilter() {
+  selectedPlayerFilter.value = ''
+  playerSearchInput.value = ''
+  searchOptions.value = []
+  currentPage.value = 1
+}
+
 const filteredData = computed(() => {
   const filtered = ranksData.value.filter((item) => {
     const rankTypeCondition = state.checked2
@@ -189,8 +347,11 @@ const filteredData = computed(() => {
       : item.roster_type === 'one_qb_value'
     const positionCondition = checkState.checkedList.includes(item._position)
     const rookieCondition = !checkState.showRookiesOnly || item.is_rookie === 'true'
+    const tierCondition = tierFilters.value.includes(getTierClass(item.player_value))
+    const searchCondition = selectedPlayerFilter.value === '' ||
+      item.player_full_name.toLowerCase() === selectedPlayerFilter.value.toLowerCase()
 
-    return rankTypeCondition && rosterTypeCondition && positionCondition && rookieCondition
+    return rankTypeCondition && rosterTypeCondition && positionCondition && rookieCondition && tierCondition && searchCondition
   })
 
   const grouped = filtered.reduce((acc, item) => {
@@ -262,14 +423,6 @@ function getTierClass(value) {
   return 'tier-depth'
 }
 
-function getTierLabel(value) {
-  if (value >= 8000) return 'Elite'
-  if (value >= 5000) return 'Tier 1'
-  if (value >= 3000) return 'Tier 2'
-  if (value >= 1500) return 'Tier 3'
-  if (value >= 800) return 'Depth'
-  return 'Waiver'
-}
 
 async function fetchRanks() {
   isLoading.value = true
@@ -443,7 +596,7 @@ const handlePlayerModalClose = () => {
 
 .rankings-header {
   display: grid;
-  grid-template-columns: 80px 130px 3fr 160px 130px 180px;
+  grid-template-columns: 80px 3fr 160px 130px 180px;
   padding: 18px 20px;
   font-weight: 600;
   color: var(--color-text);
@@ -454,7 +607,7 @@ const handlePlayerModalClose = () => {
 
 .rankings-row {
   display: grid;
-  grid-template-columns: 80px 130px 3fr 160px 130px 180px;
+  grid-template-columns: 80px 3fr 160px 130px 180px;
   padding: 16px 20px;
   align-items: center;
   transition: all 0.2s ease;
@@ -517,91 +670,200 @@ const handlePlayerModalClose = () => {
   color: var(--color-text);
 }
 
-/* The remaining styles may need similar updates */
-
-
-/* Tier System - Subtle Design */
-.tier-indicator {
-  font-size: 10px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  text-align: center;
-  min-width: 45px;
-  letter-spacing: 0.3px;
-  border: 1px solid;
+/* Tier Legend */
+.tier-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--color-background);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
+  flex-wrap: wrap;
 }
+
+.legend-items {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.tier-filter-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-width: 2px !important;
+  font-weight: 600;
+  background: #d3d3d3 !important;
+  border-color: #d3d3d3 !important;
+  color: #666 !important;
+}
+
+.tier-filter-btn:hover {
+  background: #c0c0c0 !important;
+  border-color: #c0c0c0 !important;
+}
+
+.tier-filter-btn.active {
+  font-weight: 700;
+  background: transparent !important;
+  color: var(--tier-color) !important;
+  border-color: var(--tier-color) !important;
+}
+
+
+.tier-filter-btn.tier-elite-legend.active {
+  --tier-color: #60a5fa;
+}
+
+.tier-filter-btn.tier-1-legend.active {
+  --tier-color: #4ade80;
+}
+
+.tier-filter-btn.tier-2-legend.active {
+  --tier-color: #2dd4bf;
+}
+
+.tier-filter-btn.tier-3-legend.active {
+  --tier-color: #facc15;
+}
+
+.tier-filter-btn.tier-4-legend.active {
+  --tier-color: #fb923c;
+}
+
+.tier-filter-btn.tier-depth-legend.active {
+  --tier-color: #fdba74;
+}
+
+.legend-search-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+  flex: 0 1 auto;
+}
+
+.legend-search-container :deep(.ant-input) {
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  height: 40px !important;
+}
+
+.legend-search-container :deep(.ant-select-selector) {
+  border-width: 2px !important;
+  width: 100% !important;
+  height: 40px !important;
+}
+
+.legend-search-container :deep(.ant-select) {
+  width: 350px !important;
+  min-width: 350px !important;
+  flex-shrink: 0;
+}
+
+.legend-search-container :deep(.ant-select-dropdown) {
+  z-index: 1000 !important;
+  width: 350px !important;
+}
+
+.clear-filter-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 40px;
+}
+
+/* Autocomplete Dropdown Styling */
+:global(.ant-select-dropdown.legend-search-dropdown) {
+  width: 350px !important;
+  min-width: 350px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+:global(.legend-search-container .ant-select-dropdown) {
+  width: 350px !important;
+  min-width: 350px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+}
+
+:global(.legend-search-container .ant-select-selector) {
+  width: 100% !important;
+}
+
+:global(.legend-search-container .ant-select-item-option-content) {
+  font-size: 14px !important;
+  padding: 0 !important;
+  white-space: normal !important;
+}
+
+:global(.legend-search-container .ant-select-item) {
+  padding: 12px 16px !important;
+  min-height: 40px !important;
+  line-height: 1.5 !important;
+}
+
+:global(.legend-search-container .ant-select-item-option) {
+  padding: 12px 16px !important;
+  min-height: 40px !important;
+}
+
+:global(.legend-search-container .ant-select-item-option-selected) {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+:global(.legend-search-container .ant-select-item-option:hover) {
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+
+:global(.legend-search-container .ant-select-dropdown-list) {
+  max-height: 160px !important;
+  overflow-y: auto !important;
+}
+
+/* Tier System - Row Backgrounds */
 
 /* Elite Tier - Blue */
-.tier-elite .tier-indicator {
-  background: rgba(59, 130, 246, 0.1);
-  color: #1d4ed8;
-  border-color: rgba(59, 130, 246, 0.3);
-}
-
 .tier-elite {
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.03), transparent);
-  border-left: 3px solid #3b82f6;
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.05), transparent);
+  border-left: 3px solid #60a5fa;
 }
 
 /* Tier 1 - Darker Green */
-.tier-1 .tier-indicator {
-  background: rgba(34, 197, 94, 0.1);
-  color: #15803d;
-  border-color: rgba(34, 197, 94, 0.3);
-}
-
 .tier-1 {
-  background: linear-gradient(90deg, rgba(34, 197, 94, 0.03), transparent);
-  border-left: 3px solid #22c55e;
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.05), transparent);
+  border-left: 3px solid #4ade80;
 }
 
 /* Tier 2 - Green */
-.tier-2 .tier-indicator {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border-color: rgba(16, 185, 129, 0.3);
-}
-
 .tier-2 {
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.03), transparent);
-  border-left: 3px solid #10b981;
+  background: linear-gradient(90deg, rgba(45, 212, 191, 0.05), transparent);
+  border-left: 3px solid #2dd4bf;
 }
 
 /* Tier 3 - Yellow */
-.tier-3 .tier-indicator {
-  background: rgba(234, 179, 8, 0.1);
-  color: #a16207;
-  border-color: rgba(234, 179, 8, 0.3);
-}
-
 .tier-3 {
-  background: linear-gradient(90deg, rgba(234, 179, 8, 0.03), transparent);
-  border-left: 3px solid #eab308;
+  background: linear-gradient(90deg, rgba(250, 204, 21, 0.05), transparent);
+  border-left: 3px solid #facc15;
 }
 
 /* Tier 4 - Orange */
-.tier-4 .tier-indicator {
-  background: rgba(249, 115, 22, 0.1);
-  color: #ea580c;
-  border-color: rgba(249, 115, 22, 0.3);
-}
-
 .tier-4 {
-  background: linear-gradient(90deg, rgba(249, 115, 22, 0.03), transparent);
-  border-left: 3px solid #f97316;
+  background: linear-gradient(90deg, rgba(251, 146, 60, 0.05), transparent);
+  border-left: 3px solid #fb923c;
 }
 
 /* Depth Tier - Orangish */
-.tier-depth .tier-indicator {
-  background: rgba(251, 146, 60, 0.1);
-  color: #c2410c;
-  border-color: rgba(251, 146, 60, 0.3);
-}
-
 .tier-depth {
-  background: linear-gradient(90deg, rgba(251, 146, 60, 0.03), transparent);
-  border-left: 3px solid #fb923c;
+  background: linear-gradient(90deg, rgba(253, 186, 116, 0.05), transparent);
+  border-left: 3px solid #fdba74;
 }
 
 .position-tag {
@@ -624,8 +886,35 @@ const handlePlayerModalClose = () => {
 }
 
 
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .tier-legend {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .legend-items {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .legend-search-container {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .legend-search-container :deep(.ant-select) {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  .clear-filter-btn {
+    width: 100%;
+  }
+
   .responsive-padding {
     padding: 0 12px;
   }
@@ -660,7 +949,7 @@ const handlePlayerModalClose = () => {
 
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 45px 65px 1fr 70px 45px 85px;
+    grid-template-columns: 45px 1fr 70px 45px 85px;
     padding: 8px 4px;
     font-size: 14px;
   }
@@ -679,18 +968,12 @@ const handlePlayerModalClose = () => {
   .pos-rank {
     display: none;
   }
-
-  .tier-indicator {
-    font-size: 10px;
-    padding: 2px 6px;
-    min-width: 40px;
-  }
 }
 
 @media (max-width: 480px) {
   .rankings-header,
   .rankings-row {
-    grid-template-columns: 42px 55px 1fr 55px 38px 75px;
+    grid-template-columns: 42px 1fr 55px 38px 75px;
     font-size: 12px;
   }
 
