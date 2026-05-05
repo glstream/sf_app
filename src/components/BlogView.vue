@@ -14,27 +14,25 @@
         </div>
 
         <div class="blog-grid">
-          <template v-for="(article, index) in articles">
-            <article class="blog-card" :key="article.id">
-              <div class="blog-card-header">
-                <h2>{{ article.title }}</h2>
-                <div class="blog-meta">
-                  <span class="blog-date">{{ article.date }}</span>
-                  <span class="blog-category">{{ article.category }}</span>
-                </div>
+          <article class="blog-card" v-for="article in articles" :key="article.id">
+            <div class="blog-card-header">
+              <h2>{{ article.title }}</h2>
+              <div class="blog-meta">
+                <span class="blog-date">{{ article.date }}</span>
+                <span class="blog-category">{{ article.category }}</span>
               </div>
+            </div>
 
-              <div class="blog-content">
-                <p class="blog-excerpt">{{ article.excerpt }}</p>
-                <div class="blog-content-full" v-html="article.content"></div>
-              </div>
+            <div class="blog-content">
+              <p class="blog-excerpt">{{ article.excerpt }}</p>
+              <div class="blog-content-full" v-html="article.content"></div>
+            </div>
 
-              <div class="blog-tags">
-                <a-tag v-for="tag in article.tags" :key="tag" color="blue">{{ tag }}</a-tag>
-              </div>
-            </article>
-            <AdUnit v-if="index === 1" :key="'ad-' + article.id" ad-slot="BLOG_MID_ARTICLE" ad-format="horizontal" />
-          </template>
+            <div class="blog-tags">
+              <a-tag v-for="tag in article.tags" :key="tag" color="blue">{{ tag }}</a-tag>
+            </div>
+          </article>
+          <AdUnit ad-slot="BLOG_MID_ARTICLE" ad-format="horizontal" />
         </div>
       </div>
     </a-layout-content>
@@ -51,174 +49,6 @@ import ThemeToggleButton from './ThemeToggleButton.vue'
 import AdUnit from './AdUnit.vue'
 
 const articles = ref([
-  {
-    id: 1,
-    title: "Dynasty League Draft Strategy: Building for the Future",
-    date: "February 26, 2026",
-    category: "Strategy",
-    excerpt: "Learn how to balance immediate competitiveness with long-term dynasty success in your startup drafts.",
-    tags: ["Dynasty", "Draft Strategy", "Rookie Drafts"],
-    content: `
-      <h3>Understanding Dynasty League Dynamics</h3>
-      <p>Dynasty leagues require a fundamentally different approach than redraft leagues. While redraft focuses on single-season production, dynasty success demands long-term thinking and strategic roster construction.</p>
-      
-      <h3>Key Principles for Dynasty Draft Success</h3>
-      <h4>1. Age and Opportunity</h4>
-      <p>When evaluating players, consider both their current age and opportunity window. A 24-year-old running back in his second year has significantly more dynasty value than a 28-year-old in the same situation, even if their current production is similar.</p>
-      
-      <h4>2. Positional Scarcity and Longevity</h4>
-      <p>Quarterbacks and wide receivers typically have longer careers than running backs and tight ends. This affects their dynasty value calculations:</p>
-      <ul>
-        <li><strong>QBs:</strong> Can produce until mid-30s, high floor for long-term value</li>
-        <li><strong>WRs:</strong> Often productive into early 30s, age gracefully</li>
-        <li><strong>RBs:</strong> Sharp decline after age 28-29, draft carefully</li>
-        <li><strong>TEs:</strong> Late bloomers, can be productive into 30s</li>
-      </ul>
-      
-      <h3>Draft Strategy by Team Building Phase</h3>
-      <h4>Competing Now (Win-Now Mode)</h4>
-      <p>If you have a championship-caliber roster, prioritize:</p>
-      <ul>
-        <li>Proven veterans with 2-3 years of elite production left</li>
-        <li>Handcuff running backs for injury protection</li>
-        <li>High-floor players over boom-bust prospects</li>
-      </ul>
-      
-      <h4>Rebuilding (Future Focus)</h4>
-      <p>When rebuilding, focus on:</p>
-      <ul>
-        <li>Young players with high ceilings, even if unproven</li>
-        <li>Draft capital accumulation for future rookie drafts</li>
-        <li>Players in good situations who may break out in year 2-3</li>
-      </ul>
-      
-      <h3>Using Analytics in Dynasty Drafts</h3>
-      <p>Fantasy Navigator's tools can help you identify value during drafts:</p>
-      <ul>
-        <li>Compare consensus rankings across multiple expert sources</li>
-        <li>Analyze age-adjusted values for long-term planning</li>
-        <li>Track draft capital and future pick values</li>
-        <li>Monitor breakout candidate metrics</li>
-      </ul>
-      
-      <h3>Common Dynasty Draft Mistakes</h3>
-      <p>Avoid these pitfalls:</p>
-      <ol>
-        <li><strong>Overvaluing aging stars:</strong> Don't pay peak prices for players entering decline</li>
-        <li><strong>Ignoring roster construction:</strong> Balance positions and ages across your team</li>
-        <li><strong>Short-term thinking:</strong> A player who helps you this year but hurts you for 3 years isn't worth it</li>
-        <li><strong>Undervaluing picks:</strong> Future rookie draft picks are extremely valuable assets</li>
-      </ol>
-      
-      <h3>Conclusion</h3>
-      <p>Dynasty success requires patience, strategic thinking, and data-driven decision making. Use the tools available to analyze player values across multiple dimensions, and always keep your long-term team building goals in mind.</p>
-    `
-  },
-  {
-    id: 2,
-    title: "How to Analyze Trade Values: A Data-Driven Approach",
-    date: "February 25, 2026",
-    category: "Analytics",
-    excerpt: "Master the art of trade evaluation using multiple data sources and analytical frameworks.",
-    tags: ["Trade Analysis", "Player Values", "Analytics"],
-    content: `
-      <h3>The Foundation of Trade Analysis</h3>
-      <p>Successful fantasy football trading requires more than gut feelings—it demands systematic analysis using reliable data sources and proven methodologies.</p>
-      
-      <h3>Understanding Different Value Systems</h3>
-      <p>Fantasy Navigator aggregates data from multiple sources, each with unique strengths:</p>
-      
-      <h4>KeepTradeCut (KTC)</h4>
-      <ul>
-        <li>Crowd-sourced rankings from active dynasty players</li>
-        <li>Reflects current market sentiment</li>
-        <li>Great for understanding "trade market" values</li>
-        <li>Updated frequently based on real user trades</li>
-      </ul>
-      
-      <h4>FantasyCalc</h4>
-      <ul>
-        <li>Mathematical model-based valuations</li>
-        <li>Considers age, opportunity, and production metrics</li>
-        <li>Less influenced by hype and recency bias</li>
-        <li>Excellent for long-term dynasty planning</li>
-      </ul>
-      
-      <h4>DynastyProcess</h4>
-      <ul>
-        <li>Data-driven analytical approach</li>
-        <li>Incorporates advanced metrics and projections</li>
-        <li>Focuses on predictive player modeling</li>
-        <li>Great for identifying undervalued assets</li>
-      </ul>
-      
-      <h3>The Trade Analysis Framework</h3>
-      <h4>Step 1: Establish Baseline Values</h4>
-      <p>Before any trade discussion, know your players' values across multiple systems:</p>
-      <ol>
-        <li>Check current consensus rankings</li>
-        <li>Compare values across KTC, FantasyCalc, and DynastyProcess</li>
-        <li>Note any significant discrepancies between sources</li>
-        <li>Consider recent trend data</li>
-      </ol>
-      
-      <h4>Step 2: Context Analysis</h4>
-      <p>Raw values don't tell the complete story. Consider:</p>
-      <ul>
-        <li><strong>Team needs:</strong> A RB3 for you might be a starter for them</li>
-        <li><strong>League settings:</strong> Superflex vs 1QB affects QB values dramatically</li>
-        <li><strong>Competing timeline:</strong> Win-now vs rebuilding changes player priorities</li>
-        <li><strong>Roster construction:</strong> Depth charts and positional needs</li>
-      </ul>
-      
-      <h4>Step 3: Opportunity Cost Assessment</h4>
-      <p>Every trade has hidden costs:</p>
-      <ul>
-        <li>Roster spot limitations</li>
-        <li>Salary cap implications (in salary leagues)</li>
-        <li>Future flexibility</li>
-        <li>Relationship with trading partner</li>
-      </ul>
-      
-      <h3>Advanced Trade Analysis Techniques</h3>
-      <h4>Value Range Trading</h4>
-      <p>Instead of exact values, think in ranges:</p>
-      <ul>
-        <li>Conservative estimate (worst-case scenario)</li>
-        <li>Expected value (most likely outcome)</li>
-        <li>Optimistic estimate (best-case scenario)</li>
-      </ul>
-      
-      <h4>Variance Consideration</h4>
-      <p>High-variance players require different evaluation:</p>
-      <ul>
-        <li>Boom-bust prospects: Higher upside, lower floor</li>
-        <li>Veteran stability: Lower ceiling, safer floor</li>
-        <li>Match variance to your team's needs</li>
-      </ul>
-      
-      <h3>Using Fantasy Navigator's Trade Calculator</h3>
-      <p>Our trade calculator helps you:</p>
-      <ol>
-        <li>Compare values across multiple expert sources</li>
-        <li>Visualize trade balance with clear win/lose indicators</li>
-        <li>Factor in league settings (Superflex, TE Premium, etc.)</li>
-        <li>Account for positional needs and roster construction</li>
-      </ol>
-      
-      <h3>Red Flags in Trade Negotiations</h3>
-      <p>Watch out for these warning signs:</p>
-      <ul>
-        <li>Pressure to decide immediately</li>
-        <li>Trades that only help one team's timeline</li>
-        <li>Significant value disparities without justification</li>
-        <li>Ignoring your clearly stated team needs</li>
-      </ul>
-      
-      <h3>Conclusion</h3>
-      <p>Effective trade analysis combines quantitative data with qualitative context. Use multiple value sources, understand your team's specific needs, and always consider the long-term implications of any deal. The best trades create value for both sides while advancing your specific team-building goals.</p>
-    `
-  },
   {
     id: 4,
     title: "2026 Rookie Class: Why Your Rankings Source Matters More Than Ever",
@@ -263,6 +93,174 @@ const articles = ref([
 
       <h3>The Bottom Line</h3>
       <p>In a class this deep, the difference between a league-winning draft and a mediocre one often comes down to a few picks in rounds 2 and 3. That is exactly where ranking source disagreement is highest, and exactly where multi-source analysis pays off the most. Do not just follow one ranking list. Use the data to find your own edges.</p>
+    `
+  },
+  {
+    id: 1,
+    title: "Dynasty League Draft Strategy: Building for the Future",
+    date: "February 26, 2026",
+    category: "Strategy",
+    excerpt: "Learn how to balance immediate competitiveness with long-term dynasty success in your startup drafts.",
+    tags: ["Dynasty", "Draft Strategy", "Rookie Drafts"],
+    content: `
+      <h3>Understanding Dynasty League Dynamics</h3>
+      <p>Dynasty leagues require a fundamentally different approach than redraft leagues. While redraft focuses on single-season production, dynasty success demands long-term thinking and strategic roster construction.</p>
+
+      <h3>Key Principles for Dynasty Draft Success</h3>
+      <h4>1. Age and Opportunity</h4>
+      <p>When evaluating players, consider both their current age and opportunity window. A 24-year-old running back in his second year has significantly more dynasty value than a 28-year-old in the same situation, even if their current production is similar.</p>
+
+      <h4>2. Positional Scarcity and Longevity</h4>
+      <p>Quarterbacks and wide receivers typically have longer careers than running backs and tight ends. This affects their dynasty value calculations:</p>
+      <ul>
+        <li><strong>QBs:</strong> Can produce until mid-30s, high floor for long-term value</li>
+        <li><strong>WRs:</strong> Often productive into early 30s, age gracefully</li>
+        <li><strong>RBs:</strong> Sharp decline after age 28-29, draft carefully</li>
+        <li><strong>TEs:</strong> Late bloomers, can be productive into 30s</li>
+      </ul>
+
+      <h3>Draft Strategy by Team Building Phase</h3>
+      <h4>Competing Now (Win-Now Mode)</h4>
+      <p>If you have a championship-caliber roster, prioritize:</p>
+      <ul>
+        <li>Proven veterans with 2-3 years of elite production left</li>
+        <li>Handcuff running backs for injury protection</li>
+        <li>High-floor players over boom-bust prospects</li>
+      </ul>
+
+      <h4>Rebuilding (Future Focus)</h4>
+      <p>When rebuilding, focus on:</p>
+      <ul>
+        <li>Young players with high ceilings, even if unproven</li>
+        <li>Draft capital accumulation for future rookie drafts</li>
+        <li>Players in good situations who may break out in year 2-3</li>
+      </ul>
+
+      <h3>Using Analytics in Dynasty Drafts</h3>
+      <p>Fantasy Navigator's tools can help you identify value during drafts:</p>
+      <ul>
+        <li>Compare consensus rankings across multiple expert sources</li>
+        <li>Analyze age-adjusted values for long-term planning</li>
+        <li>Track draft capital and future pick values</li>
+        <li>Monitor breakout candidate metrics</li>
+      </ul>
+
+      <h3>Common Dynasty Draft Mistakes</h3>
+      <p>Avoid these pitfalls:</p>
+      <ol>
+        <li><strong>Overvaluing aging stars:</strong> Don't pay peak prices for players entering decline</li>
+        <li><strong>Ignoring roster construction:</strong> Balance positions and ages across your team</li>
+        <li><strong>Short-term thinking:</strong> A player who helps you this year but hurts you for 3 years isn't worth it</li>
+        <li><strong>Undervaluing picks:</strong> Future rookie draft picks are extremely valuable assets</li>
+      </ol>
+
+      <h3>Conclusion</h3>
+      <p>Dynasty success requires patience, strategic thinking, and data-driven decision making. Use the tools available to analyze player values across multiple dimensions, and always keep your long-term team building goals in mind.</p>
+    `
+  },
+  {
+    id: 2,
+    title: "How to Analyze Trade Values: A Data-Driven Approach",
+    date: "February 25, 2026",
+    category: "Analytics",
+    excerpt: "Master the art of trade evaluation using multiple data sources and analytical frameworks.",
+    tags: ["Trade Analysis", "Player Values", "Analytics"],
+    content: `
+      <h3>The Foundation of Trade Analysis</h3>
+      <p>Successful fantasy football trading requires more than gut feelings—it demands systematic analysis using reliable data sources and proven methodologies.</p>
+
+      <h3>Understanding Different Value Systems</h3>
+      <p>Fantasy Navigator aggregates data from multiple sources, each with unique strengths:</p>
+
+      <h4>KeepTradeCut (KTC)</h4>
+      <ul>
+        <li>Crowd-sourced rankings from active dynasty players</li>
+        <li>Reflects current market sentiment</li>
+        <li>Great for understanding "trade market" values</li>
+        <li>Updated frequently based on real user trades</li>
+      </ul>
+
+      <h4>FantasyCalc</h4>
+      <ul>
+        <li>Mathematical model-based valuations</li>
+        <li>Considers age, opportunity, and production metrics</li>
+        <li>Less influenced by hype and recency bias</li>
+        <li>Excellent for long-term dynasty planning</li>
+      </ul>
+
+      <h4>DynastyProcess</h4>
+      <ul>
+        <li>Data-driven analytical approach</li>
+        <li>Incorporates advanced metrics and projections</li>
+        <li>Focuses on predictive player modeling</li>
+        <li>Great for identifying undervalued assets</li>
+      </ul>
+
+      <h3>The Trade Analysis Framework</h3>
+      <h4>Step 1: Establish Baseline Values</h4>
+      <p>Before any trade discussion, know your players' values across multiple systems:</p>
+      <ol>
+        <li>Check current consensus rankings</li>
+        <li>Compare values across KTC, FantasyCalc, and DynastyProcess</li>
+        <li>Note any significant discrepancies between sources</li>
+        <li>Consider recent trend data</li>
+      </ol>
+
+      <h4>Step 2: Context Analysis</h4>
+      <p>Raw values don't tell the complete story. Consider:</p>
+      <ul>
+        <li><strong>Team needs:</strong> A RB3 for you might be a starter for them</li>
+        <li><strong>League settings:</strong> Superflex vs 1QB affects QB values dramatically</li>
+        <li><strong>Competing timeline:</strong> Win-now vs rebuilding changes player priorities</li>
+        <li><strong>Roster construction:</strong> Depth charts and positional needs</li>
+      </ul>
+
+      <h4>Step 3: Opportunity Cost Assessment</h4>
+      <p>Every trade has hidden costs:</p>
+      <ul>
+        <li>Roster spot limitations</li>
+        <li>Salary cap implications (in salary leagues)</li>
+        <li>Future flexibility</li>
+        <li>Relationship with trading partner</li>
+      </ul>
+
+      <h3>Advanced Trade Analysis Techniques</h3>
+      <h4>Value Range Trading</h4>
+      <p>Instead of exact values, think in ranges:</p>
+      <ul>
+        <li>Conservative estimate (worst-case scenario)</li>
+        <li>Expected value (most likely outcome)</li>
+        <li>Optimistic estimate (best-case scenario)</li>
+      </ul>
+
+      <h4>Variance Consideration</h4>
+      <p>High-variance players require different evaluation:</p>
+      <ul>
+        <li>Boom-bust prospects: Higher upside, lower floor</li>
+        <li>Veteran stability: Lower ceiling, safer floor</li>
+        <li>Match variance to your team's needs</li>
+      </ul>
+
+      <h3>Using Fantasy Navigator's Trade Calculator</h3>
+      <p>Our trade calculator helps you:</p>
+      <ol>
+        <li>Compare values across multiple expert sources</li>
+        <li>Visualize trade balance with clear win/lose indicators</li>
+        <li>Factor in league settings (Superflex, TE Premium, etc.)</li>
+        <li>Account for positional needs and roster construction</li>
+      </ol>
+
+      <h3>Red Flags in Trade Negotiations</h3>
+      <p>Watch out for these warning signs:</p>
+      <ul>
+        <li>Pressure to decide immediately</li>
+        <li>Trades that only help one team's timeline</li>
+        <li>Significant value disparities without justification</li>
+        <li>Ignoring your clearly stated team needs</li>
+      </ul>
+
+      <h3>Conclusion</h3>
+      <p>Effective trade analysis combines quantitative data with qualitative context. Use multiple value sources, understand your team's specific needs, and always consider the long-term implications of any deal. The best trades create value for both sides while advancing your specific team-building goals.</p>
     `
   },
   {
