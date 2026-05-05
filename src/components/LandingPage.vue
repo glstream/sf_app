@@ -135,6 +135,8 @@
         </a-col>
       </a-row>
 
+      <AdUnit ad-slot="LANDING_FEATURES" ad-format="horizontal" />
+
       <!-- About Section -->
       <div class="about-section">
         <a-divider>
@@ -159,6 +161,7 @@ import { useRouter } from 'vue-router'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import ThemeToggleButton from '@/components/ThemeToggleButton.vue'
+import AdUnit from '@/components/AdUnit.vue'
 
 const router = useRouter()
 

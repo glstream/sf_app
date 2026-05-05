@@ -3,17 +3,6 @@
     <theme-toggle-button />
     <AppHeader />
 
-    <!-- Announcement Toast -->
-    <div v-if="showAnnouncement" class="announcement-toast">
-      <div class="announcement-content">
-        <span class="announcement-badge">NEW</span>
-        <span class="announcement-text">Fleaflicker leagues now available with full power rankings support!</span>
-        <a-button type="text" size="small" @click="dismissAnnouncement" class="announcement-close">
-          <CloseOutlined />
-        </a-button>
-      </div>
-    </div>
-
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-background">
@@ -23,7 +12,7 @@
         <div class="hero-text">
           <h1 class="hero-title">Your Fantasy Football League Dashboard</h1>
           <p class="hero-subtitle">
-            Connect your Sleeper or Fleaflicker account to unlock deep league analytics, discover optimal trades,
+            Connect your Sleeper, Fleaflicker, or MFL account to unlock deep league analytics, discover optimal trades,
             and dominate your competition with data-driven insights.
           </p>
         </div>
@@ -159,16 +148,17 @@
             <div class="form-info">
               <a-button type="text" @click="showModal" class="info-btn">
                 <InfoCircleOutlined />
-                <span>Supports Sleeper and Fleaflicker leagues</span>
+                <span>Supports Sleeper, Fleaflicker, and MFL leagues</span>
               </a-button>
               <a-modal v-model:open="open" @ok="handleOk" title="Platform Support">
                 <p>
-                  Fantasy Navigator supports both Sleeper and Fleaflicker fantasy football platforms.
+                  Fantasy Navigator supports Sleeper, Fleaflicker, and MyFantasyLeague (MFL) fantasy football platforms.
                   Features include:
                 </p>
                 <ul>
                   <li><strong>Sleeper:</strong> Full dynasty and redraft support with draft pick tracking</li>
                   <li><strong>Fleaflicker:</strong> League analysis, rosters, standings, and transactions (just enter your email)</li>
+                  <li><strong>MyFantasyLeague:</strong> Dynasty league support with power rankings, rosters, and trade analysis (just enter your League ID)</li>
                 </ul>
                 <p>
                   Select your platform above and enter your credentials to get started.
@@ -372,8 +362,7 @@ import {
   InfoCircleOutlined,
   HomeOutlined,
   RightOutlined,
-  TeamOutlined,
-  CloseOutlined
+  TeamOutlined
 } from '@ant-design/icons-vue'
 
 import { message } from 'ant-design-vue'
@@ -399,7 +388,6 @@ const open = ref<boolean>(false)
 const formIsLoading = ref(false)
 const demoFormIsLoading = ref(false)
 const apiUrl = import.meta.env.VITE_API_URL
-const showAnnouncement = ref(true)
 
 import { theme } from 'ant-design-vue'
 const { useToken } = theme
@@ -439,9 +427,6 @@ const navigateToDemoPage = () => {
 }
 const handleOk = (e: MouseEvent) => {
   open.value = false
-}
-const dismissAnnouncement = () => {
-  showAnnouncement.value = false
 }
 
 const userStore = useUserStore()
@@ -668,66 +653,6 @@ const structuredData = {
 }
 </script>
 <style scoped>
-/* Announcement Toast Styles */
-.announcement-toast {
-  background: linear-gradient(135deg, #277DA1 0%, #1f5a7e 100%);
-  padding: 12px 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.announcement-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  position: relative;
-}
-
-.announcement-badge {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.announcement-text {
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.announcement-close {
-  position: absolute;
-  right: 0;
-  color: white !important;
-  opacity: 0.8;
-  transition: opacity 0.2s ease;
-}
-
-.announcement-close:hover {
-  opacity: 1;
-}
-
 /* Hero Section Styles */
 .hero-section {
   min-height: 600px;
@@ -1179,24 +1104,6 @@ html.dark :deep(.ant-card) {
 }
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
-  .announcement-toast {
-    padding: 10px 12px;
-  }
-
-  .announcement-content {
-    gap: 8px;
-    padding-right: 40px;
-  }
-
-  .announcement-text {
-    font-size: 13px;
-  }
-
-  .announcement-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
-
   .hero-section {
     min-height: 500px;
     padding: 60px 16px 40px;
