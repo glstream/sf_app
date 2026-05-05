@@ -14,24 +14,27 @@
         </div>
 
         <div class="blog-grid">
-          <article class="blog-card" v-for="article in articles" :key="article.id">
-            <div class="blog-card-header">
-              <h2>{{ article.title }}</h2>
-              <div class="blog-meta">
-                <span class="blog-date">{{ article.date }}</span>
-                <span class="blog-category">{{ article.category }}</span>
+          <template v-for="(article, index) in articles">
+            <article class="blog-card" :key="article.id">
+              <div class="blog-card-header">
+                <h2>{{ article.title }}</h2>
+                <div class="blog-meta">
+                  <span class="blog-date">{{ article.date }}</span>
+                  <span class="blog-category">{{ article.category }}</span>
+                </div>
               </div>
-            </div>
-            
-            <div class="blog-content">
-              <p class="blog-excerpt">{{ article.excerpt }}</p>
-              <div class="blog-content-full" v-html="article.content"></div>
-            </div>
-            
-            <div class="blog-tags">
-              <a-tag v-for="tag in article.tags" :key="tag" color="blue">{{ tag }}</a-tag>
-            </div>
-          </article>
+
+              <div class="blog-content">
+                <p class="blog-excerpt">{{ article.excerpt }}</p>
+                <div class="blog-content-full" v-html="article.content"></div>
+              </div>
+
+              <div class="blog-tags">
+                <a-tag v-for="tag in article.tags" :key="tag" color="blue">{{ tag }}</a-tag>
+              </div>
+            </article>
+            <AdUnit v-if="index === 1" :key="'ad-' + article.id" ad-slot="BLOG_MID_ARTICLE" ad-format="horizontal" />
+          </template>
         </div>
       </div>
     </a-layout-content>
@@ -45,6 +48,7 @@ import AppHeader from './AppHeader.vue'
 import AppFooter from './AppFooter.vue'
 import BreadcrumbNavigation from './BreadcrumbNavigation.vue'
 import ThemeToggleButton from './ThemeToggleButton.vue'
+import AdUnit from './AdUnit.vue'
 
 const articles = ref([
   {
@@ -213,6 +217,52 @@ const articles = ref([
       
       <h3>Conclusion</h3>
       <p>Effective trade analysis combines quantitative data with qualitative context. Use multiple value sources, understand your team's specific needs, and always consider the long-term implications of any deal. The best trades create value for both sides while advancing your specific team-building goals.</p>
+    `
+  },
+  {
+    id: 4,
+    title: "2026 Rookie Class: Why Your Rankings Source Matters More Than Ever",
+    date: "May 4, 2026",
+    category: "Analytics",
+    excerpt: "With the deepest rookie class in years, the gap between ranking sources can make or break your draft. Here's how to use multi-source analysis to find edges.",
+    tags: ["Rookie Draft", "Analytics", "Data Sources", "2026 Season"],
+    content: `
+      <h3>A Historic Rookie Class Demands Better Analysis</h3>
+      <p>The 2026 NFL Draft class is shaping up to be one of the deepest in recent memory, with legitimate fantasy-relevant talent extending well into the third round. But with depth comes disagreement, and this year the spread between ranking sources is wider than we have seen in years. That disagreement is where your edge lives.</p>
+
+      <h3>Why Single-Source Rankings Fall Short</h3>
+      <p>Every ranking system has a methodology, and every methodology has blind spots:</p>
+      <ul>
+        <li><strong>Crowd-sourced platforms</strong> like KeepTradeCut reflect market sentiment, but they are prone to hype cycles. A viral highlight clip can inflate a player's value overnight.</li>
+        <li><strong>Model-based systems</strong> like FantasyCalc anchor on production metrics and age curves, but they can undervalue players in new situations where the data is thin.</li>
+        <li><strong>Process-driven approaches</strong> like DynastyProcess lean on historical comps and efficiency stats, but outlier profiles can break the model.</li>
+      </ul>
+      <p>No single source captures the full picture. The signal lives in the convergence and divergence across all of them.</p>
+
+      <h3>How to Read the Gaps</h3>
+      <h4>Convergence = Confidence</h4>
+      <p>When KTC, FantasyCalc, DynastyProcess, and DynastyDaddy all agree on a player's range, you can draft with high conviction. These players carry less risk and are priced efficiently by the market.</p>
+
+      <h4>Divergence = Opportunity</h4>
+      <p>The interesting cases are where sources disagree sharply:</p>
+      <ul>
+        <li><strong>High crowd rank, low model rank:</strong> Possible hype inflation. The market is paying a premium based on narrative rather than production profile. Proceed with caution or sell high.</li>
+        <li><strong>Low crowd rank, high model rank:</strong> Potential value buy. The models see something the market is ignoring, often landing spot upside or an underrated athletic profile. This is where you find steals.</li>
+        <li><strong>Split across all sources:</strong> Genuinely uncertain player. The evaluation community has not reached consensus, which means the risk is real but so is the upside if you are right.</li>
+      </ul>
+
+      <h3>Putting It Into Practice</h3>
+      <p>Fantasy Navigator's composite rankings aggregate all four major sources and normalize them to a common scale. Here is a practical workflow for your rookie draft:</p>
+      <ol>
+        <li><strong>Start with the composite:</strong> Sort by the average normalized value to see the consensus tier structure.</li>
+        <li><strong>Flag the divergences:</strong> Look for players where one source ranks them significantly higher or lower than the others.</li>
+        <li><strong>Research the why:</strong> Is the gap driven by landing spot? Athletic profile? Age? Injury history? Understanding the reason helps you decide which source to trust.</li>
+        <li><strong>Set your draft board:</strong> Use the composite as your baseline, then adjust based on your own research into the divergence cases.</li>
+        <li><strong>Exploit the market:</strong> In your draft, the other managers are likely anchored to one source. If you have done the multi-source work, you will see value they miss.</li>
+      </ol>
+
+      <h3>The Bottom Line</h3>
+      <p>In a class this deep, the difference between a league-winning draft and a mediocre one often comes down to a few picks in rounds 2 and 3. That is exactly where ranking source disagreement is highest, and exactly where multi-source analysis pays off the most. Do not just follow one ranking list. Use the data to find your own edges.</p>
     `
   },
   {
