@@ -339,40 +339,44 @@
                                   ).filter((p) => p.player_position === position)"
                                   :key="player.sleeper_id"
                                   class="player-card"
-                                  :style="getPositionTagList(player.player_position, 0.15)"
-                                  :class="{
-                                    'high-value-asset':
-                                      player.player_position !== 'PICKS' &&
-                                      player.player_value >=
-                                        (showProjections
-                                          ? projectionValueThresholds[player.player_position] ||
-                                            Infinity
-                                          : overallValueThresholds[player.player_position] ||
-                                            Infinity),
-                                    'low-value-asset':
-                                      player.player_position !== 'PICKS' &&
-                                      player.player_value > 0 &&
-                                      player.player_value <=
-                                        (showProjections
-                                          ? projectionLowValueThresholds[player.player_position] ||
-                                            -Infinity
-                                          : overallLowValueThresholds[player.player_position] ||
-                                            -Infinity),
-                                    'mid-value-asset':
-                                      player.player_position !== 'PICKS' &&
-                                      player.player_value >
-                                        (showProjections
-                                          ? projectionLowValueThresholds[player.player_position] ||
-                                            -Infinity
-                                          : overallLowValueThresholds[player.player_position] ||
-                                            -Infinity) &&
-                                      player.player_value <
-                                        (showProjections
-                                          ? projectionValueThresholds[player.player_position] ||
-                                            Infinity
-                                          : overallValueThresholds[player.player_position] ||
-                                            Infinity)
-                                  }"
+                                  :class="[
+                                    `pcard-${player.player_position?.toLowerCase()}`,
+                                    {
+                                      'high-value-asset':
+                                        player.player_position !== 'PICKS' &&
+                                        player.player_value >=
+                                          (showProjections
+                                            ? projectionValueThresholds[player.player_position] ||
+                                              Infinity
+                                            : overallValueThresholds[player.player_position] ||
+                                              Infinity),
+                                      'low-value-asset':
+                                        player.player_position !== 'PICKS' &&
+                                        player.player_value > 0 &&
+                                        player.player_value <=
+                                          (showProjections
+                                            ? projectionLowValueThresholds[
+                                                player.player_position
+                                              ] || -Infinity
+                                            : overallLowValueThresholds[player.player_position] ||
+                                              -Infinity),
+                                      'mid-value-asset':
+                                        player.player_position !== 'PICKS' &&
+                                        player.player_value >
+                                          (showProjections
+                                            ? projectionLowValueThresholds[
+                                                player.player_position
+                                              ] || -Infinity
+                                            : overallLowValueThresholds[player.player_position] ||
+                                              -Infinity) &&
+                                        player.player_value <
+                                          (showProjections
+                                            ? projectionValueThresholds[player.player_position] ||
+                                              Infinity
+                                            : overallValueThresholds[player.player_position] ||
+                                              Infinity)
+                                    }
+                                  ]"
                                   @click="
                                     player.player_position !== 'PICKS'
                                       ? showPlayerModal(player)
@@ -625,30 +629,32 @@
                                   )"
                                   :key="player.sleeper_id"
                                   class="player-card"
-                                  :style="getPositionTagList(player.player_position, 0.15)"
-                                  :class="{
-                                    'high-value-asset':
-                                      player.player_value >
-                                      (showProjections
-                                        ? projectionValueThresholds[player.player_position]
-                                        : overallValueThresholds[player.player_position]),
-                                    'low-value-asset':
-                                      player.player_value > 0 &&
-                                      player.player_value <
-                                        (showProjections
-                                          ? projectionLowValueThresholds[player.player_position]
-                                          : overallLowValueThresholds[player.player_position]),
-                                    'mid-value-asset':
-                                      player.player_value > 0 &&
-                                      player.player_value >=
-                                        (showProjections
-                                          ? projectionLowValueThresholds[player.player_position]
-                                          : overallLowValueThresholds[player.player_position]) &&
-                                      player.player_value <=
+                                  :class="[
+                                    `pcard-${player.player_position?.toLowerCase()}`,
+                                    {
+                                      'high-value-asset':
+                                        player.player_value >
                                         (showProjections
                                           ? projectionValueThresholds[player.player_position]
-                                          : overallValueThresholds[player.player_position])
-                                  }"
+                                          : overallValueThresholds[player.player_position]),
+                                      'low-value-asset':
+                                        player.player_value > 0 &&
+                                        player.player_value <
+                                          (showProjections
+                                            ? projectionLowValueThresholds[player.player_position]
+                                            : overallLowValueThresholds[player.player_position]),
+                                      'mid-value-asset':
+                                        player.player_value > 0 &&
+                                        player.player_value >=
+                                          (showProjections
+                                            ? projectionLowValueThresholds[player.player_position]
+                                            : overallLowValueThresholds[player.player_position]) &&
+                                        player.player_value <=
+                                          (showProjections
+                                            ? projectionValueThresholds[player.player_position]
+                                            : overallValueThresholds[player.player_position])
+                                    }
+                                  ]"
                                   @click.stop="
                                     player.player_position !== 'PICKS'
                                       ? showPlayerModal(player)
@@ -4687,28 +4693,27 @@ const getPositionRank = (manager, position) => {
   width: 100%;
 }
 
-/* Modern Heat Map Title Section */
+/* Heat Map Title Section */
 .heatmap-title-section {
   text-align: center;
-  margin-bottom: 32px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.06));
+  margin-bottom: 24px;
+  padding: 20px 0 16px;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .heatmap-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #277da1;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.02em;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.03em;
 }
 
 .heatmap-subtitle {
-  font-size: 16px;
-  color: var(--color-text-secondary, #8c8c8c);
+  font-size: 14px;
+  color: var(--color-text-secondary);
   margin: 0;
   font-weight: 500;
-  letter-spacing: 0.01em;
 }
 
 /* League Header & Info */
@@ -5085,260 +5090,266 @@ const getPositionRank = (manager, position) => {
 
 .expanded-row-content {
   padding: 12px 8px;
-  background-color: var(--color-background-mute);
-  border-radius: 8px;
+  background: var(--color-background-soft);
+  border-radius: 6px;
 }
 
 .position-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eaeaea;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .position-summary-item {
   flex: 1;
-  min-width: 140px;
-  padding: 16px;
-  border-radius: 12px;
-  background: linear-gradient(145deg, var(--color-background), var(--color-background-soft));
-  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(0, 0, 0, 0.04);
+  min-width: 100px;
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-border);
   position: relative;
-  backdrop-filter: blur(10px);
-  max-width: 340px;
+}
+
+.position-summary-item:hover {
+  border-color: var(--color-text-secondary);
 }
 
 .position-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.1));
+  margin-bottom: 3px;
 }
 
 .position-name {
   font-weight: 700;
-  font-size: 16px;
-  color: var(--color-text, #262626);
-  letter-spacing: 0.02em;
+  font-size: 13px;
+  color: var(--color-text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .position-rank {
   margin: 0;
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px 6px;
 }
 
 .position-stats {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px 12px;
-  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  margin-top: 0;
 }
 
 .age-label,
 .value-label {
-  color: var(--color-text-secondary, #8c8c8c);
+  color: var(--color-text-secondary);
   font-weight: 500;
-  font-size: 12px;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
+  margin-right: 3px;
 }
 
 .age-value,
 .value-amount {
-  font-weight: 600;
-  color: var(--color-text, #262626);
-  font-size: 14px;
-  text-align: right;
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .position-qb {
-  border-left: 3px solid rgb(25, 118, 210);
+  border-left-color: #277da1;
 }
 
 .position-rb {
-  border-left: 3px solid rgb(144, 190, 109);
+  border-left-color: #90be6d;
 }
 
 .position-wr {
-  border-left: 3px solid rgb(76, 175, 80);
+  border-left-color: #43aa8b;
 }
 
 .position-te {
-  border-left: 3px solid rgb(249, 132, 74);
+  border-left-color: #f9844a;
 }
 
 .position-picks {
-  border-left: 3px solid rgb(143, 145, 146);
+  border-left-color: #9ca3af;
 }
 
 .players-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 8px;
 }
 
 .position-players-column {
   flex: 1;
-  min-width: 165px;
+  min-width: 160px;
   max-width: 340px;
 }
 
 .players-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.player-card {
-  padding: 12px;
-  border-radius: 12px;
-  background: linear-gradient(145deg, var(--color-background), var(--color-background-soft));
-  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* Heat map player cards — scoped to expanded rows to avoid being overridden */
+.expanded-row-content .player-card {
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-border);
+  transition: border-color 0.1s ease;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  backdrop-filter: blur(10px);
+}
+
+.expanded-row-content .pcard-qb {
+  border-left-color: rgba(39, 125, 161, 0.5);
+  background: rgba(39, 125, 161, 0.03);
+}
+.expanded-row-content .pcard-rb {
+  border-left-color: rgba(144, 190, 109, 0.5);
+  background: rgba(144, 190, 109, 0.03);
+}
+.expanded-row-content .pcard-wr {
+  border-left-color: rgba(67, 170, 139, 0.5);
+  background: rgba(67, 170, 139, 0.03);
+}
+.expanded-row-content .pcard-te {
+  border-left-color: rgba(249, 132, 74, 0.5);
+  background: rgba(249, 132, 74, 0.03);
+}
+.expanded-row-content .pcard-picks {
+  border-left-color: rgba(156, 163, 175, 0.5);
+  background: rgba(156, 163, 175, 0.03);
 }
 
 .no-player-modal .player-card {
   cursor: default;
 }
 
-.player-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--color-primary, #1890ff) 0%,
-    var(--color-success, #52c41a) 50%,
-    var(--color-primary, #1890ff) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.25s ease;
+.expanded-row-content .player-card:hover {
+  border-color: var(--color-text-secondary);
 }
 
-.player-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.12),
-    0 3px 8px rgba(0, 0, 0, 0.08);
-  border-color: var(--color-primary-light, rgba(24, 144, 255, 0.3));
-}
-
-.player-card:hover::after {
-  opacity: 1;
-}
-
-.player-info {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  gap: 8px;
-}
-
-.player-name-team {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 2px;
-}
-
-.player-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--color-text, #262626);
-  line-height: 1.3;
-  letter-spacing: 0.01em;
-  word-break: break-word;
-}
-
-.player-team {
-  font-size: 12px;
-  color: var(--color-text-secondary, #8c8c8c);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.player-meta {
+.expanded-row-content .player-info {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.player-value {
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--color-primary, #277da1);
-}
-
-.player-position {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: var(--color-primary-bg, rgba(24, 144, 255, 0.1));
-  color: var(--color-primary, #1890ff);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.player-age {
+  justify-content: space-between;
   font-size: 10px;
-  opacity: 0.7;
+  gap: 4px;
 }
 
-.player-value {
+.expanded-row-content .player-name-team {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.expanded-row-content .player-name {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--color-text);
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+  margin-bottom: 0;
+  max-width: none;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.expanded-row-content .player-team {
+  font-size: 9px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.expanded-row-content .player-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.expanded-row-content .player-value {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+  border-radius: 0;
+  white-space: nowrap;
 }
 
-.high-value-asset,
-.low-value-asset,
-.mid-value-asset {
-  padding-left: 12px;
+.expanded-row-content .player-position {
+  font-size: 7px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.high-value-asset::before,
-.low-value-asset::before,
-.mid-value-asset::before {
+.expanded-row-content .player-age {
+  font-size: 7px;
+  color: var(--color-text-secondary);
+}
+
+/* Value tier indicators */
+.expanded-row-content .high-value-asset,
+.expanded-row-content .low-value-asset,
+.expanded-row-content .mid-value-asset {
+  padding-left: 10px;
+}
+
+.expanded-row-content .high-value-asset {
+  background: rgba(249, 199, 79, 0.08);
+  border-color: rgba(249, 199, 79, 0.35);
+}
+
+.expanded-row-content .high-value-asset::before,
+.expanded-row-content .low-value-asset::before,
+.expanded-row-content .mid-value-asset::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 5px;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  width: 3px;
 }
 
-.high-value-asset::before {
-  background-color: gold;
+.expanded-row-content .high-value-asset::before {
+  background: #F9C74F;
 }
 
-.low-value-asset::before {
-  background-color: #e74c3c;
+.expanded-row-content .low-value-asset::before {
+  background: #d4d4d8;
 }
 
-.mid-value-asset::before {
-  background-color: #bdbdbd;
+.expanded-row-content .mid-value-asset::before {
+  background: transparent;
 }
 
 /* Mobile Heatmap Specifics */
@@ -5347,34 +5358,31 @@ const getPositionRank = (manager, position) => {
 }
 
 .manager-card-mobile {
-  background: rgba(136, 136, 136, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  margin-bottom: 12px;
-  padding: 16px 18px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--color-background-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  padding: 14px 16px;
+  transition: border-color 0.15s ease;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .manager-card-mobile::before {
   content: '';
   position: absolute;
-  top: 0;
   left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-primary);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.15s ease;
 }
 
 .manager-card-mobile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: var(--color-primary);
 }
 
 .manager-card-mobile:hover::before {
@@ -5383,28 +5391,23 @@ const getPositionRank = (manager, position) => {
 
 .manager-card-mobile:active {
   transform: translateY(0);
-  transition: transform 0.1s ease;
 }
 
 .manager-info-line-mobile {
   display: flex;
   align-items: center;
-  margin-bottom: 14px;
-  position: relative;
+  margin-bottom: 10px;
 }
 
 .manager-info-line-mobile .ant-avatar {
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid var(--color-border);
 }
 
 .manager-name-mobile {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--color-text);
-  margin-left: 12px;
-  color: var(--primary-text-color);
-  font-weight: 899;
+  margin-left: 10px;
 }
 
 .manager-stats-grid-mobile {
@@ -5412,68 +5415,60 @@ const getPositionRank = (manager, position) => {
 }
 
 .manager-card-mobile-details-reused {
-  margin-top: 16px;
-  padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(248, 250, 252, 0.5);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
+  margin-top: 12px;
+  padding: 12px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-background);
+  border-radius: 6px;
 }
 
-/* Modern stats grid styling */
+/* Stats grid styling */
 .manager-stats-grid-mobile .ant-tag {
-  border: none;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  padding: 6px 12px;
+  padding: 4px 10px;
   font-weight: 600;
-  font-size: 13px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
+  font-size: 12px;
 }
 
-.manager-stats-grid-mobile .ant-tag:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-/* Primary value tag - larger and more prominent */
+/* Primary value tag */
 .manager-stats-grid-mobile .ant-col:first-child .ant-tag {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: white;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 8px 16px;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  padding: 5px 12px;
 }
 
 .position-summary-item.active-position-summary {
-  background-color: rgba(24, 144, 255, 0.08);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-background));
 }
 
 .nested-players-container {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed #e0e0e0;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
 }
 
 .nested-players-container .players-list {
-  gap: 6px;
+  gap: 3px;
 }
 
 .nested-players-container .player-card {
-  background-color: var(--background-color-secondary, #f9f9f9);
+  background: var(--color-background-soft);
 }
 
 .no-players-notice {
   padding: 10px 8px;
   text-align: center;
-  color: #888;
+  color: var(--color-text-secondary);
   font-style: italic;
-  font-size: 0.9em;
-  background-color: var(--background-color-tertiary, #f5f5f5);
+  font-size: 12px;
+  background: var(--color-background-mute);
   border-radius: 4px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 @media (max-width: 768px) {
@@ -5485,58 +5480,42 @@ const getPositionRank = (manager, position) => {
     display: block;
   }
 
-  /* Tablet Player Cards - Modern Styling */
   .player-card {
-    padding: 10px 12px;
-    border-radius: 11px;
-    box-shadow:
-      0 3px 15px rgba(0, 0, 0, 0.07),
-      0 1px 4px rgba(0, 0, 0, 0.05);
-    background: linear-gradient(145deg, var(--color-background), var(--color-background-soft));
-    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.06));
-  }
-
-  .player-card:hover {
-    transform: translateY(-3px) scale(1.015);
-    box-shadow:
-      0 7px 22px rgba(0, 0, 0, 0.11),
-      0 2px 7px rgba(0, 0, 0, 0.07);
+    padding: 8px 10px;
+    border-radius: 5px;
   }
 
   .player-info {
-    font-size: 12.5px;
-    gap: 10px;
+    font-size: 12px;
+    gap: 4px;
   }
 
   .player-name {
-    font-size: 13.5px;
-    font-weight: 600;
+    font-size: 13px;
   }
 
   .player-team {
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 10px;
   }
 
   .heatmap-title {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .heatmap-subtitle {
-    font-size: 15px;
+    font-size: 13px;
   }
-}
 
-/* Generic responsive styles */
-@media (max-width: 768px) {
   .position-summary {
     flex-direction: column;
-    gap: 8px;
-    color: var(--color-background-mute);
+    gap: 6px;
   }
 
   .position-summary-item {
     width: 100%;
+    max-width: none;
+    min-width: unset;
+    padding: 10px 12px;
   }
 
   .players-grid {
@@ -5545,9 +5524,10 @@ const getPositionRank = (manager, position) => {
 
   .position-players-column {
     width: 100%;
-    margin-bottom: 16px;
+    max-width: none;
+    margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .position-players-column:last-child {
@@ -5561,118 +5541,55 @@ const getPositionRank = (manager, position) => {
     padding: 8px 4px;
   }
 
-  /* Mobile Player Cards - Ultra Modern */
   .player-card {
-    padding: 8px 10px;
-    border-radius: 10px;
-    margin-bottom: 6px;
-    box-shadow:
-      0 2px 12px rgba(0, 0, 0, 0.06),
-      0 1px 4px rgba(0, 0, 0, 0.04);
-    background: linear-gradient(145deg, var(--color-background), var(--color-background-soft));
-    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.05));
-  }
-
-  .player-card:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow:
-      0 6px 20px rgba(0, 0, 0, 0.1),
-      0 2px 6px rgba(0, 0, 0, 0.06);
-  }
-
-  .player-info {
-    font-size: 12px;
-    gap: 8px;
+    padding: 7px 8px;
   }
 
   .player-name {
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .player-team {
-    font-size: 10px;
-    font-weight: 500;
-  }
-
-  .player-meta {
-    min-width: 40px;
-    gap: 1px;
+    font-size: 12px;
   }
 
   .player-value {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
   }
 
-  .player-position {
+  .player-team {
     font-size: 9px;
-    padding: 1px 4px;
-    border-radius: 4px;
   }
 
-  /* Heat Map Mobile Title */
   .heatmap-title {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .heatmap-subtitle {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .heatmap-title-section {
-    padding: 16px 0;
-    margin-bottom: 20px;
+    padding: 12px 0;
+    margin-bottom: 16px;
   }
-}
 
-/* Position Summary Items - Responsive Enhancements */
-@media (max-width: 768px) {
   .position-summary-item {
-    padding: 14px;
-    min-width: unset;
-    box-shadow:
-      0 3px 10px rgba(0, 0, 0, 0.08),
-      0 1px 4px rgba(0, 0, 0, 0.06);
+    padding: 8px 10px;
   }
 
   .position-name {
-    font-size: 15px;
-  }
-
-  .position-stats {
-    gap: 6px 10px;
-  }
-
-  .age-value,
-  .value-amount {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .position-summary-item {
-    padding: 12px;
-    border-radius: 10px;
+    font-size: 12px;
   }
 
   .position-header {
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-  }
-
-  .position-name {
-    font-size: 14px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
   }
 
   .position-stats {
-    gap: 5px 8px;
-    font-size: 12px;
+    gap: 3px 8px;
   }
 
   .age-label,
   .value-label {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .age-value,
@@ -5682,7 +5599,6 @@ const getPositionRank = (manager, position) => {
 }
 
 .players-grid::before {
-  content: 'Players';
   display: block;
   font-weight: 600;
   margin: 8px 4px;
